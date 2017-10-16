@@ -1,0 +1,2444 @@
+
+{% layout none %}
+
+{% assign Role_Admin = 'general.Role.Admin' | t %}
+{% assign Role_ASM = 'general.Role.ASM' | t %}
+
+{% assign Admin_logged_in = false %}
+{% capture CFH %}{{ content_for_header  }}{% endcapture %}
+
+{% if CFH contains 'admin_bar_iframe' or CFH contains 'shopify-previewed-theme' %}
+  {% assign Admin_logged_in = true %}
+{% endif %}
+
+{% if customer.tags contains Role_Admin or customer.tags contains Role_ASM or Admin_logged_in == true or true %}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<title>{{ page.title }}</title>
+		<!-- <link rel="stylesheet" type="text/css" href="css/bootstrap.css"> -->
+		{{ "//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" | stylesheet_tag }}
+      	{{ "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css" | stylesheet_tag }}
+		{{ "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" | stylesheet_tag }}
+		{{ "https://www.w3schools.com/w3css/4/w3.css" | stylesheet_tag }}
+		{{ "https://daneden.github.io/animate.css/animate.min.css" | stylesheet_tag }}
+		{{ "https://docs.handsontable.com/pro/1.7.0/bower_components/handsontable-pro/dist/handsontable.full.min.css" | stylesheet_tag }}
+<!--       	{{ "//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" | stylesheet_tag }} -->
+<!-- 		{{ 'custom-style.css' | asset_url | stylesheet_tag }} -->
+        {{ 'custom-style2.css' | asset_url | stylesheet_tag }}
+      	{{ 'https://fonts.googleapis.com/css?family=Montserrat:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900italic,900' | stylesheet_tag }}
+		<style type="text/css">
+			.affix{
+				top:0px;
+				width:100%;
+				z-index: 1040;
+			}
+          
+            *:not(i){ font-family: 'Montserrat'; }
+          
+            td.customSearchClass:nth-of-type(3){
+            	background-color:light-red;
+            }
+          
+          	.handsontable th, .handsontable td { max-height: 30px !important; height:30px !important; min-height: 30px !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+			.ht_clone_top, .ht_clone_top_left_corner{
+				top:20px !important;
+				display: none;
+				/*position: fixed !important;*/
+			}
+          
+            .htCenter, td{ vertical-align:middle !important; }
+            button:disabled{ pointer-events: all !important; }
+            button{ text-transform:uppercase; }
+            .blockUI.blockOverlay{ z-index:99999 !important; }
+		</style>
+      	{% include 'modal-css' %}
+        {% include 'js-error-handler' %}
+      	{% include 'nxtBtn-functions' %}
+        {{ content_for_header  }}
+	</head>
+	<body class="">
+
+		<div id="tagModal" class="modal modal-wide" tabindex="-1" role="dialog" aria-labelledby="tagModal" aria-hidden="true" style="">
+		  <div class="modal-dialog">
+
+		    <!-- Modal content-->
+		    <div class="modal-content w3-white w3-card-2" style="border-radius:2px;">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal">&times;</button>
+		        <h4 class="modal-title">Select Tags</h4>
+		      </div>
+		      <div class="modal-body">
+                <div class="container-fluid">
+                	<label class="radio-inline"><input type="radio" name="optradio" value="vendorTagList">Brand</label>
+                    <label class="radio-inline"><input type="radio" name="optradio" value="marketSpecificTagList" checked>Market Specific</label>
+                    <label class="radio-inline"><input type="radio" name="optradio" value="accountSpecificTagList">Account Specific</label> 
+                    <label class="radio-inline"><input type="radio" name="optradio" value="programTagList">Program</label>
+                    <label class="radio-inline"><input type="radio" name="optradio" value="specialityTagList">Specialty</label>
+                    <label class="radio-inline"><input type="radio" name="optradio" value="departmentTagList">Department</label>    
+                </div>
+                <hr><br>
+                
+                <div class="container-fluid">
+                	<div class="row">
+                      <div class="col-xs-5">
+                        <select name="from[]" id="multiselectTag" class="form-control" size="12" multiple="multiple">
+                          
+                        </select>
+                      </div>
+                      <div class="col-xs-2">
+                        <h1>&nbsp;</h1>
+                        <button type="button" id="multiselectTag_undo" class="btn btn-primary btn-block" title="Undo last move">undo</button>
+                        <button type="button" id="multiselectTag_rightAll" class="btn btn-default btn-block" title="Move all">&nbsp;<i class="glyphicon glyphicon-forward"></i>&nbsp;</button>
+                        <button type="button" id="multiselectTag_rightSelected" class="btn btn-default btn-block" title="Move selected">&nbsp;<i class="glyphicon glyphicon-chevron-right"></i>&nbsp;</button>
+                        <button type="button" id="multiselectTag_leftSelected" class="btn btn-default btn-block" title="Remove selected">&nbsp;<i class="glyphicon glyphicon-chevron-left"></i>&nbsp;</button>
+                        <button type="button" id="multiselectTag_leftAll" class="btn btn-default btn-block" title="Remove all">&nbsp;<i class="glyphicon glyphicon-backward"></i>&nbsp;</button>
+                        <button type="button" id="multiselectTag_redo" class="btn btn-primary btn-block" title="Redo last move">redo</button>
+                      </div>
+                      <div class="col-xs-5">
+                        <select name="to[]" id="multiselectTag_to" class="form-control" size="12" multiple="multiple">
+                        </select>
+                      </div>
+                    </div>
+                </div>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" id="tagSave" disabled class="btn btn-primary" data-dismiss1="modal">Save</button>
+		      </div>
+		    </div>
+
+		  </div>
+		</div>
+
+		<div id="optionModal" class="modal modal-wide" tabindex="-1" role="dialog" aria-labelledby="optionModal" aria-hidden="true" style="">
+		  <div class="modal-dialog">
+
+		    <!-- Modal content-->
+		    <div class="modal-content w3-white w3-card-2" style="border-radius:2px;">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal">&times;</button>
+		        <h4 class="modal-title">Select Elements</h4>
+		      </div>
+		      <div class="modal-body">
+                <div class="container-fluid">
+                	<div class="row">
+                      <div class="col-xs-5">
+                        <select name="from[]" id="multiselectOption" class="form-control" size="12" multiple="multiple">
+                          
+                        </select>
+                      </div>
+                      <div class="col-xs-2">
+                        <h1>&nbsp;</h1>
+                        <button type="button" id="multiselectOption_undo" class="btn btn-primary btn-block" title="Undo last move">undo</button>
+                        <button type="button" id="multiselectOption_rightAll" class="btn btn-default btn-block" title="Move all">&nbsp;<i class="glyphicon glyphicon-forward"></i>&nbsp;</button>
+                        <button type="button" id="multiselectOption_rightSelected" class="btn btn-default btn-block" title="Move selected">&nbsp;<i class="glyphicon glyphicon-chevron-right"></i>&nbsp;</button>
+                        <button type="button" id="multiselectOption_leftSelected" class="btn btn-default btn-block" title="Remove selected">&nbsp;<i class="glyphicon glyphicon-chevron-left"></i>&nbsp;</button>
+                        <button type="button" id="multiselectOption_leftAll" class="btn btn-default btn-block" title="Remove all">&nbsp;<i class="glyphicon glyphicon-backward"></i>&nbsp;</button>
+                        <button type="button" id="multiselectOption_redo" class="btn btn-primary btn-block" title="Redo last move">redo</button>
+                      </div>
+                      <div class="col-xs-5">
+                        <select name="to[]" id="multiselectOption_to" class="form-control" size="12" multiple="multiple">
+                        </select>
+                      </div>
+                    </div>
+                </div>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" id="optionSave" disabled class="btn btn-primary" data-dismiss1="modal">Save</button>
+		      </div>
+		    </div>
+
+		  </div>
+		</div>
+      
+      	<div id="optionPriceModal" class="modal" tabindex="-1" role="dialog" aria-labelledby="tagModal" aria-hidden="true" style="">
+		  <div class="modal-dialog">
+
+		    <!-- Modal content-->
+		    <div class="modal-content w3-white w3-card-2" style="border-radius:2px;">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal">&times;</button>
+		        <h4 class="modal-title">Set Element Price</h4>
+		      </div>
+		      <div class="modal-body">
+		        <div class="table-responsive">          
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Option</th>
+                        <th>Price</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      
+                    </tbody>
+                  </table>
+                </div>
+		      </div>
+		      <div class="modal-footer">
+		        <button id="priceSave" type="button" class="btn btn-primary" data-dismiss="modal">Save</button>
+		      </div>
+		    </div>
+
+		  </div>
+		</div>
+
+		<div id="imageModal" class="modal modal-wide" tabindex="-1" role="dialog" aria-labelledby="imageModal" aria-hidden="true" style="">
+		  <div class="modal-dialog">
+
+		    <!-- Modal content-->
+		    <div class="modal-content w3-white w3-card-2" style="border-radius:2px;">
+		      <div class="modal-header">
+		        <button type="button" class="close imgSave" data-dismiss="modal">&times;</button>
+		        <h4 class="modal-title">Add Images</h4>
+		      </div>
+		      <div class="modal-body">
+		      	<div class="container-fluid">
+		      		<div class="row">
+		      			<div class="col-sm-5">
+                            <label>Upload Image</label> <small>( ".jpg" | ".png" | ".gif" | ".svg", size &lt; 1 MB )</small>
+				      		<input id="imgFileBrowse" type="file" class="" onchange="if(this.value.length > 0) encodeImageFileAsURL(this);" style="width:0px; height:0px; overflow:hidden;" accept="image/*" />
+		      				<div class="input-group">
+			      				<input id="imgFileTxt" type="text" readonly class="form-control" style="cursor:default;" onclick="document.getElementById('imgFileBrowse').click();" />
+			      				<span class="input-group-btn">
+				      				<button class="btn btn-primary" onclick="document.getElementById('imgFileBrowse').click();" >Add Image</button>
+			      				</span>
+			      			</div>
+		      			</div>
+		      			<div class="col-sm-2 text-center">
+		      				<br><span>-OR-</span>
+		      			</div>
+		      			<div class="col-sm-5">
+		      				<label>Upload via URL</label>
+		      				<div class="input-group">
+			      				<input id="imgFileUrl" type="url" autocomplete="off" class="form-control" oninput="btn = document.getElementById('imgUrlBtn'); btn.disabled = (this.value.length == 0) ? true : false; checkURL(this.value)" />
+			      				<span class="input-group-btn">
+				      				<button id="imgUrlBtn" disabled class="btn btn-primary" onclick="obj = document.getElementById('imgFileUrl'); url = obj.value; urlFileLoad2(url);" >Add URL</button>
+			      				</span>
+			      			</div>
+		      			</div>
+		      		</div>
+		      	</div>
+		      	<hr>
+		        <div class="container-fluid">
+		        	<div class="row imgWrap">
+		        		
+		        	</div>
+		        </div>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-primary imgSave" data-dismiss="modal">Close & Save</button>
+		      </div>
+		    </div>
+
+		  </div>
+		</div>
+
+		<!-- <div class="jumbotron" style="padding:20px 0 10px 0; margin-bottom:0px; background-color: #0e5aa8;">
+			<div class="container">
+				<a href="#"><img src="https://cdn.shopify.com/s/files/1/1431/0294/t/3/assets/logo.png?16214878102389155724" style="max-width:115px; width:100%;"></a>
+			</div>	
+		</div> -->
+		<div id="nav-wrapper" data-spy="affix1" data-offset-top="0">
+		<div class="container-fluid w3-black w3-card-4" style="height:42px;">
+          <a href="/" class="w3-text-white w3-xlarge" id="fix" style="display:inline;">{{ page.title }}</a>{% comment %}<img onclick="window.open(window.location.href);" src="https://cdn.shopify.com/s/files/1/1953/3447/files/Footer_logo.png?10858290572512973125" class="pull-right img-responsive" style="height:42px; width:auto;"/>{% endcomment %}{% if customer.tags contains Role_Admin %}<a class="pull-right w3-margin-right w3-margin-left" style="display:inline; margin-top:8px;" title="Edit Definition" href="/admin/themes/{{ theme.id }}/editor#/{{ template | replace:'.','s/' }}"><i class="fa fa-gear w3-xlarge w3-text-white"></i></a>{% endif %}{% comment %}<a class="pull-right w3-margin-left" style="display:inline; margin-top:8px; cursor:pointer;" onclick="uploadToServer();" title="Save session to server"><i class="fa fa-cloud-upload w3-xlarge w3-text-white"></i></a><a class="pull-right w3-margin-left" style="display:inline; margin-top:8px; cursor:pointer;" onclick="downloadFromServer();" title="Restore session from server"><i class="fa fa-cloud-download w3-xlarge w3-text-white"></i></a>&nbsp;<a class="w3-text-white w3-large pull-right w3-magin-right" style="margin-top:8px;" href="/account">My Account</a>{% endcomment %}
+		</div>
+		
+      </div>
+        <div id="w3-nanobar" class="w3-block"></div>
+		<div class="container-fluid" style="">
+			<br>
+<!-- 			<hr> -->
+             <div class="state-loaded alert alert-info fade in" style="display:none;"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>State of the table has been restored. <button class="mini btn-sm btn btn-danger reset-state">Reset table state</button></div>
+			
+			 <div id="datasheet" class="hot handsontable htRowHeaders htColumnHeaders w3-card-2" style=""></div> 
+			 
+            <div id="error-log" class="w3-text-red w3-block w3-card-2 w3-padding w3-margin-top" style="display:none;"></div>
+          
+			<h4>&nbsp;</h4>
+			<div class="row">
+		  		<div class="col-md-12 text-center w3-padding">
+		  			<button id="export-string" disabled1 type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin hide" style="min-width:200px;" onclick="prepareHot2(true);">GENERATE SHEET</button>
+                  	<button id="clear-form" type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin" style="min-width:200px;" onclick="if(confirm('Caution: this action will clear the form data.') == true) clearHot();">Clear Form</button>
+<!--                   	<button id="export-dump" disabled name="dump" data-dump="datasheet" data-instance="hot" type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin" style="min-width:200px;">DATA DUMP</button> -->
+                  	<button id="export-staging" disabled1 type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin" style="min-width:200px;" onclick="if(confirm('Please click “OK” to upload your data.') == true) uploadTo('dev');">UPLOAD TO BETA</button>
+                  	<button id="export-production" disabled1 type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin" style="min-width:200px;" onclick="if(confirm('Please click “OK” to upload your data.') == true) uploadTo('dev');">UPLOAD TO PRODUCTION</button>
+<!--                     <a class="hide1" href="javascript:startPageImport();" >import</a> -->
+		  		</div>
+            </div>
+          	<div class="hide1 w3-hide1" style="visibility: hidden; max-height:1px; overflow:hidden;">
+              <h4>&nbsp;</h4>
+                <div id="datasheet2" class="hot handsontable htRowHeaders htColumnHeaders w3-card-2" style=""></div>
+                <a href="javascript:exportHot2As(false, true);" class="pull-right w3-black"><i class="fa fa-download"></i></a>
+              <h4>&nbsp;</h4>
+            </div>
+		</div>
+		<div class="jumbotron" style="padding:20px 50px 10px 50px; margin-bottom:0px; background-color: black;">
+			<div class="container" style="height:50px;">
+				<!-- <img src="https://cdn.shopify.com/s/files/1/1431/0294/t/3/assets/logo.png?16214878102389155724" style="max-width:115px; width:100%;"> -->
+			</div>	
+		</div>
+		<div class="container-fluid theme-color" style="border-top: 1px solid gray; background-color: black;">
+			<div class="container" style="border-top: 1px solid lightgrey; padding:10px 50px;color: rgba(255, 255, 255, 0.6);">
+				<small>
+					&copy; 2017
+					<a href="/" style="color:white;" title="">PepsiPrintStudios</a>
+				</small>
+			</div>
+		</div>
+		{{ "https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js" | script_tag }}
+		{{ "//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" | script_tag }}
+        {{ "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js" | script_tag }}
+		{{ "https://docs.handsontable.com/pro/1.7.0/bower_components/handsontable-pro/dist/handsontable.full.min.js" | script_tag }}
+		{{ 'papaparse.min.js' | asset_url | script_tag }}
+      	{{ "multiselect.min.js" | asset_url | script_tag }}
+<!--       	{{ 'w3data.js' | asset_url | script_tag }} -->
+        {{ 'https://www.w3schools.com/lib/w3.js' | script_tag }}
+      	{{ 'nanobar.min.js' | asset_url | script_tag }}	
+      	{{ 'async.min.js' | asset_url | script_tag }}
+      
+      	{% comment %}{% include 'definition-v1' %}{% endcomment %}
+        {% section 'definitions-new2'  %}
+      
+      	{% include 'notify-UI' %}
+      
+		<script type="text/javascript">
+
+          	var activeRow, activeCol, getThumbOf, hot, getJSONdata2, hotHeaders, hot2, loadFromServer, plugin, plugin2, genCheck, uploadEnv, searchRow, prepareHot2, exportHot2As, btnChange, downloadFromServer, uploadToServer, startPageImport, img_ajax_upload, scrollOld ,clearHot, nanobar, currState, currRow, temp;
+            
+            $.fn.extend({
+                animateCss: function (animationName, callback) {
+                  	var $this = this;
+                    var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
+                    $this.addClass('animated ' + animationName).one(animationEnd, function() {
+                        $($this).removeClass('animated ' + animationName);
+                      	if(callback)
+                          callback($this);
+                      	return $($this);
+                    });
+                }
+            });
+          
+			$(document).ready(function(){
+// 				$("#nav-wrapper").on('affix.bs.affix', function(){
+// 					$('.ht_clone_top, .ht_clone_top_left_corner').css('display','block');
+// 				});
+
+// 				$("#nav-wrapper").on('affix-top.bs.affix', function(){
+// 					$('.ht_clone_top, .ht_clone_top_left_corner').css('display','none');
+// 				});		
+			});
+
+			document.addEventListener("DOMContentLoaded", function() {
+              
+              	var options = {
+                    classname: 'class-nanobar',
+                    id: 'id-nanobar',
+                    target: $('#nav-wrapper')[0]
+                };
+
+                nanobar = new Nanobar( options );
+
+				var $table = $("#datasheet");
+
+                var height = $table.parent().innerHeight();
+                var width = $table.parent().innerWidth();
+
+                var resizeTimeout;
+
+                $(window).resize(function () {
+                    height = $table.parent().innerHeight();
+                    width = $table.parent().innerWidth();
+
+                    clearTimeout(resizeTimeout);
+
+                    resizeTimeout = window.setTimeout(function () {
+                        $table.handsontable('updateSettings');
+//                         console.log('Handsontable resized to height=' + height + ', width=' + width);
+                    }, 200);
+
+                });
+              
+                function checkURL(){
+                
+                }
+
+				// var myData = getJSONdata();
+
+				function getJSONdata() {
+				// 	var fetchedData = [];
+				// 	$.getJSON('json/shippingBlank.json', function(data) {
+				// 	    fetchedData = JSON.parse(data);
+				// 	});
+
+				// 	return fetchedData;
+
+					// $.ajax({
+					//     url: "json/myData.js",
+					//     async: false,
+					//     success: function (csvd) {
+					//         // data = $.csv.toArrays(csvd);
+					//         return csvd;
+					//     },
+					//     dataType: "script",
+					//     complete: function () {
+					//         // call a function on complete 
+					//         // alert('data loaded');
+
+					//     }
+					// });
+					
+					// else
+					return  [
+                      {% comment %}
+								{ remove_this_row: '', add_row_below: '', handle: 'diet-pepsi-2l-atlanta-falcons', title: 'Diet Pepsi 2L Atlanta Falcons', body: 'Description if needed goes here', vendor: "Diet Pepsi", type: 'POS', tags: "DietPepsi,PR:FootballNFL,MKTATLMegaCity,,New:NorthEast,New:SouthEast,New:California,New:S0uth,New:Mountain,New:MidAtlantic,New:MidWest,New:GreatLakes", add_tags: '', published: 'TRUE', option1_name: 'Element', option1_value: 'Banner,Case Card,Horizontal Static', option2_name: 'Region', option2_value: 'Default', add_options: '', variant_sku: '', variant_price: '24.00,0.18,0.30', add_price: '', image_src: 'https://cdn.shopify.com/s/files/1/2102/7917/t/3/assets/0001200000132_500x500.jpg?18304356283819325212', add_images: '', default_price: '{"Banner":"24.00","Case Card":"1.50","Horizontal Static":"0.37","Other":"0.00","Mini Pole":"1.50","Poster":"1.30","Pump Topper":"6.00","Rail Strip Pages":"0.12","Shelf Talker":"0.75","Static Cling":"0.37","Table Tent":"0.75","Window Mesh":"0.00","Wobbler":"0.08"}' },
+                      
+// 								{ remove_this_row: '', add_row_below: '', handle: '', title: '', body: '', vendor: '', type: '', tags: '', add_tags: '', published: '', option1_name: '', option1_value: '', option2_name: '', option2_value: '', add_options: '', variant_sku: '', variant_price: '', add_price: '', image_src: '', add_images: '' },
+//                       			{ remove_this_row: '', add_row_below: '', handle: '', title: '', body: '', vendor: '', type: '', tags: '', add_tags: '', published: '', option1_name: '', option1_value: '', option2_name: '', option2_value: '', add_options: '', variant_sku: '', variant_price: '', add_price: '', image_src: '', add_images: '' },
+//                       			{ remove_this_row: '', add_row_below: '', handle: '', title: '', body: '', vendor: '', type: '', tags: '', add_tags: '', published: '', option1_name: '', option1_value: '', option2_name: '', option2_value: '', add_options: '', variant_sku: '', variant_price: '', add_price: '', image_src: '', add_images: '' },
+//                       			{ remove_this_row: '', add_row_below: '', handle: '', title: '', body: '', vendor: '', type: '', tags: '', add_tags: '', published: '', option1_name: '', option1_value: '', option2_name: '', option2_value: '', add_options: '', variant_sku: '', variant_price: '', add_price: '', image_src: '', add_images: '' },
+//                       			{ remove_this_row: '', add_row_below: '', handle: '', title: '', body: '', vendor: '', type: '', tags: '', add_tags: '', published: '', option1_name: '', option1_value: '', option2_name: '', option2_value: '', add_options: '', variant_sku: '', variant_price: '', add_price: '', image_src: '', add_images: '' },
+//                       			{ remove_this_row: '', add_row_below: '', handle: '', title: '', body: '', vendor: '', type: '', tags: '', add_tags: '', published: '', option1_name: '', option1_value: '', option2_name: '', option2_value: '', add_options: '', variant_sku: '', variant_price: '', add_price: '', image_src: '', add_images: '' },
+//                       			{ remove_this_row: '', add_row_below: '', handle: '', title: '', body: '', vendor: '', type: '', tags: '', add_tags: '', published: '', option1_name: '', option1_value: '', option2_name: '', option2_value: '', add_options: '', variant_sku: '', variant_price: '', add_price: '', image_src: '', add_images: '' },
+//                       			{ remove_this_row: '', add_row_below: '', handle: '', title: '', body: '', vendor: '', type: '', tags: '', add_tags: '', published: '', option1_name: '', option1_value: '', option2_name: '', option2_value: '', add_options: '', variant_sku: '', variant_price: '', add_price: '', image_src: '', add_images: '' },
+//                       			{ remove_this_row: '', add_row_below: '', handle: '', title: '', body: '', vendor: '', type: '', tags: '', add_tags: '', published: '', option1_name: '', option1_value: '', option2_name: '', option2_value: '', add_options: '', variant_sku: '', variant_price: '', add_price: '', image_src: '', add_images: '' },
+                      {% endcomment %}
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+							];
+
+				}
+                      
+                getJSONdata2 = function () {
+                     return  [
+//                       			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, option3_name: null, option3_value: null, add_options: null, variant_sku: null, variant_price: null, variant_grams: '', add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+                      			{ remove_this_row: null, add_row_below: null, handle: null, title: null, body: null, vendor: null, type: null, tags: null, add_tags: null, published: null, option1_name: null, option1_value: null, option2_name: null, option2_value: null, add_options: null, variant_sku: null, variant_price: null, add_price: null, image_src: null, add_images: null, default_price: null },
+							]; 
+                }
+              
+              	function getJSONdata3() {
+                     return  [
+                      			{ remove_this_row: '', add_row_below: '', handle: 'pepsi-diet-energy-drink', title: 'Pepsi Diet & Energy Drink', body: '<b>Pepsi & Energy Drink</b>', vendor: "Caleb's Kola", type: 'POS', tags: "AnyBrand,Aquafina,BigRed,Brisk,Bundaberg,Caleb'sKola,Crush,New:NorthEast,New:SouthEast,New:California,New:S0uth,New:Mountain,New:MidAtlantic,New:MidWest,New:GreatLakes", add_tags: '', published: 'FALSE', option1_name: 'Element', option1_value: 'Banner,Case Card,Horizontal Static,Other,Mini Pole,Poster,Pump Topper,Rail Strip Pages', option2_name: 'Region', option2_value: 'Default', option3_name: null, option3_value: null, add_options: '', variant_sku: '', variant_grams: '', variant_price: '6.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00', add_price: '', image_src: 'https://cdn.shopify.com/s/files/1/1953/3447/files/image2.png?17409574589731538444', add_images: '', default_price: '{"Banner":"24.00","Case Card":"0.18","Horizontal Static":"0.30","Other":"0.00","Mini Pole":"1.25","Poster":"3.00","Pump Topper":"0.00","Rail Strip Pages":"0.30","Shelf Talker":"0.10","Static Cling":"0.29","Table Tent":"0.00","Window Mesh":"0.00","Wobbler":"0.70"}' },
+                      			
+							]; 
+                }
+
+				hotHeaders = [ 'remove_this_row','add_row_below','handle','title','body','vendor','type','add_tags','tags','published','add_options','option1_name','option1_value','option2_name','option2_value','variant_sku','add_price','variant_price','add_images','image_src','default_price' ];
+                  
+			    var datasheet = document.getElementById('datasheet');
+
+				var settings = {
+														data: getJSONdata(),
+													    startRows: 20,
+													    startCols: 21,
+                                                        colHeaders: ['', '', 'Handle', 'Product Title: Brand-Pkg Size-Program/Initiative', 'Product Description', 'Brand', 'Type', 'SELECT TAGS', 'Tags', 'Published', 'SELECT ELEMENTS', 'Option1 Name', 'Elements', 'Option2 Name', 'Option2 Value', 'Variant SKU', 'EDIT PRICE', 'Element Price', 'ADD IMAGES', 'Image Src', ''],
+													    rowHeaders: true,
+													    preventOverflow: 'horizontal',
+													    observeChanges: true,
+													    className: "htRight",
+													    // contextMenu: true,
+													    fixedColumnsLeft: 4,
+													    colWidths: ['25' ,'10', '250', '400', '250', '150', '150', '150', '250', '100', '150', '0', '250', '0', '0', '0', '150', '250', '150', '250', '100'],
+													    //validator: /(\$[\d]+[\.]?[\d]{1,3})/,
+													    //placeholder: '$0.00',
+													    // columns: [{col: 0, className: "htCenter"},],
+													    columns: [
+																	    {
+																	   		data: 'remove_this_row',
+																	   		className: 'htCenter',
+																	   		readOnly: true,
+																	   		renderer: removeThisRow
+																	    },
+																	    {
+																	   		data: 'add_row_below',
+																	   		className: 'htCenter',
+																	   		readOnly: true,
+																	   		renderer: addRowBelow
+																	    },
+																	    {
+																			data: "handle",
+// 																			readOnly: true
+																		},
+																		{
+																			data: "title",
+                                                                          	className: 'htLeft',
+//                                                                             renderer: genHandle,
+                                                                            type: 'text',
+                                                                          	validator: checkProdName, 
+                                                                            allowInvalid: false,
+                                                                            copyPaste: false,
+                                                                            skipColumnOnPaste: true,
+                                                                            invalidCellClassName: 'w3-red',
+																		},
+																		{
+																			data: "body",
+                                                                          	className: 'htLeft',
+                                                                            renderer: 'html'
+																		},
+                                                          				{
+																			data: "vendor",
+                                                                          	className: 'htLeft',
+// 																	   		readOnly: true,
+                                                                            type: "dropdown",
+                                                                            source: vendorList
+// 																	   		renderer: addVendor
+																		},
+                                                          				{
+																			data: "type",
+                                                                          	className: 'htLeft',
+// 																	   		readOnly: true,
+                                                                            type: "dropdown",
+                                                                            source: typeList
+// 																	   		renderer: addType
+																		},
+																		{
+																			data: "add_tags",
+																			className: 'htCenter',
+																	   		readOnly: true,
+																	   		renderer: addTags
+																		},
+                                                          				{
+																			data: "tags",
+// 																			readOnly: true
+																		},
+																		{
+																			data: "published",
+                                                                            type: "dropdown",
+                                                                            source: ["FALSE", "TRUE"],
+                                                                          	className: 'htLeft',
+//                                                                           	readOnly: true,
+//                                                                             renderer: setDefault
+																		},
+                                                          				{
+																			data: "add_options",
+																			className: 'htCenter',
+																	   		readOnly: true,
+																	   		renderer: addOptions
+
+																		},
+																		{
+																			data: "option1_name",
+// 																			readOnly: true,
+//                                                                             renderer: setDefault
+																		},
+																		{
+																			data: "option1_value",
+// 																			readOnly: true
+																		},
+																		{
+																			data: "option2_name",
+// 																			readOnly: true,
+//                                                                             renderer: setDefault
+																		},
+																		{
+																			data: "option2_value",
+// 																			readOnly: true,
+//                                                                             renderer: setDefault
+																		},
+																		{
+																			data: "variant_sku",
+																			readOnly: true
+																		},
+                                                          				{
+																			data: "add_price",
+																			className: 'htCenter',
+																	   		readOnly: true,
+																	   		renderer: addPrice
+
+																		},
+																		{
+																			data: "variant_price"
+																		},
+																		{
+																			data: "add_images",
+																			className: 'htCenter',
+																	   		readOnly: true,
+																	   		renderer: addImages
+
+																		},
+                                                          				{
+																			data: "image_src",
+// 																			readOnly: true
+																		},
+                                                                        {
+																			data: "default_price",
+																	   		readOnly: true,
+// 																	   		renderer: addPrice
+
+																		}
+																		
+																	],
+															hiddenColumns: {
+														      columns: [2, 9, 11, 13, 14, 15, 20],
+														      indicators: true
+														    },
+//                                                             beforeChange: function(change, source){
+//                                                               try{
+//                                                                 if(change[0][1] == "title"){
+//                                                                   return checkProdName(change[0][3]);
+//                                                                 }
+                                                                
+//                                                               }catch(e){return false;}
+//                                                             },
+                                                            beforeValidate: function(value, row, prop){
+                                                              try{
+                                                                if(prop == "title" || prop == 3 && value.length > 0){
+                                                                  searchRow = row;
+                                                                }
+                                                              }catch(err){err.message;}
+                                                            },
+                                                            afterValidate: function(isValid, value, row, prop, source){
+                                                              try{
+                                                                if(prop == "title" || prop == 3 && value.length > 0 && isValid){
+                                                                  $('button.intext-btn, td a, td.btn').removeAttr('disabled');
+                                                                  btnChange();
+                                                                  var handle = value.replace(/[^A-Z0-9]+/ig, "-").replace(/^-+|-+$/g,'').toLowerCase();
+                                                                  hot.setDataAtCell(row, 2, handle);
+//                                                                   hot.setDataAtCell(row, 9, 'TRUE');
+                                                                  setDefaultAll(row, value);
+                                                                  searchRow = null;
+                                                                }else if(!isValid){
+                                                                  $('button.intext-btn, td a, td.btn').prop('disabled', 'disabled');
+//                                                                   $(document).mask();
+                                                                }
+                                                                
+                                                              }catch(err){err.message;}
+                                                            },
+//                                                             afterOnCellMouseDown: function(event, coords, td){
+//                                                               try{
+//                                                                 if(coords.col == 5 || coords.col == 6){
+//                                                                   document.elementFromPoint(event.x, event.y).click();
+//                                                                   setTimeout(function(){document.elementFromPoint(event.x, event.y).click();},500);
+//                                                                 }
+                                                                
+//                                                               }catch(e){return false;}
+//                                                             },
+                  											afterLoadData: function(first){
+//                                                               console.log('loaded');
+                                                              if(first){
+                                                              
+                                                              }
+                                                            },
+                  											afterChange: function (change, source) {
+                                                                // restore table after reload of a page
+                                                                if (source === "loadData" && !loadFromServer) {
+                                                                    // load data from local storage
+                                                                  	loadFromServer = false;
+                                                                    if (localStorage['dataHot']) {
+                                                                        var data = JSON.parse(localStorage['dataHot'])
+                                                                        this.loadData(data);
+                                                                        this.render();
+                                                                        return
+                                                                    }
+
+                                                                }
+                                                                else {
+                                                                  	$('button.intext-btn').first().removeAttr('disabled');
+                                                                    try{
+                                                                      if(change[0][1] == 'vendor'){
+                                                                        change[0][3] = (change[0][3] || "").replace(" ", ""); //new
+                                                                        change[0][2] = (change[0][2] || "").replace(" ", ""); //old
+                                                                          var tags = hot.getDataAtCell(change[0][0], 8) || "",
+                                                                              tag_arr = tags.split(',');
+                                                                        if(change[0][3].length == 0 && tag_arr.indexOf(change[0][2]) != -1){
+                                                                            tag_arr.splice(tag_arr.indexOf(change[0][2]), 1);
+                                                                            hot.setDataAtCell(change[0][0], 8, (tag_arr).join(',').replace(/^,+|,+$/g,''));
+                                                                        }else{
+                                                                          if(tags.length == 0){
+                                                                            tag_arr = newTagList.slice(0);
+                                                                            tag_arr.unshift(change[0][3]);
+                                                                            hot.setDataAtCell(change[0][0], 8, (tag_arr).join(',').replace(/^,+|,+$/g,''));
+                                                                          }
+                                                                          else if(change[0][2].length == 0 || tag_arr.indexOf(change[0][2]) == -1){
+                                                                            tag_arr.push(change[0][3]);
+                                                                            hot.setDataAtCell(change[0][0], 8, (tag_arr).join(',').replace(/^,+|,+$/g,''));
+                                                                          }
+                                                                          else{
+                                                                            tag_arr[tag_arr.indexOf(change[0][2])] = change[0][3];
+                                                                            hot.setDataAtCell(change[0][0], 8, (tag_arr).join(',').replace(/^,+|,+$/g,''));
+                                                                          }
+                                                                        }
+                                                                      }
+                                                                    }catch(err){ console.log('err msg:', err.message); }
+                                                                    // save all data to local storge if the edit happends
+                                                                    localStorage['dataHot'] = JSON.stringify(formatData(hot.getData()));
+                                                                    
+                                                                    return
+                                                                }
+                                                            },
+//                                                             persistentState: true,
+                                                            search: { 
+                                                              queryMethod: onlyExactMatch,
+                                                              callback: searchResult
+                                                            },
+                  											contextMenu: ['row_above', 'row_below', 'remove_row', 'undo', 'redo'],//'-------------', 'copy', 'cut'],
+                                                            renderAllCols: true,
+                                                            renderAllRows: true,
+                  											rowHeights: '25',
+//                                                             colWidths: 250,
+//                     										autoRowSize: '40%',
+                    										autoColSize: false,
+                  											width: function () {
+                                                                return '1319px';
+                                                            },
+													  };
+              
+                  var settings2 = {
+														data: getJSONdata2(),
+													    startRows: 10,
+													    startCols: 23,
+													    colHeaders: ["", "", "Handle", "Title", "Body", "Vendor", "Type", "Tags", "SELECT TAGS", "Published", "Option1 Name", "Option1 Value", "Option2 Name", "Option2 Value", "Option3 Name", "Option3 Value", "SELECT OPTIONS", "Variant SKU", "Variant Grams", "Variant Price", "EDIT PRICE", "Image Src", "ADD IMAGES", ""],
+													    rowHeaders: true,
+													    preventOverflow: 'horizontal',
+// 													    observeChanges: true,
+													    className: "htRight",
+													    // contextMenu: true,
+													    fixedColumnsLeft: 4,
+// 													    colWidths: ['25' ,'10', '250', '250', '250', '150', '150', '250', '150', '100', '100', '250', '100', '100', '150', '100', '250', '150', '250', '150'],
+													    //validator: /(\$[\d]+[\.]?[\d]{1,3})/,
+													    //placeholder: '$0.00',
+													    // columns: [{col: 0, className: "htCenter"},],
+													    columns: [
+																	    {
+																	   		data: 'remove_this_row',
+																	   		className: 'htCenter',
+																	   		readOnly: true,
+// 																	   		renderer: removeThisRow
+																	    },
+																	    {
+																	   		data: 'add_row_below',
+																	   		className: 'htCenter',
+																	   		readOnly: true,
+// 																	   		renderer: addRowBelow
+																	    },
+																	    {
+																			data: "handle",
+// 																			readOnly: true,
+//                                                                           	renderer: genHandle
+																		},
+																		{
+																			data: "title",
+//                                                                             renderer: genHandle
+																		},
+																		{
+																			data: "body",
+//                                                                             renderer: 'html'
+																		},
+                                                          				{
+																			data: "vendor",
+//                                                                           	className: 'htLeft',
+// 																	   		readOnly: true,
+//                                                                             editor: "select",
+//                                                                             selectOptions: vendorList
+// 																	   		renderer: addVendor
+																		},
+                                                          				{
+																			data: "type",
+//                                                                           	className: 'htLeft',
+// 																	   		readOnly: true,
+//                                                                             editor: "select",
+//                                                                             selectOptions: typeList
+// 																	   		renderer: addType
+																		},
+																		{
+																			data: "tags",
+// 																			readOnly: true
+																		},
+																		{
+																			data: "add_tags",
+																			className: 'htCenter',
+																	   		readOnly: true,
+// 																	   		renderer: addTags
+																		},
+																		{
+																			data: "published",
+//                                                                             editor: "select",
+//                                                                             selectOptions: ["FALSE", "TRUE"],
+//                                                                           	className: 'htLeft',
+//                                                                           	readOnly: true,
+//                                                                             renderer: setDefault
+																		},
+																		{
+																			data: "option1_name",
+																			readOnly: true,
+//                                                                             renderer: setDefault
+																		},
+																		{
+																			data: "option1_value",
+// 																			readOnly: true
+																		},
+																		{
+																			data: "option2_name",
+																			readOnly: true,
+//                                                                             renderer: setDefault
+																		},
+																		{
+																			data: "option2_value",
+// 																			readOnly: true,
+//                                                                             renderer: setDefault
+																		},
+                                                          				{
+																			data: "option3_name",
+																			readOnly: true,
+//                                                                             renderer: setDefault
+																		},
+																		{
+																			data: "option3_value",
+																			readOnly: true,
+//                                                                             renderer: setDefault
+																		},
+																		{
+																			data: "add_options",
+																			className: 'htCenter',
+																	   		readOnly: true,
+// 																	   		renderer: addOptions
+
+																		},
+																		{
+																			data: "variant_sku",
+// 																			readOnly: true
+																		},
+                                                          				{
+																			data: "variant_grams",
+// 																			readOnly: true
+                                                                          	
+																		},
+																		{
+																			data: "variant_price"
+																		},
+                                                          				{
+																			data: "add_price",
+																			className: 'htCenter',
+																	   		readOnly: true,
+// 																	   		renderer: addPrice
+
+																		},
+																		{
+																			data: "image_src",
+// 																			readOnly: true
+																		},
+																		{
+																			data: "add_images",
+																			className: 'htCenter',
+																	   		readOnly: true,
+// 																	   		renderer: addImages
+
+																		},
+                                                                        {
+																			data: "default_price",
+																	   		readOnly: true,
+// 																	   		renderer: addPrice
+
+																		}
+																		
+																	],
+															hiddenColumns: {
+														      columns: [0, 1, 8, 16, 20, 22, 23],
+														      indicators: true
+														    },
+                                                            afterLoadData: function(first){
+//                                                               console.log('loaded');
+                                                              if(first)
+                                                                return false;
+                                                              else
+                                                                formatHot();
+                                                            },
+//                                                             colWidths: 80,
+                                                            rowHeights: 30,
+                                                            colWidths: 250,
+                    										autoRowSize: false,
+                    										autoColSize: false,
+                                                            renderAllRows: true,
+                                                            renderAllCols: true,
+//                                                             manualColumnResize: true,
+//                                                             stretchH: 'last',
+
+//                                                             height: function () {
+//                                                                 return height;
+//                                                             },
+
+//                                                             width: function () {
+//                                                                 return '1319px';
+//                                                             },
+													  };
+              
+                  hot = new Handsontable(datasheet, settings);//console.log(getJSONdata());
+              
+                  hot2 = new Handsontable(document.getElementById('datasheet2'), settings2);
+              
+                  hot2.loadData(getJSONdata3());
+              
+                  function activeCell(row, col){
+					activeRow = row;
+                    activeCol = col;
+                  }
+              
+                  clearHot = function (){
+                    hotSize = hot.countRows();
+                    arr = Array.from(new Array(hotSize),(val,index)=>hotSize-index);
+                    function clearHotRows(){
+                      arr.forEach(function(i, x){ setTimeout(hot.alter('remove_row', x), 10*i); });
+                    }
+                    $.when(freez()).done(clearHotRows).done(function(){
+                      arr.forEach(function(i, x){ setTimeout(hot.alter('insert_row', x), 10*i); });
+                    }).done(btnChange).done(defreez());
+                  }
+              
+                  btnChange = function (){
+                  	//$('.intext-btn').prop('disabled', 'disabled').first().removeAttr('disabled');
+                    localStorage['dataHot'] = JSON.stringify(formatData(hot.getData()));
+                  }
+              
+                  getThumbOf = function (url){
+					lastIndex = url.lastIndexOf('.');
+        			return url.substr(0, lastIndex)+'_150x'+url.substr(lastIndex);
+                  };
+              
+                  $('#datasheet .wtHolder').scroll(function(){ 
+                    try{
+                        if($('#datasheet .wtHolder').scrollLeft() <= 300 || $('#datasheet .wtHolder').scrollLeft() >= $('#datasheet .wtHolder').width()){ hot.render(); }
+
+                    }catch(e){ console.warn(e.message); }
+                  });
+
+				  function removeThisRow (instance, td, row, col, prop, value, cellProperties) {
+				    var escaped = Handsontable.helper.stringify(value),
+				      btn;
+
+				    if (escaped.length === 0) {
+				      btn = document.createElement('A');
+				      btn.setAttribute('class', 'center-block text-center removeRowBtn');
+				      btn.setAttribute('title', 'Remove this row');
+				      btn.style.cursor = 'pointer';
+				      btn.innerHTML = '<i class="fa fa-minus-square"></i>';
+
+				      Handsontable.dom.addEvent(btn, 'mousedown', function (e){
+				        e.preventDefault(); // prevent selection quirk
+                        
+                        if(row == 0 && instance.countRows() == 1)
+                          instance.alter('insert_row', row+1);
+                        instance.alter('remove_row', row);
+                        btnChange();
+				      });
+
+				      Handsontable.dom.empty(td);
+				      td.appendChild(btn);
+				    }
+				    else {
+				      // render as text
+				      Handsontable.renderers.TextRenderer.apply(this, arguments);
+				    }
+
+				    return td;
+				  }
+
+				  function addRowBelow (instance, td, row, col, prop, value, cellProperties) {
+				    var escaped = Handsontable.helper.stringify(value),
+				      btn, btn1;
+
+				    if (escaped.length === 0) {
+				      btn = document.createElement('A');
+				      btn.setAttribute('class', 'center-block text-center addRowBtn');
+				      btn.setAttribute('title', 'Add a row below');
+				      btn.style.cursor = 'pointer';
+				      btn.innerHTML = '<i class="fa fa-plus-square"></i>';
+
+				      Handsontable.dom.addEvent(btn, 'mousedown', function (e){
+				        e.preventDefault(); // prevent selection quirk
+				        instance.alter('insert_row', row+1);
+                        btnChange();
+				      });
+                      
+                      btn1 = document.createElement('A');
+				      btn1.setAttribute('class', 'center-block text-center copyRowBtn');
+				      btn1.setAttribute('title', 'Copy this row below');
+				      btn1.style.cursor = 'pointer';
+				      btn1.innerHTML = '<i class="fa fa-pencil-square"></i>';
+
+				      Handsontable.dom.empty(td);
+				      td.appendChild(btn);
+                      td.appendChild(btn1);
+                      
+                      Handsontable.dom.addEvent(btn1, 'mousedown', function (e){
+				        e.preventDefault(); // prevent selection quirk
+                        try{
+                          var rowData = instance.getDataAtRow(row),
+                              rowHandle = rowData[2].split('-'),
+                              rowHandleLast = rowHandle[rowHandle.length-1],
+                              rowTitle = rowData[3].split(' ');
+  //                         console.log(rowData);
+                          if(isNaN(rowHandleLast)){
+                              rowData[2] = rowData[2] + '-1';
+                              rowData[3] = rowData[3] + ' 1';
+                          }else{
+                              rowHandle.pop();
+                              rowTitle.pop();
+                              ++rowHandleLast;
+                              rowData[2] = rowHandle.join('-') + '-' + rowHandleLast;
+                              rowData[3] = rowTitle.join(' ') + ' ' + rowHandleLast;
+                          }
+                        }catch(er){ console.warn(er.message); }
+                        instance.alter('insert_row', row+1);
+                        instance.populateFromArray(row+1, 0, [rowData], 'right');
+                        btnChange();
+				      });
+				    }
+				    else {
+				      // render as text
+				      Handsontable.renderers.TextRenderer.apply(this, arguments);
+				    }
+
+				    return td;
+				  }
+              
+                  function genHandle (instance, td, row, col, prop, value, cellProperties) {
+				    var escaped = Handsontable.helper.stringify(value);
+
+                    if (escaped.length == 0 && row != 0) {
+                      var handle = instance.getDataAtCell(row-1, col);
+                      if(handle != null){
+                        instance.setDataAtCell(row, col, handle);
+                      }
+                    }else if(escaped.length == 0 && row == 0){
+                      var title = instance.getDataAtCell(row, col+1);
+                      if(title != null){
+                        var handle = title.replace(/[^A-Z0-9]+/ig, "-").replace(/^-+|-+$/g,'').toLowerCase();
+                        instance.setDataAtCell(row, col, handle);
+                      }
+                    }else{
+				      // render as text
+				      Handsontable.renderers.TextRenderer.apply(this, arguments);
+				    }
+
+				    return td;
+				  }
+              
+                  function addVendor (instance, td, row, col, prop, value, cellProperties) {
+				    var escaped = Handsontable.helper.stringify(value),
+				      select, options;
+
+				    if (escaped.length === 0) {
+				      select = document.createElement('SELECT');
+				      select.setAttribute('class', 'center-block text-center form-control selectpicker');
+                      select.setAttribute('data-container', "body");
+                      options = '<option value="" selected disabled>Select Vendor</option>';
+                      vendorList.forEach(function(vendor, index){
+                        options = options + '<option value="'+vendor+'">'+vendor+'</option>';
+                      });
+                      select.innerHTML = options;
+                      
+				      Handsontable.dom.addEvent(select, 'change', function (e){
+				        e.preventDefault(); // prevent selection quirk
+				        instance.setDataAtCell(row, col-1, this.value);
+				      });
+
+				      Handsontable.dom.empty(td);
+				      td.appendChild(select);
+				    }
+				    else {
+				      // render as text
+// 				      Handsontable.renderers.TextRenderer.apply(this, arguments);
+				    }
+
+				    return td;
+				  }
+              
+                  function addType (instance, td, row, col, prop, value, cellProperties) {
+				    var escaped = Handsontable.helper.stringify(value),
+				      select, options;
+
+				    if (escaped.length === 0) {
+				      select = document.createElement('SELECT');
+				      select.setAttribute('class', 'center-block text-center form-control selectpicker');
+                      select.setAttribute('data-container', "body");
+                      options = '<option value="" selected disabled>Select Type</option>';
+                      typeList.forEach(function(type, index){
+                        options = options + '<option value="'+type+'" onclick="alert(\"clicked\")">'+type+'</option>';
+                      });
+                      select.innerHTML = options;
+
+				      Handsontable.dom.addEvent(select, 'change', function (e){
+				        e.preventDefault(); // prevent selection quirk
+				        instance.setDataAtCell(row, col-1, this.value);
+				      });
+
+				      Handsontable.dom.empty(td);
+				      td.appendChild(select);
+				    }
+				    else {
+				      // render as text
+// 				      Handsontable.renderers.TextRenderer.apply(this, arguments);
+				    }
+
+				    return td;
+				  }
+
+				  function addTags (instance, td, row, col, prop, value, cellProperties) {
+                      var escaped = Handsontable.helper.stringify(value),
+                        btn, tagList;
+
+                      if (escaped.length === 0) {
+                        btn = document.createElement('A');
+                        btn.setAttribute('class', 'center-block text-center tagBtn');
+                        btn.setAttribute('title', 'Add Tags');
+                        btn.style.cursor = 'pointer';
+                        btn.innerHTML = '<i class="fa fa-plus-square"></i>';
+
+                        Handsontable.dom.addEvent(btn, 'mousedown', function (e){
+                          e.preventDefault(); // prevent selection quirk
+                          var vendorTag = instance.getDataAtCell(row, instance.propToCol('vendor'));
+                            if(!vendorTag){
+                            	show_message4("Select Brand before Selecting Tags", false);
+                              	return false;
+                            }
+                          var selectedTags = instance.getDataAtCell(row, col+1);console.log('selectedTags:',selectedTags);
+                          if(selectedTags == null)selectedTags = ""
+                          selectedTags = (selectedTags.length > 0) ? $.unique(selectedTags.split(',')) : [];
+                          $('#multiselectTag, #multiselectTag_to').html('');
+                          function updateTags(tagList){
+                            $('#multiselectTag').html('');
+                            tagList.forEach(function(tag, index){ 
+                              if(selectedTags.indexOf(tag) == -1){
+                                var tag_regions = '', pre = '', post = '';
+                                if(o[tag]){
+                                	//tag_regions = '<span class="w3-text-grey">' + o[tag].join(', ') + '</span>';
+                                  	tag_regions = '('+o[tag].sort().join(', ').replace('California, GreatLakes, MidAtlantic, MidWest, Mountain, NorthEast, South, SouthEast', 'All Region')+')';
+                                  	pre = '<optgroup title="'+tag_regions+'" label="'+tag_regions+'">';
+                                    post = '</optgroup>';
+                                }
+                                 //$('#multiselectTag').append(pre+'<option value="'+tag+'">'+tag+'</option>'+post);
+                                 $('#multiselectTag').append('<option title="'+tag_regions+'" region="'+tag_regions+'" value="'+tag+'">'+tag+'</option>');
+                              }
+                            });
+                          }
+                          updateTags(marketSpecificTagList);
+                          
+                          $('[name="optradio"]').eq('1').prop('checked', 'checked').trigger('change');
+                          
+                          $('[name="optradio"]').off('change').on('change', function(e){
+                            selectedTags = $('#multiselectTag_to option').map( function() { return this.getAttribute('value'); }).get().join(",");
+                            tagList = eval(this.value);
+                          	updateTags(tagList);
+                            initMST();
+                          });
+
+                          if(selectedTags.length > 0 && selectedTags[0] != ""){
+                            selectedTags.forEach(function(tag, index){
+                              if(newTagList.indexOf(tag) == -1){
+                                var tag_regions = '', pre = '', post = '';
+                                if(o[tag]){
+                                	//tag_regions = '<span class="w3-text-grey">' + o[tag].join(', ') + '</span>';
+                                  	tag_regions = '('+o[tag].sort().join(', ').replace('California, GreatLakes, MidAtlantic, MidWest, Mountain, NorthEast, South, SouthEast', 'All Region')+')';
+                                  	pre = '<optgroup title="'+tag_regions+'" label="'+tag_regions+'">';
+                                    post = '</optgroup>';
+                                }
+                                //$('#multiselectTag_to').append(pre+'<option value="'+tag+'">'+tag+'</option>'+post);
+                                $('#multiselectTag_to').append('<option title="'+tag_regions+'" region="'+tag_regions+'" value="'+tag+'">'+tag+'</option>');
+                              }
+                            });
+                          }
+                          
+                          //$('#multiselectTag_to option').filter(':even').css('background-color', '#f9f9f9');
+							
+                          function initMST(){
+                            $('#multiselectTag').multiselect({
+                              search: {
+                                          left: '<input type="text" name="q" class="form-control" placeholder="Search..." /><br>',
+                                          right: '<input type="text" name="q" class="form-control" placeholder="Search..." /><br>',
+                                      },
+                              fireSearch: function(value) {
+                                  return value.length > 2;
+                              },
+                              afterMoveToRight: function($left, $right, $tags) { 
+                                $('#tagSave').removeAttr('disabled');
+                              },
+                              afterMoveToLeft: function($left, $right, $tags) { 
+                                $('#tagSave').removeAttr('disabled');
+                              },
+                              sort: false,
+//                               keepRenderingSort: true,
+                              moveToLeft: function(Multiselect, $options, event, silent, skipStack) {
+                                var self = Multiselect; //console.log(Multiselect);
+                                $options.each(function(index, option){
+                                  	optval = $(option)[0].value;
+                                    if(tagList.indexOf(optval) != -1){
+                                      parent = $(option).parent().filter('[label]');
+                                      if(parent.length == 1) option = parent;
+                                      self.$left.append(option);
+//                                       w3.sortHTML('#multiselectTag', 'option');
+                                    }  
+                                    else
+                                      option.remove();
+                                }).promise().done(function(){ w3.sortHTML('#multiselectTag', 'option'); });
+                                
+                                if ( !skipStack ) {
+                                    self.undoStack.push(['left', $options ]);
+                                    self.redoStack = [];
+                                }
+                                
+                                if ( typeof self.callbacks.sort == 'function' && !silent ) {
+                                    self.$left.mSort(self.callbacks.sort);
+                                }
+
+                                if ( typeof self.callbacks.afterMoveToLeft == 'function' && !silent ) {
+                                    self.callbacks.afterMoveToLeft( self.$left, self.$right, $options );
+                                }
+                                
+                                return self;
+                              }
+                            });
+                          }
+                          tagList = marketSpecificTagList;
+                          initMST();
+                            
+                          $('#tagSave').prop('disabled', 'disabled');
+                          
+//                           $('#tagModal').wrap('<div id="modal-container" class="two out" ><div class="modal-background"></div></div>');
+//                           $('body').addClass('modal-active');
+                          
+                          $('#tagModal').one('show.bs.modal', function(){ $(this).animateCss('animated slideInRight'); }).modal({backdrop:"static", show:true, keyboard:false});
+                          $("#tagModal").off('hide.bs.modal').on('hide.bs.modal', function () {
+
+                            if(!$('#tagSave').is(':disabled')){
+                              if (confirm("Your changes will be lost !") == true) {
+                                  $("#tagModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+                                  return false;
+                              } else
+                                  return false;
+                            } else{
+//                                 $("#tagModal").off('hide.bs.modal').one('hide.bs.modal', function(){ $(this).addClass('animated zoomOutDown'); setTimeout }).modal('hide');
+                              	$("#tagModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+                              	return false;
+                            }
+//                               $("#tagModal").off('hide.bs.modal').animateCss('zoomOutDown', function(modal){ $(modal).modal('hide'); });
+                          });
+                          $("#tagSave").off('click').one('click', function (e) {
+                            selectedTags = $('#multiselectTag_to option').map( function() { return this.getAttribute('value'); }).get().join(",");
+                            txt = (selectedTags == '') ? '' : ',';
+                            selectedTags += txt + newTagList.join();
+                            instance.setDataAtCell(row, col+1, selectedTags);
+                            $(this).prop('disabled', 'disabled');
+//                             $("#tagModal").off('hide.bs.modal').one('hide.bs.modal', function(){ $(this).addClass('animated zoomOutDown'); }).modal('hide');
+                            $("#tagModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+                          });
+                        
+                      });
+                      
+                      Handsontable.dom.empty(td);
+                      td.appendChild(btn);
+                    }
+                    else {
+                      // render as text
+                      Handsontable.renderers.TextRenderer.apply(this, arguments);
+                    }
+
+                    return td;
+                  }
+              
+                  function setDefaultAll (row, value) {
+				    if (value.length > 0 ){
+				      hot.setDataAtCell(row, hot.propToCol('published'), 'TRUE');
+                      hot.setDataAtCell(row, hot.propToCol('option1_name'), 'Element');
+                      hot.setDataAtCell(row, hot.propToCol('option2_name'), 'Region');
+                      hot.setDataAtCell(row, hot.propToCol('option2_value'), 'Default');
+                      if(Handsontable.helper.stringify(row, hot.propToCol('tags')).length == 0)
+                        hot.setDataAtCell(row, hot.propToCol('tags'), newTagList.join(','));
+                    }else{
+                      hot.setDataAtCell(row, hot.propToCol('published'), '');
+                      hot.setDataAtCell(row, hot.propToCol('option1_name'), '');
+                      hot.setDataAtCell(row, hot.propToCol('option2_name'), '');
+                      hot.setDataAtCell(row, hot.propToCol('option2_value'), '');
+//                       hot.setDataAtCell(row, hot.propToCol('tags'), '');
+                    }
+				  }
+
+				  function addOptions (instance, td, row, col, prop, value, cellProperties) {
+				    var escaped = Handsontable.helper.stringify(value),
+				      btn;
+
+				    if (escaped.length === 0) {
+				      btn = document.createElement('A');
+				      btn.setAttribute('class', 'center-block text-center optionBtn');
+				      btn.setAttribute('title', 'Add Elements');
+				      btn.style.cursor = 'pointer';
+				      btn.innerHTML = '<i class="fa fa-plus-square"></i>';
+
+				      Handsontable.dom.addEvent(btn, 'mousedown', function (e){
+				        e.preventDefault(); // prevent selection quirk
+                        var selectedOptions = instance.getDataAtCell(row, col+2);
+                        if(selectedOptions == null)selectedOptions = ""
+                        var optBkpData = selectedOptions;
+                        selectedOptions = (selectedOptions.length > 0) ? selectedOptions.split(',') : [];
+                        $('#multiselectOption, #multiselectOption_to').html('');
+                        optionList.forEach(function(option, index){
+                          if(selectedOptions.indexOf(option) == -1)
+                        	$('#multiselectOption').append('<option value="'+option+'">'+option+'</option>');
+                        });
+                        
+                        if(selectedOptions.length > 0 && selectedOptions[0] != ""){
+                          selectedOptions.forEach(function(option, index){
+                              $('#multiselectOption_to').append('<option value="'+option+'">'+option+'</option>');
+                          });
+                        }
+                        
+                        $('#multiselectOption').multiselect({
+                          search: {
+                                      left: '<input type="text" name="q" class="form-control" placeholder="Search..." /><br>',
+                                      right: '<input type="text" name="q" class="form-control" placeholder="Search..." /><br>',
+                                  },
+                          fireSearch: function(value) {
+                              return value.length > 3;
+                          },
+                          afterMoveToRight: function($left, $right, $options) { 
+                            $('#optionSave').removeAttr('disabled');
+                          },
+                          afterMoveToLeft: function($left, $right, $options) { 
+                            $('#optionSave').removeAttr('disabled');
+                          },
+//                           sort: false
+                        });
+                        
+                        $('#optionSave').prop('disabled', 'disabled');
+                        
+				        $('#optionModal').one('show.bs.modal', function(){ $(this).animateCss('animated slideInRight'); }).modal({backdrop:"static", show:true, keyboard:false});
+//                         .modal({backdrop:"static", show:true, keyboard:false});
+                        $("#optionModal").off('hide.bs.modal').on('hide.bs.modal', function () {
+                          
+                          if(!$('#optionSave').is(':disabled')){
+                            if (confirm("Your changes will be lost !") == true) {
+                                $("#optionModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+                            } else
+                                return false;
+                          } else
+                              $("#optionModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+                              return false;
+                        });
+                        $("#optionSave").off('click').one('click', function (e) {
+                          selectedOptions = $('#multiselectOption_to option').map( function() { return this.getAttribute('value'); }).get().join(",");
+//                           alert(selectedOptions);
+                          if(selectedOptions.length == 0 ){
+                          	instance.setDataAtCell(row, instance.propToCol('variant_sku'), null);
+                            instance.setDataAtCell(row, instance.propToCol('variant_price'), null);
+                            instance.setDataAtCell(row, instance.propToCol('default_price'), null);
+                            instance.setDataAtCell(row, col+1, null);
+                          }else{
+//                             instance.setDataAtCell(row, 20, defaultPriceList);
+                            $("#optionModal").off('hidden.bs.modal').one('hidden.bs.modal', function () {
+                            	editPrice(instance, row, instance.propToCol('add_price'), optBkpData, selectedOptions);
+                            });
+                          }
+                            
+//                           instance.setDataAtCell(row, col-3, selectedOptions);
+                          $(this).prop('disabled', 'disabled');
+                          $("#optionModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+                        });
+                        
+                      });
+                      
+				      Handsontable.dom.empty(td);
+				      td.appendChild(btn);
+				    }
+				    else {
+				      // render as text
+				      Handsontable.renderers.TextRenderer.apply(this, arguments);
+				    }
+
+				    return td;
+				  }
+              
+                  function addPrice (instance, td, row, col, prop, value, cellProperties) {
+				    var escaped = Handsontable.helper.stringify(value),
+				      btn;
+                    
+				    if (escaped.length === 0) {
+				      btn = document.createElement('A');
+				      btn.setAttribute('class', 'center-block text-center priceBtn');
+				      btn.setAttribute('title', 'Add Prices');
+                      btn.setAttribute('value', '');
+				      btn.style.cursor = 'pointer';
+				      btn.innerHTML = '<i class="fa fa-plus-square"></i>';
+
+				      Handsontable.dom.addEvent(btn, 'mousedown', function (e){
+				        e.preventDefault(); // prevent selection quirk
+                        
+                        var selectedPrices = instance.getDataAtCell(row, col+1);
+                        if(selectedPrices == null)selectedPrices = "";
+                        selectedPrices = (selectedPrices.length > 0) ? selectedPrices.split(',') : [];
+                        
+                        var selectedOptions = instance.getDataAtCell(row, instance.propToCol('option1_value'));console.log(selectedOptions);
+                        if(selectedOptions == null)selectedOptions = "";
+                        selectedOptions = (selectedOptions.length > 0) ? selectedOptions.split(',') : [];
+                        
+                        var price = instance.getDataAtCell(row, 20);
+                        if(price == null || price.length == 0){
+                          price = {};
+                          selectedPrices = function(){ selectedPrices = []; selectedOptions.forEach(function(option, index){ selectedPrices.push('0'); return selectedPrices; }); };
+//                           selectedOptions.forEach(function(option, index){
+// 							price[option] = '0.00';
+//                           });
+                          price = JSON.parse(defaultPriceList);
+                        }else
+                          price = JSON.parse(price);
+                        
+                        $('#optionPriceModal tbody').html('');
+                        selectedOptions.forEach(function(option, index){
+                            try{ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0) this.value = \'0.00\'; else this.value = (parseFloat(this.value)||0).toFixed(2); " value="'+ ((price[option] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? price[option] : "0.00") +'"></td></tr>'); }
+                            catch(e){ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0) this.value = \'0.00\'; else this.value = (parseFloat(this.value)||0).toFixed(2); " value="'+ ((selectedPrices[index] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? selectedPrices[index] : "0.00") +'"></td></tr>'); }
+                        });
+                        
+                        $("#priceSave").prop('disabled', 'disabled');
+				        $('#optionPriceModal').one('show.bs.modal', function(){ $(this).animateCss('animated slideInRight'); }).modal({backdrop:"static", show:true, keyboard:false});
+//                         .modal({backdrop:"static", show:true, keyboard:false});
+                        
+                        $("#optionPriceModal").off('hide.bs.modal').on('hide.bs.modal', function () {
+                          
+                          if(!$('#priceSave').is(':disabled')){
+                            if (confirm("Your changes will be lost !") == true) {
+                                $("#optionPriceModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+                            } else
+                                return false;
+                          } else
+                              $("#optionPriceModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+                              return false;
+                        });
+                        
+                        $('#optionPriceModal tbody input').off('keyup').one('keyup', function(){
+                        	$("#priceSave").removeAttr('disabled');
+                        });
+                        
+                        $("#priceSave").off('click').one('click', function (e) {
+                          var element = e.target || e.srcElement;
+                          selectedPrices = $('#optionPriceModal tbody input').map( function() { return this.value; }).get();
+                          instance.setDataAtCell(row, col+1, selectedPrices.join(","));
+                          $(this).prop('disabled', 'disabled');
+                          setPrice = function(){
+                          	selectedOptions.forEach(function(option, index){
+                              price[option] = selectedPrices[index];
+                            });
+                            return JSON.stringify(price);
+                          }
+                          instance.setDataAtCell(row, instance.propToCol('default_price'), setPrice());
+//                           Handsontable.dom.empty(td);
+//                           td.appendChild(btn);
+                          $("#optionPriceModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+                        });
+				      });
+
+				      Handsontable.dom.empty(td);
+				      td.appendChild(btn);
+				    }
+				    else {
+				      // render as text
+				      Handsontable.renderers.TextRenderer.apply(this, arguments);
+				    }
+
+				    return td;
+				  }
+
+				  function addImages (instance, td, row, col, prop, value, cellProperties) {
+				    var escaped = Handsontable.helper.stringify(value),
+				      btn;
+
+				    if (escaped.length === 0) {
+				      btn = document.createElement('A');
+				      btn.setAttribute('class', 'center-block text-center imgBtn');
+				      btn.setAttribute('title', 'Add Images');
+				      btn.style.cursor = 'pointer';
+				      btn.innerHTML = '<i class="fa fa-plus-square"></i>';
+
+				      Handsontable.dom.addEvent(btn, 'mousedown', function (e){
+				        e.preventDefault(); // prevent selection quirk
+                        
+				        value = instance.getDataAtCell(row, col+1);
+                        if(value == null)value = ""
+                        $('#imageModal .imgWrap').html('');
+				        if(value.length > 0){
+				        	value = value.split(',');
+				        	value.forEach(function(url, index) {
+				        		new_url = getThumbOf(url);
+				        		$('#imageModal .imgWrap').delay(index*600).append('<div class="col-xs-3 animated fadeInDown w3-padding w3-margin-top" data-url="'+url+'" style="position:relative;"><img class="img-responsive center-block w3-card-4" style="width:100%; height:auto;" src="'+ new_url +'"/><a class="pull-right w3-circle w3-text-red w3-xlarge w3-card-4 animated rubberBand" style="position:absolute; top:-10px; right:5px;cursor:pointer;" data-name="'+new_url+'" onclick="deleteImgFile(this);" style="cursor:pointer;"><i class="fa fa-times-circle"></i></a></div>');
+				        	});
+				        }
+				        activeCell(row, col+1);
+                        $('#imageModal').one('show.bs.modal', function(){ $(this).addClass('animated slideInRight in'); }).modal({backdrop:"static", show:true, keyboard:false});
+//                         $('#imageModal').off('hide.bs.modal').on('hide.bs.modal', function(){ 
+//                           $('#imageModal').off('hide.bs.modal').removeClass('slideInRight').animateCss('slideOutLeft', function(modal){ 
+//                             setTimeout( function(){ $(modal).modal('hide'); },0); 
+//                           }); 
+//                           return false;
+//                         });
+				      });
+
+				      Handsontable.dom.empty(td);
+				      td.appendChild(btn);
+				    }
+				    else {
+				      // render as text
+				      Handsontable.renderers.TextRenderer.apply(this, arguments);
+				    }
+
+				    return td;
+				  }
+
+				  // if(!hot){setTimeout(4000);}
+				  
+// 				  var buttons = {
+// 				    string: document.getElementById('export-string')
+// 				  };
+				  
+// 				  var exportPlugin = hot2.getPlugin('exportFile');
+				  
+// 				  buttons.string.addEventListener('click', function() {
+// 				    var resultCSV = exportPlugin.exportAsString('csv', {
+// 					  exportHiddenRows: false,     // default false
+// 					  exportHiddenColumns: false,  // default false
+// 					  columnHeaders: true,        // default false
+// 					  rowHeaders: false,           // default false
+// 					  columnDelimiter: ',',       // default ','
+// // 					  range: [1, 1, 6, 6]         // [startRow, endRow, startColumn, endColumn]
+// 					});
+                    
+//                     var hot2 = new Handsontable(document.getElementById('datasheet2'), settings2);
+                    
+
+// 					var date = new Date();
+
+// 				    exportPlugin.downloadFile('csv', { 
+//                       exportHiddenColumns: true,  // default false
+// 					  columnHeaders: true,
+//                       filename: 'PepsiPrintProductImport on ' + date.getDate() +'-'+ date.getMonth() +'-'+ date.getYear() + ' at ' + date.getHours() +':'+ date.getMinutes() +':'+ date.getSeconds() 
+//                     });
+
+// 				    console.log(resultCSV);
+// 				    alert("CSV String = "+resultCSV);
+// 				    var resultJSON = Papa.parse(resultCSV);
+// 					console.log(resultJSON.meta.delimiter);
+					
+// 					alert("JSON of CSV String = "+JSON.stringify(resultJSON));
+// 					console.log(resultJSON.data);
+                    
+                    
+// 				  });
+              
+                  exportHot2As = function (asCsvString, asCsvFile){
+                    var confirmed = true;
+                    if(!$('.intext-btn:contains("GENERATE SHEET")').first().is(':disabled')){
+                            if (confirm("Looks like you have made some changes after generating sheet.\nClick OK to proceed without changes.") == true) {
+                              //alert('ok');
+                            } else{
+                              	confirmed = false;
+                                return false;
+                            }
+                    }
+                  	var exportPlugin = hot2.getPlugin('exportFile');
+                    if(asCsvString && confirmed){
+                      var resultCSV = exportPlugin.exportAsString('csv', {
+//                         exportHiddenRows: false,     // default false
+//                         exportHiddenColumns: false,  // default false
+                        columnHeaders: true,        // default false
+//                         rowHeaders: false,           // default false
+                        columnDelimiter: ',',       // default ','
+    // 					  range: [1, 1, 6, 6]         // [startRow, endRow, startColumn, endColumn]
+                      });
+                      
+                      return resultCSV;
+                    }else if(asCsvFile && confirmed){
+                    	var date = new Date();
+
+                        exportPlugin.downloadFile('csv', { 
+                          columnHeaders: true,
+                          filename: 'PepsiPrintProductImport on ' + date.getDate() +'-'+ date.getMonth() +'-'+ date.getYear() + ' at ' + date.getHours() +'.'+ date.getMinutes() +'.'+ date.getSeconds() 
+                        });
+                    }
+                  }
+              
+                  function validateHot(check){
+                    if(!check)
+                      return true;
+                    else{
+                      var hotRow = hot.countRows(), row = -1;
+                      $('#error-log').html('').hide();
+                      while(row <= hotRow){	++row;
+                        if(hot.isEmptyRow(row)) continue;
+                        title = Handsontable.helper.stringify(hot.getDataAtCell(row, 3));
+                       	brand = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('vendor')));
+                        elements = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('option1_value')));
+                       	if(title.length == 0)
+                          $('#error-log').append('<p>- Row '+(row+1)+': Product Title Missing. <i class="fa fa-external-link-square w3-text-grey" title="Go to this" style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'title\');"></i></p>');
+                       	if(brand.length == 0)
+                          $('#error-log').append('<p>- Row '+(row+1)+': Product Brand Missing. <i class="fa fa-external-link-square w3-text-grey" title="Go to this" style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'vendor\');"></i></p>');
+                        if(elements.length == 0)
+                          $('#error-log').append('<p>- Row '+(row+1)+': Product Elements Missing. <i class="fa fa-external-link-square w3-text-grey" title="Go to this" style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'option1_value\');"></i></p>');
+                        
+                      }
+                      if($('#error-log').text().length > 0){
+                        $('#error-log').prepend('<h2>Error log</h2>').show();
+                        show_message4("Upload aborted due to missing data..", false);
+                        return false;
+                      }else
+                        return true;
+                    }
+                      
+                  }
+              
+                  prepareHot2 = function (check, env){
+                    if(validateHot(check)){
+                      function start(callback){
+                      	$('.intext-btn').first().prop('disabled', 'disabled');
+                      	freez('Processing  &nbsp;&nbsp;&nbsp;<i class="fa fa-refresh w3-spin">');
+                      	genCheck = check;
+                        uploadEnv = env || '';
+                        currState = 0;
+//                         myInt = setInterval(function(){
+//                           if($('.bar').last().width()*100/$(window).width() < )
+//                         },500);
+                        setTimeout(function(){ callback(); },100);
+                      }  
+                      start(function(){
+                    	var data = formatData(hot.getData());
+					
+                        hot2.loadData(data);
+                      });
+                    }
+                  }
+              
+                  function formatData(data){
+                  	//                     console.log(data);
+                    data = data.map(function(child){
+                      var obj = {};
+                      return child.reduce(function(ob, value, index, arr){
+//                         console.log(ob);console.log(value);console.log(index);console.log(arr);
+                      	obj[hotHeaders[index]] = value;
+                        return obj;
+                      });
+                    });
+//                     console.log(data);
+                    return data;
+                  }
+				  
+                  function formatHot(){ //hot.scrollViewportTo(0,22); scrollViewportTo();
+                    if (typeof(Worker) !== "undefined" && false) {
+                        // Yes! Web worker support!
+                      w = new Worker("/pages/formathotworker"); //{{ 'formatHotWorker.js' | asset_url }}");
+                      
+                        w.onmessage = function(event) {
+                            $("#freezTxt").html(event.data+'% processed');
+                        };
+                    } else {
+                        // Sorry! No Web Worker support..
+                      	formatHotNoWorker();
+                    }                
+                  }
+              
+                  function formatHotNoWorker(){
+//                     plugin = hot2.getPlugin('autoRowSize');
+//                     plugin = hot.getPlugin('autoRowSize');
+                    plugin2 = hot2.getPlugin('copyPaste');
+                  	var row = hot2.countRows(); 
+                    var check = hot2.isEmptyRow(row);
+                    plugin=null; plugin2=null;
+                    while(check && row > 0){
+//                       hot2.alter('remove_row', row);
+                      check = hot2.isEmptyRow(--row);
+//                       hot2.alter('remove_row', row-1);
+//                       setTimeout(function(){  },1000);
+                    }
+                    if(row == 0 && check){
+                      	show_message4('No data to Export..',false,null);
+                    	return false;
+                    }
+                    console.log(row); temp = row;
+//                     var option = hot2.getDataAtCell(row, 11).replace(/,/g, '\n');
+//                     console.log(option);
+                    {% comment %}{% endcomment %}
+                    while(row >= 0){ 
+                      {% comment %}
+                      processState = new Promise(function (resolve, reject){
+                        if(row >= 0 && (uploadEnv || '').length > 0 || true){
+//                           $("#freezTxt").html(((temp-row)*100/temp)+'% processed');
+  //                         show_message4(((temp-row)*100/temp)+'% processed',true,null);
+                          
+                        }
+                      });
+                      processState.then(
+                      setTimeout(processRow(row--),(temp-row)*500)); console.log('processing row:', row); 
+                      {% endcomment %}
+                      function processState(){
+                      	if(row >= 0 && (uploadEnv||'').length > 0){
+                          currState = (temp-row)*100/temp,
+                          nanobar.go(currState),
+                          console.log('curr:',currState);
+//                           function retryNano(){
+//                             while(true){ if($('.bar').last().width()*100/$(window).width() >= currState )break; else continue; }
+//                           }
+//                           $.when(retryNano).done(setTimeout(processRow(row--),(temp-row)*1000)).done(processState);
+                        }
+                      }
+                      
+                      function waitTill(){
+                      	if(currState >= (temp-row)*100/temp || (uploadEnv||'').length == 0)
+                         setTimeout(processRow(row--),100);
+                        else{
+                         nanobar.go((temp-row)*100/temp);
+                         setTimeout(waitTill,1000);
+                        }
+                      }
+                    
+//                          processRow(row--);
+                      $.when(processRow(row--)).done(processState);
+                      
+                      if(row < 0 && genCheck && uploadEnv.length > 0){
+                         $.unblockUI();
+                         console.log('row processing finished');
+                         $('.intext-btn').not(':first').removeAttr('disabled');
+                         setTimeout( function(){ uploadTo(uploadEnv, "processed"); }, 1000);
+                      }
+                    }
+                    
+                    
+                    
+                  }
+              
+//                   function processState(row){
+//                     if(row >= 0 && (uploadEnv||'').length > 0){
+//                       currState = (temp-row)*100/temp,
+//                       nanobar.go(currState),
+//                       console.log('curr:',currState);
+//                       currRow = row;
+//                     }
+//                     if(row < 0 && genCheck && uploadEnv.length > 0){
+//                        $.unblockUI();
+//                        console.log('row processing finished');
+//                        $('.intext-btn').not(':first').removeAttr('disabled');
+// //                          setTimeout( function(){ uploadTo(uploadEnv, "processed"); }, 1000);
+//                     }	
+//                   }
+              
+                  function processRow(row){ console.log($('.bar').last().width()*100/$(window).width());
+                    var arr2D = [], arr2D2 = [], cur = [], i = 0;
+                    var handle = Handsontable.helper.stringify(hot2.getDataAtCell(row, 2));
+                  	var opt = Handsontable.helper.stringify(hot2.getDataAtCell(row, hot2.propToCol('option1_value')));
+                    var price = Handsontable.helper.stringify(hot2.getDataAtCell(row, hot2.propToCol('variant_price')));
+                    var img = Handsontable.helper.stringify(hot2.getDataAtCell(row, hot2.propToCol('image_src'))); 
+                    var optLen = opt.split(',').length;
+                    var imgLen = img.split(',').length;
+                    var rowsBelow = (optLen > imgLen) ? optLen : imgLen;//console.log(rowsBelow);
+                    hot2.selectCellByProp(row, 'option1_value');
+                    if(rowsBelow > 1)
+                      hot2.alter('insert_row', row+1, rowsBelow-1);
+                    opt.split(',').forEach(function(item, index){ arr2D.push([item]); });
+                    hot2.populateFromArray(row, hot2.propToCol('option1_value'), arr2D, 'down');
+                    hot2.populateFromArray(row, hot2.propToCol('variant_sku'), arr2D, 'down'); arr2D = [];
+                    price.split(',').forEach(function(item, index){ arr2D.push([item]); });
+                    hot2.populateFromArray(row, hot2.propToCol('variant_price'), arr2D, 'down');
+                    hot2.populateFromArray(row, hot2.propToCol('variant_grams'), arr2D.fill(['0.00']), 'down');
+                    hot2.populateFromArray(row, hot2.propToCol('option2_value'), arr2D.fill(['Default']), 'down'); //arr2D = [];
+                    img.split(',').forEach(function(item, index){ arr2D2.push([item]); });
+                    hot2.populateFromArray(row, hot2.propToCol('image_src'), arr2D2, 'down');
+                    if(rowsBelow == arr2D.length)
+                      hot2.populateFromArray(row, 2, arr2D.fill([handle]), 'down');
+                    else
+                      hot2.populateFromArray(row, 2, arr2D2.fill([handle]), 'down');
+                    
+//                     processState(row);
+                  }
+              
+//-------------------------------------SEARCH FUNCTIONS-------------------------------------------------------------
+              
+                  function onlyExactMatch(queryStr, value) {
+                    if (typeof queryStr == 'undefined' || queryStr == null || value == null || !queryStr.toLowerCase || queryStr.length === 0 || value.length === 0) {
+                      return false;
+                    }
+                    //try{
+                      return queryStr.toString() === value.toString(); //}catch(err){ err.message; return queryStr === value; }
+                  };
+              
+                  function searchResult(instance, row, col, value, result) {
+                    if(col == 3 && result && row != searchRow){console.log(searchRow);console.log(row);
+                      Handsontable.Search.DEFAULT_CALLBACK.apply(this, arguments);
+                    }
+                   }
+              
+//---------------------------------------------------------------------------------------------------------
+				  
+// 				  function bindDumpButton() {
+// 				      if (typeof Handsontable === "undefined") {
+// 				        return;
+// 				      }
+				  
+// 				      Handsontable.Dom.addEvent(document.body, 'click', function (e) {
+				  
+// 				        var element = e.target || e.srcElement;
+				  
+// 				        if (element.nodeName == "BUTTON" && element.name == 'dump') {
+// 				          var name = element.getAttribute('data-dump');
+// 				          var instance = element.getAttribute('data-instance');
+// 				          var hot = window[instance];
+// 				          console.log('data of ' + name, hot.getData());
+// 				        }
+// 				      });
+// 				    }
+// 				  bindDumpButton();
+                  
+//---------------------------------------------------------------------------------------------------
+                             
+                  var HOT = hot;//$('#datasheet').handsontable('getInstance');
+
+                  $('.reset-state').on('click', function(){
+
+                    HOT.runHooks('persistentStateReset');
+
+  //                   HOT.updateSettings({
+  //                     columnSorting: true,
+  //                     manualColumnMove:true,
+  //                     manualColumnResize: true
+  //                   });
+
+                    $(".state-loaded").fadeOut(300);
+                  });
+
+
+                  var storedData = {};
+
+                  HOT.runHooks('persistentStateLoad', '_persistentStateKeys', storedData);
+
+                  var savedKeys = storedData.value;
+
+                  if(savedKeys && savedKeys.length > 0){
+                    console.log(storedData, savedKeys);
+                    $(".state-loaded").show();
+                  }
+//-----------------------------------------------------------------------------------------------
+
+				}); //domload complete
+              
+
+				function encodeImageFileAsURL(element) { freez();
+				  var file = element.files[0];
+                  element.value='';
+				  var reader = new FileReader();
+                  var imgCheck = true;
+                                                        
+				  reader.onloadend = function() {
+				    // console.log('RESULT', reader.result);
+                    attachment = reader.result.split(',')[1];
+                    attachment = attachment.replace(' ', '');
+                    filename = file.name;
+                    extension = filename.toLowerCase().match(/\.([^\.]+)$/)[1];
+                    switch(extension)
+                    {
+                        case 'png':
+                        case 'jpg':
+                        case 'gif':
+                        case 'svg':
+                            // alert('allowed');
+                        	$('#imgFileTxt').val(filename);
+                            break;
+                        default:
+                            show_message4('Unsupported image file type...',false,'Supported image type ".jpg" | ".png" | ".gif" | ".svg"');
+                        	imgCheck = false;
+                    }
+                    if(file.size/1024/1024 > 1 ){
+                    	show_message4('Invalid image file size...',false,'Try adding image of size < 1 MB');
+                      	imgCheck = false;
+                    }
+                    
+                    if(imgCheck){
+                      filename = filename.replace(extension,'').replace(/[^A-Z0-9]+/ig, "_").replace(/^_+|_+$/g,'')+'.'+extension;
+                      putImgFile(filename, attachment);
+                    }
+				  }
+                  
+				  reader.readAsDataURL(file);
+				}
+
+				function toDataURL(url, callback) {
+				  var xhr = new XMLHttpRequest();
+				  xhr.onload = function() {
+				    var reader = new FileReader();
+				    reader.onloadend = function() {
+				      callback(reader.result);
+				      // putImgFile(xhr.response.name, reader.result.split(',')[1]);
+				    }
+				    reader.readAsDataURL(xhr.response);
+				  };
+				  xhr.open('GET', url);
+				  xhr.responseType = 'blob';
+				  xhr.send();
+				}
+
+				function urlFileLoad(url){
+					toDataURL(url, function(dataUrl) {
+// 					  console.log('RESULT:', dataUrl);
+					});
+				}
+
+				function toDataURL2(src, callback, outputFormat) {
+				  var img = new Image();
+				  img.crossOrigin = 'Anonymous';
+				  img.onload = function() {
+				    var canvas = document.createElement('CANVAS');
+				    var ctx = canvas.getContext('2d');
+				    var dataURL;
+				    canvas.height = this.height;
+				    canvas.width = this.width;
+				    ctx.drawImage(this, 0, 0);
+				    dataURL = canvas.toDataURL(outputFormat);
+				    callback(dataURL);
+				  };
+				  img.src = src;
+				  if (img.complete || img.complete === undefined) {
+				    img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+				    img.src = src;
+                    $.unblockUI();console.log('image url error');
+                    show_message4('Invalid image url...',false,'Try adding different url');
+				  }
+				}
+
+				function urlFileLoad2(url){ freez();
+                    var img_types = [".jpg", ".png", ".gif", ".svg"],
+                    filename = GetFileName(url),
+                  	extension = filename.toLowerCase().substring(filename.lastIndexOf('.'), filename.length);
+                                           
+                    if(url == null || url.length == 0 || img_types.indexOf(extension) == -1 ){
+//                       	$.unblockUI();
+                      	show_message4('Invalid image url...',false,'Try adding different url');
+                    	return false;
+                    }else{
+                   
+                      data = { image_name: filename, theme_id: $theme_id, img_url: url  };
+
+                      img_ajax_upload(data);
+                      
+                    }
+                                           
+                    {% comment %}                       
+                  	filename = GetFileName(url);
+                  	extension = filename.substring(filename.lastIndexOf('.') + 1, filename.length);
+                    extension = (extension != "") ? extension : 'png' ;
+                  	filename = filename.replace(extension, '').replace(/[^A-Z0-9]+/ig, "_").replace(/^_+|_+$/g,'')+'.'+extension;
+					toDataURL2(url, function(dataUrl) {
+// 					    console.log('RESULT:', dataUrl);
+					    putImgFile(filename, dataUrl.split(',')[1]);
+					  }, extension
+					);
+                    {% endcomment %}
+				}
+
+				function GetFileName(file_url){
+					//this gets the full url
+					var url = file_url, ext;
+					//this removes the anchor at the end, if there is one
+					url = url.substring(0, (url.indexOf("#") == -1) ? url.length : url.indexOf("#"));
+					//this removes the query after the file name, if there is one
+					url = url.substring(0, (url.indexOf("?") == -1) ? url.length : url.indexOf("?"));
+					//this removes everything before the last slash in the path
+					url = url.substring(url.lastIndexOf("/") + 1, url.length);
+					// to remove extension
+					ext = url.substring(url.lastIndexOf("."), url.length);
+					//return
+					if(url.length == 0){
+						data = new Date();
+						url = "index-"+ date.getTime();
+					}
+					// alert(url);
+                    return ((['.jpg','.svg','.png','.gif']).includes(ext)) ? url : url+'.png';
+				}
+
+				var mystring = "83a1c6f7bc3251fbfb79fa42f16bb953:c2ac9a66d730d561e136beafd7588abc";
+          		var $theme_id = "183558353";
+				var encodedString = "";
+				var myblob = new Blob([mystring], {
+				    type: 'text/plain'
+				});
+				  
+				var reader = new window.FileReader();
+				reader.readAsDataURL(myblob); 
+				reader.onloadend = function() {
+		            base64data = reader.result;                
+		            // console.log(base64data );
+					// console.log( base64data.substr(base64data.indexOf(',')+1) );
+
+					encodedString = base64data.substr(base64data.indexOf(',')+1);
+				}
+                
+                var updateModal = function(img){
+//                   var lastIndex = img.lastIndexOf('.'),
+//                   imgThumb = img.substr(0, lastIndex)+'_150x'+img.substr(lastIndex);
+                  imgThumb = getThumbOf(img);
+                  console.log('Thumb:',imgThumb);
+                  var imgTag = new Image();
+                  imgTag.onload = function(){
+                    $.unblockUI();
+                    $('#imageModal .imgWrap').append('<div class="col-xs-3 animated fadeInDown w3-padding w3-margin-top" data-url="'+img+'"><img class="img-responsive center-block w3-card-4" style="width:100%; height:auto;" src="'+ imgThumb +'"/><a class="pull-right w3-circle w3-text-red w3-xlarge w3-card-4 animated rubberBand" style="position:absolute; top:-10px; right:5px;cursor:pointer;" data-name="'+imgThumb+'" onclick="deleteImgFile(this);" style="cursor:pointer;"><i class="fa fa-times-circle"></i></a></div>');
+                  };
+                  imgTag.src = imgThumb;
+                }
+				
+				function putImgFile2 (assetName, attachment) {
+					var jsonData = {"asset":{"key":"assets/" + assetName ,"attachment": attachment }};
+					console.log(jsonData);
+					$.ajax({
+                      url: 'https://'+mystring+'@{{ shop.domain }}/admin/themes/$theme_id/assets.json',
+						type: 'PUT',
+						headers: {
+					        'Authorization':'basic '+ encodedString,
+					        'Content-Type':'application/json; charset=UTF-8'
+					    },
+                        ContentType: 'application/json; charset=UTF-8',
+						dataType: 'json',
+						data: jsonData, //JSON.stringify(jsonData),
+					})
+					.done(function(data) {
+						console.log("success", data.public_url);
+					})
+					.fail(function(data) {
+						console.log("error", data);
+					})
+					.always(function() {
+						console.log("complete");
+					});
+					
+				}
+          
+          		
+          
+          		function putImgFile(assetName, attachment) {
+                  var xhttp = new XMLHttpRequest();
+                  var curVal = Handsontable.helper.stringify(hot.getDataAtCell(activeRow, activeCol));
+                  
+                  xhttp.onreadystatechange = function() { 
+                    if (this.readyState == 4 && this.status == 200) {
+                      var response = this.responseText;
+                      console.log(response);
+                      if(response.indexOf('public_url') != -1){
+                        var asset = JSON.parse(response); console.log('Object:', asset);
+                        var img = (asset.asset.public_url).replace("\\", ""); 
+                        console.log('Image:',img);
+                        
+                        var data = (curVal == null || curVal.length == 0) ? img : curVal+','+img;
+                        console.log('curVal:',curVal);
+                        if(curVal.indexOf(img) == -1){ 
+                          hot.setDataAtCell(activeRow, activeCol, data);
+                          updateModal(img);
+                        }else console.log('image is already added..');
+                      }else if(response.indexOf('errors') != -1){
+                      	var errors = JSON.parse(response);
+                        console.log(errors.errors.asset);
+                        alert(errors.errors.asset);
+                      }
+                        
+                    }else if( (this.status).toString().match(/^4\d{2}/) || (this.status).toString().match(/^5\d{2}/) ){
+                    	show_message4('Error while uploading image.',false);
+                    }
+                  };
+                  
+                  var date = new Date();
+                  if(curVal.indexOf(assetName) != -1){
+                    temp = assetName.split('.');
+                  	assetName = assetName.replace(temp[temp.length-1],'').replace('.',"-") + date.getTime() + '.' + temp[temp.length-1];
+                  }
+                  
+                  xhttp.open("PUT", "https://"+mystring+"@{{ shop.domain }}/admin/themes/$theme_id/assets.json", true);
+                  xhttp.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+                  xhttp.setRequestHeader("Authorization", "Basic "+ encodedString);
+//                   xhttp.send('{"asset":{"key":"assets/' + assetName + '","attachment":"' + attachment +'"}}');
+                  
+                  data = { image_name: assetName, theme_id: $theme_id, img_data: attachment };
+                  
+                  img_ajax_upload(data);
+                  
+                }
+          
+                img_ajax_upload = function (data){
+                  var curVal = Handsontable.helper.stringify(hot.getDataAtCell(activeRow, activeCol));
+                	$.ajax({
+                        url: '/apps/place_bulk_order?action_type=upload-form-image&cid={{ customer.id }}',
+                        type: 'POST',
+                        data: JSON.stringify(data),
+                        dataType: 'json',
+                        contentType: 'application/json; charset=UTF-8',
+                        success: function(response){
+                              console.log(response);
+                              if(JSON.stringify(response).indexOf('public_url') != -1){
+                                var asset = response; console.log('Object:', asset);
+                                var img = (asset.image_asset.public_url).replace("\\", ""); 
+                                console.log('Image:',img);
+
+                                var data = (curVal == null || curVal.length == 0) ? img : curVal+','+img;
+                                console.log('curVal:',curVal);
+                                if(curVal.indexOf(img) == -1){ 
+                                  hot.setDataAtCell(activeRow, activeCol, data);
+                                  $('#imgFileTxt, #imgFileUrl').val('');
+                                  updateModal(img);
+                                }else console.log('image is already added..');
+                              }else if(JSON.stringify(response).indexOf('errors') != -1){
+                                var errors = response;
+                                console.log(errors.errors.asset);
+                                show_message4(errors.errors.asset, false);
+                              }
+
+                        },
+                        error: function(){
+                          $.unblockUI; show_message4('Error in Image uploading.',false);
+                        }
+
+                  });
+                }
+
+				function deleteImgFile (item) { freez();
+                   var assetName = GetFileName($(item).parent().data('url'));
+                   var imgURLs = Handsontable.helper.stringify(hot.getDataAtCell(activeRow, activeCol)).split(',');
+                   var imgPOS = imgURLs.indexOf($(item).parent().data('url')); //console.log(imgPOS);
+                                                    {% comment %}{% endcomment %}                                
+					var xhttp = new XMLHttpRequest();
+                    xhttp.onreadystatechange = function() { 
+                      if (this.readyState == 4 && this.status == 200) {
+                        var response = this.responseText;
+                        var imgres = JSON.parse(response); //console.log(imgres);
+                        if(response.indexOf('errors') != -1){
+                          show_message4('Product name already exist in store..',false,'Try adding different product name');
+                        }else{
+                          $.unblockUI();
+                          imgURLs.splice(imgPOS, 1); //console.log(imgURLs);
+                          hot.setDataAtCell(activeRow, activeCol, imgURLs.join(','));
+                          $(item).parent().animateCss('fadeOutDown', function(elem){ $(elem).hide(0).remove(); });
+                        }
+                      }
+                    };
+
+                    xhttp.open("DELETE", "https://"+mystring+"@{{ shop.domain }}/admin/themes/"+$theme_id+"/assets.json?asset[key]=assets/"+ assetName, true);
+                    xhttp.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+                    xhttp.setRequestHeader("Authorization", "Basic "+ encodedString);
+//                     xhttp.send(); 
+                               
+                    $.ajax({
+                        url: "/apps/place_bulk_order?action_type=delete-form-image&theme_id="+$theme_id+"&cid={{ customer.id }}&image_name="+assetName,
+                        method: "GET",
+
+
+                    }).complete(function(response){
+                      var imgres = response; //console.log(imgres);
+
+                        $.unblockUI();
+                        imgURLs.splice(imgPOS, 1); //console.log(imgURLs);
+                        hot.setDataAtCell(activeRow, activeCol, imgURLs.join(','));
+                        $(item).parent().animateCss('fadeOutDown', function(elem){ $(elem).hide(0).remove(); });
+
+                    });
+                               
+				}
+                               
+                Array.prototype.searchIndexOf = function(regex) {
+                  var matches = [];
+                  $.each(this, function(index, str) {
+                      if(str.indexOf(match) !== -1) {
+                          matches.push(index);
+                      }
+                  });
+                  return matches;
+                };
+          
+          		function countInArray(array, value, child) {
+                  return array.reduce((n, x) => n + (x[child] === value), 0);
+                }
+          
+                function checkProdName(prodName, callback){ freez();
+//                    $.unblockUI();callback(true); return;
+                   var isInCol = false;
+                                                           
+                   if(prodName == null || prodName.length == 0){
+                      $.unblockUI();
+                      callback(true);
+                   }
+                   
+                   
+                   else if(prodName.length > 0){
+                      var queryResult = hot.search.query(prodName);
+                      var len = (hot.getDataAtCell(searchRow, 3) == null) ? 0 : 1;
+//                       console.log(queryResult);
+                      if(queryResult.length > len){
+    //                     if(queryResult[0].data == prodName && queryResult[1].data == prodName && queryResult[0].col == 3 && queryResult[1].col == 3){
+                        if( countInArray(queryResult, prodName, 'data') > len && countInArray(queryResult, 3, 'col') > len ){
+                          hot.render();
+                          isInCol = true;
+    //                       try{ defreez(); } catch(e){ e.message; }
+                          show_message4('Product name already exist in sheet..',false,'Try adding different product name');
+                          callback(false);
+                        }
+                      }
+                   }
+                  
+                   if(!isInCol){
+                     var xhttp = new window.XMLHttpRequest();
+                        xhttp.onreadystatechange = function() { 
+                          if (this.readyState == 4 && this.status == 200) {
+                            var response = this.responseText;
+                            var product = JSON.parse(response);
+                            if(response.indexOf('errors') != -1){
+                              $.unblockUI();
+                              callback(true);
+                            }else if(response.indexOf('id') != -1 && product.products[0].title == prodName){
+      //                         try{ defreez(); } catch(e){ e.message; }
+                              show_message4('Product name already exist in store..',false,'Try adding different product name');
+                              callback(false);
+                            }else{
+                              $.unblockUI();
+                              callback(true);
+                            }
+                          }else if( (this.status).toString().match(/^4\d{2}/) || (this.status).toString().match(/^5\d{2}/) ){
+                            callback(false);
+                          	show_message4('Error while checking at store.',false);
+                          }
+                        };
+//                      console.log("mystring:",mystring);
+                        xhttp.open("GET", "https://"+mystring+"@{{ shop.domain }}/admin/products.json?title="+encodeURI(prodName)+"&limit=1&fields=id,title", true);
+                        xhttp.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+                        xhttp.setRequestHeader("Authorization", "Basic "+ encodedString);
+//                         xhttp.setRequestHeader("Access-Control-Allow-Origin","{{ shop.url }}");
+                       	xhttp.setRequestHeader("crossDomain", true);
+//                         xhttp.send(); 
+                                   
+                        $.ajax({
+                            url: "/apps/place_bulk_order?action_type=check-product-name&cid={{ customer.id }}&product_name="+prodName,
+                            method: "GET",
+                            
+                                   
+                        }).done(function(response){
+                          console.log(response);
+                          var product = response;
+                            if(JSON.stringify(response).indexOf('errors') != -1){
+                              $.unblockUI();
+                              callback(true);
+                            }else if(JSON.stringify(response).indexOf('id') != -1 && product.product.products[0].title == prodName){
+      //                         try{ defreez(); } catch(e){ e.message; }
+                              show_message4('Product name already exist in store..',false,'Try adding different product name');
+                              callback(false);
+                            }else{
+                              $.unblockUI();
+                              callback(true);
+                            }
+                                   
+                        }).fail(function(response){ callback(false); console.log('error-name-check:',JSON.stringify(response));
+                          	show_message4('Error while checking at store.',false);
+                        });
+                     
+                     function ajaxCB(response){
+                     	var response = this.responseText;
+                        var product = JSON.parse(response);
+                        if(response.indexOf('errors') != -1){
+                          $.unblockUI();
+                          callback(true);
+                        }else if(response.indexOf('id') != -1 && product.products[0].title == prodName){
+  //                         try{ defreez(); } catch(e){ e.message; }
+                          show_message4('Product name already exist in store..',false,'Try adding different product name');
+                          callback(false);
+                        }else{
+                          $.unblockUI();
+                          callback(true);
+                        }
+                     }
+                   }
+                  
+                }
+                                   
+                function getB64CSV(callback){
+                    var header2remove = '"Handle","Title","Body","Vendor","Type","Tags","Published","Option1 Name","Option1 Value","Option2 Name","Option2 Value","Option3 Name","Option3 Value","Variant SKU","Variant Grams","Variant Price","Image Src"';
+                    var header2add = 'Handle,Title,Body,Vendor,Type,Tags,Published,Option1 Name,Option1 Value,Option2 Name,Option2 Value,Option3 Name,Option3 Value,Variant SKU,Variant Grams,Variant Price,Image Src';
+                    var csvString = exportHot2As(true, false); //console.log(csvString);
+                   	
+                    if(csvString == false) return false;
+                                   
+                    var myblob = new Blob([csvString.replace(header2remove, header2add)], {
+                        type: 'text/csv;charset=utf-8'
+                    });
+
+                    var reader = new window.FileReader();
+                     reader.readAsDataURL(myblob); 
+                     reader.onloadend = function() {
+                                    base64data = reader.result;                
+//                                     console.log(base64data );
+// 									console.log(encodeURI('data:text/csv;charset=utf-8,'+csvString));
+//                                     console.log( base64data.substr(base64data.indexOf(',')+1) );
+                       				callback(base64data.split(',')[1]);
+                     }
+//                      return base64data;
+//                 	return encodeURI('data:text/csv;charset=utf-8,' + csvString);
+//                      return base64data;
+                }
+                             
+                function uploadTo(env, processed){
+                   var data = { action_type: "product-import-encoded" }, app_url;
+                   data.cemail = "{{ customer.email }}";
+                   data.cid = "{{ customer.id }}";
+                   
+                   if(!processed)
+                     prepareHot2(true, env);
+                  else{
+                     freez();
+                     getB64CSV(function(base64data){
+                       data.shop_url = (env == 'production') ? '{{ shop.permanent_domain }}' : "{{ shop.permanent_domain }}"; 
+                       data.file_data = base64data; console.log(JSON.stringify(data));
+                       proceedUploadTo(data);
+                     });
+                  }
+                }
+          
+                function proceedUploadTo(data){   
+                   
+                   {% comment %}{% endcomment %}
+                   $.ajax({
+                    url: '/apps/place_bulk_order', //?action_type=product-import-api&shop_url={{shop.permanent_domain}}&file_url='+ document.getElementById('file_url').value,
+                    type:'POST',
+                    data: JSON.stringify(data),
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success:function(data){
+                      console.log(JSON.stringify(data)); //alert(JSON.stringify(data));
+                      if(data.message){
+                          console.log(data.message);
+                          show_message4("Importing products in background", true);
+                      }
+                       else if(data.error){
+                          console.log(data.error);
+                          show_message4(data.error, false);
+                      }
+                    },
+                    error:function(data){
+                      console.log(JSON.stringify(data)); //alert(JSON.stringify(data));
+                      console.log('Some error occured..');
+                    }
+                  });
+                  
+                }
+                
+                downloadFromServer = function () {freez(); 
+//                   return false;
+                  var xhttp = new XMLHttpRequest();
+                  
+                  xhttp.onreadystatechange = function() { 
+                    if (this.readyState == 4 && this.status == 200) {
+                      var response = this.responseText;
+                      console.log(response);
+                      if(response.indexOf('errors') != -1){
+                      	var errors = JSON.parse(response);
+                        console.log(errors.errors.asset);
+                        alert(errors.errors.asset);
+                        show_message4('No data to restore.',false);
+                      }else{
+                        loadFromServer = true;
+                        var data = JSON.parse(atob((JSON.parse(response)).asset.value)); console.log(data);
+//                         data = JSON.parse(atob(data));
+                        hot.loadData(data);
+//                         render();
+                        
+                      	show_message4('Restored Successfully.',true);
+                      }
+                        
+                    }else if((this.status).toString().match(/^4\d{2}/) || (this.status).toString().match(/^5\d{2}/)){
+                    	show_message4('No data to restore.',false);
+                    }
+                  };
+                  
+                  
+                  xhttp.open("GET", "https://"+mystring+"@{{ shop.domain }}/admin/themes/"+$theme_id+"/assets.json?asset[key]=snippets/hotData.liquid&fields=value", true);
+                  xhttp.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+                  xhttp.setRequestHeader("Authorization", "Basic "+ encodedString);
+                  xhttp.send();
+                }
+                             
+                uploadToServer = function () {freez();
+//                   getB64CSV(function(base64data){ uploadContinue(); });                         
+//                 }
+                                              
+//                 function uploadContinue(data){
+                  var xhttp = new XMLHttpRequest();
+                  
+                  xhttp.onreadystatechange = function() { 
+                    if (this.readyState == 4 && this.status == 200) {
+                      var response = this.responseText;
+                      console.log(response);
+                      if(response.indexOf('errors') != -1){
+                      	var errors = JSON.parse(response);
+                        console.log(errors.errors.asset);
+                        alert(errors.errors.asset);
+                      }else{
+                      	show_message4('Saved Successfully.',true);
+                      }
+                        
+                     }else if((this.status).toString().match(/^4\d{2}/) || (this.status).toString().match(/^5\d{2}/)){
+                        show_message4('Unable to upload data.',false);
+                     }
+                  };
+                  
+                  var hotData = btoa(JSON.stringify(formatData(hot.getData()))); //console.log(hotData);
+                                              
+                  xhttp.open("PUT", "https://"+mystring+"@{{ shop.domain }}/admin/themes/"+$theme_id+"/assets.json", true);
+                  xhttp.setRequestHeader("Content-type", "application/json");
+                  xhttp.setRequestHeader("Authorization", "Basic "+ encodedString);
+                  xhttp.send('{"asset":{"key":"snippets\/hotData.liquid","value":"' + hotData +'"}}');
+                } 
+                             
+                
+                startPageImport = function () {//freez();
+                  var xhttp = new XMLHttpRequest();
+                  
+                  xhttp.onreadystatechange = function() { 
+                    if (this.readyState == 4 && this.status == 200) {
+                      var response = this.responseText;
+                      console.log(response);
+                      if(response.indexOf('errors') != -1){
+                      	var errors = JSON.parse(response);
+                        console.log(errors.errors.asset);
+                        alert(errors.errors.asset);
+                      }else{
+                      	show_message4('Saved Successfully.',true);
+                      }
+                        
+                     }else if((this.status).toString().match(/^4\d{2}/) || (this.status).toString().match(/^5\d{2}/)){
+                        show_message4('Unable to upload data.',false);
+                     }
+                  };
+                  
+                  var hotData = {"sc":[{"title":"Account Specific","body_html":"","sort_order":"alpha-asc","template_suffix":"","published_scope":"global","disjunctive":true,"rules":[{"column":"tag","relation":"equals","condition":"AS:Sedano's"},{"column":"tag","relation":"equals","condition":"AS:Hyatt"},{"column":"tag","relation":"equals","condition":"AS:Walgreens"},{"column":"tag","relation":"equals","condition":"AS:UnitedOil"},{"column":"tag","relation":"equals","condition":"AS:Walmart"},{"column":"tag","relation":"equals","condition":"AS:7Eleven"},{"column":"tag","relation":"equals","condition":"AS:TerribleHerbst"},{"column":"tag","relation":"equals","condition":"AS:AMPM"},{"column":"tag","relation":"equals","condition":"AS:BubbleClean"},{"column":"tag","relation":"equals","condition":"AS:CA FishGrill"},{"column":"tag","relation":"equals","condition":"AS:Chevron"},{"column":"tag","relation":"equals","condition":"AS:CircleK"},{"column":"tag","relation":"equals","condition":"AS:ConocoShell"},{"column":"tag","relation":"equals","condition":"AS:CVS"},{"column":"tag","relation":"equals","condition":"AS:DollarGeneral"},{"column":"tag","relation":"equals","condition":"AS:GuitarCenter"},{"column":"tag","relation":"equals","condition":"AS:Fastrip"},{"column":"tag","relation":"equals","condition":"AS:G\u0026MOil"},{"column":"tag","relation":"equals","condition":"AS:LittleCaesar's"},{"column":"tag","relation":"equals","condition":"AS:Safeway"},{"column":"tag","relation":"equals","condition":"AS:ShortlineExpress"},{"column":"tag","relation":"equals","condition":"AS:Stram"},{"column":"tag","relation":"equals","condition":"AS:FamilyDollar"},{"column":"tag","relation":"equals","condition":"AS:Lowes"},{"column":"tag","relation":"equals","condition":"AS:Smiths"},{"column":"tag","relation":"equals","condition":"AS:Allsups"},{"column":"tag","relation":"equals","condition":"AS:Bashas"},{"column":"tag","relation":"equals","condition":"AS:Tesoro"}]}]};
+//                   console.log(JSON.parse(hotData));
+                  
+//                   hotData = JSON.parse(hotData);
+                                                  
+                  xhttp.open("POST", "https://"+mystring+"@{{ shop.domain }}/admin/smart_collections.json", true);
+                  xhttp.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+                  xhttp.setRequestHeader("Authorization", "Basic "+ encodedString);
+                  xhttp.send('{"smart_collection":' + JSON.stringify(hotData['sc'][0]) +'}');
+                } 
+          
+          
+//           });
+		</script>
+      
+      	
+      
+	</body>
+</html>
+{% else %}
+	<meta content="0; url={{shop.secure_url}}/pages/error" http-equiv="refresh" />
+{% endif %}

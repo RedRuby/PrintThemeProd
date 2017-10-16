@@ -1,0 +1,114 @@
+{% if customer  %}
+
+  {% assign Role_User = 'general.Role.User' | t %}
+  {% assign Role_Printer = 'general.Role.Printer' | t %}
+  {% assign Role_Manager = 'general.Role.Manager' | t %}
+  {% assign Role_ASM = 'general.Role.ASM' | t %}
+  {% assign Role_Admin = 'general.Role.Admin' | t %}
+
+  {% assign region_NorthEast = "general.Region_Tags.NorthEast" | t %}
+  {% assign region_SouthEast = "general.Region_Tags.SouthEast" | t %}
+  {% assign region_California = "general.Region_Tags.California" | t %}
+  {% assign region_South = "general.Region_Tags.South" | t %}
+  {% assign region_Mountain = "general.Region_Tags.Mountain" | t %}
+  {% assign region_MidAtlantic = "general.Region_Tags.MidAtlantic" | t %}
+  {% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
+  {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
+
+  {% if customer.tags contains region_NorthEast %}
+    {% assign customer_region_tag = region_NorthEast %}
+  {% elsif customer.tags contains region_SouthEast %}
+    {% assign customer_region_tag = region_SouthEast %}
+  {% elsif customer.tags contains region_California %}
+    {% assign customer_region_tag = region_California %}
+  {% elsif customer.tags contains region_South %}
+    {% assign customer_region_tag = region_South %}
+  {% elsif customer.tags contains region_Mountain %}
+    {% assign customer_region_tag = region_Mountain %}
+  {% elsif customer.tags contains region_MidAtlantic %}
+    {% assign customer_region_tag = region_MidAtlantic %}
+  {% elsif customer.tags contains region_MidWest %}
+    {% assign customer_region_tag = region_MidWest %}
+  {% elsif customer.tags contains region_GreatLakes %}
+    {% assign customer_region_tag = region_GreatLakes %}
+  {% endif %}
+
+  {% if customer and customer.tags contains Role_ASM %}
+    {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-my-products' %}
+  {% elsif customer.tags contains Role_User or customer.tags contains Role_Printer or customer.tags contains Role_Manager %}
+    {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-products' %}
+    {% assign non_asm = true %}
+  {% endif %}
+
+  	{% assign product_in_region = false %}
+  {% if item.tags contains customer_region_tag or customer.tags contains Role_ASM or customer.tags contains Role_Admin %}
+	{% assign product_in_region = true %}
+  {% endif %}
+
+{% endif %}
+
+{% comment %}
+
+  This snippet defines the default structure of each search result.
+
+  'item' refers to the result, but typically mimics the product liquid tag,
+  so you can access product liquid tags with {{ item.XXX }}.
+
+  Remember that results aren't specific to products, so don't depend on
+  a featured image or item.type. Pages, for example, have a blank item.type.
+
+  Product liquid tag info:
+   - http://docs.shopify.com/themes/liquid-variables/product
+
+{% endcomment %}
+
+<div class="grid">
+
+
+  {% if item.featured_image or item.image %}
+     {% comment %}
+      We have a featured_image
+     {% endcomment %}
+    {% assign has_image = true %}
+    {% assign image_alt = item.title | escape %}
+  	{% assign item_url = '/collections/' |append: collection_handle |append: item.url  %}
+    <div class="grid__item one-fifth">
+      <a {% if product_in_region  %}href="{{ item_url }}"{% endif %} title="{{ image_alt  }}">
+        {{ item | img_url: 'medium' | img_tag: image_alt }}
+      </a>
+    </div>
+  {% endif %}
+
+  {% comment %}
+    If we don't have a featured_image, add a push-- class to keep the alignment the same
+  {% endcomment %}
+  <div class="grid__item four-fifths {% unless has_image %}push--one-fifth{% endunless %}">
+    {% if product_in_region %}
+      <h2 class="h3">{{ item.title | link_to: item_url }}</h2>
+    {% else %}
+      <small>(Not available for your Region.)</small>
+      <h2 clas="h3">{{ item.title }}</h2> 
+    {% endif %}
+      {% if item.object_type == 'product' %}
+      {% if item.compare_at_price > item.price %}
+        <span class="visually-hidden">{{ 'products.product.sale_price' | t }}</span>
+        <span itemprop="price">
+          {{ item.price | money }}
+        </span>
+        <span class="visually-hidden">{{ 'products.product.regular_price' | t }}</span>
+        <s><small>{{ item.compare_at_price_max | money }}</small></s>
+      {% else %}
+        <span class="visually-hidden">{{ 'products.product.regular_price' | t }}</span>
+        <span itemprop="price">
+          {{ item.price | money }}
+        </span>
+      {% endif %}
+    {% endif %}
+
+    {% comment %}
+      Get a brief excerpt of raw text from the page/product
+    {% endcomment %}
+    <p>{{ item.content | strip_html | truncatewords: 20 }}</p>
+  </div>
+
+</div>

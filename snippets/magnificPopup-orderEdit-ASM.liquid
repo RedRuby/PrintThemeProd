@@ -1,0 +1,364 @@
+<div class="mfp-bg mfp-fade mfp-ready" style="display:none;"></div>
+
+<div class="mfp-wrap mfp-auto-cursor mfp-fade mfp-ready mfp-hide" tabindex="-1" style="overflow-x: hidden; overflow-y: auto;" style="display:none;">
+<div class="mfp-container mfp-s-ready mfp-inline-holder">
+ 
+<div class="mfp-content">
+
+
+<div id="OrderEditModal" class="white-popup-block text-center" style="display:none;">
+  <form action="" method="post" onsubmit="editOrder(event, this);" order_id=""> 
+    <div class="grid">
+      <div class=" grid__item small--one-whole one-half">
+        <h2 class="text-left">Edit Order #<span class="orderName" style="font-size:inherit !important;"></span></h2>
+      </div>
+      <div id="" class="grid__item small--one-whole one-quarter text-right for-order-split">
+        <select id="select_vendor_edit" disabled title="Select a Vendor to Assign" class="assign-printer" onchange="this.title = this.options[this.selectedIndex].innerHTML; document.getElementById('assign_vendor_btn').disabled = false;"><option selected disabled title="Select a Vendor to Assign">Select Vendor</option></select>
+      </div>
+      <div class="grid__item small--one-whole one-quarter text-right for-order-split">
+        <button id="assign_vendor_btn" type="button" disabled class="btn w3-right" onclick="assignVendor();">Assign Vendor</button>
+      </div>
+    </div>
+   <table id="lineItem2" class="responsive-table">
+    <thead>
+      <tr class="w3-text-white1" styles="background-color: #146db5">
+        <th class="text-center for-order-split">Select to move to separate order</th>
+        <th class="text-center">Products</th>
+        <th class="text-center">
+          <div class="w3-row-padding">
+            <div class="w3-half">Price</div>
+            <div class="w3-half">Quantity</div>
+          </div>
+        </th>
+        <th class="text-center">Total</th>
+      </tr>
+    </thead>
+    <tr w3-repeat="line_items">
+      <td class="text-center for-order-split"><input id="item_{% raw %}{{ id }}{% endraw %}" type="checkbox" name="order" value="{% raw %}{{ id }}{% endraw %}" class="checkbox-custom" onchange="itemCheckFunc();" /><label for="item_{% raw %}{{ id }}{% endraw %}" class="checkbox-custom-label"></label></td>
+      <td class="w3-text-orange">{% raw %}{{ title }}{% endraw %}</td>
+      <td  class="text-center w3-row ">
+        <input class="text-right w3-col m5 order_price" required type="text" pattern="^\d+((\.)\d{1,2})?$" name="order_price[{% raw %}{{ id }}{% endraw %}]" value="{% raw %}{{ price }}{% endraw %}" item_id="{% raw %}{{ id }}{% endraw %}" placeholder="0.00" title="upto two decimal places" onchange="calcTotal(this.getAttribute('item_id'));" />
+        <div class="w3-col m2 w3-row-padding"><h3 style="line-height: 1.8;"> &times; </h3></div>
+        <input class="text-right w3-col m5 order_qty" required type="text" pattern="^\d+$" name="order_qty[{% raw %}{{ id }}{% endraw %}]" value="{% raw %}{{ quantity }}{% endraw %}" item_id="{% raw %}{{ id }}{% endraw %}" onchange="calcTotal(this.getAttribute('item_id'));" />
+      </td>
+      <td class="order_total text-right" item_id="{% raw %}{{ id }}{% endraw %}">${% raw %}{{total}}{% endraw %}</td>
+    </tr>
+   {% comment %}
+    <tr>
+      <td><b>Sub-Total:</b></td>
+      <td colspan="2" class="text-right"><b>$<span class="subTotal"></span></b></td>
+    </tr>
+   	<tr>
+      <td><b>Discount Code:</b></td>
+      <td colspan="2" class="text-center w3-row-padding">
+      
+        <div class="w3-col m4">
+          	<label >Code</label>
+        	<input type="text" name="discount_code" class="discountCode" value="" placeholder="Code" />
+        </div>
+        <div class="w3-col m4">
+          	<label >Type</label>
+            <select class="discountType" name="discount_type" onchange="this.title = this.value;">
+              <option selected disabled>Discount Type</option>
+              <option value="fixed_amount">Fixed Amount</option>
+              <option value="percentage">Percentage</option>
+              <option value="shipping">Shipping</option>
+            </select>
+        </div>
+        <div class="w3-col m4">
+          	<label >Amount</label>
+            <input type="text" name="discount_amount" pattern="^\d+((\.)\d{1,2})?$" class="text-right discountAmount" placeholder="10 or 10.00" title="Amount with no decimal or upto two decimal places." value="" />
+        </div>
+      </td>
+    </tr>
+   {% endcomment %}
+   	<tr class="hide">
+      <td colspan="3"><b>Total:</b></td>
+      <td class="text-right"><b>$<span class="grandTotal"></span></b></td>
+    </tr>
+  </table>
+
+    <br>
+  	<div class="w3-twothird">
+      {% comment %}{% endcomment %}
+      	{% if magnificPopup-orderEdit-ASM == 'has-note-module' %}
+          {% include 'order-note-module' with customer_role_tag %}
+      	{% endif %}
+      
+    </div>
+    <div class="w3-rest w3-right">
+      <button type="submit" style="width:250px;" disabled class="btn w3-margin-left1" >Update</button><br>
+      <button type="button" style="width:250px;" class="btn w3-margin-top" onclick="updateModal();"> Return to Order {% if template contains 'page' %}Detail{% else %}History{% endif %}</button><br>
+      <a class="goTo" style="display:none;" href="/pages/order?id="><button type="button" class="btn w3-margin-top w3-right" style="width:250px;"> current order detail</button></a><br>
+      <a class="goTos" style="display:none;" href="/pages/order?id="><button type="button" class="btn w3-margin-top w3-right" style="width:250px;"> Split order detail</button></a>
+    </div>
+    <br>
+  </form>
+</div>
+
+
+</div>
+  <div class="mfp-preloader w3-center center-block" style="display:initial;"><i class="fa fa-refresh w3-spin"></i></div>
+</div>
+
+<button title="Close (Esc)" onclick="updateModal();" type="button" class="mfp-close">×</button>
+<br>
+</div>
+
+{% comment %}
+<div id="hiddenModalContent" class="mfp-hide">
+  <form action="" method="post" onsubmit="editOrder(event, this);" order_id=""> 
+  <h2 class="text-left">Edit Order #<span class="orderName"></span></h2>
+   <table id="lineItem" class="responsive-table">
+    <thead>
+      <tr class="w3-text-white1" styles="background-color: #146db5">
+        <th></th>
+        <th class="text-center">Products</th>
+        <th class="text-center">
+          <div class="w3-row-padding">
+            <div class="w3-half">Price</div>
+            <div class="w3-half">Quantity</div>
+          </div>
+        </th>
+        <th class="text-center">Total</th>
+      </tr>
+    </thead>
+    <tr w3-repeat="line_items">
+      <td class="text-center"><input id="item_{% raw %}{{ id }}{% endraw %}" type="checkbox" name="" class="checkbox-custom for-order-split" /><label for="item_{% raw %}{{ id }}{% endraw %}" class="checkbox-custom-label"></label></td>
+      <td class="w3-text-orange">{% raw %}{{ title }}{% endraw %}</td>
+      <td  class="text-center w3-row ">
+        <input class="text-right w3-col m5 order_price" required type="text" pattern="^\d+((\.)\d{1,2})?$" name="order_price[{% raw %}{{ id }}{% endraw %}]" value="{% raw %}{{ price }}{% endraw %}" item_id="{% raw %}{{ id }}{% endraw %}" placeholder="0.00" title="Upto two decimal places" onchange="calcTotal(this.getAttribute('item_id'));" />
+        <div class="w3-col m2 w3-row-padding"><h3 style="line-height: 1.8;"> &times; </h3></div>
+        <input class="text-right w3-col m5 order_qty" required type="text" pattern="^\d+$" name="order_qty[{% raw %}{{ id }}{% endraw %}]" value="{% raw %}{{ quantity }}{% endraw %}" item_id="{% raw %}{{ id }}{% endraw %}" onchange="calcTotal(this.getAttribute('item_id'));" />
+      </td>
+      <td class="order_total text-right" item_id="{% raw %}{{ id }}{% endraw %}">${% raw %}{{total}}{% endraw %}</td>
+    </tr>
+   {% comment %}
+    <tr>
+      <td><b>Sub-Total:</b></td>
+      <td colspan="2" class="text-right"><b>$<span class="subTotal"></span></b></td>
+    </tr>
+   	<tr>
+      <td><b>Discount Code:</b></td>
+      <td colspan="2" class="text-center w3-row-padding">
+      
+        <div class="w3-col m4">
+          	<label >Code</label>
+        	<input type="text" name="discount_code" class="discountCode" value="" placeholder="Code" />
+        </div>
+        <div class="w3-col m4">
+          	<label >Type</label>
+            <select class="discountType" name="discount_type" onchange="this.title = this.value;">
+              <option selected disabled>Discount Type</option>
+              <option value="fixed_amount">Fixed Amount</option>
+              <option value="percentage">Percentage</option>
+              <option value="shipping">Shipping</option>
+            </select>
+        </div>
+        <div class="w3-col m4">
+          	<label >Amount</label>
+            <input type="text" name="discount_amount" pattern="^\d+((\.)\d{1,2})?$" class="text-right discountAmount" placeholder="10 or 10.00" title="Amount with no decimal or upto two decimal places." value="" />
+        </div>
+      </td>
+    </tr>
+   {% endcomment %}
+   	<tr>
+      <td colspan="3"><b>Total:</b></td>
+      <td class="text-right"><b>$<span class="grandTotal"></span></b></td>
+    </tr>
+  </table>
+    
+    <br>
+  	<div class="w3-third">
+      {% comment %}
+        {% include 'order-note-module' with customer_role_tag %}
+      {% endcomment %}
+    </div>
+    <div class="w3-third">
+      <a class="goTo" href="/pages/order?id=" style="display:none;"><button type="button" class="btn"> View order detail</button></a>
+    </div>
+    <div class="w3-third">
+      <button type="submit" disabled class="btn w3-right w3-margin-left" >Update</button>
+      <button type="button" class="btn w3-right" onclick="updateModal();">Back</button>
+    </div>
+    <br>
+  </form>
+</div>
+{% endcomment %}
+
+<script>
+  var order_id = '';
+  var changed = '';
+  var mfpHTML = '';
+  
+  $(document).ready(function(){
+  	 mfpHTML = $('#OrderEditModal').html();
+  });
+  
+  function updateModal(){
+    $('html').css('overflow','auto');
+    $('#mfp-order-edit .mfp-bg, #mfp-order-edit .mfp-wrap, #OrderEditModal, .mfp-note').hide().addClass('mfp-hide');
+    $('.mfp-container').removeAttr('style');
+    $('.mfp-preloader').show();
+    $('#OrderEditModal *, .mfp-note:parent').remove();
+    $('#OrderEditModal').html('').append(mfpHTML); //console.log(mfpHTML);
+    if( changed == true ){ changed = ''; {% if template contains 'page.order' %}{% else %}fetch_Orders();{% endif %} }
+  }
+  
+  function calcTotal(obj){ //console.log(obj); 
+    $('#OrderEditModal button[type = "submit"]').removeAttr('disabled');
+  	var val1 = parseFloat($('#OrderEditModal .order_price[item_id='+obj+']').val());
+    var val2 = parseFloat($('#OrderEditModal .order_qty[item_id='+obj+']').val()); console.log(val1+', '+val2);
+    $('#OrderEditModal .order_total[item_id='+obj+']').text('$'+(val1*val2).toFixed(2).toString());
+  }
+  
+  function itemCheckFunc(){
+    if($('.checkbox-custom:checked').length > 0){
+      $('#select_vendor_edit')[0].disabled = false;
+      if($('#select_vendor_edit option:selected').is(':enabled'))
+        $('#assign_vendor_btn')[0].disabled = false;
+    }
+    else
+      $('#select_vendor_edit, #assign_vendor_btn').prop('disabled', 'disabled');
+  }
+  
+  function assignVendor(){
+    if($('.checkbox-custom:checked').length == $('.checkbox-custom').length)
+      changePrintShop($('#select_vendor_edit')[0], order_id);
+  	else if(confirm('This action will create a new order for the assigned vendor.\n\nClick \'OK\' to confirm.') == true)
+      splitOrder();
+  }
+  
+  function splitOrder(){
+  	freez();    
+    var data = {cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: order_id, line_items: $('.checkbox-custom:checked').map( function() { return this.value; }).get(), printer_id: $('#select_vendor_edit').val(), cregion: customer_region };
+                
+    console.log(JSON.stringify(data));
+    {% comment %}{% endcomment %}         
+    $.ajax({
+      url: '/apps/pepsi-print/order_configuration/split_order.json',
+          type: 'POST',
+          data: JSON.stringify(data),
+          dataType: 'json',
+          contentType: "application/json;",
+          statusCode: {
+            401:function() { console.log("401") },
+            404:function() { console.log("404"); },
+            200:function() { console.log("200"); },
+            201:function() { console.log("201"); },
+            202:function() { console.log("202"); }
+          },
+          success: function(data){
+            	console.log(JSON.stringify(data));
+            	
+                if(200 === Number(data.status)){
+                  	$('#OrderEditModal button[type = "submit"]').prop('disabled', 'disabled');
+                  	freez();
+                   	setTimeout( function (){ 
+                      addToModal(data.result.result_false); 
+                      var $goTo = $('#OrderEditModal .goTo');
+                      $goTo.prop('href', '/pages/order?id='+data.result.result_false);
+                      $goTo.show();
+                      $('#OrderEditModal .goTos').prop('href', '/pages/order?id='+data.result.result_true).show();
+                      {% if template contains 'page.order' %}
+//                           fetch_Order(data.result.result_false, null, false, true);
+                          location.replace('/pages/order?id='+data.result.result_false+prev_page_params);
+                      {% endif %}
+                      changed = true;
+  //                   	$.unblockUI; 
+                      show_message2('Updated Successfully.',true);
+                      $('#select_vendor_edit option:first').prop('selected','selected');
+                    }, 1500);
+                }else if(401 === Number(data.status)){
+                  	$.unblockUI; show_message2(data.message,false);
+                }else{
+                	$.unblockUI; show_message2(data.message,false); console.log('else');
+                }
+           
+            
+            	
+          },
+          error: function(data){
+            $.unblockUI; show_message2('Some Error Occured.',false);
+          }
+          
+	 });
+//   $.unblockUI();
+  }
+  
+  function editOrder(e, obj){
+    freez();
+  	e.preventDefault();
+    e.stopPropagation();
+//     data = $(obj).serializeArray(); //console.log(JSON.parse(JSON.stringify(data)));
+    
+    order_id = $(obj).attr('order_id');
+    var data = {cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: order_id, order_price: {}, order_qty: {} };
+   
+//     var data = { order_price: {}, order_qty: {} };
+                
+    $('#OrderEditModal .order_price').each(function(index, id){
+        var $id = $(id);
+		data.order_price[$id.attr('item_id')] = $id.val();
+     });
+    
+    $('#OrderEditModal .order_qty').each(function(index, id){
+      	var $id = $(id);
+		data.order_qty[$id.attr('item_id')] = $id.val();
+     });
+    
+//     console.log(JSON.stringify(data));
+    
+//     data = {"cemail":"southeast.user@email.com","ctoken":"53f32c706be6bf09cd08a082dc2e6a8b2c0dd8ed","order_id":"4685227729",{"order_price":{"8336181329":"0.11","8436425553":"0.45","8436372177":"1.75"},"order_qty":{"8336181329":"2","8436425553":"2","8436372177":"2"}}};
+//		?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}&order_id='+order_id            
+    $.ajax({
+      url: '/apps/pepsi-print/order_configuration/edit_order.json',
+          type: 'POST',
+          data: JSON.stringify(data),
+          dataType: 'json',
+          contentType: "application/json;",
+          statusCode: {
+            401:function() { console.log("401") },
+            404:function() { console.log("404"); },
+            200:function() { console.log("200"); },
+            201:function() { console.log("201"); },
+            202:function() { console.log("202"); }
+          },
+          success: function(data){
+            	console.log(JSON.stringify(data));
+            	
+                if(200 === Number(data.status)){
+                  	$('#OrderEditModal button[type = "submit"]').prop('disabled', 'disabled');
+                  	freez();
+                   	setTimeout( function (){ 
+                      addToModal(data.result); 
+                      var $goTo = $('#OrderEditModal .goTo');
+                      $goTo.prop('href', '/pages/order?id='+data.result);
+                      $goTo.show();
+                      {% if template contains 'page.order' %}
+  //                   		fetch_Order(data.result);
+                          location.replace('/pages/order?id='+data.result+prev_page_params);
+                      {% endif %}
+                      changed = true;
+  //                   	$.unblockUI; 
+                      show_message2('Updated Successfully.',true);
+                    }, 1500);
+                }else if(401 === Number(data.status)){
+                  	$.unblockUI; show_message2(data.message,false);
+                }else{
+                	$.unblockUI; show_message2(data.message,false); console.log('else');
+                }
+           
+            
+            	
+          },
+          error: function(data){
+            $.unblockUI; show_message2('Some Error Occured.',false);
+          }
+          
+	 });
+    
+    //return false;
+//     console.log(order_id);
+  }
+</script>

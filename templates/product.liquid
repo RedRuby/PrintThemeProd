@@ -1,0 +1,35 @@
+{% if customer  %}
+
+  {% assign Role_User = 'general.Role.User' | t %}
+  {% assign Role_Printer = 'general.Role.Printer' | t %}
+  {% assign Role_Manager = 'general.Role.Manager' | t %}
+  {% assign Role_ASM = 'general.Role.ASM' | t %}
+  {% assign Role_Admin = 'general.Role.Admin' | t %}
+
+{% endif %}
+
+{% if product.type  == 'SHOPSTORM_HIDDEN_PRODUCT' %}
+  Product is not available
+  {% break %}
+{% endif %}
+
+{% comment %}
+  The contents of the product.liquid template can be found in /sections/product-template.liquid
+{% endcomment %}
+
+{% section 'product-template' %}
+
+{% if customer and customer.tags contains Role_ASM %}
+<!-- modalContent {% include 'edit-variant-template' %} modalContent -->
+{% endif %}
+
+<script>
+  // Override default values of shop.strings for each template.
+  // Alternate product templates can change values of
+  // add to cart button, sold out, and unavailable states here.
+  theme.productStrings = {
+    addToCart: {{ 'products.product.add_to_cart' | t | json }},
+    soldOut: {{ 'products.product.sold_out' | t | json }},
+    unavailable: {{ 'products.product.unavailable' | t | json }}
+  }
+</script>

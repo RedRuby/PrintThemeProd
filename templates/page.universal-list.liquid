@@ -1,0 +1,96 @@
+
+{% if customer  %}
+  {% if customer.tags contains "Region:NorthEast" %}
+    {% assign customer_region_tag = "Region:NorthEast" %}
+  {% endif %}  
+  {% if customer.tags contains "Region:California" %}
+    {% assign customer_region_tag = "Region:California" %}
+  {% endif %}
+  {% if customer.tags contains "Region:Mountain" %}
+    {% assign customer_region_tag = "Region:Mountain" %}
+  {% endif %} 
+  {% if customer.tags contains "Region:SouthEast" %}
+    {% assign customer_region_tag = "Region:SouthEast" %}
+  {% endif %}      
+  {% if customer.tags contains "Region:MN" %}
+    {% assign customer_region_tag = "Region:MN" %}
+  {% endif %}
+{% endif %}
+
+<style>
+  .hidden{display:none;}
+  .mfp-content{width:80% !important;}
+  #nav-2 li:nth-of-type(1) button{background-color: #e00513;}
+</style>
+
+{% paginate collections.all.products by 20 %}
+
+<div id="CollectionSection" data-section-id="{{ section.id }}" data-section-type="collection-template" data-sort-enabled="{{ section.settings.sort_enable }}" data-tags-enabled="{{ section.settings.tags_enable }}">
+  <div class="section-header section-header--breadcrumb">
+    {% include 'breadcrumb' %}
+  </div>
+
+  <header class="section-header section-header--large">
+    <h1 class="">{{ page.title }}</h1>
+    
+  </header>
+
+  
+
+  <div class="grid-uniform grid-link__container">
+    {% assign grid_item_width = 'wide--one-fifth large--one-quarter medium-down--one-half' %}
+
+    {% for product in collections.all.products %}
+      {% assign featured = product %}
+      <div class="grid__item {{grid_item_width}}">
+        {% include 'product-grid-item-universal-list' %}
+      </div>
+	
+    {% endfor %}
+
+  </div>
+
+  {% if paginate.pages > 1 %}
+    <hr class="hr--clear">
+
+    <div class="text-center">
+      {% include 'pagination-custom' %}
+    </div>
+  {% endif %}
+</div>
+{% endpaginate %}
+
+<script type="text/javascript">
+  var cemail = "{{ customer.email }}"
+$(".product-check").bind('change', function(){
+  freez();
+// for (var key in localStorage){
+//    console.log(key)
+// }
+// for ( var i = 0, len = localStorage.length; i < len; ++i ) {
+//   console.log( localStorage.getItem( localStorage.key( i ) ) );
+// }
+//   alert(document.cookie.split(";"));
+  if (this.checked){
+    var bool = this.checked ? 1 : 0;
+    $.ajax({
+      url: '/apps/pepsi-print/product_configuration/'+this.value+'/create',
+      type: 'POST',
+      data: {product_id: this.value, cemail: cemail, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
+      dataType: 'json',
+      success: function(){$.unblockUI; show_message('div.growlUI-added');},
+      error: function(){$.unblockUI; show_message('div.growlUI-error');}
+    });
+  }
+  else {
+    $.ajax({
+      url: '/apps/pepsi-print/product_configuration/'+this.value+'/remove',
+      type: 'POST',
+      data: {product_id: this.value, cemail: cemail, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}"},
+      dataType: 'json',
+      success: function(){$.unblockUI; show_message('div.growlUI-removed');},
+      error: function(){$.unblockUI; show_message('div.growlUI-error');}
+    });
+  }
+});
+</script>

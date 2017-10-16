@@ -1,0 +1,271 @@
+<div class="grid">
+
+  <div class="grid__item post-large--two-thirds push--post-large--one-sixth">
+
+    <div class="section-header  text-center">
+      <h1 class="section-header--title">{{ page.title }}</h1>
+    </div>
+
+    <div class="rte">
+      {{ page.content }}
+    </div>
+
+    <div>
+      
+      {% form 'contact' %}
+
+        {% if form.posted_successfully? %}
+          <p class="note text-center form-success success-custom-color">
+            {{ 'contact.form.post_success' | t }}
+          </p>
+        {%else%}
+          {% if form.errors %}
+          <div class="errorForm feedback">
+            <!-- {{ form.errors.size }} or {{ form.errors | size }} -->
+            <p>Your contact form has {{ form.errors | size | pluralize: 'an error', 'a few errors' }}. To submit your form, make the following changes and try again:</p>
+            {% for field in form.errors %}
+              <p>The {{ field | capitalize | replace: 'Body', 'Message' }} field {{ form.errors.messages[field] }}.</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+        {% assign name_attr = 'contact.form.name' | t | handle %}
+        <label for="ContactFormFirstName" class="label--hidden1">First Name</label>
+        <input type="text" required id="ContactFormFirstName" name="contact[FirstName]" placeholder="First Name" autocapitalize="words" value="{% if form[name_attr] %}{{ form[name_attr] }}{% endif %}">
+      
+      	<label for="ContactFormLastName" class="label--hidden1">Last Name</label>
+        <input type="text" required id="ContactFormLastName" name="contact[LastName]" placeholder="Last Name" autocapitalize="words" value="{% if form[name_attr] %}{{ form[name_attr] }}{% endif %}">
+
+        <label for="ContactFormEmail" class="label--hidden1">{{ 'contact.form.email' | t }}</label>
+        <input type="email" required id="ContactFormEmail" name="contact[email]" pattern="[\w.%+-_]+@pepsico\.com" title="Enter a valid company email" placeholder="{{ 'contact.form.email' | t }}" autocorrect="off" autocapitalize="off" value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}">
+
+        {% assign name_attr = 'contact.form.phone' | t | handle %}
+        <label for="ContactFormPhone" class="label--hidden1">{{ 'contact.form.phone' | t }}</label>
+        <input type="tel" required id="ContactFormPhone" name="contact[{{ name_attr }}]" placeholder="{{ 'contact.form.phone' | t }}" pattern="[0-9\-]*" value="{% if form[name_attr] %}{{ form[name_attr] }}{% elsif customer %}{{ customer.phone }}{% endif %}">
+      
+      	<label for="ContactFormStreet" class="label--hidden1">{{ 'contact.form.address' | t }}</label>
+      	<input id="ContactFormStreet" required type="text" name="contact[street]" valued="{{ shop.address.street }}">
+      
+      	<label for="ContactFormCity" class="label--hidden1">{{ 'contact.form.city' | t }}</label>
+        <input id="ContactFormCity" required type="text" name="contact[city]" valued="{{ shop.address.city }}">
+      
+      	<label for="ContactFormZip" class="label--hidden1">{{ 'contact.form.zip' | t }}</label>
+        <input id="ContactFormZip" required type="text" name="contact[zip]" valued="{{ shop.address.zip }}">
+      
+      	<label for="ContactFormCountry" class="label--hidden1">{{ 'contact.form.country' | t }}</label>
+        <input id="ContactFormCountry" required type="text" name="contact[country]" value="{{ shop.address.country }}">	
+      
+      	<label for="ContactFormProvince" class="label--hidden1">{{ 'contact.form.province' | t }}</label>
+<!--         <input id="ContactFormProvince" required type="text" name="contact[province]" valued="{{ shop.address.province }}"> -->
+      	<select title="Enter Province" required id="ContactFormProvince" name="contact[province]">
+          <option style="color:#666; background-color:lightgrey;" value="" disabled selected>State</option>
+          <option style="color:#666; background-color:white;" value="AL">Alabama, AL</option>
+          <option style="color:#666; background-color:white;" value="AK">Alaska, AK</option>
+          <option style="color:#666; background-color:white;" value="AZ">Arizona, AZ</option>
+          <option style="color:#666; background-color:white;" value="AR">Arkansas, AR</option>
+          <option style="color:#666; background-color:white;" value="CA">California, CA</option>
+          <option style="color:#666; background-color:white;" value="CO">Colorado, CO</option>
+          <option style="color:#666; background-color:white;" value="CT">Connecticut, CT</option>
+          <option style="color:#666; background-color:white;" value="DE">Delaware, DE</option>
+          <option style="color:#666; background-color:white;" value="DC">District of Columbia, DC</option>
+          <option style="color:#666; background-color:white;" value="FL">Florida, FL</option>
+          <option style="color:#666; background-color:white;" value="GA">Georgia, GA</option>
+          <option style="color:#666; background-color:white;" value="HI">Hawaii, HI</option>
+          <option style="color:#666; background-color:white;" value="ID">Idaho, ID</option>
+          <option style="color:#666; background-color:white;" value="IL">Illinois, IL</option>
+          <option style="color:#666; background-color:white;" value="IN">Indiana, IN</option>
+          <option style="color:#666; background-color:white;" value="IA">Iowa, IA</option>
+          <option style="color:#666; background-color:white;" value="KS">Kansas, KS</option>
+          <option style="color:#666; background-color:white;" value="KY">Kentucky, KY</option>
+          <option style="color:#666; background-color:white;" value="LA">Louisiana, LA</option>
+          <option style="color:#666; background-color:white;" value="ME">Maine,  ME</option>
+          <option style="color:#666; background-color:white;" value="MD">Maryland,  MD</option>
+          <option style="color:#666; background-color:white;" value="MA">Massachusetts,  MA</option>
+          <option style="color:#666; background-color:white;" value="MI">Michigan,  MI</option>
+          <option style="color:#666; background-color:white;" value="MN">Minnesota,  MN</option>
+          <option style="color:#666; background-color:white;" value="MS">Mississippi,  MS</option>
+          <option style="color:#666; background-color:white;" value="MO">Missouri,  MO</option>
+          <option style="color:#666; background-color:white;" value="MT">Montana,  MT</option>
+          <option style="color:#666; background-color:white;" value="NE">Nebraska,  NE</option>
+          <option style="color:#666; background-color:white;" value="NV">Nevada,  NV</option>
+          <option style="color:#666; background-color:white;" value="NH">New Hampshire,  NH</option>
+          <option style="color:#666; background-color:white;" value="NJ">New Jersey,  NJ</option>
+          <option style="color:#666; background-color:white;" value="NM">New Mexico,  NM</option>
+          <option style="color:#666; background-color:white;" value="NY">New York,  NY</option>
+          <option style="color:#666; background-color:white;" value="NC">North Carolina,  NC</option>
+          <option style="color:#666; background-color:white;" value="ND">North Dakota,  ND</option>
+          <option style="color:#666; background-color:white;" value="OH">Ohio,  OH</option>
+          <option style="color:#666; background-color:white;" value="OK">Oklahoma,  OK</option>
+          <option style="color:#666; background-color:white;" value="OR">Oregon,  OR</option>
+          <option style="color:#666; background-color:white;" value="PA">Pennsylvania,  PA</option>
+          <option style="color:#666; background-color:white;" value="RI">Rhode Island,  RI</option>
+          <option style="color:#666; background-color:white;" value="SC">South Carolina,  SC</option>
+          <option style="color:#666; background-color:white;" value="SD">South Dakota,  SD</option>
+          <option style="color:#666; background-color:white;" value="TN">Tennessee,  TN</option>
+          <option style="color:#666; background-color:white;" value="TX">Texas,  TX</option>
+          <option style="color:#666; background-color:white;" value="UT">Utah,  UT</option>
+          <option style="color:#666; background-color:white;" value="VT">Vermont,  VT</option>
+          <option style="color:#666; background-color:white;" value="VA">Virginia,  VA</option>
+          <option style="color:#666; background-color:white;" value="WA">Washington,  WA</option>
+          <option style="color:#666; background-color:white;" value="WV">West Virginia,  WV</option>
+          <option style="color:#666; background-color:white;" value="WI">Wisconsin,  WI</option>
+          <option style="color:#666; background-color:white;" value="WY">Wyoming,  WY</option>
+        </select>
+      
+{%comment%} 
+        <label for="ContactFormCompanyName" class="label--hidden1">Company Name</label>
+        <input type="text" required id="ContactFormCompanyName" name="contact[CompanyName]" placeholder="Company Name">
+
+      	<label for="ContactFormFunction" class="label--hidden1">Function</label>
+      	<select name="contact[function]" title="Function" required id="ContactFormFunction" style="color: rgb(163,163,163);" onchange="this.style.color = '#666';" >
+          <option style="color:#666; background-color:lightgray;" value="" selected disabled>Select Function</option>
+          <option style="color:#666;" value='ASM'>ASM</option>
+          <option style="color:#666;" value='Printer'>Printer</option>
+          <option style="color:#666;" value='Print Shop'>Print Shop</option>
+          <option style="color:#666;" value='User'>User</option>
+          <option style="color:#666;" value='All Other'>All Other</option>
+        </select>
+
+     	<label for="ContactFormMarket" class="label--hidden1">Market</label>
+        <input type="text" id="ContactFormMarket" name="contact[Market]" placeholder="Market">
+{%endcomment%}
+      	<label for="ContactFormRegion" class="label--hidden1">Region</label>
+      	<select name="contact[Region]" title="Region" required oninvalid="this.setCustomValidity('Must select the region you are associated with.')" onchange="this.setCustomValidity('')" id="ContactFormRegion" style="color: #666;" onchange="this.style.color = '#000';" >
+          <option style="color:#666; background-color:lightgray;" value="" selected disabled>Select Region</option>
+          <option style="color:#666;" value='Region:NorthEast'>NorthEast</option>
+          <option style="color:#666;" value='Region:SouthEast'>SouthEast</option>
+          <option style="color:#666;" value='Region:California'>California</option>
+          <option style="color:#666;" value='Region:MidAtlantic'>Mid-Atlantic</option>
+          <option style="color:#666;" value='Region:Mountain'>Mountain</option>
+          <option style="color:#666;" value='Region:MidWest'>MidWest</option>
+          <option style="color:#666;" value='Region:S0uth'>South</option>
+		  <option style="color:#666;" value='Region:GreatLakes'>Great Lakes</option>
+        </select>
+      	
+      	<label for="ContactFormRole" class="label--hidden1">Do you have people reporting to you whose orders you would like to see ?</label>
+      	<select name="contact[userRole]" title="Role" required id="ContactFormRegion" style="color: #666;" onchange="this.style.color = '#000';" >
+          <option style="color:#666;" value='Role:UserManager'>Yes</option>
+          <option style="color:#666;" selected value='Role:SiteUser'>No</option>
+        </select>
+      
+		{% comment %}
+      	<input class="text-center1" type="text" required id="ContactFormRole" disabled name="" placeholder="" value="Do you have people reporting to you whose orders you would like to see ?">
+      	<div class="text-center">
+          <label  style="display:initial;"><input type="radio" value="Role:UserManager" name="contact[userRole]"/> Yes</label>
+          <label  style="display:initial; padding-left:20px;"><input type="radio" checked="checked" value="Role:SiteUser" name="contact[userRole]"/> No</label>
+      	</div>      	
+      	
+      	<label for="ContactFormPass" class="label--hidden1">Password</label>
+      	<input id="ContactFormPass" required type="password" name="" value="">
+      	<label for="ContactFormConfirmPass" class="label--hidden1">Confirm Password</label>
+      	<input id="ContactFormConfirmPass" required type="password" name="" value="">
+      	
+        <div class="hidden">
+          <input id="ContactFormStreet" type="hidden" name="" value="{{ shop.address.street }}">
+          <input id="ContactFormCity" type="hidden" name="" value="{{ shop.address.city }}">
+          <input id="ContactFormProvince" type="hidden" name="" value="{{ shop.address.province }}">
+          <input id="ContactFormZip" type="hidden" name="" value="{{ shop.address.zip }}">
+          <input id="ContactFormCountry" type="hidden" name="" readonly value="{{ shop.address.country }}">
+<!--           <input id="ContactFormMarket" type="hidden" name="" value="{{ shop.address.street }}"> -->
+        </div>
+      	{% endcomment %}
+      
+      	<div style="padding-top:50px;" class="text-center">
+        <input type="submit" class="btn" value="Submit Registration Request">
+          <br><br><a href="/account/login" class="btn">Cancel</a>
+      	</div>
+      {% endif %}
+      {% endform %}
+      
+   </div>
+ </div>
+</div>
+
+<script>
+  
+  window.onerror = function(error){
+    // do your stuff
+    console.log(error.message);
+  }
+  
+  var formData = '';
+  
+  $(function() {
+    $('select[required], input[required]').before('<span style="color: red; position:absolute; left: 15px;">*</span>');
+  });
+  
+  
+  $('#contact_form').bind('submit',function(e, obj){
+  
+    freez();
+  	e.preventDefault();
+    e.stopPropagation();
+  	
+    var data = { customer : {} };
+    
+    data.customer["first_name"] = $('#ContactFormFirstName').val();
+    data.customer["last_name"] = $('#ContactFormLastName').val();
+    data.customer["phone"] = $('#ContactFormPhone').val();
+    data.customer["region"] = $('#ContactFormRegion').val();
+    data.customer["role"] = $('[name = "contact[userRole]"]').val();
+    data.customer["email"] = $('#ContactFormEmail').val();
+    data.customer["address1"] = $('#ContactFormStreet').val();
+    data.customer["city"] = $('#ContactFormCity').val();
+    data.customer["province"] = $('#ContactFormProvince').val();
+    data.customer["zip"] = $('#ContactFormZip').val();
+    data.customer["country"] = $('#ContactFormCountry').val();
+    data.customer["company"] = $('#ContactFormCompanyName').val();
+    
+    formData = JSON.stringify(data);
+    
+    console.log(JSON.stringify(data));
+    
+    {% comment %}{% endcomment %}
+    $.ajax({
+      url: '/apps/pepsi-print/customer/registration.json',
+          type: 'POST',
+          data: JSON.stringify(data),
+          dataType: 'json',
+          contentType: "application/json;",
+          statusCode: {
+            401:function() { console.log("401") },
+            404:function() { console.log("404"); },
+            200:function() { console.log("200"); },
+            201:function() { console.log("201"); },
+            202:function() { console.log("202"); }
+          },
+          success: function(data){
+            	console.log(JSON.stringify(data));
+            	
+                if(200 === Number(data.status)){ console.log("unbiding");
+                  if(formData.indexOf("test") == -1){
+                    $('#contact_form').unbind('submit').delay(500).submit();
+                  }else{
+                    show_message2("Test account created, activation link sent to your email. ",true);
+                    setTimeout(function(){ window.location.assign('/account/login'); },4000);
+                  }
+                  	
+                }else if(401 === Number(data.status)){
+                  	$.unblockUI; show_message2(data.message,false);
+                }else{
+                	$.unblockUI; show_message2(data.message,false); console.log('else');
+                }
+           
+            
+            	
+          },
+          error: function(data){
+            $.unblockUI; show_message2('Some Error Occured.',false);
+          }
+          
+	 });
+    
+    
+    
+    //return false;
+  
+ 	
+  });
+  
+  
+</script>

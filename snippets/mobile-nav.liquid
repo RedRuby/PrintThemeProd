@@ -1,0 +1,198 @@
+{% if customer  %}
+	
+  {% assign Role_User = 'general.Role.User' | t %}
+  {% assign Role_Printer = 'general.Role.Printer' | t %}
+  {% assign Role_Manager = 'general.Role.Manager' | t %}
+  {% assign Role_ASM = 'general.Role.ASM' | t %}
+  {% assign Role_Admin = 'general.Role.Admin' | t %}
+
+  {% assign region_NorthEast = "general.Region_Tags.NorthEast" | t %}
+  {% assign region_SouthEast = "general.Region_Tags.SouthEast" | t %}
+  {% assign region_California = "general.Region_Tags.California" | t %}
+  {% assign region_South = "general.Region_Tags.South" | t %}
+  {% assign region_Mountain = "general.Region_Tags.Mountain" | t %}
+  {% assign region_MidAtlantic = "general.Region_Tags.MidAtlantic" | t %}
+  {% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
+  {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
+
+  {% if customer.tags contains region_NorthEast %}
+    {% assign customer_region_tag = region_NorthEast %}
+  {% elsif customer.tags contains region_SouthEast %}
+    {% assign customer_region_tag = region_SouthEast %}
+  {% elsif customer.tags contains region_California %}
+    {% assign customer_region_tag = region_California %}
+  {% elsif customer.tags contains region_South %}
+    {% assign customer_region_tag = region_South %}
+  {% elsif customer.tags contains region_Mountain %}
+    {% assign customer_region_tag = region_Mountain %}
+  {% elsif customer.tags contains region_MidAtlantic %}
+    {% assign customer_region_tag = region_MidAtlantic %}
+  {% elsif customer.tags contains region_MidWest %}
+    {% assign customer_region_tag = region_MidWest %}
+  {% elsif customer.tags contains region_GreatLakes %}
+    {% assign customer_region_tag = region_GreatLakes %}
+  {% endif %}
+
+{% endif %}
+
+{% assign region_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase %}
+
+{% if customer and customer.tags contains Role_ASM %}
+  {% assign collection_handle = collection.handle %}
+  {% unless collection %}
+      <style>#nav-2 li:nth-of-type(1) button{background-color: #e00513;}</style>
+      {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-my-products' %}
+  {% endunless %}
+{% elsif customer.tags contains Role_Admin %}
+  {% assign collection_handle = 'all' %}
+{% elsif customer.tags contains Role_User or customer.tags contains Role_Printer or customer.tags contains Role_Manager %}
+  {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-products' %}
+  {% assign non_asm = true %}
+{% endif %}
+
+{% assign tag_array = '' %}
+{% if collection %}
+  {% for tag in collection.all_tags %}
+  	{% assign tag_array = tag_array |append:','|append: tag %}
+  {% endfor %}
+{% else %}
+{% for collection in collections %}
+  {% if collection.handle == collection_handle %}
+    {% for tag in collection.all_tags %}
+      {% assign tag_array = tag_array |append:','|append: tag %}
+    {% endfor %}
+  {% endif %}
+{% endfor %}
+{% endif %}
+
+
+{% assign tag_array = tag_array |remove_first: "," |split:',' %}
+
+<ul id="MobileNav" class="mobile-nav post-large--hide">
+  
+  <li class="mobile-nav__link">
+    <a id="link2-new" href="/collections/{{ collection_handle }}?sort_by=created-descending" class="mobile-nav">New!</a>
+  </li>
+  
+  {% for link in mobile-nav.links %}
+  {% assign child_list_handle = link.title | handleize %}
+  <li class="mobile-nav__link" aria-haspopup="true">
+    {% if linklists[child_list_handle].links != blank %}
+    {% capture primary_index %}{{ forloop.index }}{% endcapture %}
+      <a id="link2{{ primary_index }}" href="{{ link.url }}" class="mobile-nav__sublist-trigger">
+        {{ link.title }}
+        {% include 'mobile-nav-icons' %}
+      </a>
+      <ul class="mobile-nav__sublist">  
+        {% for childlink in linklists[child_list_handle].links %}
+        {% assign childlink_handle = childlink.url |split:'/' %}
+          {% if tag_array contains childlink_handle.last %}
+            <li class="mobile-nav__sublist-link">
+              <a href="/collections/{{ collection_handle }}/{{ childlink_handle.last }}" class="{% if current_tags contains childlink.handle %} site-nav--active {% endif %}">{{ childlink.title }}</a>
+            </li>
+          {% endif %}
+        
+          {% if childlink.title == 'Contact Us' %}
+            <li class="mobile-nav__sublist-link">
+              <a id="link2-contact" href="/pages/{{ childlink.handle }}{{ region_handle |prepend:'-' }}" class=" ">{{ childlink.title | escape }}</a>
+            </li>
+          {% endif %}
+
+          {% if childlink.title == 'Payment Codes' %}
+            <li class="mobile-nav__link " aria-haspopup="true">
+              <a id="link2-payment-codes" hrefs="/pages/{{ childlink.handle }}" style="color:black;" class="mobile-nav__sublist-trigger">
+                {{ childlink.title | escape }}
+                {% include 'mobile-nav-icons' %}
+              </a>
+              <ul id="payment-codes-ul1" class="mobile-nav__sublist" styles="display:none;">
+                <li class="mobile-nav__sublist-link">
+                  <a id="link2-sales" href="/pages/{{ region_handle |append:'-'}}{{ childlink.handle }}-sales" class="">Sales</a>
+                </li>
+                <li class="mobile-nav__sublist-link">
+                  <a id="link2-food-service" href="/pages/{{ childlink.handle }} {{ region_handle |prepend:'-' }}-food-service" class="">Food Service</a>
+                </li>
+                <li class="mobile-nav__sublist-link">
+                  <a id="link2-all-other" href="/pages/{{ childlink.handle }} {{ region_handle |prepend:'-' }}-trade-expense" class="">Trade Expense</a>
+                </li>
+              </ul>
+            </li>
+          {% endif %}
+        
+          {% if childlink.title == 'POS University' %}
+            <li class="mobile-nav__link " aria-haspopup="true">
+              <a id="link2-payment-codes" hrefs="/pages/{{ childlink.handle }}" style="color:black;" class="mobile-nav__sublist-trigger">
+                {{ childlink.title | escape }}
+                {% include 'mobile-nav-icons' %}
+              </a>
+              <ul id="payment-codes-ul1" class="mobile-nav__sublist" styles="display:none;">
+                <li class="mobile-nav__sublist-link">
+                  <a id="link2-pos-1" href="/pages/pos" class="">POS</a>
+                </li>
+<!--                 <li class="mobile-nav__sublist-link">
+                  <a id="link2-pos-2" href="/pages/pos-2" class="">POS 2</a>
+                </li>
+                <li class="mobile-nav__sublist-link">
+                  <a id="link2-pos-3" href="/pages/pos-3" class="">POS 3</a>
+                </li>
+                <li class="mobile-nav__sublist-link">
+                  <a id="link2-pos-4" href="/pages/pos-4" class="">POS 4</a>
+                </li> -->
+              </ul>
+            </li>
+          {% endif %}
+        
+           	<script>
+          	  {%if current_tags contains childlink_handle.last %}{% assign active_index = primary_index %}{% assign active = true %}{% endif %} 
+          	</script>
+        
+        {% endfor %}
+      </ul>
+    {% else %}
+      <a href="{{ link.url }}" class="mobile-nav">
+        {{ link.title }}
+      </a>
+    {% endif %}
+  </li>
+  {% endfor %}
+
+  {% if shop.customer_accounts_enabled %}
+    {% if customer %}
+      <li class="mobile-nav__link">
+        <a href="/account">{{ 'layout.customer.account' | t }}</a>
+      </li>
+      <li class="mobile-nav__link">
+        {{ 'layout.customer.log_out' | t | customer_logout_link }}
+      </li>
+    {% else %}
+      <li class="mobile-nav__link">
+        {{ 'layout.customer.log_in' | t | customer_login_link }}
+      </li>
+      <li class="mobile-nav__link">
+        <a href='/pages/register' >{{ 'layout.customer.create_account' | t }}</a>
+      </li>
+    {% endif %}
+  {% endif %}
+  
+  <li class="mobile-nav__link">
+    {% if section.settings.header_search_enable %}
+      <div class="header-bar__module header-bar__search">
+        {% include 'search-bar' with 'header' %}
+      </div>
+    {% endif %}
+  </li>
+  
+</ul>
+
+<script>
+  
+    $(document).ready(function(){
+      {% if customer.tags contains Role_Printer %}
+      	$('#MobileNav').block({message:'', overlayCSS: { backgroundColor: 'white', cursor: 'not-allowed'} });
+      {% endif %}
+      
+      {% if active == true %}
+     	 $('#link2{{ active_index }}').addClass('site-nav--active');
+      {% endif %}
+    });
+  
+</script>

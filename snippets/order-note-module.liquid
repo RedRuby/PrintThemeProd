@@ -1,0 +1,177 @@
+<style>
+  #orderNotes{ max-width:100%; }
+  @media (min-width: 750px) {
+    #orderNotes{ max-width:80%; }
+  }
+  button:disabled{
+    cursor:not-allowed !important;
+  }
+</style>
+
+<script>console.log('{{customer.id}}');
+  var orderMsg = { "order_msg": [
+//     {"id": "6383072341", "role": "ASM", "text": "Lorem Ipsum lorem Ipsum lorem ipsum", "time": "1500485222235"},
+//     {"id": "6383074683", "role": "Printer", "text": "Lorem Ipsum lorem Ipsum lorem ipsum", "time": "1500587252235"},
+//     {"id": "6383072341", "role": "ASM", "text": "Lorem Ipsum lorem Ipsum lorem ipsum", "time": "1500687225235"},
+//     {"id": "6383074683", "role": "Printer", "text": "Lorem Ipsum lorem Ipsum lorem ipsum", "time": "1500787222535"},
+//     {"id": "6383072341", "role": "ASM", "text": "Lorem Ipsum lorem Ipsum lorem ipsum", "time": "1500887222255"},
+//     {"id": "6383074683", "role": "Printer", "text": "Lorem Ipsum lorem Ipsum lorem ipsum", "time": "1500887222235"}
+  ]};
+
+  $(document).ready(function(){
+//   	$('#orderNotes').hide(0);
+//     if(orderMsg.order_msg.length > 0)
+//       prepareMsg(orderMsg, function(data){
+//         w3DisplayData('orderNotes', data);
+        
+//       });{% unless customer.tags contains Role_ASM or customer.tags contains Role_Printer %}
+// 	else
+//       $('#orderBtn').hide(0);{% endunless %}
+  });
+
+
+  {% if customer.tags contains Role_ASM or customer.tags contains Role_Printer %}
+  var postMsg = function (){
+    var date = new Date(); 
+    if(orderMsg.order_msg == undefined){
+      orderMsg = {};
+      orderMsg.order_msg = [];
+    }
+    orderMsg.order_msg.push({id:"{{ customer.id }}", role: "{{ customer_role_tag |replace:'Role:','' }}", text: $('#postTxt').val(), time: date.getTime()});
+//     $('#postTxt').val('');
+    prepareMsg(orderMsg, function(data){
+      w3DisplayData('orderNotes', data);
+    });
+   {% comment %}{% endcomment %}
+    data = {order_id: order_id, cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", note: JSON.stringify(orderMsg) };
+    
+//     console.log('posting:', JSON.stringify(data));
+            
+    freez();
+    $.ajax({
+      url: '/apps/pepsi-print/order_configuration/change_order_note.json', //?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}&order_id='+order_id,
+      type: 'POST',
+      data: JSON.stringify(data),
+      dataType: 'json',
+      contentType: "application/json;",
+      success: function(data){
+//         console.log(data.status);console.log(typeof parseInt(data.status));
+      	if(parseInt(data.status) == 200){
+          $('#postTxt').val('');
+          $('#postBtn').prop('disabled', 'disabled');
+          $.unblockUI();
+        }else
+          show_message2(data.message, false);
+      },
+      error: function(){
+        show_message2('Error in Posting Message.',false);
+      }
+
+    });
+   
+  }
+  {% endif %}
+
+  function prepareMsg(data, callback){
+    var i, diff, hrs; 
+    var now = new Date();
+    var date = new Date();
+    var myData = jQuery.extend(true, {}, data);
+    var myArray = myData['order_msg']; 
+    
+    String.prototype.replaceAll = function (replaceThis, withThis) {
+       var re = new RegExp(replaceThis,"g"); 
+       return this.replace(re, withThis);
+    };
+
+//         console.log(myArray);
+    for (i = 0; i < myArray.length; i++) {
+      date.setTime(myArray[i]['time']);
+      diff = now.getDate() - date.getDate();
+      if(diff == 0){
+        hrs = date.getHours();
+        myArray[i]['time'] = 'Today, '+((hrs>12) ? hrs-12 : hrs)+':'+date.getMinutes()+((hrs<12) ? ' am' : ' pm');
+      }else if(diff == 1){
+        hrs = date.getHours();
+        myArray[i]['time'] = 'Yesterday, '+((hrs>12) ? hrs-12 : hrs)+':'+date.getMinutes()+((hrs<12) ? ' am' : ' pm');
+      }else{
+        hrs = date.getHours();
+        myArray[i]['time'] = date.getDate()+'/'+date.getMonth()+'/'+date.getFullYear()+', '+((hrs>12) ? hrs-12 : hrs)+':'+date.getMinutes()+((hrs<12) ? ' am' : ' pm');
+      }
+      
+      urls = myArray[i]['text'].match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g)
+      console.log(urls);
+      if((urls||'').length > 0)
+        jQuery.unique(urls).forEach(function(item, index){
+          	item_u = item.match(/^https?:/) ? item : (item.match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/) ? 'mailto:' : '//') + item;
+            target = item_u.match(/^mailto/) ? '' : "target='_blank'" ;
+        	myArray[i]['text'] = myArray[i]['text'].replaceAll(item, "<a "+ target +" href='"+ item_u + "'><u>"+item+"</u></a>" );
+        });
+
+    } 
+                            
+
+//         console.log('myData', JSON.stringify(myData));
+//         console.log('Data', JSON.stringify(data));
+    callback(myData);
+    $('.noteText').addClass('w3-light-grey');
+    {% if customer.tags contains Role_ASM or customer.tags contains Role_Printer %}
+    $('div[w3-repeat="order_msg"] .{{ customer.id }}').find('.noteTime').addClass('w3-left').find('span').removeClass('w3-right').addClass('w3-left');
+    $('div[w3-repeat="order_msg"] .{{ customer.id }}').find('.noteText').removeClass('w3-light-grey').addClass('w3-right w3-light-blue');
+    {% else %}
+      $('div[w3-repeat="order_msg"] .ASM').find('.noteText').removeClass('w3-light-grey').addClass('w3-light-blue');
+      $('.role4admin').removeClass('hide');
+    {% endif %}
+    $('#orderNotes, #orderNotes>div').show(0);
+  }
+
+  function toggleNote(){
+    if($('#orderNotes').is(':visible'))
+      $('#orderNotes').removeClass('flipInX').addClass('animated flipOutX').delay(700).hide(0);
+    else{
+      $('#orderNotes').removeClass('flipOutX').addClass('animated flipInX').show(0);
+      if($('#postTxt').length > 0){
+        $('#postTxt')[0].focus();
+        
+        target = $('#postTxt');
+        point = Number(target.offset().top)-65;
+        if (target.length) {
+          $('html, body, .mfp-wrap').animate({
+            scrollTop: point
+          }, 600);
+          return false;
+        }
+      }
+    }
+  }
+</script>
+
+<button id="orderBtn" type="button" class="btn btn--primary w3-left printModeExclude" onclick="toggleNote();">Order Notes</button><br><br>
+
+<div id="orderNotes" class="note" style1="display:none;">
+  <h4 class="printModeInclude hide" >Order Notes:</h4>
+  <div style="display:none;">
+    <div class="w3-margin-top" w3-repeat="order_msg">
+      <div class="w3-row-padding {% raw %}{{ id }} {{ role }}{% endraw %}">
+        <div class="w3-col s8 noteText w3-card-2">
+          <span>{% raw %}{{ text }}{% endraw %}</span>
+        </div>
+        <div class="w3-col s4 noteTime">
+          <span class="w3-right"><span class="role4admin hide">by {% raw %}{{ role }}{% endraw %}, </span>{% raw %}{{ time }}{% endraw %}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br>
+  {% if customer.tags contains Role_ASM or customer.tags contains Role_Printer %}
+  <div class="w3-row-padding printModeExclude">
+    <br>
+    <div class="w3-col s9">
+        <input id="postTxt" type="text" placeholder="Add Your Note Here...." oninput="btn = document.getElementById('postBtn'); if(this.value.length > 0) btn.disabled = false; else btn.disabled = true;" onKeyPress="code = (event.keyCode ? event.keyCode : event.which); if(code == 13 && this.value.length > 0) postMsg();"/>
+    </div>
+    <div class="w3-col s3">
+        <button id="postBtn" type="button" class="btn btn--primary w3-right" disabled onclick="postMsg();">Post</button>
+    </div>
+  </div>
+  {% endif %}
+</div>

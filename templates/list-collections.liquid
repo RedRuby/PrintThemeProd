@@ -1,0 +1,32 @@
+{% if customer %}
+  {% if customer.tags contains 'Region:NorthEast' or customer.tags contains 'Region:SouthEast' %}
+	{% if customer.tags contains 'Region:NorthEast' %}
+		{% assign customer_region = 'Region:NorthEast' %}
+  	{% endif %}
+	{% if customer.tags contains 'Region:SouthEast' %}
+		{% assign customer_region = 'Region:SouthEast' %}
+  	{% endif %}
+  {% endif %}
+{% endif %}
+
+{% comment %}
+  Loop through each collection, except 'frontpage'
+{% endcomment %}
+
+<header class="section-header">
+  <h1 class="section-header__title">{{ 'collections.general.title' | t }}</h1>
+</header>
+
+<div class="grid-uniform">
+  {% for collection in collections %} 
+  	{% if collection.tags contains customer_region %} <script>console.log('{{ collection.tags | json }}');</script>
+      {% unless collection.handle == 'frontpage' %}
+        {% assign collection_item_width = 'medium-down--one-half large--one-third wide--one-quarter' %}
+        {% assign featured = collection.handle %}
+        <div class="grid__item {{collection_item_width}} text-center">
+          {% include 'collection-grid-item' %}
+        </div>
+      {% endunless %}
+  	{% endif %}
+  {% endfor %}
+</div>

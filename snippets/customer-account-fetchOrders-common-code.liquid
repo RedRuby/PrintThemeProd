@@ -1,0 +1,37 @@
+{% comment %}<script>{% endcomment %}
+
+    var uri = new YouAreI(document.location.href);
+        query = uri.query_get();
+    
+    
+    var_start_date = (query.start_date != undefined) ? query.start_date : '';
+    var_end_date = (query.end_date != undefined) ? query.end_date : '';
+    var_page = (query.page != undefined) ? query.page : '1';
+    var_per_page = (query.per_page != undefined) ? query.per_page : ('{{ customer_per_page }}' == localStorage.per_page_{{ customer.id }}||'') ? '{{ customer_per_page }}' : localStorage.per_page_{{ customer.id }}||''
+    var_fulfillment_status = (query.fulfillment_status != undefined) ? query.fulfillment_status : '';
+    var_order_by_name = (query.order_by_name != undefined) ? query.order_by_name : '';
+	var_order_by_order_by = (query.order_by_order_by != undefined) ? query.order_by_order_by : '';
+    var_order_by_discount_codes = (query.order_by_discount_codes != undefined) ? query.order_by_discount_codes : '';
+    var_order_by_date = (query.order_by_date != undefined) ? query.order_by_date : '';
+    var_order_by_fulfillment_status = (query.order_by_fulfillment_status != undefined) ? query.order_by_fulfillment_status : '';
+	var_assigned_printer = (query.assigned_printer != undefined) ? query.assigned_printer : '';
+	var_region_tag = (query.region_tag != undefined) ? query.region_tag : '';
+	var_customer_id = (query.customer_id != undefined) ? query.customer_id : '';
+
+    freez();
+    var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
+
+    if(var_start_date.length != 0 && var_end_date.length != 0){ data.start_date = var_start_date; data.end_date = var_end_date; $('#radio2').removeAttr('disabled').removeAttr('disabled').parent().removeClass('w3-text-grey'); }
+    if(var_page.length != 0){ data.page = var_page }
+    if(var_per_page.length != 0){ data.per_page = var_per_page }
+    if(var_fulfillment_status.length != 0){ data.fulfillment_status = var_fulfillment_status; $('#select_tl option[value="'+var_fulfillment_status+'"]').prop('selected','selected'); }
+    if(var_order_by_name.length != 0){ data.order_by_name = var_order_by_name; toggleOrderBtns('name', data.order_by_name); }
+	if(var_order_by_order_by.length != 0){ data.order_by_order_by = var_order_by_order_by; toggleOrderBtns('order_by', data.order_by_order_by); }
+    if(var_order_by_discount_codes.length != 0){ data.order_by_discount_codes = var_order_by_discount_codes; toggleOrderBtns('discount_codes', data.order_by_discount_codes); }
+    if(var_order_by_date.length != 0){ data.order_by_date = var_order_by_date; toggleOrderBtns('date', data.order_by_date); }
+    if(var_order_by_fulfillment_status.length != 0){ data.order_by_fulfillment_status = var_order_by_fulfillment_status; toggleOrderBtns('fulfillment_status', data.order_by_fulfillment_status); }
+	if(var_assigned_printer.length != 0){ data.assigned_printer = var_assigned_printer; $('#select_tl option[value="'+var_assigned_printer+'"]').prop('selected','selected'); }
+	if(var_region_tag.length != 0){ data.region_tag = var_region_tag; $('#select_rg option[value="'+var_region_tag+'"]').prop('selected','selected'); }
+	if(var_customer_id.length != 0){ data.customer_id = var_customer_id; $('#select_rg option[value="'+var_customer_id+'"]').prop('selected','selected'); }
+
+{% comment %}</script>{% endcomment %}

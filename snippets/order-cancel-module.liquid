@@ -1,0 +1,142 @@
+<div class="mfp-bg mfp-fade mfp-ready w3-grey" style="display:none; opacity:0.6;"></div>
+
+<div class="mfp-wrap mfp-auto-cursor mfp-fade mfp-ready mfp-hide" tabindex="-1" style="overflow-x: hidden; overflow-y: auto;" style="display:none;">
+<div class="mfp-container mfp-s-ready mfp-inline-holder">
+ 
+<div class="mfp-content w3-padding-xlarge w3-card-2 w3-white">
+
+
+<div id="OrderCancelModal" class="white-popup-block text-center" styles="display:none;">
+  <form action="" method="post" onsubmit="cancelOrder(event, this);" order_id=""> 
+    <br>
+    <h2 class="text-left">Cancel Order #<span class="orderName" style="font-size:inherit !important;"></span></h2>
+    <div class="text-left">
+      <label><input type="radio" name="cancel-reason" checked value="Program Cancelled Locally" onchange="changedData();" /> Program Cancelled Locally</label>
+      <label><input type="radio" name="cancel-reason" value="Ordered too much" onchange="changedData();" /> Ordered too much</label>
+      <label><input type="radio" name="cancel-reason" value="Budget Limitation" onchange="changedData();" /> Budget Limitation</label>
+      <label><input type="radio" name="cancel-reason" value="Ordered Incorrectly" onchange="changedData();" /> Ordered Incorrectly</label>
+      <label><input type="radio" name="cancel-reason" value="No longer wants" onchange="changedData();" /> No longer wants</label>
+      <label><input type="radio" name="cancel-reason" value="Other- Fill in" onchange="changedData();" /> Other- Fill in</label>
+    </div>
+    
+    <textarea disabled required name="cancel-reason-other" class="" placeholder="Cancel Reason for Other" onchange="changedData();"></textarea>
+
+    <br>
+  	<div class="w3-twothird">
+      &nbsp;
+      
+    </div>
+    <div class="w3-rest">
+      <button type="submit" class="btn w3-right w3-margin-left" >Update</button>
+      <button type="button" class="btn w3-right" onclick="updateModal()2;">Back</button>
+    </div>
+    <br>
+  </form>
+</div>
+
+
+</div>
+<!--   <div class="mfp-preloader w3-center center-block" style="display:initial;"><i class="fa fa-refresh w3-spin"></i></div> -->
+</div>
+
+<button title="Close (Esc)" onclick="updateModal2();" type="button" class="mfp-close">×</button>
+
+</div>
+
+
+
+<script>
+  var mfpHTML2 = '';
+  
+  $(document).ready(function(){
+  	 mfpHTML2 = $('#OrderCancelModal').html();
+  });
+  
+  function updateModal2(){
+    $('html').css('overflow','auto');
+    $('#mfp-order-cancel .mfp-bg, #mfp-order-cancel .mfp-wrap').hide().addClass('mfp-hide');
+    $('.mfp-container').removeAttr('style');
+    $('.mfp-preloader').show();
+  	$('#OrderCancelModal *, .mfp-note').remove();
+    $('#OrderCancelModal').html('').append(mfpHTML2); //console.log(mfpHTML);
+    if( changed == true ){ changed = ''; fetch_Orders(); }
+  }
+  
+  function changedData(){ //console.log(obj); 
+//     $('#OrderCancelModal button[type = "submit"]').removeAttr('disabled');
+    doc = $('[name="cancel-reason-other"]')[0];
+    
+    if($('[name="cancel-reason"]:checked')[0].outerHTML == $('[name="cancel-reason"]').last()[0].outerHTML)
+      doc.disabled = false; 
+    else
+      doc.innerHTML = '', doc.disabled = true;
+  }
+  
+  
+  function cancelOrder(e, obj){
+    freez();
+  	e.preventDefault();
+    e.stopPropagation();
+    
+    order_id = $(obj).attr('order_id');
+    var data = {cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: order_id };
+   
+	
+    data.reason = ($('[name="cancel-reason"]:checked')[0].outerHTML != $('[name="cancel-reason"]').last()[0].outerHTML) ? $('[name="cancel-reason"]:checked').val() : $('[name="cancel-reason-other"]').val();          
+    
+    
+    console.log(JSON.stringify(data));
+                
+    {% comment %}{% endcomment %}
+    $.ajax({
+      url: '/apps/pepsi-print/order_configuration/cancel_order.json',
+          type: 'POST',
+          data: JSON.stringify(data),
+          dataType: 'json',
+          contentType: "application/json;",
+          statusCode: {
+            401:function() { console.log("401") },
+            404:function() { console.log("404"); },
+            200:function() { console.log("200"); },
+            201:function() { console.log("201"); },
+            202:function() { console.log("202"); }
+          },
+          success: function(data){
+            	console.log(JSON.stringify(data));
+            	
+                if(200 === Number(data.status)){
+                  	$('#OrderCancelModal button[type = "submit"]').prop('disabled', 'disabled');
+                  	freez();
+                  	show_message2('Updated Successfully.',true);
+                   	setTimeout( function (){ 
+                      location.reload();
+                      changed = true;
+  //                   	$.unblockUI; 
+                      
+                    }, 1500);
+                }else if(401 === Number(data.status)){
+                  	$.unblockUI; show_message2(data.message,false);
+                }else{
+                	$.unblockUI; show_message2(data.message,false); console.log('else');
+                }
+           
+            
+            	
+          },
+          error: function(data){
+            $.unblockUI; show_message2('Some Error Occured.',false);
+          }
+          
+	 });
+    
+    
+  }
+  
+  function showCancelModal(){
+      $('html').css('overflow','hidden');
+      $('#mfp-order-cancel .mfp-bg, #mfp-order-cancel .mfp-wrap').show().removeClass('mfp-hide');
+    
+      $('#OrderCancelModal form').attr('order_id', order_data.order.id);
+      $('#OrderCancelModal .orderName').text(order_data.order.order_name);
+  }
+</script>

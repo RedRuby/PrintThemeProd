@@ -1,0 +1,29 @@
+{% if customer  %}
+  {% if customer.tags contains "Region:NorthEast" %}
+    {% assign customer_region_tag = "Region:NorthEast" %}
+  {% endif %}  
+  {% if customer.tags contains "Region:SouthEast" %}
+    {% assign customer_region_tag = "Region:SouthEast" %}
+  {% endif %}
+  {% if customer.tags contains "Region:California" %}
+    {% assign customer_region_tag = "Region:California" %}
+  {% endif %}
+  {% if customer.tags contains "Region:Mountain" %}
+    {% assign customer_region_tag = "Region:Mountain" %}
+  {% endif %} 
+  {% if customer.tags contains "Region:Chicago" %}
+    {% assign customer_region_tag = "Region:Chicago" %}
+  {% endif %}      
+  {% if customer.tags contains "Region:MN" %}
+    {% assign customer_region_tag = "Region:MN" %}
+  {% endif %}
+{% endif %}
+
+
+<ul class="site-nav__dropdown">
+{% for vendor in collections.northeast-products.vendors %}
+<li {% if link.active %}class="site-nav--active"{% endif %}>
+  <a href="{{ shop.url }}/collections/northeast-products/{{ vendor | handle }}" class="site-nav__link">{{ vendor }}</a>
+</li>
+{% endfor %}
+</ul>

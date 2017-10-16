@@ -1,0 +1,86 @@
+<div class="ui-flash-wrapper text-center" id="UIFlashWrapper">
+	<div class="ui-flash ui-flash--next-nav-offset" aria-live="assertive" tabindex="-1" id="UIFlashMessage" data-tg-refresh-always="true" data-flash-has-message="false">
+		<p class="ui-flash__message"></p>
+		<div class="ui-flash__close-button">
+			<button class="btn btn--transparent btn--icon" aria-label="Close message" type="button" name="button">
+				<svg class="next-icon next-icon--color-white next-icon--size-12"> 
+					<use xlink:href="#next-remove"/> 
+				</svg>
+			</button>
+		</div>
+	</div>
+</div>
+
+<style>
+  .ui-flash-wrapper {
+    align-items: flex-end;
+    bottom: 2rem;
+    display: none;
+    justify-content: center;
+    pointer-events: none;
+    position: fixed;
+    width: 100%;
+    z-index: 227;
+}
+
+.ui-flash--next-nav-offset {
+    margin-left: 240px;
+}
+.ui-flash {
+    font-size: 2rem;
+    line-height: 2.8rem;
+}
+.ui-flash {
+    background: rgba(0, 0, 0, 0.88) none repeat scroll 0 0;
+    border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: #ffffff;
+    cursor: default;
+    display: flex;
+    font-size: 1.6rem;
+    font-weight: 400;
+    line-height: 2.4rem;
+    margin: 0 2rem;
+    max-width: 400px;
+    pointer-events: auto;
+    position: relative;
+}
+
+.ui-flash__message {
+    padding: 1rem 2rem;
+}
+p {
+    margin: 0;
+}
+
+.ui-flash__close-button {
+    display: none;
+    opacity: 0.88;
+}
+
+.btn .next-icon {
+    margin-bottom: -13px;
+    margin-top: -13px;
+}
+.next-icon--size-12 {
+    height: 12px;
+    width: 12px;
+}
+.next-icon--color-white {
+    color: #ffffff;
+    fill: currentcolor;
+}
+.next-icon {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    fill: currentcolor;
+    position: relative;
+    top: -0.15em;
+}
+.next-icon, .next-icon__text {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+</style>

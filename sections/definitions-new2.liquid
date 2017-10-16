@@ -1,0 +1,408 @@
+
+{% assign vendor_array = section.settings.vendor_list |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' %}
+
+{% assign type_array = section.settings.type_list |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' %}
+
+{% assign vendor_tag_array = section.settings.vendor_list |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' |replace:' ','' %}
+
+{% assign program_tag_array = section.settings.program_tag_list |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' %}
+
+{% assign market_specific_tag_array = section.settings.market_specific_tag_list |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' %}
+
+{% assign speciality_tag_array = section.settings.speciality_tag_list |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' %}
+
+{% assign account_specific_tag_array = section.settings.account_specific_tag_list |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' %}
+
+{% assign department_tag_array = section.settings.department_tag_list |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' %}
+
+{% assign new_tag_array = section.settings.new_tag_list |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' %}
+
+{% assign option_array = section.settings.option_list |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' %}
+
+{% assign market_arr = "[" %}
+{% for block in section.blocks %}
+	{% if block.settings.content.size != 0 and block.type == 'markets' %}
+		{% if forloop.last %}{% assign block_last = true %}{% endif %}
+		{% assign cont_arr = block.settings.content |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' | split:',' %}
+		{% for item in cont_arr %}
+			{% assign comma = ',' %}
+			{% if forloop.last and block_last %}{% assign comma = '' %}{% endif %}
+			{% assign item_arr = '{name:"' |append:item |append:'",value:"' |append:block.settings.title |append:'"}' |append:comma %}
+			{% assign market_arr = market_arr |append:item_arr %}
+        {% endfor %}
+		
+	{% endif %}
+{% endfor %}
+
+{% assign market_arr = market_arr |append:"]" %}
+
+{% assign defaultPrice_arr = "{" %}
+{% for block in section.blocks %}
+	{% if block.settings.content.size != 0 and block.type == 'elements_and_prices' %}
+          {% assign comma = ',' %}
+          {% if forloop.last %}{% assign comma = '' %}{% endif %}
+          {% assign item_arr = '"' |append:block.settings.title |append:'":"' |append:block.settings.element_price |append:'"' |append:comma %}
+          {% assign defaultPrice_arr = defaultPrice_arr |append:item_arr %}
+	{% endif %}
+{% endfor %}
+
+{% assign defaultPrice_arr = defaultPrice_arr |append:"}" |replace:",}","}" %}
+
+<script  type="text/javascript">
+  
+  var defaultPriceList = '{{ defaultPrice_arr }}';
+  
+  var market_array = {{ market_arr |replace:',]',']' }};
+              
+  var vendorList = "{{ vendor_array }}".split(',');
+  
+  var typeList = "{{ type_array }}".split(',');
+  
+  var vendorTagList = "{{ vendor_tag_array }}".split(',');
+  
+  var programTagList = "{{ program_tag_array }}".split(',');
+  
+  var marketSpecificTagList = "{{ market_specific_tag_array }}".split(',');
+  
+  var specialityTagList = "{{ speciality_tag_array }}".split(',');
+  
+  var accountSpecificTagList = "{{ account_specific_tag_array }}".split(',');
+  
+  var departmentTagList = "{{ department_tag_array }}".split(',');
+  
+  var newTagList = "{{ new_tag_array }}".split(',');
+  
+  var optionList = "Aisle Interrupters,Banner,Case Card,Horizontal Static,Other,Outdoor Pole Sign,Mini Pole,Poster,Pump Topper,Push Pull,Rail Strip Pages,Shelf Talker,Static Cling,Table Tent,Window Mesh,Wobbler".split(',');
+  
+//   var defaultPriceList = '{"Banner":"24.00","Case Card":"1.50","Horizontal Static":"0.37","Other":"0.00","Mini Pole":"1.50","Poster":"1.30","Pump Topper":"6.00","Rail Strip Pages":"0.12","Shelf Talker":"0.75","Static Cling":"0.37","Table Tent":"0.75","Window Mesh":"0.00","Wobbler":"0.08"}';
+  
+  var output = [], o = {};
+  $(document).ready(function(){ 
+
+    market_array.forEach(function(value) {
+      var existing = output.filter(function(v, i) {
+        return v.name == value.name;
+      });
+      if (existing.length) {
+        var existingIndex = output.indexOf(existing[0]);
+        output[existingIndex].value = output[existingIndex].value.concat(value.value);
+      } else {
+        if (typeof value.value == 'string')
+          value.value = [value.value];
+        output.push(value);
+      }
+    });
+    
+    //console.log(output);
+    
+     $.each(output, function () {
+          if (o[this.name]) {
+              if (!o[this.name].push) {
+                  o[this.name] = [o[this.name]];
+              }
+              o[this.name].push(this.value || '');
+          } else {
+              o[this.name] = this.value || '';
+          }
+      });
+    
+    //console.log(o);
+    
+    marketSpecificTagList = Object.keys(o); //console.log(marketSpecificTagList);
+  });
+</script>
+{% schema %}
+  {
+    "name": "Definition",
+	"class": "hidden w3-hide1",
+	
+    "settings": [
+		{
+           "type":      "textarea",
+           "id":        "vendor_list",
+           "label":     "Vendors List",
+           "default":   "1893,Amp,Any Brand,Aquafina,Brisk,Bundaberg,Caleb's Kola,Crush,Diet Pepsi,Dr. Pepper,Fruit Shoot,Gatorade,IZZE,Kickstart,Lemon Lemon,LifeWTR,Lipton,Manzanita Sol,Metahune Water,Mist Twst,Mountain Dew,Mug,Muscle Milk,No Fear,O.N.E.,PACt,Paso de Los Toro,Pepsi,PepsiZero, Menehune,Portfolio,Propel,Pure Leaf,Rockstar,Schweppes,Sierra Mist,SoBe,Starbucks,Stubborn Soda,Tampico,Water+,Xyience",
+           "info":      "Comma (',') separated list of all product vendors.",
+           "placeholder": "1893,Amp,Any Brand,Aquafina,Brisk,Bundaberg,Caleb's Kola,Crush,Diet Pepsi,Dr. Pepper,Fruit Shoot,Gatorade,IZZE,Kickstart,Lemon Lemon,LifeWTR,Lipton,Manzanita Sol,Metahune Water,Mist Twst,Mountain Dew,Mug,Muscle Milk,No Fear,O.N.E.,PACt,Paso de Los Toro,Pepsi,PepsiZero, Menehune,Portfolio,Propel,Pure Leaf,Rockstar,Schweppes,Sierra Mist,SoBe,Starbucks,Stubborn Soda,Tampico,Water+,Xyience"
+    	},
+		{
+           "type":      "textarea",
+           "id":        "type_list",
+           "label":     "Types List",
+           "default":   "POS,Food Service,Trade Expense,Allied Brands,Paint The Town",
+           "info":      "Comma (',') separated list of all product types.",
+           "placeholder": "POS,Food Service,Trade Expense,Allied Brands,Paint The Town"
+        },
+		{
+           "type":      "textarea",
+           "id":        "program_tag_list",
+           "label":     "Programs Tags",
+           "default":   "PR:BaseballMLB,PR:BasketballCollege,PR:BasketballNBA,PR:Dewcision,PR:Emojis,PR:Fishing,PR:FootballCollege,PR:FootballNFL,PR:HockeyNHL,PR:Holiday,PR:NASCAR,PR:Skating,PR:Soccer,PR:Spanish,PR:Summer,PR:SuperBowl,PR:Surfing,PR:TaxFree,PR:WaterPlus",
+           "info":      "Comma (',') separated list of all programs.",
+           "placeholder": "PR:BaseballMLB,PR:BasketballCollege,PR:BasketballNBA,PR:Dewcision,PR:Emojis,PR:Fishing,PR:FootballCollege,PR:FootballNFL,PR:HockeyNHL,PR:Holiday,PR:NASCAR,PR:Skating,PR:Soccer,PR:Spanish,PR:Summer,PR:SuperBowl,PR:Surfing,PR:TaxFree,PR:WaterPlus"
+        },
+		{
+           "type":      "textarea",
+           "id":        "speciality_tag_list",
+           "label":     "Specialities Tags",
+           "default":   "SP:PTTBlue ,SP:PTTDew,SP:PTTGatorade,SP:PTTPepsiZero,SP:PTTRockstar,SP:PTTSpanish,SP:PTTAquafina,SP:PTTStarbucks,SP:BarrelWrap,SP:CorrPlast,SP:RitePrice,SP:ChannelIDStrip,SP:Diecut,SP:BaseWrap,SP:Truckback,SP:Other,SP:AisleBlades,SP:Banjo,SP:BumpBlasters,SP:Clip,SP:DayGlow,SP:PushPulls,SP:Snipe,SP:VendingSnipes",
+           "info":      "Comma (',') separated list of all specialities.",
+           "placeholder": "SP:PTTBlue ,SP:PTTDew,SP:PTTGatorade,SP:PTTPepsiZero,SP:PTTRockstar,SP:PTTSpanish,SP:PTTAquafina,SP:PTTStarbucks,SP:BarrelWrap,SP:CorrPlast,SP:RitePrice,SP:ChannelIDStrip,SP:Diecut,SP:BaseWrap,SP:Truckback,SP:Other,SP:AisleBlades,SP:Banjo,SP:BumpBlasters,SP:Clip,SP:DayGlow,SP:PushPulls,SP:Snipe,SP:VendingSnipes"
+        },
+		{
+           "type":      "textarea",
+           "id":        "account_specific_tag_list",
+           "label":     "Account Specific Tags",
+           "default":   "AS:7Eleven,AS:Allsups,AS:AMPM,AS:BubbleClean,AS:BuyersCoop,AS:CAFishGrill,AS:Chevron,AS:CircleK,AS:ConocoShell,AS:CVS,AS:DollarGeneral,AS:FamilyDollar,AS:Fastrip,AS:GandMOil,AS:GuitarCenter,AS:Hyatt,AS:LittleCeasars,AS:LoafNJug,AS:PriceRite,AS:QuickChek,AS:Racetrac,AS:Sedanos,AS:ShopRite,AS:ShortlineExpress,AS:Speedway,AS:Spruces,AS:Stram,AS:Sunoco,AS:TerribleHerbst,AS:UnitedOil,AS:Walgreens,AS:Walmart,AS:Lowes,AS:Safeway,AS:Smiths,AS:Tesoro,AS:Bashas",
+           "info":      "Comma (',') separated list of all account specifics.",
+           "placeholder": "AS:7Eleven,AS:Allsups,AS:AMPM,AS:BubbleClean,AS:BuyersCoop,AS:CAFishGrill,AS:Chevron,AS:CircleK,AS:ConocoShell,AS:CVS,AS:DollarGeneral,AS:FamilyDollar,AS:Fastrip,AS:GandMOil,AS:GuitarCenter,AS:Hyatt,AS:LittleCeasars,AS:LoafNJug,AS:PriceRite,AS:QuickChek,AS:Racetrac,AS:Sedanos,AS:ShopRite,AS:ShortlineExpress,AS:Speedway,AS:Spruces,AS:Stram,AS:Sunoco,AS:TerribleHerbst,AS:UnitedOil,AS:Walgreens,AS:Walmart,AS:Lowes,AS:Safeway,AS:Smiths,AS:Tesoro,AS:Bashas"
+        },
+		{
+           "type":      "textarea",
+           "id":        "department_tag_list",
+           "label":     "Departments Tags",
+           "default":   "DPT:FoodService,DPT:GroupsandErgs,DPT:Manuals,DPT:Marketing,DPT:OutsideServices,DPT:PermMerch,DPT:SchematicBooks,DPT:TradeExpense,DPT:Warehouse,DPT:Specialty",
+           "info":      "Comma (',') separated list of all departments.",
+           "placeholder": "DPT:FoodService,DPT:GroupsandErgs,DPT:Manuals,DPT:Marketing,DPT:OutsideServices,DPT:PermMerch,DPT:SchematicBooks,DPT:TradeExpense,DPT:Warehouse,DPT:Specialty"
+        },
+		{
+           "type":      "textarea",
+           "id":        "new_tag_list",
+           "label":     "New:<Region> Tags",
+           "default":   "New:NorthEast,New:SouthEast,New:California,New:S0uth,New:Mountain,New:MidAtlantic,New:MidWest,New:GreatLakes",
+           "info":      "Comma (',') separated list of all New:<Region> Tags.",
+           "placeholder": "New:NorthEast,New:SouthEast,New:California,New:S0uth,New:Mountain,New:MidAtlantic,New:MidWest,New:GreatLakes"
+        }
+	],
+	"blocks": [
+      {
+        "type": "elements_and_prices",
+        "name": "Elements and Prices",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "."
+          },
+          {
+            "id": "title",
+            "type": "text",
+            "label": "Element Name"
+          },
+          {
+            "id": "element_price",
+            "type": "text",
+            "label": "Element Price"
+          }
+        ]
+      },
+    
+      {
+        "type": "markets",
+        "name": "Region Markets",
+		"limit": 8,
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "."
+          },
+          {
+			"type": "text",
+            "id": "title",
+            "label": "Region Name"
+          },
+          {
+            "id": "content",
+            "type": "textarea",
+            "label": "This Region Market List",
+			"info": "Comma (',') separated list of all market of this Region."
+          }
+        ]
+      }
+    ],
+	"default": {
+      "settings": {
+        
+      },
+      "blocks": [
+		{
+          "type": "elements_and_prices",
+          "settings": {
+			"title": "Aisle Interrupters",
+            "element_price": "0.00"
+          }
+        },
+        {
+          "type": "elements_and_prices",
+          "settings": {
+			"title": "Banner",
+            "element_price": "24.00"
+          }
+        },
+		{
+          "type": "elements_and_prices",
+          "settings": {
+			"title": "Case Card",
+            "element_price": "1.50"
+          }
+        },
+		{
+          "type": "elements_and_prices",
+          "settings": {
+			"title": "Horizontal Static",
+            "element_price": "0.37"
+          }
+        },
+		{
+          "type": "elements_and_prices",
+          "settings": {
+			"title": "Mini Pole",
+            "element_price": "1.50"
+          }
+        },
+		{
+          "type": "elements_and_prices",
+          "settings": {
+			"title": "Other",
+            "element_price": "0.00"
+          }
+        },
+		{
+          "type": "elements_and_prices",
+          "settings": {
+			"title": "Outdoor Pole Sign",
+            "element_price": "0.00"
+          }
+        },
+		{
+          "type": "elements_and_prices",
+          "settings": {
+			"title": "Poster",
+            "element_price": "1.30"
+          }
+        },
+		{
+          "type": "elements_and_prices",
+          "settings": {
+			"title": "Pump Topper",
+            "element_price": "6.00"
+          }
+        },
+		{
+          "type": "elements_and_prices",
+          "settings": {
+			"title": "Push Pull",
+            "element_price": "0.00"
+          }
+        },
+		{
+          "type": "elements_and_prices",
+          "settings": {
+			"title": "Rail Strip Pages",
+            "element_price": "0.12"
+          }
+        },
+		{
+          "type": "elements_and_prices",
+          "settings": {
+			"title": "Shelf Talker",
+            "element_price": "0.75"
+          }
+        },
+		{
+          "type": "elements_and_prices",
+          "settings": {
+			"title": "Static Cling",
+            "element_price": "0.37"
+          }
+        },
+		{
+          "type": "elements_and_prices",
+          "settings": {
+			"title": "Table Tent",
+            "element_price": "0.75"
+          }
+        },
+		{
+          "type": "elements_and_prices",
+          "settings": {
+			"title": "Window Mesh",
+            "element_price": "0.00"
+          }
+        },
+		{
+          "type": "elements_and_prices",
+          "settings": {
+			"title": "Wobbler",
+            "element_price": "0.08"
+          }
+        },
+      
+        {
+          "type": "markets",
+          "settings": {
+			"title": "NorthEast",
+            "content": "MKTSpanish,MKTBostonMegaCity,MKTPhillyMegaCity"
+          }
+        },
+		{
+          "type": "markets",
+          "settings": {
+			"title": "SouthEast",
+            "content": "MKTATLMegaCity,MKTGA,MKTSFLMegaCity,MKTCFLMegaCity,MKTCarolinas,MKTNFLMegaCity"
+          }
+        },
+		{
+          "type": "markets",
+          "settings": {
+			"title": "South",
+            "content": "MKTNMWTexas,MKTTexas"
+          }
+        },
+		{
+          "type": "markets",
+          "settings": {
+			"title": "Mountain",
+            "content": "MKTAlaska,MKTArizona,MKTColorado,MKTIdaho,MKTOregon,MKTUtah,MKTWashington,MKTHawaii,MKTNMWTexas"
+          }
+        },
+		{
+          "type": "markets",
+          "settings": {
+			"title": "California",
+            "content": ""
+          }
+        },
+		{
+          "type": "markets",
+          "settings": {
+			"title": "MidAtlantic",
+            "content": ""
+          }
+        },
+		{
+          "type": "markets",
+          "settings": {
+			"title": "MidWest",
+            "content": "MKTChicago,MKTWisconsin,MKTDakotas"
+          }
+        },
+		{
+          "type": "markets",
+          "settings": {
+			"title": "GreatLakes",
+            "content": ""
+          }
+        }
+      ]
+    }
+	
+  }
+{% endschema %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}

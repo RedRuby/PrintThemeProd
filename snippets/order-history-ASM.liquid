@@ -1,0 +1,369 @@
+
+  <div id="order-list" style="display:none;">
+    <div class="w3-row">
+    	<div class="w3-col m2" style="position:relative;">
+          <small class="nbsp-hide"><label for="">Date Filter</label></small>
+    	  <input id="start_date" value="{{first_order}}" readonly class="datepicker" type="text" name="start_date" placeholder="Start Date" >
+          <button type="button" disabled class="btn btn--secondary w3-padding-01 w3-padding-top1 w3-padding-bottom1 w3-border-black w3-small clear-filter hide" disabled1 style="position:absolute; bottom: 22.75px; right:10px; z-index:; display:none; padding:0 5px; font-size:3px;">Clear Dates</button>
+    	</div>
+      	<div class="w3-col m2 w3-row-padding">
+          <small class="nbsp-hide"><label for="">&nbsp;</label></small>
+    	  <input id="end_date" value="{{'now' | date: '%m/%d/%Y'}}" readonly class="datepicker" type="text" name="end_date" placeholder="End Date" >
+    	</div>
+      	<div class="w3-col m5">
+          <small class="nbsp-hide"><label for="">&nbsp;</label></small>
+          <button id="" class="btn btn--secondary btn--full1 clear-filter" type="button" style="display:none;" >Clear Dates</button>
+    	  <button id="filter_order" class="btn btn--secondary btn--full1" type="button" >Filter Dates</button>
+    	</div>
+      	<div id="td_select" class="w3-col m3">
+          <small><label for="select_tl"><br class="br-hide">Additional Filters</label></small>
+    	  <select id="select_tl" onchange="if(this.selectedIndex == 0)updateState({page: '1',fulfillment_status: '',assigned_printer: ''}); else if(this.selectedIndex <= 2)updateState({page: '1',fulfillment_status: this.value,assigned_printer: ''}); else if(this.selectedIndex <= 4)updateState({page: '1',fulfillment_status: '',assigned_printer: this.value});" name="fulfillment_status">
+            <option value="" selected>Clear Additional Filters</option>
+            <optgroup label="fulfillment status">
+              <option value="fulfilled">Fulfilled</option>
+              <option value="unfulfilled">Unfulfilled</option>
+            </optgroup>
+            <optgroup label="Vendor Assignment">
+              <option value="assigned">Vendor Assigned</option>
+              <option value="notassigned">Vendor Not Assigned</option>
+            </optgroup>
+          </select>
+    	</div>
+    </div>
+    
+  <table id="id02" class="responsive-table w3-table w3-bordered w3-striped">
+    <thead>
+      <tr class="w3-text-white" style="background-color: {{ settings.color_topbar_bg }}">
+        {% include 'customer-account-common-code' with 'table-header-code' %}
+        <th class="text-center">Assign to Vendor</th>
+        <th class="text-center">Action</th>
+      </tr>
+    </thead>
+    <tr w3-repeat="orders">
+      <th class="w3-text-orange1 orders text-center" id="{% raw %}{{id}}{% endraw %}"><a class="{% raw %}{{cancel_status}}{% endraw %}" href="/pages/order?id={% raw %}{{id}}{% endraw %}">{% raw %}{{order_name}}{% endraw %}</a></th>
+      <td class="text-center" title="{% raw %}{{customer_last_email}}{% endraw %}">{% raw %}{{customer_last_name}}{% endraw %}</td>
+      <td class="text-center">{% raw %}{{discount_codes}}{% endraw %}</td>
+      <td class="text-center">{% raw %}{{order_date}}{% endraw %}</td>
+      {% comment %}<td>{% raw %}{{payment_status}}{% endraw %}</td>{% endcomment %}
+      <td class="text-center">{% raw %}{{order_status}}{% endraw %}</td>
+      {% comment %}<td class="text-right">${% raw %}{{total}}{% endraw %}</td>{% endcomment %}
+      <td id="td_{% raw %}{{id}}{% endraw %}" class="td_select" printer_id="{% raw %}{{printer_id}}{% endraw %}">
+        <select id="select_{% raw %}{{id}}{% endraw %}" onchange="changePrintShop(this); this.title = this.options[this.selectedIndex].innerHTML;" title="Select a Vendor to Assign" style="margin:auto 0px;" class="assign-printer" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{fulfillment_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}"><option selected disabled title="Select a Vendor to Assign">Select Vendor</option></select>
+      </td>
+      <td class="text-center"><button class="js-toggle-edit-modal1 btn editBtn" style="" title="Edit this order" data-mfp-srcs="#OrderEditModal" onclick="addToModal(this.getAttribute('order_id'));" status="{% raw %}{{fulfillment_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" order_id="{% raw %}{{id}}{% endraw %}" >Edit</button></td>
+    </tr>
+    {% comment %}
+    <tr>
+      <td class="text-center"><b>Total:</b></td>
+      <td colspan="2"></td>
+      <td class="text-right"><b>${% raw %}{{grand_total}}{% endraw %}</b></td>
+      <td colspan="2"></td>
+    </tr>
+    {% endcomment %}
+  </table>
+    
+  {% include 'customer-account-common-code' with 'pagination-code' %}
+    
+</div>
+
+{% include 'customer-account-common-code' with 'per-page-form' %}
+
+<script>
+  
+  {% include 'customer-account-common-code' with 'init-variables' %}
+  
+ jQuery(document).ready(function($) {
+   
+   	fetch_Orders();
+  
+	{% include 'customer-account-common-code' with 'doc-ready-code' %}   
+    
+  });
+  
+  {% include 'customer-account-common-code' with 'methods' %}
+  
+  $(window).load(function(){ $('#lineItem').unwrap(); });
+  
+  function addToModals(obj){
+    $.ajax({
+          url: '/apps/pepsi-print/collection_response/get_order_detail.json',
+          type: 'GET',
+          data: {order_id: $(obj).attr('order'), cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
+          dataType: 'json',
+          success: function(data){
+            	//console.log(JSON.stringify(data));
+    			
+                
+          },
+          error: function(){
+            $.unblockUI; show_message2('Error in fetching Order.',false);
+          }
+          
+	 });
+  }
+  
+  
+  var sortSelect = function (select, attr, order) {
+      if(attr === 'text'){
+          if(order === 'asc'){
+              $(select).html($(select).children('option').sort(function (x, y) {
+                  return $(x).text().toUpperCase() < $(y).text().toUpperCase() ? -1 : 1;
+              }));
+//               $(select).prepend('<option selected disabled>Assign Vendor</option>').find('option[select = "selected"]').last().delay(1000).prop("selected", "selected");
+//               $(select).get(0).selectedIndex = 2;
+//               e.preventDefault();
+          }// end asc
+          if(order === 'desc'){
+              $(select).html($(select).children('option').sort(function (y, x) {
+                  return $(x).text().toUpperCase() < $(y).text().toUpperCase() ? -1 : 1;
+              }));
+//               $(select).get(0).selectedIndex = 0;
+//               e.preventDefault();
+          }// end desc
+      }
+
+  };
+
+//   $(document).ready(function () {
+
+//       $('#btnSort').click(function (e) {
+
+//           sortSelect('#ddlList', 'text', 'asc');
+
+//       }); // event listener click
+
+//   });
+  
+  function fetch_Orders(){
+//     var1 = start_date;
+//     var2 = end_date;
+//     var3 = page;
+    
+//     freez();
+//     var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
+                
+//     if(start_date.length != 0 && end_date.length != 0){ data.start_date = start_date; data.end_date = end_date; $('#radio2').removeAttr('disabled').parent().removeClass('w3-text-grey'); }
+//     if(page.length != 0){ data.page = page }
+    
+//     data.per_page = '20';
+//     data.fulfillment_status = 'fulfilled'; //NULL
+//     data.assigned_printer = 'notassigned'; //notassigned
+//        data.order_by_name = 'DESC';
+//        data.order_by_fulfillment_status = 'ASC';
+//        data.order_by_date = 'ASC';
+//        data.order_by_discount_codes = 'DESC';
+
+	{% include 'customer-account-common-code' with 'fetchOrders-code' %}
+                
+  	 $.ajax({
+          url: '/apps/pepsi-print/collection_response/get_orders_list.json',
+          type: 'GET',
+          data: data,
+          dataType: 'json',
+          success: function(data){
+//             	console.log(JSON.stringify(data));
+    			if(data["total_entries"] > 0){
+                  calcT(data);
+                  
+                  $.when(setTimeout(w3DisplayData("id02", data),100))
+                  .done(function(){ //delete query.per_page;
+                    if($.param(query).length > 0)
+                      $('a[href^="/pages/order?id="]').each(function(index, item){
+                        $(item).attr('href',$(item).attr('href')+'&'+$.param(query));
+                      });
+                  });
+                  
+                  setTimeout(fetch_Printers(),200);
+                  $("#print-btn").removeAttr('disabled').prop('title', '').css('cursor', 'default');
+//                 w3DisplayData("id02", data);
+                }else{
+                  $("#id02, .per_pageContainer").hide();
+                  $("#order-none").show();
+                  $("#print-btn").prop('disabled','disabled').prop('title', 'No orders to print.').css('cursor', 'not-allowed');
+                  $.unblockUI();
+                }
+//             	$.unblockUI();
+                
+          },
+          error: function(){
+            $.unblockUI; show_message2('Error in fetching Orders.',false);
+          }
+          
+	 });
+  }
+  
+  function fetch_Printers(){
+      var i = 0;
+      $('.td_select select, #select_vendor_edit').append('<option w3-repeat="results" value="{% raw %}{{id}}{% endraw %}" title="{% raw %}{{email}}{% endraw %}" select="{% raw %}{{selected}}{% endraw %}">{% raw %}{{company}}{% endraw %}</option>');
+      $.ajax({
+          url: '/apps/pepsi-print/printer_configuration/region_printers',
+          type: 'GET',
+          data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
+          dataType: 'json',
+          success: function (data) { //console.log(JSON.stringify(data));
+        
+        			data1 = popCompany(data, null);
+                          
+                    w3DisplayData('select_vendor_edit', data1);
+        
+        			mfpHTML = $('#OrderEditModal').html();
+        
+                    $('.td_select').each(function(index,id){ console.log($(id).attr('printer_id'));
+                          var $id = $(id);
+                          
+                          data1 = popCompany(data,$id.attr('printer_id'));
+                          
+                          w3DisplayData($id.prop('id'), data1);
+                          
+                    }).promise()
+                          .done(function(){
+                              $('option[select = "selected"]').prop("selected", "selected");
+                              $('.td_select select').each(function(index, id){
+                                var $id = $(id).attr('id');
+								$('#'+$id).prop('title', $('#'+$id+' option[select = "selected"]').last().text());
+                                if($('#'+$id+' option[select = "selected"]').length > 0){
+                                	$('#'+$id+' option[select = "selected"]').parent().prop("disabled", "disabled").prop('title', 'Reassign Vendor from Order detail page.').css('cursor', 'not-allowed');
+                                }
+                              });
+                              $('.td_select select[status = "fulfilled"], .editBtn[status = "fulfilled"]').prop("disabled", "disabled").prop('title', 'Can\'t edit fulfilled order.').css('cursor', 'not-allowed');
+                              $('.td_select select[status2 = "cancelled"], .editBtn[status2 = "cancelled"]').prop("disabled", "disabled").prop('title', 'Can\'t edit cancelled order.').css('cursor', 'not-allowed');
+                              $.unblockUI();
+                      
+                    });
+
+
+            },
+    		error: function(){
+              $.unblockUI; show_message2('Error in fetching Vendors.',false);
+            }
+
+      });
+  }
+  
+  var $oem = $('#OrderEditModal');
+  
+  function addToModal(obj){
+    order_id = obj;
+//     freez();
+    $('html').css('overflow','hidden');
+    $('#mfp-order-edit .mfp-bg, #mfp-order-edit .mfp-wrap').show().removeClass('mfp-hide');
+    var data = {order_id: obj, cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
+                
+  	 $.ajax({
+          url: '/apps/pepsi-print/collection_response/get_order_detail.json',
+          type: 'GET',
+          data: data,
+          dataType: 'json',
+          success: function(data){
+            	//console.log(JSON.stringify(data));
+                data = dataHide(data);
+                w3DisplayData("lineItem2", data.order);
+                $('#OrderEditModal form').attr('order_id', data.order.id);
+    			$('#OrderEditModal .orderName').text(data.order.order_name);
+//                 $('#OrderEditModal .subTotal').text(data.order.sub_total);
+                $('#OrderEditModal .grandTotal').text(data.order.total);
+                
+//                 $('#OrderEditModal .discountCode').val(data.order.discount_codes[0].code);
+//                 switch(data.order.discount_codes[0].type){
+//                 	case 'fixed_amount':
+//                 	case 'percentage':
+//                 	case 'shipping':
+//                	}
+//                 $('#OrderEditModal .discountType').text(data.order.sub_total);
+//                 $('#OrderEditModal .discountAmount').val(data.order.discount_codes[0].amount);
+                {% comment %}{% endcomment %}
+                if(data.order.notes != null ){ 
+//                   $('#note .note_text').text(data.notes).show();
+//                     console.log('note:', data.order.notes);
+                    orderMsg = JSON.parse(data.order.notes.replace(/=>/g, ':'));
+                  	if((orderMsg.order_msg||'').length > 0)
+                      $.when(prepareMsg(orderMsg, function(data){
+                        w3DisplayData('orderNotes', data);
+						
+                      })).done(function(){ $('#orderNotes').show(0); });{% unless customer.tags contains Role_ASM or customer.tags contains Role_Printer %}
+                    else{
+                      $('#orderBtn').hide(0);
+                    }{% endunless %}
+                }else
+                  $('#orderNotes').hide(0);
+                
+//                 console.log('printer:', data.order.printer_id);
+//   				console.log('line_items:', data.order.line_items.length);
+                if(data.order.printer_id != null || data.order.line_items.length == 0 || true){
+                  $('.for-order-split').remove();
+                  $('td[colspan="3"]').attr('colspan', '2');
+                }
+                  
+                
+            	$.unblockUI(); $('.mfp-preloader').hide(); if($('.mfp-note').length == 0)$('.mfp-container').css('height','auto').prepend('<div><div class="mfp-note note text-center" style="margin:0px 5%;"><p><b>Use the edit order function to adjust pricing, adjust quantities, and/or split an order.<b></p></div><br><div>'); $('#OrderEditModal').show().removeClass('mfp-hide');
+                
+          },
+          error: function(){
+            $.unblockUI; show_message2('Error in fetching Order.',false);
+          }
+          
+	 });
+  
+  }
+  
+  
+  function dataHide(data){
+  	var i; 
+    var x;
+    var str;
+    var total = 0;
+    var myArray = data.order.line_items; //console.log(JSON.stringify(filter_obj)); console.log(myArray);
+    for (i = 0; i < myArray.length; i++) {
+      str = myArray[i]["title"].replace().replace(' / Default','').replace(' / {{ customer_region_tag }}','');
+      myArray[i]["title"] = str;
+    } 
+    return(data);
+  }
+  
+  
+
+ 	function changePrintShop(obj, order_id){
+      freez();
+      var $this = $(obj); console.log($this.attr('order_id')+" changed to"+$this.val());
+      if(order_id == null)
+        order_id = $this.attr('order_id');
+      console.log(JSON.stringify({ cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order: order_id, printer_id: $this.val(), cregion: customer_region }));
+      {% comment %}{% endcomment %}
+      $.ajax({
+            url: '/apps/pepsi-print/printer_configuration/assign_print_to_order',
+            type: 'POST',
+            data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order: order_id, printer_id: $this.val(), cregion: customer_region },
+            dataType: 'json',
+            success: function(){$.unblockUI; show_message2('Assigned Successfully.',true); $(obj).prop({'disabled':'disabled', 'title': 'Reassign Vendor from Order detail page.'}).css('cursor', 'not-allowed'); changed = true; },
+            error: function(){$.unblockUI; show_message2('Some Error Occured.',false);}
+        });
+      
+   }
+  
+  
+  function popCompany(data,val){
+  	var i; //console.log(val+" printer_id");
+    var x;
+    var str;
+    var total = 0;
+    var myArray = data["results"]; //console.log(JSON.stringify(filter_obj)); console.log(myArray);
+    for (i = 0; i < myArray.length; i++) {
+//         str = myArray[i]["default_address"]["company"];
+//       	if(str.length == 0){str = 'Company';}
+//         myArray[i]["company_name"] = str;
+      if(val == myArray[i]["id"]){data["results"][i]["selected"] = "selected";}
+      else {data["results"][i]["selected"] = "none";}
+    } 
+//     console.log(JSON.stringify(data));
+    return(data);
+  }
+</script>
+
+<div id="mfp-order-edit">
+{% include 'magnificPopup-orderEdit-ASM' with 'has-note-module' %}
+</div>
+  
+<style>
+  .mfp-content{width:60% !important;}
+  .grid__item.one-quarter.asm-col .btn:not(.one-whole), #printDash {min-width: 300px !important; max-width:300px !important;}
+</style>

@@ -1,0 +1,149 @@
+{% if customer  %}
+
+  {% assign region_NorthEast = "general.Region_Tags.NorthEast" | t %}
+  {% assign region_SouthEast = "general.Region_Tags.SouthEast" | t %}
+  {% assign region_California = "general.Region_Tags.California" | t %}
+  {% assign region_South = "general.Region_Tags.South" | t %}
+  {% assign region_Mountain = "general.Region_Tags.Mountain" | t %}
+  {% assign region_MidAtlantic = "general.Region_Tags.MidAtlantic" | t %}
+  {% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
+  {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
+
+  {% if customer.tags contains region_NorthEast %}
+    {% assign customer_region_tag = region_NorthEast %}
+  {% elsif customer.tags contains region_SouthEast %}
+    {% assign customer_region_tag = region_SouthEast %}
+  {% elsif customer.tags contains region_California %}
+    {% assign customer_region_tag = region_California %}
+  {% elsif customer.tags contains region_South %}
+    {% assign customer_region_tag = region_South %}
+  {% elsif customer.tags contains region_Mountain %}
+    {% assign customer_region_tag = region_Mountain %}
+  {% elsif customer.tags contains region_MidAtlantic %}
+    {% assign customer_region_tag = region_MidAtlantic %}
+  {% elsif customer.tags contains region_MidWest %}
+    {% assign customer_region_tag = region_MidWest %}
+  {% elsif customer.tags contains region_GreatLakes %}
+    {% assign customer_region_tag = region_GreatLakes %}
+  {% endif %}
+
+{% endif %}
+
+{% if customer.tags contains Role_ASM %}
+  {% assign collection_handle = collection.handle %}
+  {% unless collection %}
+      {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-my-products' %}
+  {% endunless %}
+{% elsif customer.tags contains Role_Admin %}
+  {% assign collection_handle = 'all' %}
+{% elsif customer.tags contains Role_User or customer.tags contains Role_Manager %}
+  {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-products' %}
+  {% assign non_asm = true %}
+{% endif %}
+
+{% assign within_collection = collection_handle |prepend:'/collections/' |append:'/products/' %}
+
+{%if collection %}
+	{% assign href = featured.url | within:collection %}
+{% else %}
+	{% assign href = featured.url | replace:'/products/', within_collection %}
+{% endif %}
+
+{% unless current_collection == blank %}
+  {% assign current_collection = collection %}
+{% endunless %}
+
+{% assign on_sale = false %}
+{% assign sale_text = 'products.product.sale' | t %}
+{% if featured.compare_at_price > featured.price %}
+  {% assign on_sale = true %}
+{% endif %}
+
+{% assign sold_out = true %}
+{% assign sold_out_text = 'products.product.sold_out' | t %}
+{% if featured.available %}
+  {% assign sold_out = false %}
+{% endif %}
+
+{% if featured.title == '' %}
+  {% comment %}add default state for product block in storefront editor{% endcomment %}
+  {% capture product_title %}{{ 'home_page.onboarding.product_title' | t }}{% endcapture %}
+{% else %}
+  {% capture product_title %}{{ featured.title | escape }}{% endcapture %}
+{% endif %}
+
+<div class="{% if sold_out %} sold-out{% endif %}{% if on_sale %} on-sale{% endif %}">
+  <a href="{{ href }}" class="grid-link{% if section.settings.center_grid_link %} text-center{% endif %}">
+    <span class="grid-link__image{% if section.settings.show_sold_out_circle %} grid-link__image-sold-out{% endif %} grid-link__image--product">
+      {% if on_sale and section.settings.show_sale_circle %}
+        <span class="badge badge--sale">
+          <span class="badge__text{% if sale_text.size > 7 %} badge__text--small{% endif %}">{{ 'products.product.sale' | t }}</span>
+        </span>
+      {% endif %}
+      {% if sold_out and section.settings.show_sold_out_circle %}
+        <span class="badge badge--sold-out">
+          <span class="badge__text{% if sold_out_text.size > 9 %} badge__text--small{% endif %}">{{ 'products.product.sold_out' | t }}</span>
+        </span>
+      {% endif %}
+      <span class="grid-link__image-centered border">
+        {% if featured.title != '' %}
+          <img src="{{ featured.featured_image.src | img_url: 'medium' }}" alt="{{ featured.featured_image.alt | escape }}">
+        {% else %}
+          {% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
+          {{ 'product-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}
+        {% endif %}
+      </span>
+    </span>
+    <div class="product-content-wrapper">
+    <p class="grid-link__title">{{ product_title }}</p>
+    {% if section.settings.vendor_enable %}
+      <p class="grid-link__title grid-link__vendor">{{ featured.vendor }}</p>
+    {% endif %}
+    {% if featured.title != '' %}
+      <p class="grid-link__meta">
+        
+        {% capture price %}{{ featured.price | money }}{% endcapture %}
+        
+        {% unless collection.title == 'All' %}
+        {% if product.options.size == 2 %}
+          {% for option in product.options_with_values %}
+    		{% if option.name == 'Region' %}
+    		  {% if option.values contains customer_region_tag %}
+        		{% assign region_variant_price_array = '' %}
+        		{% for variant in product.variants %}
+                  {% assign variant_region = variant.title |split:' / ' |last %}
+                  {% if  variant_region == customer_region_tag %}
+        			{% assign variant_price = variant.price |money_without_currency %}
+        			{% assign region_variant_price_array = region_variant_price_array |append:',' |append:variant_price %}
+                  {% endif %}
+        		{% endfor %}
+        		{% assign region_min_price = region_variant_price_array |remove_first:',' |split:',' |sort |first %}
+<!--         		<script>console.log("{{ region_min_price }}");</script> -->
+        		{% capture price %}${{ region_min_price }}{% endcapture %}
+              {% endif %}
+        	{% endif %}
+          {% endfor %}
+        {% endif %}
+        {% endunless %}
+        
+        {% if on_sale %}
+        <span class="visually-hidden">{{ 'products.product.regular_price' | t }}</span>
+        <s class="grid-link__sale_price">{{ featured.compare_at_price | money }}</s>
+        {% endif %}
+        {% if featured.price_varies %}
+          {{ 'products.general.from_html' | t: price: price }}
+        {% else %}
+          {% if on_sale %}
+            <span class="visually-hidden">{{ 'products.product.sale_price' | t }}</span>
+          {% else %}
+            <span class="visually-hidden">{{ 'products.product.regular_price' | t }}</span>
+          {% endif %}
+          {{ price }}
+        {% endif %}
+      </p>
+    {% endif %}
+    </div>
+  </a>
+</div>
+
+<!-- <script> console.log('pro-grid'); </script> -->

@@ -1,0 +1,133 @@
+{% comment %}<script>{% endcomment %}
+
+  function updatePerPage(val){
+      function addTags(){
+        if(val.length != 0)
+          $('#per-page #update-me').val(ctags+',PerPage:'+val);
+        else
+          $('#per-page #update-me').val(ctags);
+        localStorage.per_page_{{ customer.id }} = val;
+      }
+      $.when(
+      addTags()
+      ).done(function(){ $('#per-page').submit(); });
+  //     $.post('/contact', $('#per-page').serialize());
+  }
+
+  function addCommas(nStr){
+    nStr += '';
+    x = nStr.split('.');
+    x1 = x[0];
+    x2 = x.length > 1 ? '.' + x[1] : '';
+    var rgx = /(\d+)(\d{3})/;
+    while (rgx.test(x1)) {
+        x1 = x1.replace(rgx, '$1' + ',' + '$2');
+    }
+    return x1 + x2;
+  }
+
+  
+  function updateState(param){ //console.log(JSON.stringify(param)); //start_date,end_date,page,per_page,fulfillment_status,order_name,order_by_discount_codes,order_by_date,order_by_fulfillment_status){
+    
+    data = {  
+      {% comment %}
+      start_date: (param.start_date != undefined) ? param.start_date : var_start_date, 
+      end_date: (param.end_date != undefined) ? param.end_date : var_end_date, 
+      page: (param.page != undefined) ? param.page : var_page, 
+      per_page: (param.per_page != undefined) ? param.per_page : var_per_page, 
+      fulfillment_status: (param.fulfillment_status != undefined) ? param.fulfillment_status : var_fulfillment_status, 
+      order_by_name: (param.order_by_name != undefined) ? param.order_by_name : var_order_by_name, 
+      order_by_discount_codes: (param.order_by_discount_codes != undefined) ? param.order_by_discount_codes : var_order_by_discount_codes, 
+      order_by_date: (param.order_by_date != undefined) ? param.order_by_date : var_order_by_date, 
+      order_by_fulfillment_status: (param.order_by_fulfillment_status != undefined) ? param.order_by_fulfillment_status : var_order_by_fulfillment_status 
+      {% endcomment %}
+    };
+                              
+    if(param.start_date != undefined)data.start_date = param.start_date; else if(var_start_date.length != 0)data.start_date = var_start_date;
+    if(param.end_date != undefined)data.end_date = param.end_date; else if(var_end_date.length != 0)data.end_date = var_end_date;
+    if(param.page != undefined)data.page = param.page; else if(var_page.length != 0)data.page = var_page;
+    if(param.per_page != undefined)data.per_page = param.per_page; else if(var_per_page.length != 0)data.per_page = var_per_page;
+    if(param.fulfillment_status != undefined)data.fulfillment_status = param.fulfillment_status; else if(var_fulfillment_status.length != 0)data.fulfillment_status = var_fulfillment_status;
+    if(param.order_by_name != undefined)data.order_by_name = param.order_by_name; else if(var_order_by_name.length != 0)data.order_by_name = var_order_by_name;
+    if(param.order_by_order_by != undefined)data.order_by_order_by = param.order_by_order_by; else if(var_order_by_order_by.length != 0)data.order_by_order_by = var_order_by_order_by;
+    if(param.order_by_discount_codes != undefined)data.order_by_discount_codes = param.order_by_discount_codes; else if(var_order_by_discount_codes.length != 0)data.order_by_discount_codes = var_order_by_discount_codes;
+    if(param.order_by_date != undefined)data.order_by_date = param.order_by_date; else if(var_order_by_date.length != 0)data.order_by_date = var_order_by_date;
+    if(param.order_by_fulfillment_status != undefined)data.order_by_fulfillment_status = param.order_by_fulfillment_status; else if(var_order_by_fulfillment_status.length != 0)data.order_by_fulfillment_status = var_order_by_fulfillment_status;
+    if(param.assigned_printer != undefined)data.assigned_printer = param.assigned_printer; else if(var_assigned_printer.length != 0)data.assigned_printer = var_assigned_printer;
+    if(param.region_tag != undefined)data.region_tag = param.region_tag; else if(var_region_tag.length != 0)data.region_tag = var_region_tag;
+    if(param.customer_id != undefined)data.customer_id = param.customer_id; else if(var_customer_id.length != 0)data.customer_id = var_customer_id;
+    
+//     console.log(JSON.stringify(data))
+    data = removeEmpty(data);
+//     console.log(JSON.stringify(data))
+    
+    if(document.location.href == History.getState().url && false){
+      History.replaceState({ url: document.location.href }, document.title, '?'+History.getState().url.split('?')[1]||'');
+    }else{
+      History.pushState({ url: document.location.href }, document.title, ($.param(data).length != 0) ? '?'+$.param(data) : '');
+    }
+    fetch_Orders(); 
+  }
+  
+  function toggleOrderBtns(btn , data){ console.log('called-for:', data)
+    $('#table-style').html('');
+    switch(btn){
+      case 'name': if(data == 'ASC') $('#table-style').append('<style>.name_asc_btn{ color: white !important; }</style>'); else $('#table-style').append('<style>.name_desc_btn{ color: white !important; }</style>'); console.log('called-for:', btn); break;
+      case 'order_by': if(data == 'ASC') $('#table-style').append('<style>.order_by_asc_btn{ color: white !important; }</style>'); else $('#table-style').append('<style>.order_by_desc_btn{ color: white !important; }</style>'); console.log('called-for:', btn); break;
+      case 'discount_codes': if(data == 'ASC') $('#table-style').append('<style>.discount_codes_asc_btn{ color: white !important; }</style>'); else $('#table-style').append('<style>.discount_codes_desc_btn{ color: white !important; }</style>'); console.log('called-for:', btn); break;
+      case 'date': if(data == 'ASC') $('#table-style').append('<style>.date_asc_btn{ color: white !important; }</style>'); else $('#table-style').append('<style>.date_desc_btn{ color: white !important; }</style>'); console.log('called-for:', btn); break;
+      case 'fulfillment_status': if(data == 'ASC') $('#table-style').append('<style>.fulfillment_status_asc_btn{ color: white !important; }</style>'); else $('#table-style').append('<style>.fulfillment_status_desc_btn{ color: white !important; }</style>'); console.log('called-for:', btn); break;
+    }
+  }
+  
+  const removeEmpty = (obj) => {
+    Object.keys(obj).forEach(k =>
+      (obj[k] && typeof obj[k] === 'object') && removeEmpty(obj[k]) ||
+      (!obj[k] && obj[k] !== undefined) && delete obj[k]
+    );
+    return obj;
+  };
+
+  function calcT(data) {
+    var i;
+    var x;
+    var str;
+    var res;
+    var date;
+    var total = 0;
+    var myArray = data["orders"]; 
+    for (i = 0; i < myArray.length; i++) {
+        str = myArray[i]["total"];
+//       	date = myArray[i]["date_unix"].split("T");
+//       	myArray[i]["order_date"] = dateFormat(new Date(date[0]), "mmmm dd, yyyy");
+      	if(myArray[i]["fulfillment_status"] === "fulfilled"){data["orders"][i]["other_status"] = "unfulfilled";}
+      	else{data["orders"][i]["other_status"] = "fulfilled";}
+        res = (str.replace(/,/g, "")).replace(/\$/g, "");
+        total += Number(res);
+    }
+    data["grand_total"] = addCommas(total.toFixed(2));
+    
+    var ttl_itms = data["total_entries"];
+    if(ttl_itms > 0){
+    $('#paginationInit').pagination({
+        items: ttl_itms,
+        itemsOnPage: data["per_page"],
+        hrefTextPrefix: "javascript:updateState({ page: '",
+        hrefTextSuffix: "'});",
+      	currentPage: var_page,
+        prevText:'<i class="fa fa-arrow-left"></i>',
+        nextText:'<i class="fa fa-arrow-right"></i>',
+      	listStyle: 'w3-pagination',
+      	ellipsePageSet: false,
+//         cssStyle: 'light-theme'
+    });
+    
+      $("#order-none").hide();
+      $("#id02, .per_pageContainer, #order-list").show();
+    }else{
+      $("#id02, .per_pageContainer").hide();
+      $("#order-none").show();
+    }
+  }
+
+{% comment %}</script>{% endcomment %}

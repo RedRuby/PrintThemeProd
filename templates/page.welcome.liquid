@@ -1,0 +1,31 @@
+{% layout none %}
+{% if customer  %}
+
+  {% assign Role_User = 'general.Role.User' | t %}
+  {% assign Role_Printer = 'general.Role.Printer' | t %}
+  {% assign Role_Manager = 'general.Role.Manager' | t %}
+  {% assign Role_ASM = 'general.Role.ASM' | t %}
+  {% assign Role_Admin = 'general.Role.Admin' | t %}
+
+  {% if customer.tags contains Role_User %}
+  	{% assign routTo = "" %}
+  {% elsif customer.tags contains Role_Manager %}
+  	{% assign routTo = "account" %}
+  {% elsif customer.tags contains Role_Printer %}
+  	{% assign routTo = "account" %}
+  {% elsif customer.tags contains Role_ASM %}
+  	{% assign routTo = "account" %}
+  {% elsif customer.tags contains Role_Admin %}
+  	{% assign routTo = "account" %}
+  {% endif %}
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  <html>
+      <head>
+          <title>Catalog</title>
+          <meta content="0; url={{shop.secure_url}}/{{ routTo }}" http-equiv="refresh" />
+      </head>
+      <body>
+
+      </body>
+  </html>
+{% endif %}

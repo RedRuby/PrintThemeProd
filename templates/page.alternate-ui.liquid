@@ -1,0 +1,138 @@
+{% if customer  %}
+  {% if customer.tags contains "Region:NorthEast" %}
+    {% assign customer_region_tag = "Region:NorthEast" %}
+  {% endif %}  
+  {% if customer.tags contains "Region:California" %}
+    {% assign customer_region_tag = "Region:California" %}
+  {% endif %}
+  {% if customer.tags contains "Region:Mountain" %}
+    {% assign customer_region_tag = "Region:Mountain" %}
+  {% endif %} 
+  {% if customer.tags contains "Region:SouthEast" %}
+    {% assign customer_region_tag = "Region:SouthEast" %}
+  {% endif %}      
+  {% if customer.tags contains "Region:MN" %}
+    {% assign customer_region_tag = "Region:MN" %}
+  {% endif %}
+{% endif %}
+
+<style>
+  .hidden{display:none;}
+  .mfp-content{width:80% !important;}
+</style>
+
+{% paginate collections.all.products by 20 %}
+
+<div id="CollectionSection" data-section-id="{{ section.id }}" data-section-type="collection-template" data-sort-enabled="{{ section.settings.sort_enable }}" data-tags-enabled="{{ section.settings.tags_enable }}">
+  <div class="section-header section-header--breadcrumb">
+    {% include 'breadcrumb' %}
+  </div>
+
+  <header class="section-header section-header--large">
+    <h1 class="">{{ page.title }}</h1>
+    
+  </header>
+
+  
+
+  <div class="grid-uniform grid-link__container">
+    {% assign grid_item_width = 'wide--one-fifth large--one-quarter medium-down--one-half' %}
+
+    {% for product in collections.all.products %}
+      {% assign featured = product %}
+        {% assign shop_currency_symbol = shop.money_format | replace: '{{amount}}', '' %}
+
+        {% unless current_collection == blank %}
+          {% assign current_collection = collection %}
+        {% endunless %}
+
+        {% assign on_sale = false %}
+        {% assign sale_text = 'products.product.sale' | t %}
+        {% if featured.compare_at_price > featured.price %}
+          {% assign on_sale = true %}
+        {% endif %}
+
+        {% assign sold_out = true %}
+        {% assign sold_out_text = 'products.product.sold_out' | t %}
+        {% if featured.available %}
+          {% assign sold_out = false %}
+        {% endif %}
+
+        {% if featured.title == '' %}
+          {% comment %}add default state for product block in storefront editor{% endcomment %}
+          {% capture product_title %}{{ 'home_page.onboarding.product_title' | t }}{% endcapture %}
+        {% else %}
+          {% capture product_title %}{{ featured.title | escape }}{% endcapture %}
+        {% endif %}      	
+    {% endfor %}
+
+  </div>
+
+  {% if paginate.pages > 1 %}
+    <hr class="hr--clear">
+
+    <div class="text-center">
+      {% include 'pagination-custom' %}
+    </div>
+  {% endif %}
+</div>
+{% endpaginate %}
+
+<div id="EditModal" class="password-page__login-form1 text-center mfp-hide">
+      
+</div>
+
+<script>
+  
+  var handler = '';
+  
+  $(document).ready(function(){
+  	$('.js-toggle-edit-modal').magnificPopup({
+        type: 'inline',
+        mainClass: 'mfp-fade',
+        closeOnBgClick: false,
+        closeBtnInside: false,
+        closeOnContentClick: false,
+//         tClose: password.strings.pageClose,
+        removalDelay: 500,
+        callbacks: {
+          open: function() {
+//             window.setTimeout( function() { document.getElementById('password').focus(); }, 50 );
+            
+          }
+        }
+      });
+//       if ( $('.storefront-password-form .errors').size() ) {
+//         $('.js-toggle-login-modal').click();
+//       }
+  });
+  
+  function addToModal(obj){ 
+//     $target = $(obj).parent().find('.modalContent'); console.log($target);
+//   	$('EditModal').html($target);
+    handler = $(obj).prop('handler_name');
+  }
+</script>
+
+<script type="text/javascript">
+  var cemail = "{{ customer.email }}"
+$(".product-check").bind('change', function(){
+  if (this.checked){
+    var bool = this.checked ? 1 : 0;
+    $.ajax({
+      url: '/apps/pepsi-print/product_configuration/'+this.value+'/create',
+      type: 'POST',
+      data: {product_id: this.value, cemail: cemail, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
+      dataType: 'json'
+    });
+  }
+  else {
+    $.ajax({
+      url: '/apps/pepsi-print/product_configuration/'+this.value+'/remove',
+      type: 'POST',
+      data: {product_id: this.value, cemail: cemail, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}"},
+      dataType: 'json'
+    });
+  }
+});
+</script>

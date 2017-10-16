@@ -1,0 +1,308 @@
+
+{% if customer %}
+
+  {% assign region_NorthEast = "general.Region_Tags.NorthEast" | t %}
+  {% assign region_SouthEast = "general.Region_Tags.SouthEast" | t %}
+  {% assign region_California = "general.Region_Tags.California" | t %}
+  {% assign region_South = "general.Region_Tags.South" | t %}
+  {% assign region_Mountain = "general.Region_Tags.Mountain" | t %}
+  {% assign region_MidAtlantic = "general.Region_Tags.MidAtlantic" | t %}
+  {% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
+  {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
+
+  {% assign Role_User = 'general.Role.User' | t %}
+  {% assign Role_Printer = 'general.Role.Printer' | t %}
+  {% assign Role_Manager = 'general.Role.Manager' | t %}
+  {% assign Role_ASM = 'general.Role.ASM' | t %}
+  {% assign Role_Admin = 'general.Role.Admin' | t %}
+
+  {% if customer.tags contains region_NorthEast %}
+    {% assign customer_region_tag = region_NorthEast %}
+  {% elsif customer.tags contains region_SouthEast %}
+    {% assign customer_region_tag = region_SouthEast %}
+  {% elsif customer.tags contains region_California %}
+    {% assign customer_region_tag = region_California %}
+  {% elsif customer.tags contains region_South %}
+    {% assign customer_region_tag = region_South %}
+  {% elsif customer.tags contains region_Mountain %}
+    {% assign customer_region_tag = region_Mountain %}
+  {% elsif customer.tags contains region_MidAtlantic %}
+    {% assign customer_region_tag = region_MidAtlantic %}
+  {% elsif customer.tags contains region_MidWest %}
+    {% assign customer_region_tag = region_MidWest %}
+  {% elsif customer.tags contains region_GreatLakes %}
+    {% assign customer_region_tag = region_GreatLakes %}
+  {% endif %}
+
+{% endif %}
+
+{% if section.settings.show_popup == true %}
+  {% if section.blocks.size > 0 %}	
+	<div class="index-section-popUp">
+      <div class="popUp" id="popUp--{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="popup-section" style="display:none !important;">
+        {% for block in section.blocks %} 
+          {% assign blockImage_width = block.settings.image_width |append:'x' %}
+          {% comment %} if block.settings.image != blank {% endcomment %}
+        	{% if block.settings.whom_to_show == 'All' %}
+              <a id="popUp--{{ block.id }}" class="js-toggle-popup-modal" data-popUp-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}
+                 {% if block.type == 'image-block' %} 
+                 	href="{{ block.settings.image | img_url: blockImage_width }}"
+                 {% elsif block.type == 'text-block' %}
+                	href="https://placeholdit.imgix.net/~text?txtsize=35&amp;bg={{ block.settings.bg_color |remove:'#' }}&amp;txtclr={{ block.settings.text_color |remove:'#' }}&amp;txt={{ block.settings.popup_text |replace:' ','+' }}&amp;w={{ block.settings.popup_width }}&amp;h={{ block.settings.popup_height }}&amp;txttrack=0"
+                 {% endif %}>
+              </a>
+        	{% elsif block.settings.whom_to_show == customer_region_tag %}
+              <a id="popUp--{{ block.id }}" class="js-toggle-popup-modal" data-popUp-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}
+                 {% if block.type == 'image-block' %} 
+                 	href="{{ block.settings.image | img_url: blockImage_width }}"
+                 {% elsif block.type == 'text-block' %}
+                    href="https://placeholdit.imgix.net/~text?txtsize=35&amp;bg={{ block.settings.bg_color |remove:'#' }}&amp;txtclr={{ block.settings.text_color |remove:'#' }}&amp;txt={{ block.settings.popup_text |replace:' ','+' }}&amp;w={{ block.settings.popup_width }}&amp;h={{ block.settings.popup_height }}&amp;txttrack=0"
+                 {% endif %}>
+              </a>
+        	{% comment %} endif {% endcomment %}
+          {% else %}
+<!--             <li id="slide--{{ block.id }}" data-flexslider-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
+              <span class="slide-link slide-link--{{ block.id }}">
+                {% capture current %}{% cycle 1, 2 %}{% endcapture %}
+                {{ 'lifestyle-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}
+              </span>
+            </li> -->
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <style>
+      .mfp-figure::after{ background: transparent !important; }
+      .mfp-bg-dark{ background-color: rgba(255,255,255,0.4) !important; }
+      img.mfp-img{ padding: 0px !important; box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) !important;; }
+      .mfp-image-holder .mfp-close, .mfp-iframe-holder .mfp-close{
+        margin: -25px;
+        font-size: 2.5em;
+        opacity: 1;
+        filter: alpha(opacity=100);
+        color: #333;
+      }
+    </style>
+
+    <script>
+      var stopOpen = false;
+      $(document).ready(function(){
+          $('.js-toggle-popup-modal').magnificPopup({
+            type: 'image',
+            mainClass: 'mfp-fade',
+            closeOnBgClick: false,
+            closeBtnInside: true,
+            closeOnContentClick: false,
+    //         tClose: password.strings.pageClose,
+            removalDelay: 500,
+            tLoading: '',
+            callbacks: {
+              beforeOpen: function() {
+                this.st.image.markup = this.st.image.markup.replace('mfp-figure', 'mfp-figure mfp-with-anim');
+                this.st.mainClass = 'mfp-zoom-out mfp-bg-dark'; //this.st.el.attr('data-effect');
+              },
+              close: function(){
+                if(!stopOpen && $('.js-toggle-popup-modal').length > 1){ console.log('getting in');
+                  setTimeout( function(){ $('.js-toggle-popup-modal').magnificPopup('open', 1); }, 500 );
+                  stopOpen = true;
+                }
+                if (typeof(Storage) !== "undefined") {
+                  sessionStorage.ShowPopup = 0; //console.log(sessionStorage.ShowPopup);
+                }
+              }
+            }
+          });
+		
+        var parentURL = parent.window.document.location.pathname;
+        console.log(parentURL);
+        if( (typeof(Storage) !== "undefined" && sessionStorage.ShowPopup == 1 ) || (parentURL.indexOf("/admin/themes/169781713/editor") != -1 && {{ section.settings.preview_popup}}) ){ 
+          setTimeout( function(){ $('.js-toggle-popup-modal').magnificPopup('open', 0); }, 2500 ); 
+        }
+
+      });
+    </script>
+  {% endif %}
+
+{% endif %}
+
+{% schema %}
+  {
+    "name": "PopUp",
+    "max_blocks": 18,
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "show_popup",
+        "label": "Show PopUp"
+      },
+      {
+        "type": "checkbox",
+        "id": "preview_popup",
+        "label": "Preview PopUp",
+		"info": "popup will be visible on every save button clicking. ( Uncheck before leaving this section )"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "image-block",
+        "name": "Image PopUp",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Image"
+          },
+          {
+            "type": "select",
+            "id": "whom_to_show",
+            "label": "Select for whom to show",
+            "options": [
+              {
+                "value": "All",
+                "label": "For All Users"
+              },
+              {
+                "value": "Region:SouthEast",
+                "label": "SouthEast Region Users"
+              },
+              {
+                "value": "Region:NorthEast",
+                "label": "NorthEast Region Users"
+              },
+              {
+                "value": "Region:S0uth",
+                "label": "South Region Users"
+              },
+              {
+                "value": "Region:California",
+                "label": "California Region Users"
+              },
+              {
+                "value": "Region:GreatLakes",
+                "label": "Great lakes Region Users"
+              },
+              {
+                "value": "Region:Mountain",
+                "label": "Mountain Region Users"
+              },
+              {
+                "value": "Region:MidAtlantic",
+                "label": "Mid Atlantic Region Users"
+              },
+              {
+                "value": "Region:MidWest",
+                "label": "Mid West Region Users"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "id": "image_width",
+            "label": "PopUp Width [ in pixels (px) ]",
+            "info": "( Best viewed image size is 640x320px or in the same ratio. )",
+			"default": "640"
+          }
+        ]
+      },
+      {
+        "type": "text-block",
+        "name": "Text PopUp",
+        "settings": [
+          {
+            "type": "textarea",
+            "id": "popup_text",
+            "label": "Text"
+          },
+          {
+			"type": "color",
+			"id": "text_color",
+			"label": "Text Color",
+			"default": "#000000"
+          },
+          {
+			"type": "color",
+			"id": "bg_color",
+			"label": "Background Color",
+			"default": "#ffffff"
+          },
+          {
+            "type": "text",
+            "id": "popup_width",
+            "label": "PopUp Width",
+            "info": "in pixels (px)",
+			"default": "640"
+          },
+          {
+            "type": "text",
+            "id": "popup_height",
+            "label": "PopUp Height",
+            "info": "in pixels (px)",
+			"default": "320"
+          },
+          {
+            "type": "select",
+            "id": "whom_to_show",
+            "label": "Select for whom to show",
+            "options": [
+              {
+                "value": "All",
+                "label": "For All Users"
+              },
+              {
+                "value": "Region:SouthEast",
+                "label": "SouthEast Region Users"
+              },
+              {
+                "value": "Region:NorthEast",
+                "label": "NorthEast Region Users"
+              },
+              {
+                "value": "Region:S0uth",
+                "label": "South Region Users"
+              },
+              {
+                "value": "Region:California",
+                "label": "California Region Users"
+              },
+              {
+                "value": "Region:GreatLakes",
+                "label": "Great lakes Region Users"
+              },
+              {
+                "value": "Region:Mountain",
+                "label": "Mountain Region Users"
+              },
+              {
+                "value": "Region:MidAtlantic",
+                "label": "Mid Atlantic Region Users"
+              },
+              {
+                "value": "Region:MidWest",
+                "label": "Mid West Region Users"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Carousal",
+        "category": "Image",
+        "settings": {
+          
+        },
+        "blocks": [
+          
+        ]
+      }
+    ]
+  }
+{% endschema %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}

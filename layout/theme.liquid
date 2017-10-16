@@ -1,0 +1,570 @@
+{% unless customer %}
+    {% if template contains 'index.stealth' or template contains 'customers/login' or template contains 'page.register' or template contains 'page.contact-us' or template contains 'customers/activate_account' or template contains 'customers/reset_password' %}
+    	{% assign send_to_login = false %}
+    {% else %}
+		{% assign send_to_login = true %}
+	{% endif %}
+{% endunless %}
+
+{% assign Admin_logged_in = false %}
+{% capture CFH %}{{ content_for_header  }}{% endcapture %}
+
+{% if CFH contains 'admin_bar_iframe' or CFH contains 'shopify-previewed-theme' %}
+  {% assign Admin_logged_in = true %}
+{% endif %}
+
+{% if send_to_login %}
+	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    <html>
+        <head>
+            <title></title>
+            <meta content="2; url={{shop.secure_url}}/account/login" http-equiv="refresh" />
+          	<script>
+                  var parentURL = parent.window.document.location.pathname;
+                  console.log(parentURL);
+                if( parentURL.indexOf("/admin/themes/{{ theme.id }}/editor") != -1 ){ 
+                    window.location.assign('{{shop.secure_url}}/index?view=stealth');
+                 }else{
+                    var url = document.URL.replace("{{shop.secure_url}}", '');
+                    if(url.length > 1 && url.indexOf('/pages/error') == -1){
+                      if (typeof(Storage) !== "undefined") {
+                          sessionStorage.pepsiPrintURL = url;
+                      }
+                      else
+                        parent.location.assign('{{shop.secure_url}}/account/login?redirect=' + url);
+
+                    }
+                    parent.location.assign('{{shop.secure_url}}/account/login');
+                 }
+          	</script>
+          	<style>
+              body:hover{cursor:wait;}
+            </style>
+  {{ 'shopstorm-apps.scss.css' | asset_url | stylesheet_tag }}
+  {% include 'buddha-megamenu-before' %}
+  {% include 'shopstorm-scripttags' %}
+
+
+
+
+
+
+
+
+
+
+<!-- BeginConsistentCartAddon --><script>{% if customer %}Shopify.merge_cart_text = '{{ "consistent_cart_addon.merge_cart_text" | t }}' ;Shopify.customer_logged_in = true ;Shopify.customer_email = "{{ customer.email }}" ;Shopify.log_uuids = true;{% else %}Shopify.customer_logged_in = false ;Shopify.customer_email = "" ;Shopify.log_uuids = true;{% endif %}</script><!-- EndConsistentCartAddon -->
+<!-- Hits Analytics tracking code -->
+{% if shop.customer_accounts_enabled %}
+  {% if customer %}
+    <script type="text/javascript">
+        function hitsReady() {
+            if (typeof hits != 'undefined')
+                hits('user','identify', {'id' : '{{ customer.id }}'});
+            else
+                setTimeout(hitsReady,500);
+        }
+        window.attachEvent ? window.attachEvent('onload', hitsReady) : window.addEventListener('load', hitsReady, false);
+    </script>
+  {% endif %}
+{% endif %}
+<!-- end of Hits Analytics code -->
+
+ </head>
+<body>	
+    {% include 'buddha-megamenu' %}
+</body>
+    </html>
+{% else %}
+
+{% if customer %}
+  {% assign region_NorthEast = "general.Region_Tags.NorthEast" | t %}
+  {% assign region_SouthEast = "general.Region_Tags.SouthEast" | t %}
+  {% assign region_California = "general.Region_Tags.California" | t %}
+  {% assign region_South = "general.Region_Tags.South" | t %}
+  {% assign region_Mountain = "general.Region_Tags.Mountain" | t %}
+  {% assign region_MidAtlantic = "general.Region_Tags.MidAtlantic" | t %}
+  {% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
+  {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
+  {% assign region_External = "general.Region_Tags.External" | t %}
+
+  {% assign Role_User = 'general.Role.User' | t %}
+  {% assign Role_Printer = 'general.Role.Printer' | t %}
+  {% assign Role_Manager = 'general.Role.Manager' | t %}
+  {% assign Role_ASM = 'general.Role.ASM' | t %}
+  {% assign Role_Admin = 'general.Role.Admin' | t %}
+
+  {% if customer.tags contains region_NorthEast or customer.tags contains region_SouthEast or customer.tags contains region_Mountain or customer.tags contains region_California or customer.tags contains region_South or customer.tags contains region_MidWest or customer.tags contains region_MidAtlantic or customer.tags contains region_GreatLakes %}
+	{% if customer.tags contains region_NorthEast %}
+      {% assign customer_region_tag = region_NorthEast %}
+    {% elsif customer.tags contains region_SouthEast %}
+      {% assign customer_region_tag = region_SouthEast %}
+    {% elsif customer.tags contains region_California %}
+      {% assign customer_region_tag = region_California %}
+    {% elsif customer.tags contains region_South %}
+      {% assign customer_region_tag = region_South %}
+    {% elsif customer.tags contains region_Mountain %}
+      {% assign customer_region_tag = region_Mountain %}
+    {% elsif customer.tags contains region_MidAtlantic %}
+      {% assign customer_region_tag = region_MidAtlantic %}
+    {% elsif customer.tags contains region_MidWest %}
+      {% assign customer_region_tag = region_MidWest %}
+    {% elsif customer.tags contains region_GreatLakes %}
+      {% assign customer_region_tag = region_GreatLakes %}
+    {% endif %}	
+
+  {% else %}
+    {% unless template contains 'page.no-region' %}
+      {% assign no_region = true %}
+	{% endunless %}
+  {% endif %}
+
+  {% if customer.tags contains Role_User %}
+    {% assign customer_role_tag = Role_User %}
+	{% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-products' %}
+  {% elsif customer.tags contains Role_Manager %}
+    {% assign customer_role_tag = Role_Manager %}
+	{% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-products' %}
+  {% elsif customer.tags contains Role_Printer %}
+    {% assign customer_role_tag = Role_Printer %}
+  {% elsif customer.tags contains Role_ASM %}
+    {% assign customer_role_tag = Role_ASM %}
+	{% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-my-products' %}
+  {% elsif customer.tags contains Role_Admin %}
+    {% assign customer_role_tag = Role_Admin %}
+	{% assign collection_handle = 'all' %}
+  {% endif %}
+
+{% endif %}
+
+{% if template contains 'collection' and collection.handle %}
+  {% unless collection.title contains customer_region_tag %} {% assign no_access = true %} {% assign collec = true %} {% endunless %}
+  {% if template contains 'my-products' %}
+    {% unless customer.tags contains Role_ASM %}{% assign no_access = true %} {% endunless %}
+  {% endif %}
+{% elsif template contains 'product' %}
+  {% unless customer.tags contains Role_ASM %}
+	  {% unless product.tags contains customer_region_tag %} {% assign no_access = true %} {% assign prod = true %} {% endunless %}
+  {% endunless %}
+{% endif %}
+
+{% if customer.tags contains Role_Printer %}
+  {% unless template contains 'customers/account' or template contains 'customers/addresses' or template contains 'page.order' or template contains 'page.error' or template contains 'page.welcome' or template contains 'page.contact-us' %}
+      {% assign no_access = false %}
+  {% endunless %}
+
+  {% if customer.tags contains 'Region:External' %}
+	{% assign no_region = false %}
+  {% endif %}
+{% endif %}
+
+{% if customer.tags contains Role_Admin %}
+    {% assign no_region = false %}
+	{% assign no_access = false %}
+{% endif %}
+
+{% if no_region == true or no_access == true %}
+	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    <html>
+        <head>
+            <title></title>
+            {% if no_region == true %}
+              <meta content="0; url={{shop.secure_url}}/pages/no-region-alotted" http-equiv="refresh" />
+            {% endif %}
+
+            {% if no_access == true %}
+              {% if template contains 'collection' and collection.handle == 'all' %}
+          		<meta content="0; url={{shop.secure_url}}/collections/{{collection_handle}}" http-equiv="refresh" />
+              {% else %}
+              	<meta content="0; url={{shop.secure_url}}/pages/error" http-equiv="refresh" />
+              {% endif %}
+            {% endif %}
+          	<style>
+              body:hover{cursor:wait;}
+            </style>
+          {% include 'buddha-megamenu-before' %}
+<!-- Hits Analytics tracking code -->
+{% if shop.customer_accounts_enabled %}
+  {% if customer %}
+    <script type="text/javascript">
+        function hitsReady() {
+            if (typeof hits != 'undefined')
+                hits('user','identify', {'id' : '{{ customer.id }}'});
+            else
+                setTimeout(hitsReady,500);
+        }
+        window.attachEvent ? window.attachEvent('onload', hitsReady) : window.addEventListener('load', hitsReady, false);
+    </script>
+  {% endif %}
+{% endif %}
+<!-- end of Hits Analytics code -->
+
+ </head>
+        <body>  {% include 'buddha-megamenu' %}
+</body>
+    </html>
+{% else %}
+
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]><html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if IE 9 ]><html class="ie9 no-js"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+
+  <!-- Basic page needs ================================================== -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  {% if settings.favicon %}
+  <link rel="shortcut icon" href="{{ settings.favicon | img_url: '32x32' }}" type="image/png" />
+  {% endif %}
+
+  <!-- Title and description ================================================== -->
+  <title>
+  {{ page_title }}{% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}{% unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}
+  </title>
+  
+  {% if page_description %}
+  <meta name="description" content="{{ page_description | escape }}">
+  {% endif %}
+
+  <!-- Social meta ================================================== -->
+  {% include 'social-meta-tags' %}
+
+  <!-- Helpers ================================================== -->
+  <link rel="canonical" href="{{ canonical_url }}">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="{{ settings.color_primary }}">
+  
+  <!-- CSS ================================================== -->
+  
+  {% if template contains 'customers/account' or template contains 'page.order' or template contains 'product' %}
+  	{{ 'w3css.css' | asset_url | stylesheet_tag }}
+  	{% if template contains 'customers/account' %}
+    {{ 'datepicker-UI.css' | asset_url | stylesheet_tag }}
+    {{ 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' | stylesheet_tag }}
+  	{% endif %}
+  {% endif %}
+  
+  {{ 'timber.scss.css' | asset_url | stylesheet_tag }}
+  {{ 'theme.scss.css' | asset_url | stylesheet_tag }}
+
+  {{ 'custom-style.css' | asset_url | stylesheet_tag }}
+  
+  {% include 'custom-css-snippet' %}
+  
+  {% include 'google-fonts' %}
+  
+  {{ 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css' | stylesheet_tag }}
+  
+  <script>
+    window.theme = window.theme || {};
+    
+    var theme = {
+      strings: {
+        zoomClose: {{ "products.zoom.close" | t | json }},
+        zoomPrev: {{ "products.zoom.prev" | t | json }},
+        zoomNext: {{ "products.zoom.next" | t | json }}
+      },
+      settings: {
+        // Adding some settings to allow the editor to update correctly when they are changed
+        themeBgImage: {{ settings.theme_bg_image }},
+        customBgImage: '{{ settings.bg_custom }}',
+        enableWideLayout: {{ settings.enable_wide_layout }},
+        typeAccentTransform: {{ settings.type_accent_transform }},
+        typeAccentSpacing: {{ settings.type_accent_spacing }},
+        baseFontSize: '{{ settings.type_base_size }}',
+        headerBaseFontSize: '{{ settings.type_header_size }}',
+        accentFontSize: '{{ settings.type_accent_size }}'
+      },
+      moneyFormat: {{ shop.money_format | json }}
+    }
+  </script>
+
+  <!-- Header hook for plugins ================================================== -->
+  {{ content_for_header }}
+
+  {% include 'oldIE-js' %}
+  
+  {{ '//ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js' | script_tag }}
+
+  {% comment %}
+    If you store has customer accounts disabled, you can remove the following JS file
+  {% endcomment %}
+  {% if template contains 'customers' %}
+    {{ 'shopify_common.js' | shopify_asset_url | script_tag }}
+  {% endif %}
+
+  {% include 'buddha-megamenu-before' %}
+  {% unless template contains 'customers' or template contains 'page.order' %}
+    
+  {% endunless %}
+<!-- Hits Analytics tracking code -->
+{% if shop.customer_accounts_enabled %}
+  {% if customer %}
+    <script type="text/javascript">
+        function hitsReady() {
+            if (typeof hits != 'undefined')
+                hits('user','identify', {'id' : '{{ customer.id }}'});
+            else
+                setTimeout(hitsReady,500);
+        }
+        window.attachEvent ? window.attachEvent('onload', hitsReady) : window.addEventListener('load', hitsReady, false);
+    </script>
+  {% endif %}
+{% endif %}
+<!-- end of Hits Analytics code -->
+
+ </head>
+
+<body id="{{ page_title | handle }}" class="{% if customer %}customer-logged-in {% endif %}template-{{ template | replace: '.', ' ' | truncatewords: 1, '' | handle }}" >
+
+  {% section 'header' %}
+  
+  {% if collection %}{% unless template == 'product' %}
+    <div class="hide">
+      <div id="carousal">{% section 'carousal' %}</div>
+    </div>
+  	<script>
+        $(document).ready(function(){
+        	var carousalHTML = $('#carousal').html();
+        	$('#carousal').remove();
+        	$('#sec_nav').prepend(carousalHTML);
+        });
+    </script>
+  {% endunless %}{% endif %}
+  
+  <main class="wrapper main-content" role="main">
+    {% comment %}
+    {% assign Role_ASM = 'general.Role.ASM' | t %}
+	{% if customer and customer.tags contains Role_ASM%}
+      {% include 'secondary-navigation-template' %}
+    {% endif %}
+    {% endcomment %}
+    {% if customer  %}{% endif %}{% include 'notify-UI' %}
+    <div class="grid">
+        <div class="grid__item">
+          {{ content_for_layout }}
+        </div>
+    </div>
+  </main>
+
+  {% section 'footer' %}
+      
+  {% if template contains 'customers/account' or template contains 'page.order' %} 
+  	{{ 'https://cdnjs.cloudflare.com/ajax/libs/history.js/1.7.1/bundled/html4+html5/jquery.history.js' | script_tag }}
+  	{{ 'w3data.js' | asset_url | script_tag }} {%comment%} {%endcomment%}
+  	{% if template contains 'customers/account' %}
+  	{{ 'youarei.js' | asset_url | script_tag }}
+    {{ 'jquery-ui.js' | asset_url | script_tag }}
+    {{ 'jquery.simplePagination.js' | asset_url | script_tag }}
+  	{% endif %} 
+  {% endif %} 
+  
+  {{ 'theme.js' | asset_url | script_tag }}
+  
+<!--   {{ 'https://cdnjs.cloudflare.com/ajax/libs/shopify-cartjs/0.4.1/cart.min.js' | script_tag }} -->
+  
+  {{ 'affix-2.js' | asset_url | script_tag }}
+  
+  <script>
+    jQuery(function() {
+      jQuery('.swatch :radio').change(function() {
+        var optionIndex = jQuery(this).closest('.swatch').attr('data-option-index');
+        var optionValue = jQuery(this).val();
+        jQuery(this)
+          .closest('form')
+          .find('.single-option-selector')
+          .eq(optionIndex)
+          .val(optionValue)
+          .trigger('change');
+      });
+    });
+    
+  
+    {% if template contains 'collection' %}
+      // media query event handler
+      if (matchMedia) {
+        var mq = window.matchMedia("(min-width: 600px)");
+        mq.addListener(WidthChange);
+        WidthChange(mq);
+      }
+
+      // media query change
+      function WidthChange(mq) {
+        if (mq.matches) {
+          // window width is at least 600px
+          $('.action-toggler').hide();
+        } else {
+          // window width is less than 600px
+          $('.action-toggler').show();
+        }
+
+      }
+    {% endif %}
+    
+    {% assign link_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase %}
+    
+    $(document).ready(function(){
+      	var url = document.URL;
+      	var pattern = /\?sort_by=created-descending/;
+        if(url.match(pattern)) {
+          $('#link-new, #link2-new').addClass('site-nav--active');//console.log('turu');
+        }
+      
+      	pattern = /\/pages\/contact-us-/;
+        if(url.match(pattern)) {
+          $('#link-contact, #link7, #link2-contact, #link27').addClass('site-nav--active');
+        }
+      
+      	pattern = /-payment-codes-/;
+        if(url.match(pattern)) {
+          $('#link-sales, #link-payment-codes, #link7, #link2-sales, #link2-payment-codes, #link27').addClass('site-nav--active');
+        }
+      
+      	pattern = /\/pages\/payment-codes-{{ link_handle }}-food-service/;
+        if(url.match(pattern)) {
+          $('#link-food-service, #link-payment-codes, #link7, #link2-food-service, #link2-payment-codes, #link27').addClass('site-nav--active');
+        }
+      
+     	pattern = /\/pages\/payment-codes-{{ link_handle }}-trade-expense/;
+        if(url.match(pattern)) {
+          $('#link-all-other, #link-payment-codes, #link7, #link2-all-other, #link2-payment-codes, #link27').addClass('site-nav--active');
+        }
+      
+      	pattern = /payment-code/;
+        if(url.match(pattern)) {
+          $('.grid .grid__item').first().prepend('<button type="button" class="btn" onclick="goBack();">Back</button><br><br>');
+          //<div class="note">Copy and paste your payment code <b><i> from the list below </b></i> into the \'Payment Code\' section during checkout.  Payment codes are based on your regional distribution location. Like If you are in Gallup, New Mexico, your payment code is \'GallupNM\'.</div><br>
+        }
+//     	var patt = new RegExp("\?sort\_by\=created\-descending");
+//         var res = patt.test(url); console.log(res);
+//       	if(res){
+//           $('#link-new').addClass('site-nav--active');
+//         }
+      
+      {% if template contains 'collection' %}
+      var i = [];
+      
+      $('.product-content-wrapper').each(function(index, item){
+      	i[index] = $(item).css('height').split('px')[0]; //console.log(i[index]);
+      }).promise()
+      	.done(function(){
+          var max_h = Math.max.apply(Math,i); //console.log(max_h);
+          $('.product-content-wrapper').each(function(index, item){ $(item).css('height', max_h.toString()+"px"); });
+      });	
+      {% endif %}
+      
+      $( document ).scroll(function() {
+        $scroll = $(document).scrollTop();
+        $scroll2 = $('#sec_nav').position().top; //console.log($scroll2);
+        $('#scroll').text($scroll+', '+$scroll2);  
+        {% if customer and customer.tags contains Role_ASM %}
+        if($scroll >= 5){
+            $('#nav-2').addClass('site-nav2-fixed'); $('.main-content').addClass('main-content-extra');
+          	$('#psudo img').removeClass('hide');
+          	if($(document).height() > 900)$('#header--logo').addClass('logo-fixed');
+        }
+        else if($scroll <= 4){
+            $('#nav-2').removeClass('site-nav2-fixed'); $('.main-content').removeClass('main-content-extra');
+          	$('#psudo img').addClass('hide');
+          	$('#header--logo').removeClass('logo-fixed');
+        }
+        
+        if($scroll >= 5){
+            $('#AccessibleNav').addClass('site-nav-fixed'); $('.main-content').addClass('main-content-extra');
+        }
+        else if($scroll <=4){
+            $('#AccessibleNav').removeClass('site-nav-fixed'); $('.main-content').removeClass('main-content-extra');
+        }
+        {% else %}
+        if($scroll >= 75){
+            $('#AccessibleNav').addClass('site-nav3-fixed'); $('.main-content').addClass('main-content-extra');
+          	$('#psudo img').removeClass('hide');
+          	if($(document).height() > 900)$('#header--logo').addClass('logo-fixed');
+        }
+        else if($scroll <= 74){
+            $('#AccessibleNav').removeClass('site-nav3-fixed'); $('.main-content').removeClass('main-content-extra');
+          	$('#psudo img').addClass('hide');
+          	$('#header--logo').removeClass('logo-fixed');
+        }
+        {% endif %}
+      });
+      
+    });
+    
+    if (typeof(Storage) !== "undefined") {
+      {% if customer %}
+      	localStorage.customer_status = 'loggedin'; 
+      {% else %}
+      	localStorage.customer_status = 'loggedout';
+      {% endif %}
+    }
+    
+    function goBack(){
+      var currentUrl = window.location.href;
+      window.history.back();
+      setTimeout(function(){
+          // if location was not changed in 100 ms, then there is no history back
+          if(currentUrl === window.location.href){
+              // redirect to site root
+              window.close();
+          }
+      }, 500);
+        
+    }
+
+//     console.log(JSON.stringify({{ cart | json }}));
+//     	console.log(myIP());
+//     console.log('{{ customer.id }}');
+    var parentURL = parent.window.document.location.pathname;
+//     console.log(parentURL);
+//     $.getScript("http://api.hostip.info/get_html.php?callback=myIP");
+    
+//     setTimeout(function(){debugger;}, 3000);
+    
+    function myIP(data) {
+//         if (window.XMLHttpRequest) xmlhttp = new XMLHttpRequest();
+//         else xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+
+//         xmlhttp.open("GET","http://api.hostip.info/get_html.php",false);
+//         xmlhttp.send();
+
+//         hostipInfo = xmlhttp.responseText.split("\n");
+      	
+      	hostipInfo = data.split("\n");
+
+        for (i=0; hostipInfo.length >= i; i++) {
+            ipAddress = hostipInfo[i].split(":");
+            if ( ipAddress[0] == "IP" ) console.log( ipAddress[1]);
+        }
+
+        return false;
+    }
+    
+    console.log("ctoken = {{ customer.id  | hmac_sha1: shop.domain }}");
+                
+  </script>
+<!--     <p id="scroll" style="color:red; position:fixed; bottom:50px; right:60px; z-index:9999999; display:none;"></p> -->
+  
+<!--   <script type="text/javascript">
+    jQuery(function() {
+        CartJS.init({{ cart | json }}, {
+            "dataAPI": false,
+            "requestBodyClass": "loading"
+        });
+    });
+  </script> -->
+
+  {% include 'buddha-megamenu' %}
+  
+  {% unless template contains 'customers/login' %}
+ 	 {% section 'popup-section' %}
+  {% endunless %}
+  
+</body>
+</html>
+{% endif %}
+{% endif %}

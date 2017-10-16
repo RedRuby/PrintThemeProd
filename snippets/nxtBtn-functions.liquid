@@ -1,0 +1,70 @@
+<script>
+  
+  function editPrice(instance, row, col, optBkpData, selectedOptions){
+  	var selectedPrices = instance.getDataAtCell(row, col+1);
+    if(selectedPrices == null)selectedPrices = "";
+    selectedPrices = (selectedPrices.length > 0) ? selectedPrices.split(',') : [];
+
+//     var selectedOptions = instance.getDataAtCell(row, col-6);
+    if(selectedOptions == null)selectedOptions = "";
+    selectedOptions = (selectedOptions.length > 0) ? selectedOptions.split(',') : [];
+
+    var price = instance.getDataAtCell(row, 20);
+    if(price == null || price.length == 0){
+      price = {};
+      selectedPrices = function(){ selectedPrices = []; selectedOptions.forEach(function(option, index){ selectedPrices.push('0'); return selectedPrices; }); };
+//                           selectedOptions.forEach(function(option, index){
+// 							price[option] = '0.00';
+//                           });
+      price = JSON.parse(defaultPriceList);
+    }else
+      price = JSON.parse(price);
+
+    $('#optionPriceModal tbody').html('');
+    selectedOptions.forEach(function(option, index){
+        try{ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0) this.value = \'0.00\'; else this.value = (parseFloat(this.value)||0).toFixed(2); " value="'+ ((price[option] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? price[option] : "0.00") +'"></td></tr>'); }
+        catch(e){ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0) this.value = \'0.00\'; else this.value = (parseFloat(this.value)||0).toFixed(2); " value="'+ ((selectedPrices[index] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? selectedPrices[index] : "0.00") +'"></td></tr>'); }
+    });
+
+//     $("#priceSave").prop('disabled', 'disabled');
+    $("#priceSave").removeAttr('disabled');
+    $('#optionPriceModal').one('show.bs.modal', function(){ $(this).animateCss('animated slideInRight'); }).modal({backdrop:"static", show:true, keyboard:false});
+
+    $("#optionPriceModal").off('hide.bs.modal').on('hide.bs.modal', function () {
+
+      if(!$('#priceSave').is(':disabled')){
+        if (confirm("Your changes will be lost !") == true) {
+            $("#optionPriceModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+        } else
+            return false;
+      } else
+          $("#optionPriceModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+          return false;
+    });
+
+    $('#optionPriceModal tbody input').off('keyup').one('keyup', function(){
+        $("#priceSave").removeAttr('disabled');
+    });
+
+    $("#priceSave").off('click').one('click', function (e) {
+      var element = e.target || e.srcElement;
+      selectedPrices = $('#optionPriceModal tbody input').map( function() { return this.value; }).get();
+      instance.setDataAtCell(row, col+1, selectedPrices.join(","));
+      $(this).prop('disabled', 'disabled');
+      setPrice = function(){
+        selectedOptions.forEach(function(option, index){
+          price[option] = selectedPrices[index];
+        });
+        return JSON.stringify(price);
+      }
+      instance.setDataAtCell(row, instance.propToCol('default_price'), setPrice());
+      instance.setDataAtCell(row, instance.propToCol('option1_value'), selectedOptions.join(','));
+//                           Handsontable.dom.empty(td);
+//                           td.appendChild(btn);
+      $("#optionPriceModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+      $("#priceSave").prop('disabled', 'disabled');
+    });
+  	
+  }
+  
+</script>

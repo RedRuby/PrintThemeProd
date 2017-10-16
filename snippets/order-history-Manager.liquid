@@ -1,0 +1,271 @@
+<div id="order-list" style="display:none;">
+  	<div class="w3-row">
+    	<div class="w3-col m2" styles="position:relative;">
+          <small class="nbsp-hide"><label for="">Date Filter</label></small>
+    	  <input id="start_date" value="{{first_order}}" readonly class="datepicker" type="text" name="start_date" placeholder="Start Date" >
+          <button type="button" disabled class="btn btn--secondary w3-padding-01 w3-padding-top1 w3-padding-bottom1 w3-border-black w3-small clear-filter hide" disabled1 style="position:absolute; bottom: 22.75px; right:10px; z-index:; display:none; padding:0 5px; font-size:3px;"><i class="fa fa-times"></i></button>
+    	</div>
+      	<div class="w3-col m2 w3-row-padding">
+          <small class="nbsp-hide"><label for="">&nbsp;</label></small>
+    	  <input id="end_date" value="{{'now' | date: '%m/%d/%Y'}}" readonly class="datepicker" type="text" name="end_date" placeholder="End Date" >
+    	</div>
+      	<div class="w3-col m3">
+          <small class="nbsp-hide"><label for="">&nbsp;</label></small>
+          <button id="" class="btn btn--secondary btn--full1 clear-filter" type="button" style="display:none;" >Clear</button>
+    	  <button id="filter_order" class="btn btn--secondary btn--full1" type="button" >Filter Dates</button>
+    	</div>
+      	<div id="td_select" class="w3-col m3 w3-row-padding">
+          <small><label for="select_tml"><br class="br-hide">Filter By Team Members</label></small>
+    	  <select id="select_tml" onchange="changeUser(this.value); this.title = this.options[this.selectedIndex].innerHTML;" title="" class="assign-printer" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{fulfillment_status}}{% endraw %}">
+            <option value="" selected>All</option>
+            <option value="{{ customer.id }}">My Orders</option>
+            <option w3-repeat="customers" value="{% raw %}{{id}}{% endraw %}" title="{% raw %}{{first_name}} {{last_name}}{% endraw %}" select="{% raw %}{{selected}}{% endraw %}">{% raw %}{{email}}{% endraw %}</option>
+          </select>
+    	</div>
+      	<div id="td_select" class="w3-col m2">
+          <small><label for="select_tl"><br class="br-hide">Additional Filters</label></small>
+    	  <select id="select_tl" onchange="updateState({page: '1',fulfillment_status: this.value});" name="fulfillment_status">
+            <option value="" selected>Clear Additional Filters</option>
+            <option value="fulfilled">Fulfilled</option>
+            <option value="unfulfilled">Unfulfilled</option>
+          </select>
+    	</div>
+    </div>
+  <table id="id02" class="responsive-table w3-table w3-bordered w3-striped">
+    <thead>
+      <tr class="w3-text-white" style="background-color: {{ settings.color_topbar_bg }}">
+        {% include 'customer-account-common-code' with 'table-header-code' %}
+      </tr>
+    </thead>
+    <tr w3-repeat="orders">
+      <th class="w3-text-orange1 orders text-center" id="{% raw %}{{id}}{% endraw %}"><a class="{% raw %}{{cancel_status}}{% endraw %}" href="/pages/order?id={% raw %}{{id}}{% endraw %}">{% raw %}{{order_name}}{% endraw %}</a></th>
+      <td class="text-center" title="{% raw %}{{customer_last_email}}{% endraw %}">{% raw %}{{customer_last_name}}{% endraw %}</td>
+      <td class="text-center">{% raw %}{{discount_codes}}{% endraw %}</td>
+      <td class="text-center">{% raw %}{{order_date}}{% endraw %}</td>
+      {% comment %}<td>{% raw %}{{payment_status}}{% endraw %}</td>{% endcomment %}
+      {% comment %}<td class="text-right">${% raw %}{{total}}{% endraw %}</td>{% endcomment %}
+      <td class="text-center">{% raw %}{{order_status}}{% endraw %}</td>
+    </tr>
+  </table>
+    
+  {% include 'customer-account-common-code' with 'pagination-code' %}
+    
+</div>
+
+{% include 'customer-account-common-code' with 'per-page-form' %}
+
+<script>
+  
+  {% include 'customer-account-common-code' with 'init-variables' %}
+  
+//   fetch_Orders('','','','');
+//   setTimeout(fetch_TeamUsers(),0);
+//   setTimeout(fetch_AllUsers(),0);
+//   $("#id02, #paginationInit, #order-list").show();
+  
+  $(document).ready(function() {
+    
+    fetch_Orders();
+  
+    {% include 'customer-account-common-code' with 'doc-ready-code' %}
+    
+    setTimeout(fetch_AllUsers,0);
+    setTimeout(fetch_TeamUsers,100);
+    
+    
+  });
+  
+  
+  {% include 'customer-account-common-code' with 'methods' %}
+  
+  
+  function fetch_Orders(start_date, end_date, page, cid){
+//     var1 = start_date;
+//     var2 = end_date;
+//     var3 = page;
+//     var4 = cid;
+//     freez();
+//     var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
+                
+//     if(start_date.length != 0 && end_date.length != 0){ data.start_date = start_date; data.end_date = end_date; $('#radio2').removeAttr('disabled').parent().removeClass('w3-text-grey'); }
+//     if(page.length != 0){ data.page = page }
+//     if(cid.length != 0){ data.customer_id = cid }
+  
+     {% include 'customer-account-common-code' with 'fetchOrders-code' %}
+                
+  	 $.ajax({
+          url: '/apps/pepsi-print/collection_response/get_orders_list.json',
+          type: 'GET',
+          data: data,
+          dataType: 'json',
+          success: function(data){
+//             	console.log(JSON.stringify(data));
+            	if(data["total_entries"] > 0){
+                  calcT(data); //, start_date, end_date, page, cid);
+                  
+                  $.when(setTimeout(w3DisplayData("id02", data),100))
+                  .done(function(){ delete query.per_page;
+                    if($.param(query).length > 0)
+                      $('a[href^="/pages/order?id="]').each(function(index, item){
+                        $(item).attr('href',$(item).attr('href')+'&'+$.param(query));
+                      });
+                  });
+                  
+                  $("#print-btn").removeAttr('disabled').prop('title', '').css('cursor', 'default');
+                                    
+                  
+				}else{
+                  $("#id02, .per_pageContainer").hide();
+                  $("#order-none").show();
+                  $("#print-btn").prop('disabled','disabled').prop('title', 'No orders to print.').css('cursor', 'not-allowed');
+                  $.unblockUI();
+                }
+            	$.unblockUI();
+                
+          },
+          error: function(){
+            $.unblockUI; show_message2('Error in fetching Orders.',false);
+          }
+          
+	 	});
+    
+  }
+  
+  function fetch_TeamUsers(state){
+      var i = 0;
+      $.ajax({
+          url: '/apps/pepsi-print/collection_response/get_customers_list.json',
+          type: 'GET',
+          data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
+          dataType: 'json',
+          success: function (data) { console.log(JSON.stringify(data));
+                 	
+                    if(data.status == 'ok'){
+                 
+                    $.when(w3DisplayData('select_tml', data)).done(
+                      w3DisplayData('selected_team', data)
+                    ).done(setTimeout(afterDisplay,1000));
+                      function afterDisplay(){
+                        $('#selected_team').show();
+                        $select_team = $('#select_team select'); console.log($select_team.html());
+                        $select_team.find("option").removeAttr('disabled'); console.log($('#select_tml').html());
+                        $('#select_tml option').each(function(index, item){
+                          if(index > 1){
+                            $val = $(item).attr('value'); console.log($val+','+JSON.stringify(item)+','+index);
+                            $select_team.find("option[value = "+$val+"]").prop('disabled', 'disabled');
+                          }
+                        });console.log('team fetched');
+                      }
+                    }
+                    else{
+                      $('#selected_team, #select_tl option:eq(2)').hide();
+                      $('#select_team select option').removeAttr('disabled');
+                    }
+                 	$.unblockUI();
+
+          },
+          error: function(){
+            $.unblockUI; show_message2('Error in fetching TeamList.',false);
+          },
+          complete: function(){ if(!state)fetch_TeamUsers(true); }
+
+      });
+  }
+  
+  function fetch_AllUsers(){
+      var i = 0;
+      $.ajax({
+          url: '/apps/pepsi-print/collection_response/get_all_customers_list.json',
+          type: 'GET',
+          data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
+          dataType: 'json',
+          success: function (data) { //console.log(JSON.stringify(data));
+                 	w3DisplayData('select_team', data);
+                 	$.unblockUI();
+
+          },
+          error: function(){
+            $.unblockUI; show_message2('Error in fetching Users.',false);
+          }
+
+      });
+  }
+  
+  function changeUser(val){
+      //console.log($this.attr('order_id')+" changed to"+$this.val());
+      $('#start_date').val('');
+      $('#end_date').val('{{'now' | date: '%m/%d/%Y'}}');
+      $('#radio2').prop('disabled', 'disabled').parent().addClass('w3-text-grey');
+      updateState({ page: '1', customer_id: val });
+
+    
+   }
+  
+  function editTeam(obj,status){
+    freez();
+    if(status){
+      url = '/apps/pepsi-print/customer/assign_manager_to_site_user.json';
+      cid = $(obj).val();
+    }
+    else{
+      url = '/apps/pepsi-print/customer/remove_manager_from_site_user.json';
+      cid = $(obj).attr('value');
+    }
+    
+//     console.log(cid);
+    
+    {% comment %}{% endcomment %}
+    $.ajax({
+          url: url,
+          type: 'POST',
+          data: JSON.stringify({ cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", customer_id: cid }),
+          dataType: 'json',
+          contentType: "application/json;",
+          statusCode: {
+            401:function() { console.log("401"); },
+            404:function() { console.log("404"); },
+            200:function() { console.log("200"); },
+            201:function() { console.log("201"); },
+            202:function() { console.log("202"); }
+          },
+          success: function(data){
+//             	console.log(JSON.stringify(data));
+            	
+                if(200 == Number(data.status)){
+//                   	fetch_TeamUsers();
+                    setTimeout(fetch_TeamUsers,2000);	
+                  
+                  	if(var_customer_id == cid)
+                      updateState({customer_id: ''});
+//                     else
+//                       fetch_Orders();
+                  	
+                  $('#select_team select option:eq(0)').prop('selected','selected');
+                  	//$.unblockUI; 
+                  setTimeout(function(){
+                  	if(status)
+                      show_message2('Added Successfully.',true);
+                    else
+                      show_message2('Removed Successfully.',true);
+                  },2500);
+                  	
+                }else if(401 === Number(data.status)){
+                  	$.unblockUI; show_message2(data.message,false);
+                }else{
+                	$.unblockUI; show_message2(data.message,false); console.log('else');
+                }
+           
+            
+            	
+          },
+          error: function(data){
+            $.unblockUI; show_message2('Some Error Occured.',false);
+          }
+          
+	 });
+  
+    
+   }
+  
+  
+</script>

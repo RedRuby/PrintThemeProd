@@ -1,0 +1,142 @@
+{% if customer  %}
+	
+
+  {% assign Role_Admin = 'general.Role.Admin' | t %}
+
+  {% assign region_NorthEast = "general.Region_Tags.NorthEast" | t %}
+  {% assign region_SouthEast = "general.Region_Tags.SouthEast" | t %}
+  {% assign region_California = "general.Region_Tags.California" | t %}
+  {% assign region_South = "general.Region_Tags.South" | t %}
+  {% assign region_Mountain = "general.Region_Tags.Mountain" | t %}
+  {% assign region_MidAtlantic = "general.Region_Tags.MidAtlantic" | t %}
+  {% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
+  {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
+
+  {% if customer.tags contains region_NorthEast %}
+    {% assign customer_region_tag = region_NorthEast %}
+  {% elsif customer.tags contains region_SouthEast %}
+    {% assign customer_region_tag = region_SouthEast %}
+  {% elsif customer.tags contains region_California %}
+    {% assign customer_region_tag = region_California %}
+  {% elsif customer.tags contains region_South %}
+    {% assign customer_region_tag = region_South %}
+  {% elsif customer.tags contains region_Mountain %}
+    {% assign customer_region_tag = region_Mountain %}
+  {% elsif customer.tags contains region_MidAtlantic %}
+    {% assign customer_region_tag = region_MidAtlantic %}
+  {% elsif customer.tags contains region_MidWest %}
+    {% assign customer_region_tag = region_MidWest %}
+  {% elsif customer.tags contains region_GreatLakes %}
+    {% assign customer_region_tag = region_GreatLakes %}
+  {% endif %}
+
+{% endif %}
+
+{% comment %}
+  Documentation - http://docs.shopify.com/support/your-website/navigation/creating-a-breadcrumb-navigation
+{% endcomment %}
+{% unless template == 'index' or template == 'cart' %}
+<div class="grid">
+  <div class="grid__item one-half medium-down--one-whole">
+    <nav class="breadcrumb" role="navigation" aria-label="breadcrumbs">
+      <a href="/" title="{{ 'general.breadcrumbs.home_link_title' | t }}">{{ 'general.breadcrumbs.home' | t }}</a>
+
+      {% if template contains 'collection' and collection.handle %}
+
+        <span aria-hidden="true" class="breadcrumb__sep">&rsaquo;</span>
+        {% if current_tags %}
+          {% capture url %}/collections/{{ collection.handle }}{% endcapture %}
+          {{ collection.title |remove: customer_region_tag |replace:'-',' ' | link_to: url }}
+          <span aria-hidden="true" class="breadcrumb__sep">&rsaquo;</span>
+          <span>{{ current_tags | join: " + " |remove:'PTT' |remove:'MKT' |remove:'AS:' |remove:'PR:' |remove:'SP:' |remove:'DPT:' }}</span>
+        {% else %}
+          <span style="text-transform:capitalize;">{{ collection.title |remove:customer_region_tag |replace:'-',' ' }}</span>
+        {% endif %}
+
+      {% elsif template contains 'product' %}
+
+        {% if collection %}
+          <span aria-hidden="true" class="breadcrumb__sep">&rsaquo;</span>
+          {% if collection.handle %}
+            {% capture url %}/collections/{{ collection.handle }}{% endcapture %}
+            <span style="text-transform:capitalize;">
+              {{ collection.title |remove:customer_region_tag |replace:'-',' ' | link_to: url }}
+            </span>
+          {% endif %}
+        {% endif %}
+        <span aria-hidden="true" class="breadcrumb__sep">&rsaquo;</span>
+        <span>{{ product.title }}</span>
+
+      {% elsif template == 'blog' %}
+
+        <span aria-hidden="true" class="breadcrumb__sep">&rsaquo;</span>
+        {% if current_tags %}
+          {{ blog.title | link_to: blog.url }}
+          <span aria-hidden="true" class="breadcrumb__sep">&rsaquo;</span>
+          <span>{{ current_tags | join: " + " }}</span>
+        {% else %}
+        <span>{{ blog.title }}</span>
+        {% endif %}
+
+      {% elsif template == 'article' %}
+
+        <span aria-hidden="true" class="breadcrumb__sep">&rsaquo;</span>
+        {{ blog.title | link_to: blog.url }}
+        <span aria-hidden="true" class="breadcrumb__sep">&rsaquo;</span>
+        <span>{{ article.title }}</span>
+
+      {% elsif template contains 'page' %}
+
+       <span aria-hidden="true" class="breadcrumb__sep">&rsaquo;</span>
+       <span>{{ page.title }}</span>
+
+      {% else %}
+
+       <span aria-hidden="true" class="breadcrumb__sep">&rsaquo;</span>
+       <span>{{ page_title }}</span>
+
+      {% endif %}
+    </nav>
+  </div>
+  <div class="grid__item one-half medium-down--one-whole text-right">
+    {% if template == 'product' %}
+      <button type="button" class="btn" onclick="window.location.assign('/pages/catalog');" >Continue Shopping</button>
+      <button type="button" class="btn" onclick="detectIE('/pages/locations');" >Start Checkout Process</button>
+    {% endif %}
+  </div>
+</div>
+
+<h1>&nbsp;</h1>
+
+{% comment %}
+<script>
+  function detectIE(){console.log('IE');
+    isIE(function(IE){console.log('IE after');
+      if(IE){
+        alert('for compatibility purposes please ensure you are utilizing\nChrome OR Safari');
+        window.location.assign('/pages/locations');
+      }else{
+        console.log('not IE');
+        window.location.assign('/pages/locations');
+      }
+    });
+  }
+  
+  function isIE(callback) {
+      var ua = window.navigator.userAgent;
+
+      var msie = ua.indexOf('MSIE ');
+      if (msie > 0) {
+        return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+      }
+
+      var trident = ua.indexOf('Trident/');
+      if (trident > 0) {
+        var rv = ua.indexOf('rv:');
+        return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+      }
+      callback(false);
+    }
+</script>
+{% endcomment %}
+{% endunless %}

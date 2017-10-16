@@ -1,0 +1,40 @@
+{% comment %}
+            <select name="id" id="productSelect" class="product-single__variants">
+              {% for variant in product.variants %}
+                {% assign variant_title_array = variant.title | split: '-' %}
+                {% for var in variant_title_array %}
+                    {% assign check = false %}
+                    {% if var == customer_region %} {% assign check = true %} {% break %} {% endif %}
+
+                {% endfor %}
+
+                {% if variant.available and check == true %}
+
+                  <option {% if variant == product.selected_or_first_available_variant %} selected="selected" {% endif %} data-sku="{{ variant.sku }}" value="{{ variant.id }}">{{ variant.title | remove: "-Region:NorthEast" | remove: "-Region:SouthEast" }} - {{ variant.price | money_with_currency }}</option>
+
+                {% else %}
+                  <option disabled="disabled">
+                    {{ variant.title }} - {{ 'products.product.sold_out' | t }}
+                  </option>
+                {% endif %}
+              {% endfor %}
+            </select>
+            <select name="" id="productSelect-psudo" class="single-option-selector" onchange="mimic(this);">
+              {% for variant in product.variants %}
+              	{% assign variant_title_array = variant.title | split: '-' %}
+              	{% for var in variant_title_array %}
+              		{% assign check = false %}
+              		{% if var == customer_region %} {% assign check = true %} {% break %} {% endif %}
+              		
+              	{% endfor %}
+              	
+                {% if variant.available and check == true %}
+
+                  <option index="{{ forloop.index }}" {% if variant == product.selected_or_first_available_variant %} selected="selected" {% endif %} data-sku="{{ variant.sku }}" value="{{ variant.id }}">{{ variant.title | remove: "-Region:NorthEast" | remove: "-Region:SouthEast" }}</option>
+
+                {% else %}
+                  
+                {% endif %}
+              {% endfor %}
+            </select>
+            {% endcomment %}

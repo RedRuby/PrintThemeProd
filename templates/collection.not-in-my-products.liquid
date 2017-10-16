@@ -1,0 +1,22 @@
+{% comment %}
+  The contents of the collection.liquid template can be found in /sections/collection-template.liquid
+{% endcomment %}
+
+{% section 'not-in-my-region-collection-template' %}
+
+<script>
+  // Override default values of shop.strings for each template.
+  // Alternate product templates can change values of
+  // 
+  theme.productStrings = {
+    sortBy: '{{ collection.sort_by | default: collection.default_sort_by }}'
+  }
+</script>
+
+<style>
+  {% if collection.handle contains 'not-in-my-products' %}
+  	#nav-2 li:nth-of-type(2) button{background-color: {{ settings.color_primary }};}
+  {% elsif collection.handle contains 'new' %}
+  	#nav-2 li:nth-of-type(3) button{background-color: {{ settings.color_primary }};}
+  {% endif %}
+</style>

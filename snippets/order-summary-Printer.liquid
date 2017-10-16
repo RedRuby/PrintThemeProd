@@ -1,0 +1,203 @@
+
+  <div id="order-list" style="display:none;">
+  	<div class="w3-row hide">
+    	<div class="w3-col m5">
+    	  <input id="start_date" value="{{first_order}}" readonly class="datepicker" type="text" name="start_date" placeholder="Start Date" >
+    	</div>
+      	<div class="w3-col m5 w3-row-padding">
+    	  <input id="end_date" value="{{'now' | date: '%m/%d/%Y'}}" readonly class="datepicker" type="text" name="end_date" placeholder="End Date" >
+    	</div>
+      	<div class="w3-col m2">
+    	  <button id="filter_order" class="btn btn--full1" type="button" >Filter</button>
+    	</div>
+    </div>
+  <table id="id02" class="responsive-table w3-table w3-bordered w3-striped">
+    <thead>
+      <tr class="w3-text-white" style="background-color: {{ settings.color_topbar_bg }}">
+        <th style="max-width:400px !important;" class="text-center">Order Names</th>
+        <th class="text-center">Order By</th>
+        <th class="text-center">{{ 'customer.orders.date' | t }}</th>
+        <th class="text-center">Action</th>
+      </tr>
+    </thead>
+    <tr w3-repeat="orders">
+      <th  style="max-width:400px !important;" class="w3-text-orange1 orders text-center order_names_{% raw %}{{parent_id}}{% endraw %}" id="order_names_{% raw %}{{parent_id}}{% endraw %}"><div w3-repeat="order_group_names" class="w3-col s3"><a style="color:{{ settings.color_topbar_bg }};" href="/pages?id={% raw %}{{shopify_order_id}}{% endraw %}" printer="{% raw %}{{printer}}{% endraw %}">{% raw %}{{name}}{% endraw %}</a></div></th>
+      <td class="text-center" title="{% raw %}{{customer_last_email}}{% endraw %}">{% raw %}{{customer_last_name}}{% endraw %}</td>
+      <td class="text-center">{% raw %}{{order_date}}{% endraw %}</td>
+      <td class="text-center"><a href="/pages/order-summary?id={% raw %}{{parent_id}}{% endraw %}"><button class="btn" style="" title="View detail for this order group" status="{% raw %}{{fulfillment_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" order_id="{% raw %}{{id}}{% endraw %}" >View Detail</button></a></td>
+    </tr>
+    {% comment %}
+    <tr>
+      <td class="text-center"><b>Total:</b></td>
+      <td></td>
+      <td class="text-right"><b>${% raw %}{{grand_total}}{% endraw %}</b></td>
+      <td colspan="2"></td>
+    </tr>
+    {% endcomment %}
+  </table>
+    
+  <div id="paginationInit" class="text-center w3-margin-top">
+
+  </div>
+    
+</div>
+
+<script>
+  
+  var var1 = '';
+  var var2 = '';
+  var var3 = '';
+  
+  var bemail = '';
+  
+//   fetch_Orders('','','');
+  
+  $(document).ready(function() {
+    
+    fetch_Orders('','','1');
+    
+    $(".datepicker").datepicker({
+    	showAnim: "drop",
+        dateFormat: "mm/dd/yy",
+        showOtherMonths: true
+    });
+    
+    $("#filter_order").click(function() {
+        var start_date = $("#start_date").val();
+        var end_date = $("#end_date").val();
+        if (start_date === "" || end_date === "") {
+            alert("Please select start and end dates.");
+        } else {
+          fetch_Orders(start_date, end_date, '1');
+        }
+    });
+    
+    
+  });
+  
+  
+  
+  function addCommas(nStr){
+    nStr += '';
+    x = nStr.split('.');
+    x1 = x[0];
+    x2 = x.length > 1 ? '.' + x[1] : '';
+    var rgx = /(\d+)(\d{3})/;
+    while (rgx.test(x1)) {
+        x1 = x1.replace(rgx, '$1' + ',' + '$2');
+    }
+    return x1 + x2;
+  }
+  
+  
+  function fetch_Orders(start_date, end_date, page){
+    var1 = start_date;
+    var2 = end_date;
+    var3 = page;
+    freez();
+    var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
+                
+    if(start_date.length != 0 && end_date.length != 0){ data.start_date = start_date; data.end_date = end_date; $('#radio2').removeAttr('disabled').removeAttr('disabled').parent().removeClass('w3-text-grey'); }
+    if(page.length != 0){ data.page = page }
+                
+  	 $.ajax({
+          url: '/apps/pepsi-print/collection_response/get_printer_job_view_list.json',
+          type: 'GET',
+          data: data,
+          dataType: 'json',
+          success: function(data){
+//             	console.log(JSON.stringify(data));
+            	if(data["total_entries"] > 0){
+                  calcT(data, start_date, end_date, page);
+                  setTimeout(w3DisplayData("id02", data),100);
+                  setTimeout(function(){
+                    $('[id^="order_names_"]').each(function(index, item){
+                      setTimeout(w3DisplayData($(item).attr('id'), data.orders[index]),100*index);
+                    });
+                  },200);
+                  $("#print-btn").removeAttr('disabled').prop('title', '').css('cursor', 'default');
+				}else{
+                  $("#id02, #paginationInit").hide();
+                  $("#order-none").show();
+                  $("#print-btn").prop('disabled','disabled').prop('title', 'No orders to print.').css('cursor', 'not-allowed');
+                  
+                }
+            	$.unblockUI();
+                
+          },
+          error: function(){
+            $.unblockUI; show_message2('Error in fetching Orders.',false);
+          }
+          
+	 	});
+    
+  }
+  
+  
+  
+  function calcT(data, start_date, end_date, page) {
+    var i;
+    var x;
+    var str;
+    var res;
+    var date;
+    var total = 0;
+    var myArray = data["orders"]; 
+    for (i = 0; i < myArray.length; i++) {
+//         str = myArray[i]["total"];
+//       	date = myArray[i]["date_unix"].split("T");
+//       	myArray[i]["order_date"] = dateFormat(new Date(date[0]), "mmmm dd, yyyy");
+//       	if(myArray[i]["fulfillment_status"] === "fulfilled"){data["orders"][i]["other_status"] = "unfulfilled";}
+//       	else{data["orders"][i]["other_status"] = "fulfilled";}
+//         res = (str.replace(/,/g, "")).replace(/\$/g, "");
+//         total += Number(res);
+    }
+    data["grand_total"] = addCommas(total.toFixed(2));
+    
+    var ttl_itms = data["total_entries"];
+    if(ttl_itms > 0){
+    $('#paginationInit').pagination({
+        items: ttl_itms,
+        itemsOnPage: data["per_page"],
+        hrefTextPrefix: "javascript:fetch_Orders('"+start_date+"', '"+end_date+"','",
+        hrefTextSuffix: "');",
+      	currentPage: page,
+        prevText:'<i class="fa fa-arrow-left"></i>',
+        nextText:'<i class="fa fa-arrow-right"></i>',
+      	listStyle: 'w3-pagination',
+      	ellipsePageSet: false,
+//         cssStyle: 'light-theme'
+    });
+    
+      $("#order-none").hide();
+      $("#id02, #paginationInit, #order-list").show();
+    }else{
+      $("#id02, #paginationInit").hide();
+      $("#order-none").show();
+    }
+  }
+  
+ 
+  
+//   function jobViewList(){
+//     var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
+//   	 $.ajax({
+//           url: '/apps/pepsi-print/collection_response/get_printer_job_view_details.json',
+//           type: 'GET',
+//           data: data,
+//           dataType: 'json',
+//           success: function(data){
+//             	console.log(JSON.stringify(data));
+            	
+// //             	$.unblockUI();
+                
+//           },
+//           error: function(){
+//             $.unblockUI; show_message2('Error in fetching Orders.',false);
+//           }
+          
+// 	 	})
+//   }
+</script>
+
+

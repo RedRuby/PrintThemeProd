@@ -1,0 +1,195 @@
+<!-- Vendor List -->
+{% assign verdorList = '' %}
+{% if linklists.brands.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.brands.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+	{% assign vendorList = vendorList |append:link.title |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Vendor Tags -->
+{% assign verdorTagList = '' %}
+{% if linklists.brands.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.brands.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+	{% assign vendor_tag = link.url |split:'/' |last %}
+	{% assign vendorTagList = vendorTagList |append:vendor_tag |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Type List -->
+{% assign typeList = '' %}
+{% if linklists.type-list.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.type-list.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+	{% assign typeList = typeList |append:link.title |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Account Specific -->
+{% assign accountSpecificTagList = '' %}
+{% if linklists.account-specific.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.account-specific.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+	{% assign accs_tag = link.url |split:'/' |last %}
+	{% assign accountSpecificTagList = accountSpecificTagList |append:accs_tag |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Programms -->
+{% assign programTagList = '' %}
+{% if linklists.programs.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.programs.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+	{% assign program_tag = link.url |split:'/' |last %}
+	{% assign programTagList = programTagList |append:program_tag |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Speciality -->
+{% assign specialityTagList = '' %}
+{% if linklists.specialty.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.specialty.links %}
+    {% if forloop.last %}{% assign comma = ',' %}{% endif %}
+	{% assign speciality_tag = link.url |split:'/' |last %}
+	{% assign specialityTagList = specialityTagList |append:speciality_tag |append:comma %}
+  {% endfor %}
+{% endif %}
+{% if linklists.specialty.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.paint-the-town.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+	{% assign speciality_tag = link.url |split:'/' |last %}
+	{% assign specialityTagList = specialityTagList |append:speciality_tag |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Departments -->
+{% assign departmentTagList = '' %}
+{% if linklists.departments.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.departments.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+	{% assign department_tag = link.url |split:'/' |last %}
+	{% if department_tag contains 'DPT:' %}
+      {% assign departmentTagList = departmentTagList |append:department_tag |append:comma %}
+	{% endif %}
+  {% endfor %}
+{% endif %}
+
+<!-- New Tags -->
+{% assign newTagList = '' %}
+{% if linklists.region-new-tags.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.region-new-tags.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+	{% assign newTagList = newTagList |append:link.title |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Options -->
+{% assign optionList = '' %}
+{% if linklists.element-default-prices.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.element-default-prices.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+	{% assign optionList = optionList |append:link.title |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Element Default Prices -->
+{% assign defaultPrice_arr = "{" %}
+{% if linklists.element-default-prices.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.element-default-prices.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+	{% assign elem_price = link.url |split:'/' |last %}
+    {% assign item_arr = '"' |append:link.title |append:'":"' |append:elem_price |append:'"' |append:comma %}
+    {% assign defaultPrice_arr = defaultPrice_arr |append:item_arr %}
+  {% endfor %}
+{% endif %}
+
+{% assign defaultPrice_arr = defaultPrice_arr |append:"}" |replace:",}","}" %}
+
+<!-- Market Specific -->
+{% assign market_arr = "[" %}
+{% if linklists.region-markets.links.size > 0 %}
+  {% for link in linklists.region-markets.links %}
+    {% if forloop.last %}{% assign block_last = true %}{% endif %}
+    {% assign cont_arr = link.url |split:'/' |last |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' | split:',' %}
+    {% for item in cont_arr %}
+        {% assign comma = ',' %}
+        {% if forloop.last and block_last %}{% assign comma = '' %}{% endif %}
+        {% assign item_arr = '{name:"' |append:item |append:'",value:"' |append:link.title |append:'"}' |append:comma %}
+        {% assign market_arr = market_arr |append:item_arr %}
+    {% endfor %}
+  {% endfor %}
+{% endif %}
+{% assign market_arr = market_arr |append:"]" %}
+
+<script  type="text/javascript">
+  
+  var defaultPriceList = '{{ defaultPrice_arr }}';
+  
+  var market_array = {{ market_arr |replace:',]',']' }};
+              
+  var vendorList = "{{ vendorList }}".split(',').sort();
+  
+  var typeList = "{{ typeList }}".split(',').sort();
+  
+  var vendorTagList = "{{ vendorTagList }}".split(',').sort();
+  
+  var programTagList = "{{ programTagList }}".split(',').sort();
+  
+  var specialityTagList = "{{ specialityTagList }}".split(',').sort();
+  
+  var accountSpecificTagList = "{{ accountSpecificTagList }}".split(',').sort();
+  
+  var departmentTagList = "{{ departmentTagList |replace:',]',']' }}".split(',').sort();
+  
+  var newTagList = "{{ newTagList }}".split(',').sort();
+  
+  var optionList = "{{ optionList }}".split(',').sort();
+  
+  
+  var output = [], o = {};
+  $(document).ready(function(){ 
+
+    market_array.forEach(function(value) {
+      var existing = output.filter(function(v, i) {
+        return v.name == value.name;
+      });
+      if (existing.length) {
+        var existingIndex = output.indexOf(existing[0]);
+        output[existingIndex].value = output[existingIndex].value.concat(value.value);
+      } else {
+        if (typeof value.value == 'string')
+          value.value = [value.value];
+        output.push(value);
+      }
+    });
+    
+    //console.log(output);
+    
+     $.each(output, function () {
+          if (o[this.name]) {
+              if (!o[this.name].push) {
+                  o[this.name] = [o[this.name]];
+              }
+              o[this.name].push(this.value || '');
+          } else {
+              o[this.name] = this.value || '';
+          }
+      });
+    
+    //console.log(o);
+    
+    marketSpecificTagList = Object.keys(o); //console.log(marketSpecificTagList);
+  });
+</script>

@@ -1,0 +1,675 @@
+{% if customer  %}
+
+  {% assign Role_User = 'general.Role.User' | t %}
+  {% assign Role_Printer = 'general.Role.Printer' | t %}
+  {% assign Role_Manager = 'general.Role.Manager' | t %}
+  {% assign Role_ASM = 'general.Role.ASM' | t %}
+  {% assign Role_Admin = 'general.Role.Admin' | t %}
+
+  {% if customer.tags contains Role_ASM %}
+    {% assign customer_role_tag = Role_ASM %}
+  {% elsif customer.tags contains Role_Printer %}
+    {% assign customer_role_tag = Role_Printer %}
+  {% elsif customer.tags contains Role_Admin %}
+    {% assign customer_role_tag = Role_Admin %}
+  {% endif %}
+
+{% endif %}
+
+<div class="section-header section-header--large">
+  <h1 class="section-header__title">{{ 'customer.account.title' | t }}</h1>
+</div>
+
+<p><a class="btn" href="/account">{{ 'customer.account.return' | t }}</a></p>
+
+<div id="id01" class="grid" style="display:none;">
+
+  <div class="grid__item two-thirds medium-down--one-whole">
+    <div id="id02">
+      <div class="grid">
+        <div class="grid__item one-half small--one-whole">
+      		<h2 class="h3"><b>Order {% raw %}{{ order_name }}{% endraw %}</b></h2>  	
+        </div>
+         <div class="grid__item  one-half small--one-whole text-right">
+           <button type="button" class="btn btn--primary" title="previous order"><i class="fa fa-arrow-left"></i></button>
+           <button type="button" class="btn btn--primary" title="next order"><i class="fa fa-arrow-right"></i></button>
+        </div>
+      </div>
+      
+
+      <p><b>Placed on :</b> {% raw %}{{ order_date }}{% endraw %}</p>
+    
+      
+      <div id="cancelled" class="errors" style="display:none;">
+        <p class="h5">Cancelled at : {% raw %}{{ cancelled_at }}{% endraw %}</p>
+        <p>Cancelled reason : {% raw %}{{ cancelled_at }}{% endraw %}</p>
+      </div>
+	</div>
+    {% comment %}
+    <div class="table-wrap">
+      <table class="full">
+        <thead>
+          <tr>
+            <th>{{ 'customer.order.product' | t }}</th>
+            <th>{{ 'customer.order.sku' | t }}</th>
+            <th>{{ 'customer.order.price' | t }}</th>
+            <th class="text-right">{{ 'customer.order.quantity' | t }}</th>
+            <th class="text-right">{{ 'customer.order.total' | t }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for line_item in order.line_items %}
+          <tr id="{{ line_item.key }}">
+            <td>
+              {{ line_item.title | link_to: line_item.product.url }}
+              {% if line_item.fulfillment %}
+                <div class="note">
+                  {% assign created_at = line_item.fulfillment.created_at | date: "%b %d" %}
+                  {{ 'customer.order.fulfilled_at' | t: date: created_at }}
+                  {% if line_item.fulfillment.tracking_number %}
+                    <a href="{{ line_item.fulfillment.tracking_url }}">{{ line_item.fulfillment.tracking_company }} #{{ line_item.fulfillment.tracking_number}}</a>
+                  {% endif %}
+                </div>
+              {% endif %}
+            </td>
+            <td>{{ line_item.sku }}</td>
+            <td>{{ line_item.price | money }}</td>
+            <td class="text-right">{{ line_item.quantity }}</td>
+            <td class="text-right">{{ line_item.quantity | times: line_item.price | money }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4">{{ 'customer.order.subtotal' | t }}</td>
+            <td class="text-right">{{ order.subtotal_price | money }}</td>
+          </tr>
+
+          {% for discount in order.discounts %}
+            <tr class="order_summary discount">
+              <td colspan="4">{{ discount.code }} {{ 'customer.order.discount' | t }}</td>
+              <td class="text-right">{{ discount.savings | money }}</td>
+            </tr>
+          {% endfor %}
+
+          {% for shipping_method in order.shipping_methods %}
+          <tr>
+            <td colspan="4">{{ 'customer.order.shipping' | t }} ({{ shipping_method.title }})</td>
+            <td class="text-right">{{ shipping_method.price | money }}</td>
+          </tr>
+          {% endfor %}
+
+          {% for tax_line in order.tax_lines %}
+            <tr>
+              <td colspan="4">{{ 'customer.order.tax' | t }} ({{ tax_line.title }} {{ tax_line.rate | times: 100 }}%)</td>
+              <td class="text-right">{{ tax_line.price | money }}</td>
+            </tr>
+          {% endfor %}
+
+          <tr>
+            <td colspan="4"><strong>{{ 'customer.order.total' | t }}</strong></td>
+            <td class="text-right"><strong>{{ order.total_price | money }} {{ order.currency }}</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div> {% endcomment %}
+    
+    <div id="" class="table-wrap1">
+      <table class="responsive-table w3-table w3-bordered w3-striped full1">
+        <thead>
+          <tr class="w3-text-white" style="background-color: {{ settings.color_topbar_bg }}">
+            <th>{{ 'customer.order.product' | t }}</th>
+            <th>{{ 'customer.order.sku' | t }}</th>
+            <th class="text-right">{{ 'customer.order.price' | t }}</th>
+            <th class="text-right">{{ 'customer.order.quantity' | t }}</th>
+            <th class="text-right">{{ 'customer.order.total' | t }}</th>
+          </tr>
+        </thead>
+        <tbody id="lineItem">
+          
+          <tr w3-repeat="line_items">
+            <td>
+              
+              <div class="row">
+                <div class="w3-col m4">
+                  <img src="{% raw %}{{ product_thumb_url }}{% endraw %}" style="max-width:100px; cursor:zoom-in;" class="js-toggle-previewImg-modal zoom-lightbox1" data-mfp-src="{% raw %}{{ product_image_url }}{% endraw %}">
+                </div>
+                <div class="w3-col m8">
+                  {% raw %}{{ title }}{% endraw %}
+                  <div id="properties_{% raw %}{{ product_id }}{% endraw %}" class="properties-wrapper">
+                    <b>Properties:</b>
+                    <div class="note">
+                      <p w3-repeat="properties">{% raw %}{{ property_name }}{% endraw %} : {% raw %}{{ property_value }}{% endraw %}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+            </td>
+            <td>{% raw %}{{ sku }}{% endraw %}</td>
+            <td>{% raw %}{{ price }}{% endraw %}</td>
+            <td class="text-right">{% raw %}{{ quantity }}{% endraw %}</td>
+            <td class="text-right">{% raw %}{{ total }}{% endraw %}</td>
+          </tr>
+          
+        </tbody>
+        
+        <tbody id="discountCodes" style="display:none;">
+          <tr w3-repeat="discount_codes" class="order_summary discount">
+            <td colspan="4">{{ 'customer.order.discount' | t }} <b>{% raw %}{{ code }}{% endraw %}</b></td>
+            <td class="text-right">-${% raw %}{{ amount }}{% endraw %}</td>
+          </tr>
+        </tbody>
+        
+        <tbody>  
+          <tr id="subTotal">
+            <td colspan="4">{{ 'customer.order.subtotal' | t }}</td>
+            <td class="text-right">${% raw %}{{ sub_total }}{% endraw %}</td>
+          </tr>
+        </tbody>
+        
+        <tbody id="shippingPrice" style="display:none;">  
+          <tr w3-repeat="shipping_lines">
+            <td colspan="4">{{ 'customer.order.shipping' | t }} <b>{% raw %}({{ title }}){% endraw %}</b> <span id="trackNo-wrap" style="display:none;"> &nbsp;&nbsp;&nbsp;<b>Tracking No. : </b> <span id="trackNo"></span></span></td>
+            <td class="text-right">${% raw %}{{ price }}{% endraw %}</td>
+          </tr>
+        </tbody>
+
+        <tfoot>
+          <tr id="taxPrice" style="display:none;">
+            <td colspan="4">{{ 'customer.order.tax' | t }} ({{ tax_line.title }} {{ tax_line.rate | times: 100 }}%)</td>
+            <td class="text-right">{{ tax_line.price | money }}</td>
+          </tr>
+
+          <tr id="grandTotal">
+            <td colspan="4"><strong>{{ 'customer.order.total' | t }}</strong></td>
+            <td class="text-right"><strong>${% raw %}{{ total }}{% endraw %} {{ order.currency }}</strong></td>
+          </tr>
+          
+        </tfoot>
+      </table>
+      
+      <div class="fulfilled" style="display:none;">
+        <div class="note">
+        Fulfillment created at: <span class="created_at"></span> and updated at: <span class="updated_at"></span>
+        <br><a target="_blank" href=""></a>
+        </div>
+      </div>
+
+      <div id="note" class="note"  style="display:none;">
+        <b>Note : </b><span class="note_text"></span>
+      </div>
+      
+      {% if customer.tags contains Role_ASM or customer.tags contains Role_Printer or customer.tags contains Role_Admin %}
+        {% include 'order-note-module' with customer_role_tag %}
+      {% endif %}
+    </div>
+
+  </div>
+
+  <div id="address" class="grid__item one-third medium-down--one-whole">
+
+    <h2 class="h3"><b>{{ 'customer.order.billing_address' | t }}</b></h2>
+
+<!--     <p><strong>{{ 'customer.order.payment_status' | t }}:</strong> {% raw %}{{ payment_status }}{% endraw %}</p> -->
+
+    <div id="billing_address">
+    <span class="h5 name"></span>
+      
+    <p>
+      <span class="email"></span>
+      <span class="company"></span>
+      
+      <span class="address1"></span>
+      <span class="address2"></span>
+      
+      <span class="city"></span>
+      <span class="province"></span>
+      
+      <span class="zip"></span>
+      <span class="country"></span>
+      <span class="phone"></span>
+      
+      {% comment %}
+      {% raw %}{{ company }}{% endraw %}<br>
+      
+      {% raw %}{{ address1 }}{% endraw %}, 
+      {% raw %}{{ address2 }}{% endraw %}<br>
+      {% raw %}{{ city }}{% endraw %}, 
+      
+      {% raw %}{{ province }}{% endraw %}, 
+      
+      {% raw %}{{ zip }}{% endraw %}<br>
+      {% raw %}{{ country }}{% endraw %}<br>
+      {% raw %}{{ phone }}{% endraw %}
+      {% endcomment %}
+      
+    </p>
+    </div>
+      
+    <h2 class="h3"><b>{{ 'customer.order.shipping_address' | t }}</b></h2>
+
+    <p><strong>{{ 'customer.order.fulfillment_status' | t }}:</strong> {% raw %}{{ fulfillment_status }}{% endraw %}</p>
+
+    <div id="shipping_address">
+    <span class="h5 name"></span>
+      
+    <p>
+      <span class="email hide"></span>
+      <span class="company"></span>
+      
+      <span class="address1"></span>
+      <span class="address2"></span>
+      
+      <span class="city"></span>
+      <span class="province"></span>
+      
+      <span class="zip"></span>
+      <span class="country"></span>
+      <span class="phone"></span>
+      
+      {% comment %}
+      {% raw %}{{ company }}{% endraw %}<br>
+      
+      {% raw %}{{ address1 }}{% endraw %}, 
+      {% raw %}{{ address2 }}{% endraw %}<br>
+      {% raw %}{{ city }}{% endraw %},
+      
+      {% raw %}{{ province }}{% endraw %},
+      
+      {% raw %}{{ zip }}{% endraw %}<br>
+      {% raw %}{{ country }}{% endraw %}<br>
+      {% raw %}{{ phone }}{% endraw %}
+      {% endcomment %}
+      
+    </p>
+    </div>
+  
+  </div>
+
+  {% if customer.tags contains Role_ASM %}
+   
+   <div id="assign-printer-wrapper" class="grid__item one-third medium-down--one-whole print-shop-block">
+    <label for="assign-printer">Assign Order to Vendor</label>
+   	<select id="assign-printer" onchange="changePrintShop(this);">
+     <option selected disabled>Select Vendor</option>
+    </select>
+   </div>
+  {% elsif customer.tags contains Role_Printer %}
+  <div  class="grid__item one-third medium-down--one-whole print-shop-block">
+<!--     <input type="text" disabled readonly style="cursor:default;" value="" placeholder="Shipping Price Not Set" />
+    <input type="text" disabled readonly style="cursor:default;" value="" placeholder="Tracking Company Not Set" />
+    <input type="text" disabled readonly style="cursor:default;" value="" placeholder="Tracking Number Not Set" /> -->
+    <div id="shipping_details">
+      <label for="fulfillment">Cancel Fulfillment</label>
+      <select id="fulfillment" onchange="if(this.value == 'unfulfilled'){ cancelFulfillment(); }">
+          <option value="fulfilled">Fulfilled</option>
+          <option value="unfulfilled">Unfulfilled</option>
+      </select>
+    </div>
+    <button id="update-fulfillment" class="js-toggle-update-modal1 updateBtn btn" style="display:none; min-width:350px;" title="Update this order" status="" onclick="addToModal(this);" order_id="" >Update Fulfillment</button>
+  </div>
+  {% endif %}
+  
+</div>
+
+{% if customer.tags contains Role_Printer %}
+	<div class="mfp-wrapper">
+      {% include 'magnificPopup-orderUpdate-Printer' %}
+	</div>
+    <style>
+     .mfp-wrapper .mfp-content{width:50% !important;}
+    </style>
+
+{% endif %}
+
+<script type="text/javascript">
+  var url = document.URL;
+  var order_id = '';
+  var order_data = [];
+  var printer_id = '';
+  var cemail = "{{ customer.email }}"
+  var patt = new RegExp("id\=\\d");
+  var res = patt.test(url); //console.log(order_id);
+  
+  var bemail = '';
+  
+  $(document).ready(function(){
+  	if(res){
+       order_id = url.split('id\=')[1];
+       fetch_Order(order_id);
+    }
+    else window.location.assign('{{ shop.url }}/account');
+  });
+  
+  
+  
+//   var printer_values    = null;
+//   var selectList = document.getElementById("assign-printer");    
+//   var order_tags = null;
+
+                              
+                              
+  function mfpInit(){
+  	$('.js-toggle-previewImg-modal').magnificPopup({
+        type: 'image',
+        mainClass: 'mfp-fade1',
+      	removalDelay: 500,
+        closeOnBgClick: false,
+        closeBtnInside: false,
+        closeOnContentClick: false,
+//         tClose: password.strings.pageClose,
+        removalDelay: 500,
+      	tLoading: '<i class="fa fa-refresh w3-spin w3-text-black"></i>',
+      	preloader: true,
+        callbacks: {
+          beforeOpen: function() {
+            this.st.image.markup = this.st.image.markup.replace('mfp-figure', 'mfp-figure mfp-with-anim');
+                this.st.mainClass = 'mfp-zoom-out';
+          },
+          close: function(){
+          }
+        }
+      });
+  }
+  
+  
+  
+  function fetch_Order(order_ids){
+    order_id = order_ids;
+    freez();
+    var data = {order_id: order_ids, cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
+                
+  	 $.ajax({
+          url: '/apps/pepsi-print/collection_response/get_order_detail.json',
+          type: 'GET',
+          data: data,
+          dataType: 'json',
+          success: function(data){
+            	//console.log(JSON.stringify(data));
+                data = dataHide(data);
+                
+                data = createThumbImg(data);
+                
+                if(data.order.cancelled_at.length > 0){ $('#cancelled').show(); $('#shipping_details, #update-fulfillment, #assign-printer-wrapper').hide(); }
+                setTimeout(w3DisplayData("id02", data.order),100);
+                setTimeout(w3DisplayData("address", data.order),200); 
+                setTimeout(w3DisplayData("lineItem", data.order),300); //console.log('line size = '+data.order.line_items.size);
+                setTimeout(w3DisplayData("subTotal", data.order),500);
+                setTimeout(w3DisplayData("grandTotal", data.order),600);
+    			setTimeout(w3DisplayData("discountCodes", data.order),700);
+                setTimeout(w3DisplayData("shippingPrice", data.order),800);
+// 				setTimeout(w3DisplayData("shipping_address", data.order.shipping_address),750);
+    
+    			
+    			data.order.line_items.forEach(showProperties);
+    			
+    			
+                function showProperties(item, index){ console.log(item['product_id']);
+					setTimeout( w3DisplayData("properties_"+item['product_id'], item), 900+100*index);
+                }
+    			
+    			$('#billing_address .name').text(data.order.billing_address.name);
+    			if(data.order.customer.email != null){ $('#billing_address .email').html(data.order.customer.email); }
+    			bemail = data.order.customer.email;
+    			if(data.order.billing_address.company != null){ $('#billing_address .company').html(data.order.billing_address.company); }
+                if(data.order.billing_address.address1){ $('#billing_address .address1').html('<br>'+data.order.billing_address.address1); }
+                if(data.order.billing_address.address2){ $('#billing_address .address2').text(', '+data.order.billing_address.address2); }
+                if(data.order.billing_address.city){ $('#billing_address .city').html('<br>'+data.order.billing_address.city); }
+                if(data.order.billing_address.province){ $('#billing_address .province').text(', '+data.order.billing_address.province); }
+                if(data.order.billing_address.zip){ $('#billing_address .zip').text(', '+data.order.billing_address.zip); }
+                if(data.order.billing_address.country){ $('#billing_address .country').html('<br>'+data.order.billing_address.country); }
+                if(data.order.billing_address.phone){ $('#billing_address .phone').html('<br>'+data.order.billing_address.phone); }
+    			
+    			var shipping_name = '';
+    			if(data.order.shipping_address.first_name){shipping_name = data.order.shipping_address.first_name}
+    			if(data.order.shipping_address.last_name){shipping_name = shipping_name +' '+data.order.shipping_address.last_name}
+    			$('#shipping_address .name').text( shipping_name );
+                if(data.order.shipping_address.email != null){ $('#shipping_address .email').html(data.order.shipping_address.email); }
+    			if(data.order.shipping_address.company != null){ $('#shipping_address .company').html('<br>'+data.order.shipping_address.company); }
+                if(data.order.shipping_address.address1){ $('#shipping_address .address1').html('<br>'+data.order.shipping_address.address1); }
+                if(data.order.shipping_address.address2){ $('#shipping_address .address2').text(data.order.shipping_address.address2); }
+                if(data.order.shipping_address.city){ $('#shipping_address .city').html('<br>'+data.order.shipping_address.city); }
+                if(data.order.shipping_address.province != null){ $('#shipping_address .province').text(', '+data.order.shipping_address.province); }
+                if(data.order.shipping_address.zip){ $('#shipping_address .zip').text(', '+data.order.shipping_address.zip); }
+                if(data.order.shipping_address.country){ $('#shipping_address .country').html('<br>'+data.order.shipping_address.country); }
+                if(data.order.shipping_address.phone){ $('#shipping_address .phone').html('<br>'+data.order.shipping_address.phone); }
+    
+    			if(data.order.fulfillments[0] != null){
+    				if(data.order.fulfillments[0].created_at){ $('.note .created_at').html(data.order.fulfillments[0].created_at); }
+                	if(data.order.fulfillments[0].updated){ $('.note .updated_at').html(data.order.fulfillments[0].updated); }
+					if(data.order.fulfillments[0].tracking_url){ $('#note a').attr('href',data.order.fulfillments[0].tracking_url); }else $('.note a').removeAttr('href');
+    				if(data.order.fulfillments[0].tracking_company){ $('#note a').html(data.order.fulfillments[0].tracking_company); }
+    				if(data.order.fulfillments[0].tracking_number){ $('#note a').html($('#note a').html()+' #'+data.order.fulfillments[0].tracking_number); }
+    				if(data.order.fulfillments[0].status == 'success'){ $('.fulfilled').show(); }
+                  	$('#trackNo').html(' <a target="_blank" href="'+data.order.fulfillments[0].tracking_url+'">'+data.order.fulfillments[0].tracking_number+'</a>').parent().show();
+    			}
+    
+    			
+    			
+    			if(data.order.discount_codes[0] != null ){ $('#discountCodes').show(); }
+    			
+//                 data.order.notes = { "order_msg": [
+//     {"id": "6383072341", "role": "ASM", "text": "Lorem Ipsum lorem Ipsum lorem ipsum", "time": "1500485222235"},
+//     {"id": "6383074683", "role": "Printer", "text": "Lorem Ipsum lorem Ipsum lorem ipsum", "time": "1500587252235"},
+//     {"id": "6383072341", "role": "ASM", "text": "Lorem Ipsum lorem Ipsum lorem ipsum", "time": "1500687225235"},
+//     {"id": "6383074683", "role": "Printer", "text": "Lorem Ipsum lorem Ipsum lorem ipsum", "time": "1500787222535"},
+//     {"id": "6383072341", "role": "ASM", "text": "Lorem Ipsum lorem Ipsum lorem ipsum", "time": "1500887222255"},
+//     {"id": "6383074683", "role": "Printer", "text": "Lorem Ipsum lorem Ipsum lorem ipsum", "time": "1500887222235"}
+//   ]};
+    
+    			if(data.order.notes != null ){ 
+//                   $('#note .note_text').text(data.notes).show();
+//                     console.log('note:', data.order.notes);
+                    orderMsg = JSON.parse(data.order.notes.replace(/=>/g, ':'));
+                  	if((orderMsg.order_msg||'').length > 0)
+                      $.when(prepareMsg(orderMsg, function(data){
+                        w3DisplayData('orderNotes', data);
+						
+                      })).done(function(){ $('#orderNotes').show(0); });{% unless customer.tags contains Role_ASM or customer.tags contains Role_Printer %}
+                    else
+                      $('#orderBtn').hide(0);{% endunless %}
+                }
+    
+    			if(data.order.shipping_lines != null ){ $('#shippingPrice').show(); }
+    			
+    
+    			{% if customer.tags contains Role_ASM %}
+				printer_id = data.order.printer_id;
+                setTimeout(fetch_Printers(),800);
+                if('fulfilled' == data.order.fulfillment_status){$('select').prop('disabled','disabled').css('cursor','not-allowed');}
+    			{% elsif customer.tags contains Role_Printer %}
+                  if('fulfilled' == data.order.fulfillment_status){
+                    $('#fulfillment option:eq(0)').prop("selected", "selected");
+                  }else{
+                    $('#fulfillment option:eq(1)').prop("selected", "selected").parent().prop("disabled", "disabled").css('cursor','not-allowed');
+                    $('#shipping_details').hide();
+                    $('#update-fulfillment').attr('order_id', data.order.id).show();
+                  }
+    				
+                  order_data = data;
+                  if(data.order.cancelled_at.length > 0){ $('#shipping_details, #update-fulfillment').hide(); }
+    			{% endif %}
+    
+    			mfpInit();			
+    
+            	$.unblockUI(); $('#id01').show();
+                
+          },
+          error: function(){
+            
+          }
+          
+	 });
+  }
+  
+  
+  {% if customer.tags contains Role_ASM %}
+  function fetch_Printers(){
+      $('#assign-printer').append('<option w3-repeat="results" value="{% raw %}{{id}}{% endraw %}" title="{% raw %}{{email}}{% endraw %}" select="{% raw %}{{selected}}{% endraw %}">{% raw %}{{company}}{% endraw %}</option>');
+      $.ajax({
+          url: '/apps/pepsi-print/printer_configuration/region_printers',
+          type: 'GET',
+          data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
+          dataType: 'json',
+          success: function (data) { //console.log(JSON.stringify(data));
+                          data1 = popCompany(data,$('#assign-printer').attr('printer_id'));
+                          w3DisplayData('assign-printer', data1);
+                          
+            
+          }
+
+      }).promise()
+      	.done(function(){ $('option[select = "selected"]').prop("selected", "selected"); });
+  }
+  
+  function changePrintShop(obj){
+      var $this = $(obj); console.log($this.attr('order_id')+" changed to"+$this.val());
+      var confirmed = true;
+      if($(obj).find('option[select = "selected"]').length > 0){
+         var existingPrinter = $(obj).find('option[select = "selected"]').text();
+         if(confirm("Order is already assigned to a vendor "+ existingPrinter +". \nDo you want to reassign it to "+ $this.find('option[value="'+$this.val()+'"]').text() +" ?") != true){
+           $(obj).find('option[select = "selected"]').prop('selected', 'selected');
+           confirmed = false;
+         }
+      }
+      if(confirmed){
+      {% comment %}alert('reassigned');{% endcomment %}
+        $.ajax({
+              url: '/apps/pepsi-print/printer_configuration/assign_print_to_order',
+              type: 'POST',
+              data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order: order_id, printer_id: $this.val(), cregion: '{{ customer_region_tag |replace:'Region:','' |replace:'0','o'}}' },
+              dataType: 'json',
+              success: function(){$.unblockUI; show_message2('Assigned Successfully.',true);},
+              error: function(){$.unblockUI; show_message2('Some Error Occured.',false);}
+        });
+      }
+   }
+  
+  function popCompany(data,val){
+  	var i; //console.log(val+" printer_id");
+    var x;
+    var str;
+    var total = 0;
+    var myArray = data["results"]; //console.log(JSON.stringify(filter_obj)); console.log(myArray);
+    for (i = 0; i < myArray.length; i++) {
+//         str = myArray[i]["default_address"]["company"];
+//       	if(str.length == 0){str = 'Company';}
+//         myArray[i]["company_name"] = str;
+      if(printer_id == myArray[i]["id"]){data["results"][i]["selected"] = "selected";} 
+      else {data["results"][i]["selected"] = "none";} console.log('pI = '+ printer_id);
+    } 
+//     console.log(JSON.stringify(data));
+    return(data);
+  }
+
+  {% elsif customer.tags contains Role_Printer %}
+  
+  function addToModal(obj){
+    $('html').css('overflow','hidden');
+    $('.mfp-bg, .mfp-wrap').show().removeClass('mfp-hide');
+    
+    var data = order_data;
+    
+    $('#OrderEditModal form').attr('order_id', data.order.id);
+    $('#OrderEditModal .orderName').text(data.order.order_name);
+    if(data.order.fulfillments[0]){
+      $('#OrderEditModal .shipping_price').val(data.order.shipping_lines[0].price);
+      $('#OrderEditModal .shipping_code').val(data.order.fulfillments[0].shipping_code);
+      $('#OrderEditModal .tracking_company option[value = "'+data.order.fulfillments[0].tracking_company+'"]').prop('selected','selected');
+     if(data.order.fulfillments[0].tracking_company == 'Pick Up'){ $('#OrderEditModal .tracking_number').prop({'disabled':'disabled', 'value':''}).css('cursor', 'not-allowed'); }else{ $('#OrderEditModal .tracking_number').val(data.order.fulfillments[0].tracking_number); }
+      $('#OrderEditModal .tracking_url').val(data.order.fulfillments[0].tracking_url);
+    }
+
+    $.unblockUI(); $('.mfp-preloader').hide(); $('#OrderEditModal').show().removeClass('mfp-hide');
+    
+  }
+	
+  function cancelFulfillment(){
+    var $this =$(this);
+    freez();
+    var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: order_id };
+  	$.ajax({
+            url: '/apps/pepsi-print/order_configuration/cancel_fulfillment.json',
+            type: 'POST',
+            data: JSON.stringify(data),
+            dataType: 'json',
+           	contentType: 'application/json',
+            success: function(){ $this.prop("disabled", "disabled").css('cursor','not-allowed'); $.unblockUI; show_message2('Updated Successfully.',true); setTimeout(fetch_Order(order_id),1000);}, //location.reload()
+            error: function(){$.unblockUI; show_message2('Some Error Occured.',false);}
+    });
+  }
+  
+  {% endif %}
+  
+  function createThumbImg(data){ console.log('thumb_called');
+  	var i; 
+    var img_url;
+    var lastIndex;
+    var myArray = data['order']['line_items'];
+    for (i = 0; i < myArray.length; i++) {
+
+      img_url = data['order']['line_items'][i]["product_image_url"];
+      if(img_url != null){
+        lastIndex = img_url.lastIndexOf('.');
+        data['order']['line_items'][i]["product_thumb_url"] = img_url.substr(0, lastIndex)+'_150x'+img_url.substr(lastIndex);
+      }
+    } 
+//     console.log(JSON.stringify(data));
+    return(data);
+  }
+
+  function dataHide(data){
+  	var i; 
+    var x;
+    var str;
+    var total = 0;
+    var file_name = '';
+    var anchorPre = '';
+    var anchorPost = '';
+    var nullCount = 0;
+    var myArray = data.order.line_items; //console.log(JSON.stringify(filter_obj)); console.log(myArray);
+    for (i = 0; i < myArray.length; i++) {
+      str = myArray[i]["title"].replace().replace(' / Default','').replace(' / Region:NorthEast','').replace(' / Region:SouthEast','').replace(' / Region:California','').replace(' / Region:S0uth','').replace(' / Region:Mountain','').replace(' / Region:MidAtlantic','').replace(' / Region:MidWest','').replace(' / Region:GreatLakes','');
+      myArray[i]["title"] = str;
+//       data['order']['properties_'+myArray[i]['product_id']] = myArray[i]['properties'];
+      myArray2 = myArray[i]['properties']; nullCount = 0;
+      for (x = 0; x < myArray2.length; x++) {
+        if(myArray2[x]['property_value'].length == 0 || myArray2[x]['property_name'] == 'Parent ID'){
+        	delete myArray2[x]; nullCount++;
+        }
+        else if(myArray2[x]['property_name'].indexOf("_") != -1 && myArray2[x]['property_value'].indexOf(".") != -1){
+        	file_name = myArray2[x]['property_value'];
+          	delete myArray2[x];	nullCount++;
+        }
+        else if(myArray2[x]['property_value'].indexOf("/uploads/") != -1){
+          if(myArray2[x]['property_value'].toLowerCase().indexOf(".jpg") != -1 ||
+             myArray2[x]['property_value'].toLowerCase().indexOf(".jpeg") != -1 ||
+             myArray2[x]['property_value'].toLowerCase().indexOf(".png") != -1 ||
+             myArray2[x]['property_value'].toLowerCase().indexOf(".gif") != -1 ){
+          	anchorPre = "<a class='js-toggle-previewImg-modal zoom-lightbox1' title='View' href='' data-mfp-src='"+myArray2[x]["property_value"]+"'>"
+            anchorPost = "</a> &nbsp; <a target='_blank' title='Download' href='"+myArray2[x]["property_value"]+"'><i class='fa fa-download'></a>"
+        	myArray2[x]['property_value'] = anchorPre + file_name + anchorPost;
+          }else{
+          	anchorPre = "<a target='_blank' href='"+myArray2[x]["property_value"]+"'>"
+            anchorPost = "</a>"
+        	myArray2[x]['property_value'] = anchorPre + file_name + anchorPost;
+          }
+        }
+      } if(myArray[i]['properties'].length == nullCount){ $('head').append('<style>#properties_'+myArray[i]['product_id']+'{ display:none; }</style>'); }
+      else{ $('head').append('<style>#properties_'+myArray[i]['product_id']+' p:nth-last-child(1){ display:none; }</style>'); }
+    } 
+//     data = removeEmpty(data);
+//     console.log(JSON.stringify(data));
+    return(data);
+  }
+  
+  const removeEmpty = (obj) => {
+    Object.keys(obj).forEach(k =>
+      (obj[k] && typeof obj[k] === 'object') && removeEmpty(obj[k]) ||
+      (!obj[k] && obj[k] !== undefined) && delete obj[k]
+    );
+    return obj;
+  };
+  
+</script> 
