@@ -5,11 +5,11 @@
 {% assign Role_Admin = 'general.Role.Admin' | t %}
 
 {% if customer-account-common-code == 'table-header-code' %}
-  <th class="text-center"><span class="th-span">{{ 'customer.orders.order_number' | t }}</span><div class="btn-group"><button type="button" class="name_asc_btn" onclick="updateState({order_by_name: 'ASC', order_by_order_by: '', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-up"></i></button><button type="button" class="name_desc_btn" onclick="updateState({order_by_name: 'DESC', order_by_order_by: '', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-down"></i></button></div></th>
-  <th class="text-center"><span class="th-span">Order By</span><div class="btn-group"><button type="button" class="order_by_asc_btn" onclick="updateState({order_by_name: '', order_by_order_by: 'ASC', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-up"></i></button><button type="button" class="order_by_desc_btn" onclick="updateState({order_by_name: '', order_by_order_by: 'DESC', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-down"></i></button></div></th>
-  <th class="text-center"><span class="th-span">Payment Code</span><div class="btn-group"><button type="button" class="discount_codes_asc_btn" onclick="updateState({order_by_name: '', order_by_order_by: '', order_by_discount_codes: 'ASC', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-up"></i></button><button type="button" class="discount_codes_desc_btn" onclick="updateState({order_by_name: '', order_by_order_by: '', order_by_discount_codes: 'DESC', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-down"></i></button></div></th>
-  <th class="text-center"><span class="th-span">{{ 'customer.orders.date' | t }}</span><div class="btn-group"><button type="button" class="date_asc_btn" onclick="updateState({order_by_name: '', order_by_order_by: '', order_by_discount_codes: '', order_by_date: 'ASC', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-up"></i></button><button type="button" class="date_desc_btn" onclick="updateState({order_by_name: '', order_by_order_by: '', order_by_discount_codes: '', order_by_date: 'DESC', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-down"></i></button></div></th>
-  <th class="text-center"><span class="th-span">{{ 'customer.orders.fulfillment_status' | t }}</span><div class="btn-group"><button type="button" class="fulfillment_status_asc_btn" onclick="updateState({order_by_name: '', order_by_order_by: '', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: 'ASC', page: '1'});"><i class="fa fa-caret-up"></i></button><button type="button" class="fulfillment_status_desc_btn" onclick="updateState({order_by_name: '', order_by_order_by: '', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: 'DESC', page: '1'});"><i class="fa fa-caret-down"></i></button></div></th>
+  <th class="text-center"><span class="th-span">{{ 'customer.orders.order_number' | t }}</span><div class="btn-group printModeExclude"><button type="button" class="name_asc_btn" onclick="updateState({order_by_name: 'ASC', order_by_order_by: '', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-up"></i></button><button type="button" class="name_desc_btn" onclick="updateState({order_by_name: 'DESC', order_by_order_by: '', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-down"></i></button></div></th>
+  <th class="text-center"><span class="th-span">Order By</span><div class="btn-group printModeExclude"><button type="button" class="order_by_asc_btn" onclick="updateState({order_by_name: '', order_by_order_by: 'ASC', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-up"></i></button><button type="button" class="order_by_desc_btn" onclick="updateState({order_by_name: '', order_by_order_by: 'DESC', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-down"></i></button></div></th>
+  <th class="text-center"><span class="th-span">Payment Code</span><div class="btn-group printModeExclude"><button type="button" class="discount_codes_asc_btn" onclick="updateState({order_by_name: '', order_by_order_by: '', order_by_discount_codes: 'ASC', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-up"></i></button><button type="button" class="discount_codes_desc_btn" onclick="updateState({order_by_name: '', order_by_order_by: '', order_by_discount_codes: 'DESC', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-down"></i></button></div></th>
+  <th class="text-center"><span class="th-span">{{ 'customer.orders.date' | t }}</span><div class="btn-group printModeExclude"><button type="button" class="date_asc_btn" onclick="updateState({order_by_name: '', order_by_order_by: '', order_by_discount_codes: '', order_by_date: 'ASC', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-up"></i></button><button type="button" class="date_desc_btn" onclick="updateState({order_by_name: '', order_by_order_by: '', order_by_discount_codes: '', order_by_date: 'DESC', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-down"></i></button></div></th>
+  <th class="text-center"><span class="th-span">{{ 'customer.orders.fulfillment_status' | t }}</span><div class="btn-group printModeExclude"><button type="button" class="fulfillment_status_asc_btn" onclick="updateState({order_by_name: '', order_by_order_by: '', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: 'ASC', page: '1'});"><i class="fa fa-caret-up"></i></button><button type="button" class="fulfillment_status_desc_btn" onclick="updateState({order_by_name: '', order_by_order_by: '', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: 'DESC', page: '1'});"><i class="fa fa-caret-down"></i></button></div></th>
 {% endif %}
 
 
@@ -17,14 +17,14 @@
 {% if customer-account-common-code == 'pagination-code' %}
 
   <div class="grid per_pageContainer">
-    <div class="grid__item one-half">
+    <div class="grid__item two-thirds">
       <div id="paginationInit" class="w3-margin-top">
 
       </div>
     </div>
-    <div class="grid__item one-half text-right">
+    <div class="grid__item one-third text-right">
       <label for="per_page" style="display:inline-block;" class="w3-margin-top">Per Page: &nbsp;</label>
-      <select id="per_page" style="max-width:60px; display:inline-block;" onchange="updateState({page: '1',per_page: this.value});updatePerPage(this.value);">
+      <select id="per_page" class="per_page" style="max-width:60px; display:inline-block;" onchange="updateState({page: '1',per_page: this.value});updatePerPage(this.value);">
         <option selected value='10'>10</option>
         <option {% if customer_per_page == '20' %}selected{% endif %} value='20'>20</option>
         <option {% if customer_per_page == '30' %}selected{% endif %} value='30'>30</option>
@@ -77,7 +77,10 @@
   var var_assigned_printer = '';
   var var_region_tag = '';
   var var_customer_id = '';
+  var var_order_status = '';
   
+  var order_data = '';
+
   var query = ''; 
   
   var bemail = '';
@@ -92,7 +95,7 @@
 
 {% if customer-account-common-code == 'doc-ready-code' %}
 
-  $('#per_page option:contains('+var_per_page+')').prop('selected','selected');
+  $('.per_page option:contains('+var_per_page+')').prop('selected','selected');
     
   $(".datepicker").datepicker({
       showAnim: "drop",
@@ -141,13 +144,14 @@
 	var_assigned_printer = (query.assigned_printer != undefined) ? query.assigned_printer : '';
 	var_region_tag = (query.region_tag != undefined) ? query.region_tag : '';
     var_customer_id = (query.customer_id != undefined) ? query.customer_id : {% if customer.tags contains Role_User %}'{{ customer.id }}'{% else %}''{% endif %};
+	var_order_status = (query.order_status != undefined) ? query.order_status : '';
 
     freez();
     var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
 
     if(var_start_date.length != 0 && var_end_date.length != 0){ data.start_date = var_start_date; data.end_date = var_end_date; setTimeout(function(){ $('#start_date').val(var_start_date); $('#end_date').val(var_end_date); $('.clear-filter').removeAttr('disabled').attr('title', 'Clear date filter.').show(); },500); $('#radio2').removeAttr('disabled').removeAttr('disabled').parent().removeClass('w3-text-grey'); }
     if(var_page.length != 0){ data.page = var_page }
-    if(var_per_page.length != 0){ data.per_page = var_per_page }
+    if(var_per_page.length != 0){ data.per_page = var_per_page; $('.per_page option[value="'+var_per_page+'"]').prop('selected','selected'); }
     if(var_fulfillment_status.length != 0){ data.fulfillment_status = var_fulfillment_status; $('#select_tl option[value="'+var_fulfillment_status+'"]').prop('selected','selected'); }
     if(var_order_by_name.length != 0){ data.order_by_name = var_order_by_name; toggleOrderBtns('name', data.order_by_name); }
 	if(var_order_by_order_by.length != 0){ data.order_by_order_by = var_order_by_order_by; toggleOrderBtns('order_by', data.order_by_order_by); }
@@ -157,7 +161,8 @@
 	if(var_assigned_printer.length != 0){ data.assigned_printer = var_assigned_printer; $('#select_tl option[value="'+var_assigned_printer+'"]').prop('selected','selected'); }
 	if(var_region_tag.length != 0){ data.region_tag = var_region_tag; $('#select_rg option[value="'+var_region_tag+'"]').prop('selected','selected'); }
 	if(var_customer_id.length != 0){ data.customer_id = var_customer_id; $('#select_rg option[value="'+var_customer_id+'"]').prop('selected','selected'); }
-	
+	if(var_order_status.length != 0){ data.order_status = var_order_status; $('#select_tl option[value="'+var_order_status+'"]').prop('selected','selected'); }	
+
 	console.log(JSON.stringify(data));
 
 {% endif %}
@@ -193,7 +198,7 @@
   }
 
   
-  function updateState(param, silent){ //console.log(JSON.stringify(param)); //start_date,end_date,page,per_page,fulfillment_status,order_name,order_by_discount_codes,order_by_date,order_by_fulfillment_status){
+  function updateState(param){ //console.log(JSON.stringify(param)); //start_date,end_date,page,per_page,fulfillment_status,order_name,order_by_discount_codes,order_by_date,order_by_fulfillment_status){
     
     data = {  
       {% comment %}
@@ -222,6 +227,8 @@
     if(param.assigned_printer != undefined)data.assigned_printer = param.assigned_printer; else if(var_assigned_printer.length != 0)data.assigned_printer = var_assigned_printer;
     if(param.region_tag != undefined)data.region_tag = param.region_tag; else if(var_region_tag.length != 0)data.region_tag = var_region_tag;
     if(param.customer_id != undefined)data.customer_id = param.customer_id; else if(var_customer_id.length != 0)data.customer_id = var_customer_id;
+    if(param.order_status != undefined)data.order_status = param.order_status; else if(var_order_status.length != 0)data.order_status = var_order_status;
+
     
 //     console.log(JSON.stringify(data))
     data = removeEmpty(data);
@@ -230,10 +237,10 @@
     if(document.location.href == History.getState().url && false){
       History.replaceState({ url: document.location.href }, document.title, '?'+History.getState().url.split('?')[1]||'');
     }else{
-      History.pushState({ url: document.location.href }, document.title, ($.param(data).length != 0) ? '?'+$.param(data) : '');
+      summary_view_param = {% if template == 'customers/account.summary-list' %}'view=summary-list&'{% else %}''{% endif %};
+      History.pushState({ url: document.location.href }, document.title, ($.param(data).length != 0) ? '?' +summary_view_param +$.param(data) : '' +summary_view_param );
     }
-    
-    if(!silent)fetch_Orders(); 
+    fetch_Orders(); 
   }
   
   function toggleOrderBtns(btn , data){ console.log('called-for:', data)
@@ -263,17 +270,25 @@
     var date;
     var total = 0;
     var myArray = data["orders"]; 
-    for (i = 0; i < myArray.length; i++) {
-        str = myArray[i]["total"];
-//       	date = myArray[i]["date_unix"].split("T");
-//       	myArray[i]["order_date"] = dateFormat(new Date(date[0]), "mmmm dd, yyyy");
-      	if(myArray[i]["fulfillment_status"] === "fulfilled"){data["orders"][i]["other_status"] = "unfulfilled";}
-      	else{data["orders"][i]["other_status"] = "fulfilled";}
-      	if(data["orders"][i]["cancel_status"].length > 0) data["orders"][i]["order_status"] = "cancelled";
-      	else data["orders"][i]["order_status"] = data["orders"][i]["fulfillment_status"];
-        res = (str.replace(/,/g, "")).replace(/\$/g, "");
-        total += Number(res);
-    }
+    
+    order_data = data;
+    
+    {% if template == 'customers/account' %}
+      for (i = 0; i < myArray.length; i++) {
+          str = myArray[i]["total"];
+  //       	date = myArray[i]["date_unix"].split("T");
+  //       	myArray[i]["order_date"] = dateFormat(new Date(date[0]), "mmmm dd, yyyy");
+          if(myArray[i]["fulfillment_status"] === "fulfilled"){data["orders"][i]["other_status"] = "unfulfilled";}
+          else{data["orders"][i]["other_status"] = "fulfilled";}
+
+          if(data["orders"][i]["cancel_status"].length > 0) data["orders"][i]["order_status"] = "cancelled";
+          else data["orders"][i]["order_status"] = data["orders"][i]["fulfillment_status"];
+
+          res = (str.replace(/,/g, "")).replace(/\$/g, "");
+          total += Number(res);
+      }
+    {% endif %}
+    
     data["grand_total"] = addCommas(total.toFixed(2));
     
     var ttl_itms = data["total_entries"];
