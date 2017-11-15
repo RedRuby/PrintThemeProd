@@ -177,6 +177,7 @@
       },
       "1507133399256": {
         "type": "featured-collection",
+        "disabled": true,
         "settings": {
           "title": "NEW!",
           "admin_collection": "admin-featured",

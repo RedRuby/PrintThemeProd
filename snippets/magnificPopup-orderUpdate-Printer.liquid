@@ -6,7 +6,7 @@
 
 
 <div id="OrderEditModal" class="white-popup-block text-center" style="display:none;">
-  <form action="" method="post" onsubmit="updateOrder(event, this);" order_id="">
+  <form action="" method="post" onsubmit="if(noTracking == true || confirm('Click \'OK\', to confirm that you have no more tracking numbers to add.') == true )updateOrder(event, this); else return false;" order_id="">
   <h2 class="text-left">Edit tracking for Order #<span style="font-size:inherit !important;" class="orderName"></span></h2>
 <!--    <hr/> -->
   <label class="text-left" for="" >Shipping Cost</label>
@@ -30,22 +30,24 @@
     <label class="text-left" for="otherMethod_name" >Delivery Method Name</label>
     <input id="otherMethod_name" type="text" title="Enter Delivery Method Name." disabled required value="" class="method_name" name="method_name" placeholder="Enter Delivery Method Name" onchange="contentChanged();" />
   </div>
-  <label class="text-left" for="" >Tracking Number</label>
+    <label class="text-left" for="" >Tracking Number <b><small style="margin-top: 8px!important; font-size:11px;" class="tracking_num_title w3-right"></small></b></label>
   <div style="position:relative;">
     <div style="position:relative;">
-      <input type="text" class="tracking_number" name="tracking_number" required value="" pattern="[A-za-z0-9]{0,18}" maxlength="18" title="Enter an alphanumeric Tracking Number of upto 18 Characters." placeholder="Enter Tracking Number" oninput="validateTracking(this);" onchange="contentChanged();" />
+      <input type="text" class="tracking_number" name="tracking_number" required value="" pattern="[A-za-z0-9]{0,18}" maxlength="18" titles="Enter an alphanumeric Tracking Number of upto 18 Characters." placeholder="Enter Tracking Number" oninput="validateTracking(this);" onchange="contentChanged();" />
       <button class="no-btn w3-right removeTracking" title="Remove this Tracking No." style="position:absolute; bottom:5px; right:10px;" onclick="removeTracking(this);"><i class="fa fa-minus-square"></i></button>
     </div>
-    <button class="w3-right no-btn" title="Add More Tracking No." style="position:absolute; bottom:5px; right:10px; z-index:100; background-color:white;" type="button" onclick="addTracking(this);"><i class="fa fa-plus-square"></i></button>
+    <button class="w3-right no-btn add_tno" title="Add More Tracking No." style="position:absolute; bottom:5px; right:10px; z-index:100;" type="button" onclick="addTracking(this);"><i class="fa fa-plus-square w3-white"></i></button>
   </div>
+    <small style="margin-bottom: 8px!important; font-size:11px;" class="w3-right note"><b>Note: </b>Use + sign to add in all tracking numbers before selecting UPDATE.</small>
   {% comment %}
   <label class="text-left" for="" >Tracking URL</label>
   <input type="text" patterns="" required value="" class="tracking_url" name="tracking_url" placeholder="Enter Tracking URL" onchange="contentChanged();" />
   {% endcomment %}
 <!--   <hr> -->
 <!--   <label><input type="checkbox" name=""> send email to customer.</label> -->
-<!--   <br> -->
-  <a class="goTo" href="/pages/order?id=" style="display:none;"><button type="button" class="btn"> View order detail</button></a>
+  <br class="w3-clear">
+  <br/>
+  <a class="goTo w3-center" href="/pages/order?id=" style="display:none;"><button type="button" class="btn"> View order detail</button></a>
     <br><br>
   <button type="submit" style="width:250px;" disabled class="btn" >Update</button>
     <br><br>
@@ -107,6 +109,7 @@
   var order_id = '';
   var changed = '';
   var mfpHTML = '';
+  var noTracking = false;
   
   $(document).ready(function(){
   	 mfpHTML = $('#OrderEditModal').html();
@@ -132,18 +135,28 @@
   }
   
   function changeTracking(state){
-    $('#OrderEditModal .tracking_number').val('');
-    if(state){
-      $('#OrderEditModal .tracking_number').prop({'disabled':'disabled', 'value':''}).css('cursor', 'not-allowed');
+    if(state){ 
+      noTracking = true;
+      $('.tracking_num_title').html('(Tracking Number not required)');
+      $('#OrderEditModal .tracking_number, #OrderEditModal .add_tno').prop({'disabled':'disabled', 'value':''}).css('cursor', 'not-allowed');
     }else
-      	$('#OrderEditModal .tracking_number').removeAttr('disabled').css('cursor', '');
+      	$('#OrderEditModal .tracking_number, #OrderEditModal .add_tno').removeAttr('disabled').css('cursor', '');
     	$tracking_company = $('[name="tracking_company"] option').filter(':selected').attr('value');
         switch($tracking_company){
-          case 'UPS': $('#OrderEditModal .tracking_number').prop({'pattern':'[A-za-z0-9]{10,18}','maxlength':'18','title':'Enter an alphanumeric Tracking Number of upto 18 Characters.'}); break;
-          case 'USPS': $('#OrderEditModal .tracking_number').prop({'pattern':'[0-9]{10,22}','maxlength':'22','title':'Enter a numeric Tracking Number of upto 22 Characters.'}); break;
-          case 'FedEx': $('#OrderEditModal .tracking_number').prop({'pattern':'[0-9]{10,15}','maxlength':'15','title':'Enter a numeric Tracking Number of upto 15 Characters.'}); break;
-          case 'FedEx (Third party account)': $('#OrderEditModal .tracking_number').prop({'pattern':'[0-9]{10,15}','maxlength':'15','title':'Enter a numeric Tracking Number of upto 15 Characters.'}); break;
+          case 'UPS': $('#OrderEditModal .tracking_number').prop({'pattern':'[A-za-z0-9]{10,18}','maxlength':'18','titles':'Enter an alphanumeric Tracking Number of upto 18 Characters.'}); break;
+          case 'USPS': $('#OrderEditModal .tracking_number').prop({'pattern':'[0-9]{10,22}','maxlength':'22','titles':'Enter a numeric Tracking Number of upto 22 Characters.'}); break;
+          case 'FedEx': $('#OrderEditModal .tracking_number').prop({'pattern':'[0-9]{10,15}','maxlength':'15','titles':'Enter a numeric Tracking Number of upto 15 Characters.'}); break;
+          case 'FedEx (Third party account)': $('#OrderEditModal .tracking_number').prop({'pattern':'[0-9]{10,15}','maxlength':'15','titles':'Enter a numeric Tracking Number of upto 15 Characters.'}); break;
           case 'Other': $('#OrderEditModal .tracking_number').removeAttr('pattern maxlength'); break;
+        }
+    	
+        if($('#OrderEditModal .tracking_number').is(':disabled')){
+          noTracking = true;
+          $('.tracking_num_title').html('(Tracking Number not required)');
+          $('#OrderEditModal .tracking_number').prop({'title':'Tracking Number not required.'});
+        }else{
+          noTracking = false;
+          $('.tracking_num_title').text('');
         }
   }
   
@@ -213,7 +226,7 @@
                       $goTo.show();
                       {% if template contains 'page.order' %}
   //                   		fetch_Order(data.result);
-                          location.replace('/pages/order?id='+data.result+prev_page_params.replace('fulfillment_status=',''));
+                          location.replace('/pages/order?id='+data.result+prev_page_params);
                       {% endif %}
                       $('#OrderEditModal').find('button[type = "submit"], input, select').prop('disabled','disabled');
                       changed = true;

@@ -1,13 +1,30 @@
 
 <div class="section-header section-header--large">
-  <h1 class="section-header__title">{{ 'customer.account.title' | t }}</h1>
+  <h1 class="section-header__title printModeExclude">{{ 'customer.account.title' | t }}</h1>
 </div>
 
 <div class="grid">
 
-  <div class="grid__item two-thirds medium-down--one-whole">
-    <h2 style="display:inline-block;" class="h3"><b>Order History (Group View)</b></h2>
-    <a style="display:inline-block;" class="w3-right" href="/account"><button type="button" class="btn btn--primary">Individual View</button></a>
+  <div class="grid__item two-thirds medium-down--one-whole print-one-whole">
+    <h2 style="display:inline-block;" class="h3"><b>Order History:&nbsp;&nbsp;<div style="display:inline; border-bottom:2px solid #000;font-size:16px;">Group View</div>&nbsp;&nbsp;
+    
+      {% if customer.tags contains Role_ASM or customer.tags contains Role_Printer %}{% endif %}
+      <a style="display:inline-block;font-size:16px;" class="printModeExclude w3-text-black" href="/account"> Individual View</a>
+    </b></h2>
+    
+    <div class="w3-right printModeExclude" style="display:inline-block;width:140px;">
+      <label for="per_page" style="display:inline-block;" class="">Per Page: &nbsp;</label>
+      <select id="per_page" class="per_page" style="max-width:60px; display:inline-block;" onchange="updateState({page: '1',per_page: this.value});updatePerPage(this.value);">
+        <option selected value='10'>10</option>
+        <option {% if customer_per_page == '20' %}selected{% endif %} value='20'>20</option>
+        <option {% if customer_per_page == '30' %}selected{% endif %} value='30'>30</option>
+        <option {% if customer_per_page == '40' %}selected{% endif %} value='40'>40</option>
+        <option {% if customer_per_page == '50' %}selected{% endif %} value='50'>50</option>
+      </select>
+    </div>
+    
+    <button id="printOrder" style="margin: 0 10px;" type="button" class="btn btn--secondary btn--primary1 w3-right printModeExclude" onclick="windowPrint();" title="Print this order"><i class="fa fa-print"></i> Print Order History</button>
+    
 	<br><br>
 
     {% comment %}
@@ -95,7 +112,7 @@
 
   </div>
 
-  <div class="grid__item one-third medium-down--one-whole">
+  <div class="grid__item one-third medium-down--one-whole printModeExclude">
     <h2 class="h3"><b>{{ 'customer.account.details' | t }}</b></h2>
 
     <span class="h5" title="{{ customer.email }}">{{ customer.name }}</span>
@@ -368,9 +385,50 @@
     });
   }
             
-</script>  
+  function windowPrint(){
+    $.when( 
+      $('{% unless customer.tags contains Role_Printer %}header .grid--full:not(:nth-of-type(1)),{% endunless %} .header-bar, .printModeExclude:visible, footer').hide().toggleClass('visible'),
+      $('.site-header__logo img').css('margin','0 0'),
+
+      $('#address-hidden, #id01').css({ 'position':'relative', 'bottom':'80px'}),
+      $('.printModeInclude').toggleClass('hide'),
+        $('.print-one-whole').toggleClass('one-whole two-thirds'),
+      $('.th-span').toggleClass('th-span th-spaned')
+
+    ).done(function(){ 
+    	setTimeout(window.print(), 10);
+    });
+    
+    {% comment %}{% endcomment %}
+    $('{% unless customer.tags contains Role_Printer %}header .grid--full:not(:nth-of-type(1)),{% endunless %} .header-bar, .printModeExclude.visible, footer').show().toggleClass('visible');
+    $('.site-header__logo img').css('margin','0 auto');
+    $('.site-header__logo').toggleClass('w3-col s3');
+    
+    $('.printModeInclude').toggleClass('hide');
+      $('.print-one-whole').toggleClass('one-whole two-thirds');
+    $('.th-span').toggleClass('th-span th-spaned');
+
+    
+  }
+</script> 
 
 <style>
+  
+@media print{
+   /* applied to our table */
+  .w3-table1, tr, td{ position: relative !important; }
+   .w3-table tr td {
+     -webkit-region-break-inside: avoid !important;
+     page-break-inside:avoid !important;
+     page-break-after: always;
+  }
+}
+
+@media  print {
+    thead, tbody, tfooter { 
+        display: table-row-group;
+    }
+}
   a.cancelled{
   	text-decoration: line-through !important;
     color: gray !important;

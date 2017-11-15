@@ -31,19 +31,20 @@
     {% assign customer_region_tag = region_GreatLakes %}
   {% endif %}
 
-<div class="section-header section-header--large">
-  <h1 class="section-header__title printModeExclude">{{ 'customer.account.title' | t }}</h1>
+<div class="section-header section-header--large printModeExclude">
+  <h1 class="section-header__title">{{ 'customer.account.title' | t }}</h1>
 </div>
 
 <div class="grid">
 
   <div class="grid__item {% if customer.tags contains Role_ASM %}three-quarters{% else %}two-thirds{% endif %} medium-down--one-whole print-one-whole">
-    <h2 style="display:inline-block;" class="h3"><b>{{ 'customer.orders.title' | t }}{% if customer.tags contains Role_ASM or customer.tags contains Role_Printer %} <!--(Individual View)-->{% endif %}</b></h2>
-    {% comment %}
-    {% if customer.tags contains Role_ASM or customer.tags contains Role_Printer %}
-    <a style="display:inline-block;" class="w3-right" href="/account?view=summary-list"><button type="button" class="btn btn--primary">Group View</button></a>
-    {% endif %}
-    {% endcomment %}
+    <h2 style="display:inline-block;" class="h3"><b>{{ 'customer.orders.title' | t }}:{% if customer.tags contains Role_ASM or customer.tags contains Role_Printer %}&nbsp;&nbsp;<div style="display:inline; border-bottom:2px solid black; font-size:16px;" class1="w3-border-bottom">Individual View</div>&nbsp;&nbsp;{% endif %}
+    
+      {% if customer.tags contains Role_ASM or customer.tags contains Role_Printer %}
+      <a style="display:inline-block;font-size:16px;" class="printModeExclude w3-text-black" href="/account?view=summary-list">Group View</a>
+      {% endif %}
+      
+    </b></h2>
     
     <div class="w3-right printModeExclude text-right per_page_wrapper" style="display:inline-block; width:{% if customer.tags contains Role_ASM %}238px{% else %}212px{% endif %};">
       <label for="per_page" style="display:inline-block;" class="">Per Page: &nbsp;</label>
@@ -205,9 +206,9 @@
   var orderExport = [];
   var printerExport = [];
               
-  $(window).load(function(){
-    setInterval(function(){ $('.per_page_wrapper').css('width', $('#td_select').width()+'px');}, 2000);
-  });
+//   $(window).load(function(){
+//     setInterval(function(){ $('.per_page_wrapper').css('width', $('#td_select').width()+'px');}, 2000);
+//   });
               
   $(document).ready(function(){
   	$('#start_date').val('');
@@ -407,8 +408,8 @@
           
     });
   }
-            
-function windowPrint(){
+           
+  function windowPrint(){
     $.when( 
       $('{% unless customer.tags contains Role_Printer %}header .grid--full:not(:nth-of-type(1)),{% endunless %} .header-bar, .printModeExclude:visible, footer').hide().toggleClass('visible'),
       $('.site-header__logo img').css('margin','0 0'),

@@ -31,6 +31,7 @@
 
 {% endif %}
 
+{% assign sort_url_params = '?sort_by=created-descending' %}
 
 <ul id="nav-2" class="site-nav" style="margin-bottom:0px; margin-top:0px;">
   	{% comment %}
@@ -39,13 +40,13 @@
     </li> 
    {% endcomment %}
     <li {% if link.active %}class="site-nav--active"{% endif %}>
-      <a href="/collections/{{ collection_handle }}-my-products" class="site-nav__link12"><button type="button" class="btn--secondary">My Products</button></a>
+      <a href="/collections/{{ collection_handle }}-my-products{{ sort_url_params }}" class="site-nav__link12"><button type="button" class="btn--secondary">My Products</button></a>
     </li>
     <li {% if link.active %}class="site-nav--active"{% endif %}>
-      <a href="/collections/{{ collection_handle }}-not-in-my-products" class="site-nav__link12"><button type="button" class="btn--secondary">Products Not in My List</button></a>
+      <a href="/collections/{{ collection_handle }}-not-in-my-products{{ sort_url_params }}" class="site-nav__link12"><button type="button" class="btn--secondary">Products Not in My List</button></a>
     </li>
   	<li {% if link.active %}class="site-nav--active"{% endif %}>
-      <a href="/collections/{{ collection_handle }}-new" class="site-nav__link12"><button type="button" class="btn--secondary">New</button></a>
+      <a href="/collections/{{ collection_handle }}-new{{ sort_url_params }}" class="site-nav__link12"><button type="button" class="btn--secondary">New</button></a>
     </li>
   	{% comment %}
     <li {% if link.active %}class="site-nav--active"{% endif %}>

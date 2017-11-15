@@ -37,7 +37,7 @@
       {% for option in product.options_with_values limit:1 %}
         {% assign option_name = option.name %}
       {% endfor %}
-      <h2>Edit Price{%comment%}{{ option_name }}{%endcomment%}</h2>
+      <h2>Select Element(s) and Edit Price(s)</h2>
       <div id ="statusMessage"></div>
         <form method="post" id="edit-variant-frm-{{product.id}}" product_id="{{product.id}}" onsubmit="reactClick(event, this);">
           <table>

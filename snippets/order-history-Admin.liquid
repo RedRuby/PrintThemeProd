@@ -9,7 +9,7 @@
           <small class="nbsp-hide"><label for="">&nbsp;</label></small>
     	  <input id="end_date" value="{{'now' | date: '%m/%d/%Y'}}" readonly class="datepicker" type="text" name="end_date" placeholder="End Date" >
     	</div>
-      	<div class="w3-col m4">
+      	<div class="w3-col m3">
           <small class="nbsp-hide"><label for="">&nbsp;</label></small>
           <button id="" class="btn btn--secondary btn--full1 clear-filter" type="button" style="display:none;" >Clear</button>
     	  <button id="filter_order" class="btn btn--secondary btn--full1" type="button" >Filter Dates</button>
@@ -28,12 +28,13 @@
             <option value='Region:GreatLakes'>Great Lakes</option>
           </select>
     	</div>
-      	<div id="td_select" class="w3-col m2">
+      	<div id="td_select" class="w3-col m3">
           <small><label for="select_tl"><br class="br-hide">Additional Filters</label></small>
-    	  <select id="select_tl" onchange="updateState({page: '1',fulfillment_status: this.value});" name="fulfillment_status">
+    	  <select id="select_tl" onchange="if(this.selectedIndex == 3)updateState({page: '1',fulfillment_status: '',order_status: this.value}); else updateState({page: '1',fulfillment_status: this.value,order_status: ''});" name="fulfillment_status">
             <option value="" selected>Clear Additional Filters</option>
             <option value="fulfilled">Fulfilled</option>
             <option value="unfulfilled">Unfulfilled</option>
+            <option value="cancelled">Cancelled</option>
           </select>
     	</div>
     </div>

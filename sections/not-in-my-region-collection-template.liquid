@@ -21,8 +21,15 @@
   .mfp-content{width:80% !important; margin-top:40px; margin-bottom:40px;}
 </style>
 
+{% assign new_limit = 20 %}
+
+{% if collection.title contains 'New Region:' %}
+  {% assign new_limit = 25 %}
+  {% assign new-region-collection-limit = 2 %}
+{% endif %}
+
 {% if collection.products.size > 0 %}
-  {% paginate collection.products by 20 %}
+  {% paginate collection.products by new_limit %}
 
   <div id="CollectionSection" data-section-id="{{ section.id }}" data-section-type="collection-template" data-sort-enabled="{{ section.settings.sort_enable }}" data-tags-enabled="{{ section.settings.tags_enable }}">
     <div class="section-header section-header--breadcrumb">
@@ -65,7 +72,11 @@
       <hr class="hr--clear">
 
       <div class="text-center">
-        {% include 'pagination-custom' %}
+        {% if new-region-collection-limit %}
+          {% include 'pagination-custom' with new-region-collection-limit %}
+        {% else %}
+          {% include 'pagination-custom' %}
+        {% endif %}
       </div>
     {% endif %}
   </div>

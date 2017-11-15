@@ -46,11 +46,13 @@
         <span aria-hidden="true" class="breadcrumb__sep">&rsaquo;</span>
         {% if current_tags %}
           {% capture url %}/collections/{{ collection.handle }}{% endcapture %}
-          {{ collection.title |remove: customer_region_tag |replace:'-',' ' | link_to: url }}
+          <small style="text-transform:capitalize !important;">
+            {{ collection.title |remove: customer_region_tag |replace:'-',' ' | link_to: url }}
+          </small>
           <span aria-hidden="true" class="breadcrumb__sep">&rsaquo;</span>
           <span>{{ current_tags | join: " + " |remove:'PTT' |remove:'MKT' |remove:'AS:' |remove:'PR:' |remove:'SP:' |remove:'DPT:' }}</span>
         {% else %}
-          <span style="text-transform:capitalize;">{{ collection.title |remove:customer_region_tag |replace:'-',' ' }}</span>
+          <small style="text-transform:capitalize !important;">{{ collection.title | remove:customer_region_tag | replace:'-',' ' }}</small>
         {% endif %}
 
       {% elsif template contains 'product' %}
@@ -59,9 +61,9 @@
           <span aria-hidden="true" class="breadcrumb__sep">&rsaquo;</span>
           {% if collection.handle %}
             {% capture url %}/collections/{{ collection.handle }}{% endcapture %}
-            <span style="text-transform:capitalize;">
+            <small style="text-transform:capitalize !important;">
               {{ collection.title |remove:customer_region_tag |replace:'-',' ' | link_to: url }}
-            </span>
+            </small>
           {% endif %}
         {% endif %}
         <span aria-hidden="true" class="breadcrumb__sep">&rsaquo;</span>

@@ -96,9 +96,14 @@
   
   function resizeIframe(objr) {
     $(window).scrollTop(0);
+    if(objr.contentWindow.document.getElementsByClassName('blockUI').length > 0){
+      $("#loader").removeClass('hide');console.log('yes');
+      objr.style.height = '0px';
+    }else{
     $("#loader").addClass('hide');
     appFrameHeight = objr.contentWindow.document.body.scrollHeight+170+ 'px';
     objr.style.height = appFrameHeight;
+    }
     updateCart();
 //     fobj = objr.contentWindow.document.getElementById('fancybox-wrap');
 //     alert(fobj.innerHTML);

@@ -27,7 +27,7 @@
     <li class="disabled"><span>&larr;</span></li>
   {% endif %}
 
-  {% for part in paginate.parts %}
+  {% for part in paginate.parts limit: new-region-collection-limit %}
     {% if part.is_link %}
       <li>
         <a href="{{ part.url }}" title="">{{ part.title }}</a>
@@ -41,7 +41,7 @@
     {% endif %}
   {% endfor %}
 
-  {% if paginate.next %}
+  {% if paginate.next and new-region-collection-limit == blank %}
     <li><a href="{{ paginate.next.url }}" title="{{ paginate.next.title }}">&rarr;</a></li>
   {% else %}
     <li class="disabled"><span>&rarr;</span></li>

@@ -7,7 +7,7 @@
 
 
 <div id="OrderCancelModal" class="white-popup-block text-center" styles="display:none;">
-  <form action="" method="post" onsubmit="cancelOrder(event, this);" order_id=""> 
+  <form action="" method="post" onsubmit="if(confirm('Click \'OK\' to confirm for '+order_data.order.order_name+' order rejection.') == true)cancelOrder(event, this); else false" order_id=""> 
     <br>
     <h2 class="text-left">Cancel Order #<span class="orderName" style="font-size:inherit !important;"></span></h2>
     <div class="text-left">
@@ -19,16 +19,16 @@
       <label><input type="radio" name="cancel-reason" value="Other- Fill in" onchange="changedData();" /> Other- Fill in</label>
     </div>
     
-    <textarea disabled required name="cancel-reason-other" class="" placeholder="Cancel Reason for Other" onchange="changedData();"></textarea>
-
+    <textarea disabled required name="cancel-reason-other" class="" placeholder="Cancel Reason for Other (Maximum 36 Characters)" onchange="changedData();" maxlength="36"></textarea>
+    <div class="textarea_feedback w3-right"></div>
     <br>
-  	<div class="w3-twothird">
+  	<div class="w3-onethird">
       &nbsp;
       
     </div>
     <div class="w3-rest">
       <button type="submit" class="btn w3-right w3-margin-left" >Update</button>
-      <button type="button" class="btn w3-right" onclick="updateModal()2;">Back</button>
+      <button type="button" class="btn w3-right" onclick="updateModal2();">Return to order Detail</button>
     </div>
     <br>
   </form>
@@ -138,5 +138,15 @@
     
       $('#OrderCancelModal form').attr('order_id', order_data.order.id);
       $('#OrderCancelModal .orderName').text(order_data.order.order_name);
+    	
+       var text_max = $('[name="cancel-reason-other"]').attr('maxlength');
+        $('.textarea_feedback').html(text_max + ' characters remaining');
+
+        $('[name="cancel-reason-other"]').off('keyup').on('keyup', function() {
+            var text_length = $(this).val().length;
+            var text_remaining = text_max - text_length;
+
+            $('.textarea_feedback').html(text_remaining + ' characters remaining');
+        });
   }
 </script>

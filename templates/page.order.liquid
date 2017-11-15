@@ -47,7 +47,10 @@
         <p><a id="account-back_btn" href="/account"><button type="button" class="btn btn--primary1"><i class="fa fa-caret-left"></i> {{ 'customer.account.return' | t }}</button></a></p>
       </div>
       <div class="grid__item  two-thirds small--one-whole text-right">
-         {% if customer.tags contains Role_ASM %}<button id="asm_orderEdit" type="button" class="btn btn--primary1" onclick="addToModal(order_id);" title="Print this order">Edit</button>{% endif %}
+         {% if customer.tags contains Role_ASM %}
+        	<button id="asm_orderEdit" type="button" class="btn btn--primary1" onclick="addToModal(order_id);" title="Edit this order">Edit</button>
+        	<button id="asm_orderCancel" type="button" class="btn btn--primary1" onclick="showCancelModal();" title="Cancel this order">Cancel</button>
+         {% endif %}
          <button id="printOrder" style="margin: 0 20px;" type="button" class="btn btn--primary1" onclick="windowPrint();" title="Print this order"><i class="fa fa-print"></i> Print this Order</button>
          <button id="prevOrderBtn" type="button" class="btn btn--primary1" onclick="eval(this.getAttribute('onclickf'));" title="previous order"><i class="fa fa-arrow-left"></i></button>
          <button id="nextOrderBtn" type="button" class="btn btn--primary1" onclick="eval(this.getAttribute('onclickf'));" title="next order"><i class="fa fa-arrow-right"></i></button>
@@ -439,8 +442,6 @@
   function showOrderData(data){
     			order_name = data.order.order_name;            
     
-                if(data.order.cancelled_at.length > 0){ $('#cancelled').show(); $('#shipping_details, #update-fulfillment, #assign-printer-wrapper, #asm_orderEdit').hide(); }
-    
                 setTimeout(w3DisplayData("id02", data.order),100);
                 setTimeout(w3DisplayData("address", data.order),200); 
                 setTimeout(w3DisplayData("lineItem", data.order),400); 
@@ -512,7 +513,11 @@
     			
     			if(data.order.discount_codes[0] != null ){ $('#discountCodes').show(); }
     	
-    			if(data.order.cancelled_at.length == 0) { $('#cancelled').hide(); }
+    			if(data.order.cancelled_at.length == 0) { $('#cancelled').hide(); $('#shipping_details').hide(); }
+    			
+    			if(data.order.cancelled_at.length > 0){ 
+                  $('#cancelled').show(); $('#shipping_details').hide(); 
+                }
     
     			if(data.order.notes != null ){ 
 //                   $('#note .note_text').text(data.notes).show();
@@ -542,25 +547,47 @@
                 }catch(e){ console.log(e.message); }    			
     
     			{% if customer.tags contains Role_ASM %}
-				printer_id = data.order.printer_id;
-                setTimeout(fetch_Printers(),800);
-    			
-                if('fulfilled' == data.order.fulfillment_status){$('select').prop('disabled','disabled').css('cursor','not-allowed');}
+                  printer_id = data.order.printer_id;
+                  $.when(setTimeout(fetch_Printers(),800)).done(function(){
+
+                    if('fulfilled' == data.order.fulfillment_status > 0){
+                      $('#shippingPrice').show();
+                    }else{
+                      $('#shippingPrice').hide();
+                    }	
+                    
+                    if(data.order.cancelled_at.length > 0){ 
+                      $('#assign-printer').prop('disabled','disabled').css('cursor','not-allowed').prop('title','Can\'t edit cancelled Order.');
+                      $('#asm_orderEdit, #asm_orderCancel').hide();
+                    }else{
+                      $('#assign-printer').removeAttr('disabled').css('cursor','pointer').prop('title','');
+                      $('#asm_orderEdit, #asm_orderCancel').show();
+                    }
+
+                  });
+    
     			{% elsif customer.tags contains Role_Printer %}
                   if('fulfilled' == data.order.fulfillment_status){
-                    $('#fulfillment option:eq(0)').prop("selected", "selected");
+                    $('#fulfillment option:eq(0)').prop("selected", "selected").parent().removeAttr("disabled").show();
+                    $('#update-fulfillment').hide();
+                    $('#shipping_details').show();
                   }else{
-                    $('#fulfillment option:eq(1)').prop("selected", "selected").parent().prop("disabled", "disabled").css('cursor','not-allowed');
-                    $('#shipping_details').hide();
+                    $('#fulfillment option:eq(0)').prop("selected", "selected").parent().hide();
                     $('#update-fulfillment').attr('order_id', data.order.id).show();
+                    $('#shipping_details').hide();
                   }
-    				
-                  if(data.order.cancelled_at.length > 0){ $('#shipping_details, #update-fulfillment').hide(); }
+    
+                  if(data.order.cancelled_at.length > 0){ 
+                    $('#shipping_details, #update-fulfillment').hide();
+//                     $('#fulfillment').prop('disabled','disabled').css('cursor','not-allowed');
+                  }
     			{% endif %}
     
     			mfpInit();			
     
             	$.unblockUI(); 
+    
+    			order_data = data;
     
     			$('#id01').show(); 
   }
@@ -581,7 +608,16 @@
           }
 
       }).promise()
-      	.done(function(){ $('option[select = "selected"]').prop("selected", "selected"); });
+      	.done(function(){ 
+          $('option[select = "selected"]').prop("selected", "selected"); 
+          if(order_data.order.cancelled_at.length > 0){ 
+            $('#assign-printer').prop('disabled','disabled').css('cursor','not-allowed').prop('title','Can\'t edit cancelled Order.');
+            $('#asm_orderEdit, #asm_orderCancel').hide();
+          }else{
+            $('#assign-printer').removeAttr('disabled').css('cursor','pointer').prop('title','');
+            $('#asm_orderEdit, #asm_orderCancel').show();
+          }
+      });
   }
   
   function changePrintShop(obj){
@@ -602,7 +638,7 @@
               type: 'POST',
               data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order: order_id, printer_id: $this.val(), cregion: '{{ customer_region_tag |replace:'Region:','' |replace:'0','o'}}' },
               dataType: 'json',
-              success: function(){$.unblockUI; show_message2('Assigned Successfully.',true); changed = true;},
+              success: function(){$.unblockUI; show_message2('Assigned Successfully.',true); changed = true; },
               error: function(){$.unblockUI; show_message2('Some Error Occured.',false);}
         });
       }
@@ -627,11 +663,11 @@
   
   var $oem = $('#OrderEditModal');
   
-  function addToModal(obj){ console.log('ATM');
+  function addToModal(obj){
         order_id = obj;
     //     freez();
         $('html').css('overflow','hidden');
-        $('#mfp-order-edit .mfp-bg, #mfp-order-edit .mfp-wrap').show().removeClass('mfp-hide');
+    	$('#mfp-order-edit .mfp-bg, #mfp-order-edit .mfp-wrap').show().removeClass('mfp-hide');
 
     	data = order_data;
         console.log(JSON.stringify(data));
@@ -668,12 +704,13 @@
         {% endcomment %}
     //                 console.log('printer:', data.order.printer_id);
     //   				console.log('line_items:', data.order.line_items.length);
-        if(data.order.printer_id != null || data.order.line_items.length == 0 || true ){
+        if(data.order.printer_id != null || data.order.line_items.length == 0 ){
           $('.for-order-split').remove();
           $('td[colspan="3"]').attr('colspan', '2');
         }
 
-        $.unblockUI(); $('.mfp-preloader').hide(); if($('.mfp-note').length == 0)$('.mfp-container').css('height','auto').prepend('<div><div class="mfp-note note text-center" style="margin:0px 5%;"><p><b>Use the edit order function to adjust pricing, adjust quantities, and/or split an order.<b></p></div><br><div>'); $('#OrderEditModal').show().removeClass('mfp-hide');
+
+        $.unblockUI(); $('.mfp-preloader').hide(); if($('.mfp-note').length == 0)$('.mfp-container').css('height','auto').prepend('<div class="mfp-note"><div class="note text-center" style="margin:0px 5%;"><p><b>Use the edit order function to adjust pricing, adjust quantities, and/or split an order.<b></p></div><br><div>'); $('#OrderEditModal').show().removeClass('mfp-hide');
 
           
   
@@ -684,7 +721,6 @@
   function addToModal(obj){
     $('html').css('overflow','hidden');
     $('.mfp-wrapper .mfp-bg, .mfp-wrapper .mfp-wrap').show().removeClass('mfp-hide');
-    
     var data = order_data;
     
     $('#OrderEditModal form').attr('order_id', data.order.id);
@@ -693,7 +729,13 @@
       $('#OrderEditModal .shipping_price').val(data.order.shipping_lines[0].price);
       $('#OrderEditModal .shipping_code').val(data.order.fulfillments[0].shipping_code);
       $('#OrderEditModal .tracking_company option[value = "'+data.order.fulfillments[0].tracking_company+'"]').prop('selected','selected');
-      if(data.order.fulfillments[0].tracking_company == 'Pick Up'){ $('#OrderEditModal .tracking_number').prop({'disabled':'disabled', 'value':''}).css('cursor', 'not-allowed'); }else{ $('#OrderEditModal .tracking_number').val(data.order.fulfillments[0].tracking_number); }
+      if(data.order.fulfillments[0].tracking_company.indexOf('Pick Up') != -1 || data.order.fulfillments[0].tracking_company == 'Install'){ 
+        $('#OrderEditModal .tracking_number').prop({'disabled':'disabled', 'value':''}).css('cursor', 'not-allowed'); 
+        changeTracking(true);
+      }else{ 
+        $('#OrderEditModal .tracking_number').val(data.order.fulfillments[0].tracking_number); 
+        changeTracking(false);
+      }
       $('#OrderEditModal .tracking_url').val(data.order.fulfillments[0].tracking_url);
     }
 

@@ -22,7 +22,7 @@
    <table id="lineItem2" class="responsive-table">
     <thead>
       <tr class="w3-text-white1" styles="background-color: #146db5">
-        <th class="text-center for-order-split">Select to move to separate order</th>
+        <th class="text-center for-order-split">Select to split the order</th>
         <th class="text-center">Products</th>
         <th class="text-center">
           <div class="w3-row-padding">
@@ -90,7 +90,10 @@
       <button type="submit" style="width:250px;" disabled class="btn w3-margin-left1" >Update</button><br>
       <button type="button" style="width:250px;" class="btn w3-margin-top" onclick="updateModal();"> Return to Order {% if template contains 'page' %}Detail{% else %}History{% endif %}</button><br>
       <a class="goTo" style="display:none;" href="/pages/order?id="><button type="button" class="btn w3-margin-top w3-right" style="width:250px;"> current order detail</button></a><br>
-      <a class="goTos" style="display:none;" href="/pages/order?id="><button type="button" class="btn w3-margin-top w3-right" style="width:250px;"> Split order detail</button></a>
+      <a class="goTos" style="display:none;" href="/pages/order?id="><button type="button" class="btn w3-margin-top w3-right" style="width:250px;"> Split order detail</button></a><br>
+      <a style="opacity:0;"><button type="button" class="btn w3-margin-top">&nbsp;</button></a>
+<!--       <a ><button type="button" class="btn">&nbsp;</button></a> -->
+      
     </div>
     <br>
   </form>
@@ -256,13 +259,14 @@
                   	freez();
                    	setTimeout( function (){ 
                       addToModal(data.result.result_false); 
+                      order_id = data.result.result_false;
                       var $goTo = $('#OrderEditModal .goTo');
                       $goTo.prop('href', '/pages/order?id='+data.result.result_false);
                       $goTo.show();
                       $('#OrderEditModal .goTos').prop('href', '/pages/order?id='+data.result.result_true).show();
                       {% if template contains 'page.order' %}
-//                           fetch_Order(data.result.result_false, null, false, true);
-                          location.replace('/pages/order?id='+data.result.result_false+prev_page_params);
+//                           fetch_Order(data.result.result_false, null, false);
+                          location.replace('/pages/order?id='+data.result.result_false);
                       {% endif %}
                       changed = true;
   //                   	$.unblockUI; 

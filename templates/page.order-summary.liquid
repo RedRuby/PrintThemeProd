@@ -64,7 +64,7 @@
   <div class="grid__item two-thirds medium-down--one-whole print-one-whole" style="background-color:white;">
     <div id="id02" class="printModeExclude">
 
-      <h2 class="h3 printModeInclude1 order_name_h2" ><b>Order #{% raw %}{{ order_name }}{% endraw %}</b>, </h2>
+      <h2 class="h3 printModeInclude1 order_name_h2" ><b>Order #{% raw %}{{ order_name }}{% endraw %}</b> </h2>
       <p class="" style="display:inline-block;"><b class="printModeExclude">Placed on :</b> {% raw %}{{ order_date }}{% endraw %}</p>  	
     
       
@@ -508,13 +508,14 @@
                     $('#update-fulfillment').attr('order_id', data.order.id).show();
                   }
     				
-                  order_data = data;
                   if(data.order.cancelled_at.length > 0){ $('#shipping_details, #update-fulfillment').hide(); }
     			{% endif %}
     
     			mfpInit();			
     
             	$.unblockUI(); 
+    
+    			order_data = data;
     			
     			$('#id01').show(); 
   }
@@ -645,7 +646,9 @@
       $('{% unless customer.tags contains Role_Printer %}header .grid--full:not(:nth-of-type(1)),{% endunless %} .header-bar, .printModeExclude:visible, footer').hide().toggleClass('visible'),
       $('.site-header__logo img').css('margin','0 0'),
       $('.site-header__logo').toggleClass('w3-col s3').after('<div class="w3-col s9 w3-padding-left after_logo_div"></div>'),
-      $('.after_logo_div').html('<h4 style="display:inline-block;">Order by: </h4> <span>'+$('#billing_address .name').text()+' | at '+$('.order_name_h2').html()+'</span>' ),
+      $('.after_logo_div').html('<div class="w3-col s4 w3-padding-left after_logo_div"><p><b>Order By:</b> '+order_data.order.billing_address.name+'</p></div>'
+       +'<div class="w3-col s4 w3-padding-left after_logo_div" style="height:'+'px;"><p><b>Order Date:</b> '+order_data.order.order_date.split('{{ 'now' | date: "%Y" }}')[0]+' {{ 'now' | date: "%Y" }}'+'</p></div>'                        
+       ),
 //       $('.after_logo_div').append('<br><h4>Order by: </h4>'+$('#billing_address .name').text()+', '+$('#billing_address .email').text()+' | <h4>Order Vendor: </h4>'+($('#assign-printer option:selected').text() == 'Select Vendor') ? 'Not Assigned' : $('#assign-printer option:selected').text() ),
 //       $('.fulfillment_block2').html(' | '+$('.fulfillment_block').html()),
       $('#address-hidden, #id01').css({ 'position':'relative', 'bottom':'80px'}),

@@ -17,10 +17,11 @@
     	</div>
       	<div id="td_select" class="w3-col m3">
           <small><label for="select_tl"><br class="br-hide">Additional Filters</label></small>
-    	  <select id="select_tl" onchange="updateState({page: '1',fulfillment_status: this.value});" name="fulfillment_status">
+    	  <select id="select_tl" onchange="if(this.selectedIndex == 3)updateState({page: '1',fulfillment_status: '',order_status: this.value}); else updateState({page: '1',fulfillment_status: this.value,order_status: ''});" name="fulfillment_status">
             <option value="" selected>Clear Additional Filters</option>
             <option value="fulfilled">Fulfilled</option>
             <option value="unfulfilled">Unfulfilled</option>
+            <option value="cancelled">Cancelled</option>
           </select>
     	</div>
     </div>
@@ -95,9 +96,18 @@
                   $('#OrderEditModal .shipping_price').val(data.order.shipping_lines[0].price);
                   $('#OrderEditModal .shipping_code').val(data.order.fulfillments[0].shipping_code);
                   $('#OrderEditModal .tracking_company option[value = "'+data.order.fulfillments[0].tracking_company+'"]').prop('selected','selected');
-                 if(data.order.fulfillments[0].tracking_company == 'Pick Up'){ $('#OrderEditModal .tracking_number').prop({'disabled':'disabled', 'value':''}).css('cursor', 'not-allowed'); }else{ $('#OrderEditModal .tracking_number').val(data.order.fulfillments[0].tracking_number); }
+                 if(data.order.fulfillments[0].tracking_company.indexOf('Pick Up') != -1 || data.order.fulfillments[0].tracking_company == 'Install'){ 
+                 	$('#OrderEditModal .tracking_number').prop({'disabled':'disabled', 'value':''}).css('cursor', 'not-allowed'); 
+      				changeTracking(true);
+                 }else{ 
+           			$('#OrderEditModal .tracking_number').val(data.order.fulfillments[0].tracking_number);
+    				changeTracking(false);
+                 }
+                   
                   $('#OrderEditModal .tracking_url').val(data.order.fulfillments[0].tracking_url);
   				}
+                
+                
                  
                 bemail = data.order.customer.email;
                 
