@@ -150,9 +150,58 @@
             {% endif %}
           </div>
           
+          {% for variant in product.variants %}
+              {% if 'Aisle Interrupters,Banner,Case Card,Circular Static Cling,Horizontal Static,Mini Pole,Other,Wobbler,Outdoor Pole Sign,Poster,Pump Topper,Push Pull,Rail Strip Pages,Shelf Talker,Static Cling,Table Tent' contains variant.option1 %}
+                {% assign has_post_descipt_note = true %}
+              {% endif %}
+          {% endfor %}
+          
           <div class="product-description rte" itemprop="description">
-            {{ product.description }}
-            <h3><i>All requests are subject to approval.</i></h3>
+            {{ product.description | remove: "An Image of the space you are covering is required" | replace: "//cdn.shopify.com/s/files/1/0415/9233/files/Screen_shot_2014-06-17_at_1.27.15_PM_large.png?10392", '" class="hide' | replace: "<img","<img class='hide'" | remove: "åÊ" }}
+            {% if has_post_descipt_note %}
+            <p><i>All requests are subject to approval.</i></p>
+            {% endif %}
+            
+            {% for variant in product.variants %}
+
+              {% if variant.option1 == 'Wallpaper' %}
+                {% assign wallpaper = true %}
+              
+              {% elsif variant.option1 == 'Fountain Backsplash' %}
+            	{% if variant.option2 == blank or variant.option2 == 'Default' %}
+                  {% assign fountain_backsplash = true %}
+                  <p>Your measurements must be of the space from top to bottom and between the screws NOT the full width. This will give the graphic better durability and quality upon installation.</p>
+				{% endif %}
+            
+              {% elsif variant.option1 == 'Fountain Back' %}
+            	{% if variant.option2 == blank or variant.option2 == 'Default' %}
+                  {% assign fountain_back = true %}
+                  <p>Please select the appropriate version you are looking for in the lower dropdown. Partnership layouts can either include the third party logo or just the wording as requested.</p>
+				{% endif %}
+            
+              {% elsif variant.option1 == 'Cooler Vault Wrap' %}
+                {% assign cooler_vault_wrap = true %}
+
+              {% elsif variant.option1 == 'Store Banner' %}
+                {% assign store_banner = true %}
+            
+              {% elsif variant.option1 == '2 x 3 Window Mesh Poster' %}
+            	{% if variant.option2 == blank or variant.option2 == 'Default' %}
+                  {% assign store_banner = true %}
+                  <p>2 x 3 Window Mesh Posters under Paint the Town are printed on view-through window mesh and are the only available option for pricing on windows.</p>
+				{% endif %}
+            
+              {% elsif variant.option1 == 'Window Mesh' %}
+            	{% if variant.option2 == blank or variant.option2 == 'Default' %}
+                  {% assign window_mesh = true %}
+                  <div align="center"><span color="#444444"><i><img src="https://cdn.shopify.com/s/files/1/0415/9233/files/Screen_shot_2014-06-17_at_1.27.15_PM_large.png?10392" data-mfp-src="https://cdn.shopify.com/s/files/1/0415/9233/files/Screen_shot_2014-06-17_at_1.27.15_PM.png?10392" class="zoom-lightbox-modal zoom-lightbox" /></i></span></div>
+                  <p>An Image of the space you are covering is required
+  (hint: order via your iPad and upload right from your gallery!)
+  Not required but really helpful is an Excel Map of the space you are covering if the space is more than 6 windows ...<br>Above is a sample of what these maps could look like.</p>
+				{% endif %}
+            
+              {% endif %}
+            {% endfor %}
           </div>
 
           <form action="/cart/add" method="post" enctype="multipart/form-data" id="AddToCartForm" class="" onsubmit="addCartClass();">
@@ -162,6 +211,7 @@
               {% assign custom_available = false %}
             
               {% for variant in product.variants %}
+            
                 {% if variant.available %}
                   {% if variant.option2 == customer_region_tag %} {% assign custom_available = true %} {% assign select_index = forloop.index0 %} {% break %} {% endif %}
 
@@ -186,7 +236,6 @@
                  	{% assign variant_price_value = variant.price | money_without_currency %}
                     {% if variant.available %}
                       <option {% if variant == product.selected_or_first_available_variant or pass == true %} {% if  variant_price_value != '0.00' %} selected="selected" {% assign pass = false %} {% else %} {% assign pass = true %} {% endif %} {% endif %} data-sku="{{ variant.sku }}" value="{{ variant.id }}">{{ variant.title }} - {{ variant.price | money_with_currency }}</option>
-                      <style></style>
                     {% else %}
                       <option disabled="disabled">
                         {{ variant.title }} - {{ 'products.product.sold_out' | t }}
@@ -197,7 +246,7 @@
               {% else %}
 <!--             	<input type="hidden" name="id" value="{{ variant.id }}" /> -->
             	<select name="id" id="productSelect" class="product-single__variants hiden">
-                  <option {% if variant == product.selected_or_first_available_variant or pass == true %} {% if  variant_price_value != '0.00' %} selected="selected" {% assign pass = false %} {% else %} {% assign pass = true %} {% endif %} {% endif %} data-sku="{{ variant.sku }}" value="{{ variant.id }}">{{ variant.title }} - {{ variant.price | money_with_currency }}</option>
+                  <option {% if variant == product.selected_or_first_available_variant or pass == true %} {% if  variant_price_value != '0.00' %} selected="selected" {% assign pass = false %} {% else %} {% assign pass = true %} {% endif %} {% endif %} data-sku="{{ variant.sku }}" value="{{ variant.id }}">{{ variant.title }} - {% if window_mesh %}${{ product_actual_price }} {{ shop.currency }}{% else %}{{ variant.price | money_with_currency }}{% endif %}</option>
                 </select>
               {% endif %}   
             
@@ -249,6 +298,31 @@
             
             {% include 'product-customizer' %}
             
+            <div class="hide">
+              {% if window_mesh %}
+                  <label for="">Total Window Area(H x W) in sq. inch</label>
+                  <input type="text" readonly disabled1 name="properties[__Total Window Area(H x W)]" />
+                  <label for="">Window Mesh Calculated Unit Price</label>
+                  <input type="text" readonly disabled1 name="properties[__Window Mesh Calculated Unit Price]" />
+              {% elsif wallpaper %}
+                  <input type="text" readonly disabled1 name="properties[__Total Wallpaper Area(H x W)]" />
+                  <input type="text" readonly disabled1 name="properties[__Wallpaper Calculated Unit Price]" />
+              {% elsif fountain_back %}
+                  <input type="text" readonly disabled1 name="properties[__Total Fountain Back Area(H x W)]" />
+                  <input type="text" readonly disabled1 name="properties[__Fountain Back Calculated Unit Price]" />
+              {% elsif fountain_backsplash %}
+                  <input type="text" readonly disabled1 name="properties[__Total Fountain Backsplash Area(H x W)]" />
+                  <input type="text" readonly disabled1 name="properties[__Fountain Backsplash Calculated Unit Price]" />
+              {% elsif cooler_vault_wrap %}
+                  <input type="text" readonly disabled1 name="properties[__Total Cooler Vault Wrap Area(H x W)]" />
+                  <input type="text" readonly disabled1 name="properties[__Cooler Vault Wrap Calculated Unit Price]" />
+              {% elsif store_banner %}
+                  <input type="text" readonly disabled1 name="properties[__Total Store Banner Area(H x W)]" />
+                  <input type="text" readonly disabled1 name="properties[__Store Banner Calculated Unit Price]" />
+              {% else %}
+              
+              {% endif %}
+            </div>
             
             <div class="product-single__quantity{% unless section.settings.product_quantity_enable %} is-hidden{% endunless %}">
               <label for="Quantity">{{ 'products.product.quantity' | t }}</label>
@@ -437,6 +511,8 @@
      }else{
        setBSO("");
      }
+      
+//      setUpElements(); 
     });
   
   function mimic(){
@@ -470,21 +546,6 @@
     
     $('div[data-option-name = "logo-upload"]').remove();
     
-    for(i=1; i<=$("select[name = 'properties[Consecutive Windows]'] option").length; i++){
-      $("[data-option-name = 'window-"+i+"-width'], [data-option-name = 'window-"+i+"-height']").addClass('w3-col m6').wrapAll('<div class="w3-row"></div>');
-      $("[name = 'properties[Window "+i+" Width in feet]'], [name = 'properties[Window "+i+" Width in inches]']").wrapAll('<div class="w3-row"></div>').wrap('<div class="w3-col m6"></div>');
-      $("[name = 'properties[Window "+i+" Height in feet]'], [name = 'properties[Window "+i+" Height in inches]']").wrapAll('<div class="w3-row"></div>').wrap('<div class="w3-col m6"></div>');
-    }
-    
-    $("select[name = 'properties[Consecutive Windows]']").on('change', function(e){ console.log('changed');
-      	$("[data-option-name^= 'window-'][data-option-name$= '-width'], [data-option-name^= 'window-'][data-option-name$= '-height'], [data-option-name = 'window-2-width'], [data-option-name = 'window-3-width'], [data-option-name = 'window-4-width'], [data-option-name = 'window-5-width'], [data-option-name = 'window-6-width'], [data-option-name = 'window-2-height'], [data-option-name = 'window-3-height'], [data-option-name = 'window-4-height'], [data-option-name = 'window-5-height'], [data-option-name = 'window-6-height']").hide(0).find("input[name^='properties[Window']").removeAttr('required').prop('disabled', 'disabled');
-    	var win_nos = $(this).val();
-        for(i=1; i<=win_nos; i++){
-          $("[data-option-name = 'window-"+i+"-width'], [data-option-name = 'window-"+i+"-height']").show(0).find("input[name^='properties[Window']").attr('required', 'required').removeAttr('disabled');
-        }
-    });
-    
-    $("select[name = 'properties[Consecutive Windows]']").trigger('change');
     
     if($("input[name = 'properties[Price Point Needed]']").length > 0){
       $("input[name = 'properties[Price Point Needed]']").on('change', function(e){
@@ -497,7 +558,230 @@
 	$('#pc2').attr('href', $('#link-food-service').attr('href'));
 	$('#pc3').attr('href', $('#link-all-other').attr('href'));
     
+    setUpElements();
+    
+    $('.zoom-lightbox-modal').magnificPopup({
+        type: 'image',
+        mainClass: 'mfp-fade1',
+      	removalDelay: 500,
+        closeOnBgClick: true,
+        closeBtnInside: false,
+        closeOnContentClick: false,
+//         tClose: password.strings.pageClose,
+        removalDelay: 500,
+      	tLoading: '<i class="fa fa-refresh w3-spin w3-text-black"></i>',
+      	preloader: true,
+        callbacks: {
+          beforeOpen: function() {
+            this.st.image.markup = this.st.image.markup.replace('mfp-figure', 'mfp-figure mfp-with-anim');
+                this.st.mainClass = 'mfp-zoom-out';
+          },
+          close: function(){
+          }
+        }
+    });
+    
   });
+    
+  function setUpElements(){
+  	if($('[name="id"]').text().toLowerCase().indexOf('window mesh') != -1){
+      
+    for(i=1; i<=$("select[name = 'properties[# of Consecutive Windows]'] option").length; i++){
+    	$("[data-option-name = 'window-"+i+"-width'], [data-option-name = 'window-"+i+"-height']").addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend((i == 1) ? '<label>Window Size(s)</label>' : '');
+//       $("[name = 'properties[Window "+i+" Width in feet]'], [name = 'properties[Window "+i+" Width in inches]']").wrapAll('<div class="w3-row"></div>').wrap('<div class="w3-col s6"></div>');
+//       $("[name = 'properties[Window "+i+" Height in feet]'], [name = 'properties[Window "+i+" Height in inches]']").wrapAll('<div class="w3-row"></div>').wrap('<div class="w3-col s6"></div>');
+      	$('[data-option-name^="window-"] label').hide();
+        $('[name^="properties[Window "]').attr('style', 'width:100% !important;');
+    }
+    
+    $("select[name = 'properties[# of Consecutive Windows]']").on('change', function(e){ console.log('changed');
+      	$("[data-option-name^= 'window-'][data-option-name$= '-width'], [data-option-name^= 'window-'][data-option-name$= '-height'], [data-option-name = 'window-2-width'], [data-option-name = 'window-3-width'], [data-option-name = 'window-4-width'], [data-option-name = 'window-5-width'], [data-option-name = 'window-6-width'], [data-option-name = 'window-2-height'], [data-option-name = 'window-3-height'], [data-option-name = 'window-4-height'], [data-option-name = 'window-5-height'], [data-option-name = 'window-6-height']").hide(0).find("input[name^='properties[Window']").removeAttr('required').prop('disabled', 'disabled');
+    	var win_nos = $(this).val();
+        for(i=1; i<=win_nos; i++){
+          $("[data-option-name = 'window-"+i+"-width'], [data-option-name = 'window-"+i+"-height']").show(0).find("input[name^='properties[Window']").attr('required', 'required').removeAttr('disabled');
+        }
+    });
+    
+    $("select[name = 'properties[# of Consecutive Windows]']").trigger('change');
+      
+      $('[name^="properties[Window "]').on('input', function(e){
+          winSize = $("select[name = 'properties[# of Consecutive Windows]']").val();
+          cal_prod_price = 0.00;
+          cal_win_area = 0.00;
+          for(i=1; i<=winSize; i++){
+            cal_win_area += parseFloat($('[name="properties[Window '+i+' Height]"]').val()) * parseFloat($('[name="properties[Window '+i+' Width]"]').val());
+            cal_prod_price += parseFloat($('[name="properties[Window '+i+' Height]"]').val()) * parseFloat($('[name="properties[Window '+i+' Width]"]').val()) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
+          }
+          unit_price = ( addCommas((cal_prod_price).toFixed(2)) ).replace('NaN','{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}');
+          
+          $('[name="properties[__Total Window Area(H x W)]"]').val(cal_win_area); 
+          $('[name="properties[__Window Mesh Calculated Unit Price]"]').val(unit_price); 
+          $('#ProductPrice').text( unit_price );
+      });
+    }
+    
+    else if($('[name="id"]').text().toLowerCase().indexOf('wallpaper') != -1){
+      $('[data-option-name^="wallpaper-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Wallpaper Size</label>');
+      $('[data-option-name^="wallpaper-"] label').hide();
+      $('[name^="properties[Wallpaper "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
+      	cal_prod_price = 0.00;
+        cal_win_area = 0.00;
+
+        cal_win_area += parseFloat($('[name^="properties[Wallpaper "]').first().val()) * parseFloat($('[name^="properties[Wallpaper "]').last().val());
+        cal_prod_price += parseFloat($('[name^="properties[Wallpaper "]').first().val()) * parseFloat($('[name^="properties[Wallpaper "]').last().val()) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
+
+        unit_price = ( addCommas((cal_prod_price).toFixed(2)) ).replace('NaN','{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}');
+
+        $('[name="properties[__Total Wallpaper Area(H x W)]"]').val(cal_win_area); 
+        $('[name="properties[__Wallpaper Calculated Unit Price]"]').val(unit_price); 
+        $('#ProductPrice').text( unit_price );
+      });
+      
+    }
+    
+    else if($('[name="id"]').text().toLowerCase().indexOf('fountain backsplash') != -1){
+      $('[data-option-name^="fountain-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size</label>');
+      $('[data-option-name^="decal-size-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Decal Size (required)</label>');
+      $('[data-option-name^="fountain-"] label, [data-option-name^="decal-size-"] label').hide();
+      $('[name^="properties[Fountain "], [name^="properties[Decal Size "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
+      	cal_prod_price = 0.00;
+        cal_win_area = 0.00;
+
+//         cal_win_area += parseFloat($('[name^="properties[Fountain "]').first().val()) * parseFloat($('[name^="properties[Fountain "]').last().val());
+        cal_win_area += parseFloat($('[name^="properties[Decal Size "]').first().val()) * parseFloat($('[name^="properties[Decal Size "]').last().val());
+        
+//         cal_prod_price += parseFloat($('[name^="properties[Fountain "]').first().val()) * parseFloat($('[name^="properties[Fountain "]').last().val()) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
+        cal_prod_price += parseFloat($('[name^="properties[Decal Size "]').first().val()) * parseFloat($('[name^="properties[Decal Size "]').last().val()) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
+
+        unit_price = ( addCommas((cal_prod_price).toFixed(2)) ).replace('NaN','{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}');
+
+        $('[name="properties[__Total Fountain Backsplash Area(H x W)]"]').val(cal_win_area); 
+        $('[name="properties[__Fountain Backsplash Calculated Unit Price]"]').val(unit_price); 
+        $('#ProductPrice').text( unit_price );
+      });
+    }
+    
+    else if($('[name="id"]').text().toLowerCase().indexOf('cooler vault wrap') != -1){
+      $('[data-option-name^="size-above-vault-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size ABOVE Vault</label>');
+      $('[data-option-name^="size-left-of-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size LEFT of Vault</label>');
+      $('[data-option-name^="size-right-of-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size RIGHT of Vault</label>');
+      $('[data-option-name^="size-above-vault-"] label, [data-option-name^="size-left-of-"] label,  [data-option-name^="size-right-of-"] label').hide();
+      $('[name^="properties[Size ABOVE Vault "], [name^="properties[Size LEFT of Vault "], [name^="properties[Size RIGHT of Vault "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
+      	cal_prod_price = 0.00;
+        cal_win_area = 0.00;
+
+        cal_win_area += parseFloat($('[name^="properties[Size ABOVE Vault "]').first().val()) * parseFloat($('[name^="properties[Size ABOVE Vault "]').last().val());
+        cal_win_area += parseFloat($('[name^="properties[Size LEFT of Vault "]').first().val()) * parseFloat($('[name^="properties[Size LEFT of Vault "]').last().val());
+        cal_win_area += parseFloat($('[name^="properties[Size RIGHT of Vault "]').first().val()) * parseFloat($('[name^="properties[Size RIGHT of Vault "]').last().val());
+        
+        cal_prod_price += parseFloat($('[name^="properties[Size ABOVE Vault "]').first().val()) * parseFloat($('[name^="properties[Size ABOVE Vault "]').last().val()) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
+        cal_prod_price += parseFloat($('[name^="properties[Size LEFT of Vault "]').first().val()) * parseFloat($('[name^="properties[Size LEFT of Vault "]').last().val()) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
+        cal_prod_price += parseFloat($('[name^="properties[Size RIGHT of Vault "]').first().val()) * parseFloat($('[name^="properties[Size RIGHT of Vault "]').last().val()) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
+
+        unit_price = ( addCommas((cal_prod_price).toFixed(2)) ).replace('NaN','{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}');
+
+        $('[name="properties[__Total Cooler Vault Wrap Area(H x W)]"]').val(cal_win_area); 
+        $('[name="properties[__Cooler Vault Wrap Calculated Unit Price]"]').val(unit_price); 
+        $('#ProductPrice').text( unit_price );
+      });
+    }
+    
+    else if($('[name="id"]').text().toLowerCase().indexOf('fountain back') != -1){
+      $('[data-option-name^="size-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Fountain Size (required)</label>');
+      $('[data-option-name^="size-"] label').hide();
+      $('[data-option-name="partnership-message"]').hide().find('input').prop('disabled', 'disabled');
+      $('[name^="properties[Size "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
+      	cal_prod_price = 0.00;
+        cal_win_area = 0.00;
+
+        cal_win_area += parseFloat($('[name^="properties[Size "]').first().val()) * parseFloat($('[name^="properties[Size "]').last().val());
+        cal_prod_price += parseFloat($('[name^="properties[Size "]').first().val()) * parseFloat($('[name^="properties[Size "]').last().val()) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
+
+        unit_price = ( addCommas((cal_prod_price).toFixed(2)) ).replace('NaN','{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}');
+
+        $('[name="properties[__Total Fountain Back Area(H x W)]"]').val(cal_win_area); 
+        $('[name="properties[__Fountain Back Calculated Unit Price]"]').val(unit_price); 
+        $('#ProductPrice').text( unit_price );
+      });
+      
+      $('[name="properties[Select Version Layout]"]').on('change', function(){
+        if(this.value == 'Partnership (Logo Available)')
+          $('[data-option-name="partnership-message"]').show().find('input').removeAttr('disabled');
+        else
+          $('[data-option-name="partnership-message"]').hide().find('input').prop('disabled', 'disabled');
+      });
+    }
+    
+    else if($('[name="id"]').text().toLowerCase().indexOf('store banner') != -1){
+      $('[data-option-name^="size-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size(required) ( Maximum H-54 and W-300)</label>');
+      $('[data-option-name^="size-"] label').hide();
+      obj1 = $('[name^="properties[Size "]').first();
+      obj2 = $('[name^="properties[Size "]').last();
+      $('[name^="properties[Size "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
+        valid = true;
+        msg = '';
+        $('#AddToCart2').removeAttr('disabled');
+        obj1[0].setCustomValidity('');
+        if(!isNaN(obj1.val()) && Number(obj1.val()) > 54 ){
+           valid = false;
+           obj1[0].setCustomValidity('Maximum allowable value is 54');
+           obj1.val('54').trigger("input");
+        
+          // e.target.checkValidity()
+          try{
+            obj1[0].reportValidity();
+          }catch(e){
+            msg = 'Maximum allowable height is 54 inches\n';
+          }
+        }
+        obj2[0].setCustomValidity('');
+      	if(!isNaN(obj2.val()) && Number(obj2.val()) > 300 ){
+           valid = false;
+           obj2[0].setCustomValidity('Maximum allowable value is 300');
+           obj2.val('300').trigger("input");
+        
+          // e.target.checkValidity()
+          try{
+            obj2[0].reportValidity();
+          }catch(e){
+            msg += 'Maximum allowable width is 300 inches';
+          }
+        }
+        if(!valid && msg.length > 0){
+          alert(msg);
+//           $('#AddToCart2').prop('disabled', 'disabled');
+        }
+        
+        if(valid){
+          cal_prod_price = 0.00;
+          cal_win_area = 0.00;
+
+          cal_win_area += parseFloat($('[name^="properties[Size "]').first().val()) * parseFloat($('[name^="properties[Size "]').last().val());
+          cal_prod_price += parseFloat($('[name^="properties[Size "]').first().val()) * parseFloat($('[name^="properties[Size "]').last().val()) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
+
+          unit_price = ( addCommas((cal_prod_price).toFixed(2)) ).replace('NaN','{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}');
+
+          $('[name="properties[__Total Store Banner Area(H x W)]"]').val(cal_win_area); 
+          $('[name="properties[__Store Banner Calculated Unit Price]"]').val(unit_price); 
+          $('#ProductPrice').text( unit_price );
+        }
+      });
+    }
+    
+  }
+        
+  function addCommas(nStr){
+    if(isNaN(nStr)) return 'NaN';
+    nStr += '';
+    x = nStr.split('.');
+    x1 = x[0];
+    x2 = x.length > 1 ? '.' + x[1] : '';
+    var rgx = /(\d+)(\d{3})/;
+    while (rgx.test(x1)) {
+        x1 = x1.replace(rgx, '$1' + ',' + '$2');
+    }
+    return '$'+x1 + x2;
+  }
     
   function setBSO(opt){
     try{ console.log('selected:',opt);
@@ -543,15 +827,15 @@
   
   function addCartClass(){
     detectIE();
+    if (typeof(Storage) !== "undefined") {
+      sessionStorage.PrintATC = 1; //console.log(sessionStorage.PrintATC);
+    }
   	$('#AddToCart2').addClass('btn--ajax-disabled disabled');
     return true;
   }
   
   function logSession(obj){
     if($('#AddToCart').is(':enabled')){
-      if (typeof(Storage) !== "undefined") {
-          sessionStorage.PrintATC = 1; //console.log(sessionStorage.PrintATC);
-      }
       obj.previousElementSibling.click();
     }
   }

@@ -7,6 +7,8 @@
 
 {% assign program_tag_array = section.settings.program_tag_list |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' %}
 
+{% assign sports_tag_array = section.settings.sports_tag_list |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' %}
+
 {% assign market_specific_tag_array = section.settings.market_specific_tag_list |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' %}
 
 {% assign speciality_tag_array = section.settings.speciality_tag_list |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' %}
@@ -48,31 +50,90 @@
 
 {% assign defaultPrice_arr = defaultPrice_arr |append:"}" |replace:",}","}" %}
 
+{% assign elementTypePOS_arr = "[" %}
+{% for block in section.blocks %}
+	{% if block.settings.content.size != 0 and block.type == 'elements_and_prices' %}
+          {% assign comma = ',' %}
+          {% if forloop.last %}{% assign comma = '' %}{% endif %}
+          {% if block.settings.type == "POS" %}
+            {% assign item_arr = '"' |append:block.settings.title |append:'"' |append:comma %}
+            {% assign elementTypePOS_arr = elementTypePOS_arr |append:item_arr %}
+          {% endif %}
+	{% endif %}
+{% endfor %}
+{% assign elementTypePOS_arr = elementTypePOS_arr |append:"]" |replace:",]","]" %}
+
+{% assign elementTypePTT_arr = "[" %}
+{% for block in section.blocks %}
+	{% if block.settings.content.size != 0 and block.type == 'elements_and_prices' %}
+          {% assign comma = ',' %}
+          {% if forloop.last %}{% assign comma = '' %}{% endif %}
+          {% if block.settings.type == "PTT" %}
+            {% assign item_arr = '"' |append:block.settings.title |append:'"' |append:comma %}
+            {% assign elementTypePTT_arr = elementTypePTT_arr |append:item_arr %}
+          {% endif %}
+	{% endif %}
+{% endfor %}
+{% assign elementTypePTT_arr = elementTypePTT_arr |append:"]" |replace:",]","]" %}
+
+{% assign elementTypeSPL_arr = "[" %}
+{% for block in section.blocks %}
+	{% if block.settings.content.size != 0 and block.type == 'elements_and_prices' %}
+          {% assign comma = ',' %}
+          {% if forloop.last %}{% assign comma = '' %}{% endif %}
+          {% if block.settings.type == "SPL" %}
+            {% assign item_arr = '"' |append:block.settings.title |append:'"' |append:comma %}
+            {% assign elementTypeSPL_arr = elementTypeSPL_arr |append:item_arr %}
+          {% endif %}
+	{% endif %}
+{% endfor %}
+{% assign elementTypeSPL_arr = elementTypeSPL_arr |append:"]" |replace:",]","]" %}
+
 <script  type="text/javascript">
+  
+  // Array.sortIgnoreCase() polyfill
+  if (!Array.prototype.sortIgnoreCase) {
+      Array.prototype.sortIgnoreCase = function () {
+          return this.sort(function (a, b) {
+              a=a.toLowerCase(); 
+              b=b.toLowerCase(); 
+              return a === b ? 0 : a > b ? 1 : -1;
+          });
+      };
+  }
   
   var defaultPriceList = '{{ defaultPrice_arr }}';
   
+  var elementTypePOS = $.unique({{ elementTypePOS_arr }}).sort();
+  
+  var elementTypePTT = $.unique({{ elementTypePTT_arr }}).sort();
+  
+  var elementTypeSPL = $.unique({{ elementTypeSPL_arr }}).sort();
+  
+  
   var market_array = {{ market_arr |replace:',]',']' }};
               
-  var vendorList = "{{ vendor_array }}".split(',');
+  var vendorList = $.unique("{{ vendor_array }}".split(',')).sortIgnoreCase();
   
-  var typeList = "{{ type_array }}".split(',');
+  var typeList = $.unique("{{ type_array }}".split(',')).sort();
   
-  var vendorTagList = "{{ vendor_tag_array }}".split(',');
+  var vendorTagList = $.unique("{{ vendor_tag_array }}".split(',')).sortIgnoreCase();
   
-  var programTagList = "{{ program_tag_array }}".split(',');
+  var programTagList = $.unique("{{ program_tag_array }}".split(',')).sort();
   
-  var marketSpecificTagList = "{{ market_specific_tag_array }}".split(',');
+  var sportsTagList = $.unique("{{ sports_tag_array }}".split(',')).sort();
   
-  var specialityTagList = "{{ speciality_tag_array }}".split(',');
+  var marketSpecificTagList = $.unique("{{ market_specific_tag_array }}".split(',')).sort();
   
-  var accountSpecificTagList = "{{ account_specific_tag_array }}".split(',');
+  var specialityTagList = $.unique("{{ speciality_tag_array }}".split(',')).sort();
   
-  var departmentTagList = "{{ department_tag_array }}".split(',');
+  var accountSpecificTagList = $.unique("{{ account_specific_tag_array }}".split(',')).sort();
   
-  var newTagList = "{{ new_tag_array }}".split(',');
+  var departmentTagList = $.unique("{{ department_tag_array }}".split(',')).sort();
   
-  var optionList = "Aisle Interrupters,Banner,Case Card,Horizontal Static,Other,Outdoor Pole Sign,Mini Pole,Poster,Pump Topper,Push Pull,Rail Strip Pages,Shelf Talker,Static Cling,Table Tent,Window Mesh,Wobbler".split(',');
+  var newTagList = $.unique("{{ new_tag_array }}".split(',')).sort();
+  
+  var optionList = $.unique(elementTypePOS.concat(elementTypePTT, elementTypeSPL)).sort(); //["2 x 3 Window Mesh Poster", "Aisle Interrupters", "Banner", "Case Card", "Circular Static Cling", "Cooler Vault Wrap", "Fountain Back", "Fountain Backsplash", "Horizontal Static", "Mini Pole", "Other", "Outdoor Pole Sign", "Poster", "Pump Topper", "Push Pull", "Rail Strip Pages", "Shelf Talker", "Static Cling", "Store Banner", "Table Tent", "Wallpaper", "Window Mesh", "Wobbler"];
   
 //   var defaultPriceList = '{"Banner":"24.00","Case Card":"1.50","Horizontal Static":"0.37","Other":"0.00","Mini Pole":"1.50","Poster":"1.30","Pump Topper":"6.00","Rail Strip Pages":"0.12","Shelf Talker":"0.75","Static Cling":"0.37","Table Tent":"0.75","Window Mesh":"0.00","Wobbler":"0.08"}';
   
@@ -120,7 +181,7 @@
 		{
            "type":      "textarea",
            "id":        "vendor_list",
-           "label":     "Vendors List",
+           "label":     "Vendors List [Reference](/admin/menus/215928273)",
            "default":   "1893,Amp,Any Brand,Aquafina,Brisk,Bundaberg,Caleb's Kola,Crush,Diet Pepsi,Dr. Pepper,Fruit Shoot,Gatorade,IZZE,Kickstart,Lemon Lemon,LifeWTR,Lipton,Manzanita Sol,Metahune Water,Mist Twst,Mountain Dew,Mug,Muscle Milk,No Fear,O.N.E.,PACt,Paso de Los Toro,Pepsi,PepsiZero, Menehune,Portfolio,Propel,Pure Leaf,Rockstar,Schweppes,Sierra Mist,SoBe,Starbucks,Stubborn Soda,Tampico,Water+,Xyience",
            "info":      "Comma (',') separated list of all product vendors.",
            "placeholder": "1893,Amp,Any Brand,Aquafina,Brisk,Bundaberg,Caleb's Kola,Crush,Diet Pepsi,Dr. Pepper,Fruit Shoot,Gatorade,IZZE,Kickstart,Lemon Lemon,LifeWTR,Lipton,Manzanita Sol,Metahune Water,Mist Twst,Mountain Dew,Mug,Muscle Milk,No Fear,O.N.E.,PACt,Paso de Los Toro,Pepsi,PepsiZero, Menehune,Portfolio,Propel,Pure Leaf,Rockstar,Schweppes,Sierra Mist,SoBe,Starbucks,Stubborn Soda,Tampico,Water+,Xyience"
@@ -136,15 +197,23 @@
 		{
            "type":      "textarea",
            "id":        "program_tag_list",
-           "label":     "Programs Tags",
+           "label":     "Programs Tags [Reference](/admin/menus/215934417)",
            "default":   "PR:BaseballMLB,PR:BasketballCollege,PR:BasketballNBA,PR:Dewcision,PR:Emojis,PR:Fishing,PR:FootballCollege,PR:FootballNFL,PR:HockeyNHL,PR:Holiday,PR:NASCAR,PR:Skating,PR:Soccer,PR:Spanish,PR:Summer,PR:SuperBowl,PR:Surfing,PR:TaxFree,PR:WaterPlus",
            "info":      "Comma (',') separated list of all programs.",
            "placeholder": "PR:BaseballMLB,PR:BasketballCollege,PR:BasketballNBA,PR:Dewcision,PR:Emojis,PR:Fishing,PR:FootballCollege,PR:FootballNFL,PR:HockeyNHL,PR:Holiday,PR:NASCAR,PR:Skating,PR:Soccer,PR:Spanish,PR:Summer,PR:SuperBowl,PR:Surfing,PR:TaxFree,PR:WaterPlus"
         },
 		{
            "type":      "textarea",
+           "id":        "sports_tag_list",
+           "label":     "Sports Tags [Reference](/admin/menus/238223377)",
+           "default":   "ST:BaseballMLB,ST:BaseballMILB,ST:BasketballCollege,ST:BasketballNBA,ST:Fishing,ST:FootballCollege,ST:FootballNFL,ST:HockeyNHL,ST:NASCAR,ST:Soccer,ST:SuperBowl,ST:Surfing",
+           "info":      "Comma (',') separated list of all sports.",
+           "placeholder": "ST:BaseballMLB,ST:BaseballMILB,ST:BasketballCollege,ST:BasketballNBA,ST:Fishing,ST:FootballCollege,ST:FootballNFL,ST:HockeyNHL,ST:NASCAR,ST:Soccer,ST:SuperBowl,ST:Surfing"
+        },
+		{
+           "type":      "textarea",
            "id":        "speciality_tag_list",
-           "label":     "Specialities Tags",
+           "label":     "Specialities Tags [Reference](/admin/menus/225118673)",
            "default":   "SP:PTTBlue ,SP:PTTDew,SP:PTTGatorade,SP:PTTPepsiZero,SP:PTTRockstar,SP:PTTSpanish,SP:PTTAquafina,SP:PTTStarbucks,SP:BarrelWrap,SP:CorrPlast,SP:RitePrice,SP:ChannelIDStrip,SP:Diecut,SP:BaseWrap,SP:Truckback,SP:Other,SP:AisleBlades,SP:Banjo,SP:BumpBlasters,SP:Clip,SP:DayGlow,SP:PushPulls,SP:Snipe,SP:VendingSnipes",
            "info":      "Comma (',') separated list of all specialities.",
            "placeholder": "SP:PTTBlue ,SP:PTTDew,SP:PTTGatorade,SP:PTTPepsiZero,SP:PTTRockstar,SP:PTTSpanish,SP:PTTAquafina,SP:PTTStarbucks,SP:BarrelWrap,SP:CorrPlast,SP:RitePrice,SP:ChannelIDStrip,SP:Diecut,SP:BaseWrap,SP:Truckback,SP:Other,SP:AisleBlades,SP:Banjo,SP:BumpBlasters,SP:Clip,SP:DayGlow,SP:PushPulls,SP:Snipe,SP:VendingSnipes"
@@ -152,7 +221,7 @@
 		{
            "type":      "textarea",
            "id":        "account_specific_tag_list",
-           "label":     "Account Specific Tags",
+           "label":     "Account Specific Tags [Reference](/admin/menus/215932689)",
            "default":   "AS:7Eleven,AS:Allsups,AS:AMPM,AS:BubbleClean,AS:BuyersCoop,AS:CAFishGrill,AS:Chevron,AS:CircleK,AS:ConocoShell,AS:CVS,AS:DollarGeneral,AS:FamilyDollar,AS:Fastrip,AS:GandMOil,AS:GuitarCenter,AS:Hyatt,AS:LittleCeasars,AS:LoafNJug,AS:PriceRite,AS:QuickChek,AS:Racetrac,AS:Sedanos,AS:ShopRite,AS:ShortlineExpress,AS:Speedway,AS:Spruces,AS:Stram,AS:Sunoco,AS:TerribleHerbst,AS:UnitedOil,AS:Walgreens,AS:Walmart,AS:Lowes,AS:Safeway,AS:Smiths,AS:Tesoro,AS:Bashas",
            "info":      "Comma (',') separated list of all account specifics.",
            "placeholder": "AS:7Eleven,AS:Allsups,AS:AMPM,AS:BubbleClean,AS:BuyersCoop,AS:CAFishGrill,AS:Chevron,AS:CircleK,AS:ConocoShell,AS:CVS,AS:DollarGeneral,AS:FamilyDollar,AS:Fastrip,AS:GandMOil,AS:GuitarCenter,AS:Hyatt,AS:LittleCeasars,AS:LoafNJug,AS:PriceRite,AS:QuickChek,AS:Racetrac,AS:Sedanos,AS:ShopRite,AS:ShortlineExpress,AS:Speedway,AS:Spruces,AS:Stram,AS:Sunoco,AS:TerribleHerbst,AS:UnitedOil,AS:Walgreens,AS:Walmart,AS:Lowes,AS:Safeway,AS:Smiths,AS:Tesoro,AS:Bashas"
@@ -160,7 +229,7 @@
 		{
            "type":      "textarea",
            "id":        "department_tag_list",
-           "label":     "Departments Tags",
+           "label":     "Departments Tags [Reference](/admin/menus/215937425)",
            "default":   "DPT:FoodService,DPT:GroupsandErgs,DPT:Manuals,DPT:Marketing,DPT:OutsideServices,DPT:PermMerch,DPT:SchematicBooks,DPT:TradeExpense,DPT:Warehouse,DPT:Specialty",
            "info":      "Comma (',') separated list of all departments.",
            "placeholder": "DPT:FoodService,DPT:GroupsandErgs,DPT:Manuals,DPT:Marketing,DPT:OutsideServices,DPT:PermMerch,DPT:SchematicBooks,DPT:TradeExpense,DPT:Warehouse,DPT:Specialty"
@@ -187,12 +256,23 @@
           {
             "id": "title",
             "type": "text",
-            "label": "Element Name"
+            "label": "Element Name [Reference](https://docs.google.com/spreadsheets/d/1gLq-zBWH8sPbf_fwr3BsRzNH2erFaLwbt8DD1ufqz3s/edit#gid=1816901865)"
           },
           {
             "id": "element_price",
             "type": "text",
             "label": "Element Price"
+          },
+          {
+        	"id": "type",
+            "type": "select",
+            "label": "Select Element Type",
+            "options": [
+              { "value": "POS", "label": "POS"},
+              { "value": "PTT", "label": "PTT"},
+              { "value": "Speciality", "label": "SPL"}
+           ],
+            "default": "POS"
           }
         ]
       },
@@ -215,7 +295,7 @@
           {
             "id": "content",
             "type": "textarea",
-            "label": "This Region Market List",
+            "label": "This Region Market List [Reference1](/admin/menus/215930705) and [Reference2](/admin/themes/184081169/language#query)",
 			"info": "Comma (',') separated list of all market of this Region."
           }
         ]

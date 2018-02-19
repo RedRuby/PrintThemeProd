@@ -424,13 +424,26 @@
   }
 }
 
+  
+{% comment %}
 @media  print {
     thead, tbody, tfooter { 
         display: table-row-group;
     }
 }
-  a.cancelled{
-  	text-decoration: line-through !important;
-    color: gray !important;
-  }
+{% endcomment %}
+  
+@media print {
+    table tbody tr td:before,
+    table tbody tr td:after {
+        content : "" ;
+        height : 4px ;
+        display : block ;
+    }
+}
+  
+a.cancelled{
+  text-decoration: line-through !important;
+  color: gray !important;
+}
 </style>

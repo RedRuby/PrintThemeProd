@@ -171,7 +171,7 @@
       	{% endcomment %}
       
       	<div style="padding-top:50px;" class="text-center">
-        <input type="submit" class="btn" value="Submit Registration Request">
+        <input type="submit" class="btn" value="Submit Registration Request" onclick="if(isIE()) alert('Unsupported Browser Alert!\n\n{{ 'general.Unsupported_Browser_Msg' | t }}');">
           <br><br><a href="/account/login" class="btn">Cancel</a>
       	</div>
       {% endif %}
@@ -266,6 +266,22 @@
   
  	
   });
+  
+  function isIE() {
+      var ua = window.navigator.userAgent;
+
+      var msie = ua.indexOf('MSIE ');
+      if (msie > 0) {
+        return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+      }
+
+      var trident = ua.indexOf('Trident/');
+      if (trident > 0) {
+        var rv = ua.indexOf('rv:');
+        return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+      }
+      return false;
+    }
   
   
 </script>

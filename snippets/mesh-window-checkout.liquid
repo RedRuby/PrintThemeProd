@@ -1,0 +1,55 @@
+<script type="text/javascript">
+  var total_price = 0.0;
+  
+  {% for line_item in checkout.line_items %}
+    {% assign per_line_price = line_item.price | money_with_currency | remove:'$' | remove:' USD' %}
+    {% for property in line_item.properties %}
+      {% if property.first contains 'Unit Price'and property.last != blank%}
+      	{% assign per_line_price = property.last | split:'$' | last | remove: ','%}
+      {% endif %}
+    {% endfor %}
+  	total_price = total_price + {{per_line_price | times: line_item.quantity}};
+  {% endfor %}
+  $('.product__price').hide();
+  $('.order-summary__sections').append("<div id='custom-div' style='text-align:center;'><img style='margin-top:40px;' src='{{ 'ajax-loader.gif' | asset_url }}'></div>");
+  $('.order-summary-toggle__total-recap.total-recap').append("<div id='custom-div2' style='display:inline; margin-right:40px;'><img src='{{ 'ajax-loader.gif' | asset_url }}'></div>");
+  window.onload = function() {
+    set_price();
+    $('#temp-style, #custom-div2').remove();
+    
+    window.setInterval(
+      function(){
+		set_price();
+    },100 )
+  }
+  $( document ).ajaxComplete(function() {
+    console.log('complete');
+  });
+  function set_price(){
+    $('.product__price').hide();
+    $('.total-line__price .order-summary__emphasis').first().html("$"+total_price.toFixed(2));
+    $('.total-line__price .order-summary__emphasis').first().attr('data-checkout-subtotal-price-target', total_price*100);
+    price = total_price*100;
+    if($('.total-line--taxes .order-summary__emphasis').length == 0){
+      tax = 0.00;
+    }else{
+      tax = parseFloat($('.total-line--taxes .order-summary__emphasis').first().attr('data-checkout-total-taxes-target'));
+    }
+    if($('.total-line--shipping .order-summary__emphasis').length == 0){
+      shipping = 0.00;
+    }else{
+      shipping = parseFloat($('.total-line--shipping .order-summary__emphasis').first().attr('data-checkout-total-shipping-target'));
+      $('.total-line--shipping .order-summary__emphasis').first().html("$"+(shipping/100).toFixed(2));
+    }
+    if($('.total-line--reduction .order-summary__emphasis').length == 0){
+      discount = 0.00;
+    }else{
+      discount = price + tax + shipping;
+      $('.total-line--reduction .order-summary__emphasis').first().html("-$"+(discount/100).toFixed(2));
+    }
+    order_total = (price + tax + shipping - discount)/100;
+    $('.total-line__price.payment-due .payment-due__price').first().html('$'+order_total.toFixed(2));
+    $('.order-summary-toggle__total-recap.total-recap .total-recap__final-price').first().html('$'+order_total.toFixed(2));
+    $('#custom-div').html($('.order-summary__section--total-lines').html());
+  }
+</script>

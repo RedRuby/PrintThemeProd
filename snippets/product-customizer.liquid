@@ -124,7 +124,7 @@
             <input type="text" id="{{ option_id }}" name="properties[{{ option_name }} in feet]" maxlength="5" onkeyup="this.value = this.value.match(/[\d\.]+/);" onchange="this.value = this.value.match(/[\d\.]+/);" pattern="^\d{1,2}(?:\.\d{1,2})?$" placeholder="{{ option_placeholder }}" {%- if option_required -%}required="required"{%- endif -%} />
             <input type="text" id="{{ option_id }}-2" name="properties[{{ option_name }} in inches]" maxlength="5" onkeyup="this.value = this.value.match(/[\d\.]+/);" onchange="this.value = this.value.match(/[\d\.]+/);" pattern="\d{1,2}\.?(\.\d{1,2})?" placeholder="{{ option_placeholder | replace:'feet', 'inch'}}" {%- if option_required -%}required="required"{%- endif -%} />
           {% else %}
-            <input type="text" id="{{ option_id }}" name="properties[{{ option_name }}]" maxlength="{{ option_maxlength }}" placeholder="{{ option_placeholder }}" {%- if option_required -%}required="required"{%- endif -%} />
+            <input type="text" id="{{ option_id }}" name="properties[{{ option_name }}]" maxlength="{% if option_placeholder contains '(inches)' %}7{% else %}{{ option_maxlength }}{% endif %}" placeholder="{{ option_placeholder }}" {%- if option_required -%}required="required"{%- endif -%} {% if option_placeholder contains '(inches)' %}onchange="this.value = parseFloat(this.value.match(/[\d\.]+/)).toFixed(2).replace('NaN','');" onkeyup="this.value = this.value.match(/[\d\.]+/);" pattern1="^\d{1,4}(?:\.\d{1,2})?$"{% endif %} />
           {% endif %}
         {%- when 'file' -%}
           <input type="file" id="{{ option_id }}" name="properties[{{ option_name }}]" {%- if option_required -%}required="required"{%- endif -%} />

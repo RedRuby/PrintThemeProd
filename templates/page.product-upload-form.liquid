@@ -32,7 +32,7 @@
 			.affix{
 				top:0px;
 				width:100%;
-				z-index: 1040;
+				z-index: 999999;
 			}
           
             *:not(i){ font-family: 'Montserrat'; }
@@ -75,9 +75,10 @@
                 	<label class="radio-inline"><input type="radio" name="optradio" value="vendorTagList">Brand</label>
                     <label class="radio-inline"><input type="radio" name="optradio" value="marketSpecificTagList" checked>Market Specific</label>
                     <label class="radio-inline"><input type="radio" name="optradio" value="accountSpecificTagList">Account Specific</label> 
-                    <label class="radio-inline"><input type="radio" name="optradio" value="programTagList">Program</label>
+                    <label class="radio-inline"><input type="radio" name="optradio" value="programTagList">Programs</label>
+                  	<label class="radio-inline"><input type="radio" name="optradio" value="sportsTagList">Sports</label>
                     <label class="radio-inline"><input type="radio" name="optradio" value="specialityTagList">Specialty</label>
-                    <label class="radio-inline"><input type="radio" name="optradio" value="departmentTagList">Department</label>    
+                    <label class="radio-inline"><input type="radio" name="optradio" value="departmentTagList">More</label>    
                 </div>
                 <hr><br>
                 
@@ -119,7 +120,7 @@
 		    <div class="modal-content w3-white w3-card-2" style="border-radius:2px;">
 		      <div class="modal-header">
 		        <button type="button" class="close" data-dismiss="modal">&times;</button>
-		        <h4 class="modal-title">Select Elements</h4>
+		        <h4 class="modal-title">Select up to Ten (10) Elements</h4>
 		      </div>
 		      <div class="modal-body">
                 <div class="container-fluid">
@@ -247,8 +248,7 @@
           <a href="/" class="w3-text-white w3-xlarge" id="fix" style="display:inline;">{{ page.title }}</a>{% comment %}<img onclick="window.open(window.location.href);" src="https://cdn.shopify.com/s/files/1/1953/3447/files/Footer_logo.png?10858290572512973125" class="pull-right img-responsive" style="height:42px; width:auto;"/>{% endcomment %}{% if customer.tags contains Role_Admin %}<a class="pull-right w3-margin-right w3-margin-left" style="display:inline; margin-top:8px;" title="Edit Definition" href="/admin/themes/{{ theme.id }}/editor#/{{ template | replace:'.','s/' }}"><i class="fa fa-gear w3-xlarge w3-text-white"></i></a>{% endif %}{% comment %}<a class="pull-right w3-margin-left" style="display:inline; margin-top:8px; cursor:pointer;" onclick="uploadToServer();" title="Save session to server"><i class="fa fa-cloud-upload w3-xlarge w3-text-white"></i></a><a class="pull-right w3-margin-left" style="display:inline; margin-top:8px; cursor:pointer;" onclick="downloadFromServer();" title="Restore session from server"><i class="fa fa-cloud-download w3-xlarge w3-text-white"></i></a>&nbsp;<a class="w3-text-white w3-large pull-right w3-magin-right" style="margin-top:8px;" href="/account">My Account</a>{% endcomment %}
 		</div>
 		
-      </div>
-        <div id="w3-nanobar" class="w3-block"></div>
+	</div>
 		<div class="container-fluid" style="">
 			<br>
 <!-- 			<hr> -->
@@ -261,11 +261,11 @@
 			<h4>&nbsp;</h4>
 			<div class="row">
 		  		<div class="col-md-12 text-center w3-padding">
-		  			<button id="export-string" disabled1 type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin hide" style="min-width:200px;" onclick="prepareHot2(true);">GENERATE SHEET</button>
-                  	<button id="clear-form" type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin" style="min-width:200px;" onclick="if(confirm('Caution: this action will clear the form data.') == true) clearHot();">Clear Form</button>
-<!--                   	<button id="export-dump" disabled name="dump" data-dump="datasheet" data-instance="hot" type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin" style="min-width:200px;">DATA DUMP</button> -->
-                  	<button id="export-staging" disabled1 type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin" style="min-width:200px;" onclick="if(confirm('Please click “OK” to upload your data.') == true) uploadTo('dev');">UPLOAD TO BETA</button>
-                  	<button id="export-production" disabled1 type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin" style="min-width:200px;" onclick="if(confirm('Please click “OK” to upload your data.') == true) uploadTo('dev');">UPLOAD TO PRODUCTION</button>
+		  			<button id="export-string" disabled1 type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin hide" style="min-width:234px;" onclick="prepareHot2(true);">GENERATE SHEET</button>
+                  	<button id="clear-form" type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin" style="min-width:234px;" onclick="if(confirm('Caution: this action will clear the form data.') == true) clearHot();">Clear Form</button>
+<!--                   	<button id="export-dump" disabled name="dump" data-dump="datasheet" data-instance="hot" type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin" style="min-width:234px;">DATA DUMP</button> -->
+                  	<button id="export-staging" disabled1 type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin hide" style="min-width:234px;" onclick="if(confirm('Please click “OK” to upload your data.') == true) uploadTo('dev');">UPLOAD TO BETA</button>
+                  	<button id="export-production" disabled1 type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin" style="min-width:234px;" onclick="if(confirm('Please click “OK” to upload your data.') == true) uploadTo('dev');">UPLOAD TO PRODUCTION</button>
 <!--                     <a class="hide1" href="javascript:startPageImport();" >import</a> -->
 		  		</div>
             </div>
@@ -297,17 +297,15 @@
       	{{ "multiselect.min.js" | asset_url | script_tag }}
 <!--       	{{ 'w3data.js' | asset_url | script_tag }} -->
         {{ 'https://www.w3schools.com/lib/w3.js' | script_tag }}
-      	{{ 'nanobar.min.js' | asset_url | script_tag }}	
-      	{{ 'async.min.js' | asset_url | script_tag }}
       
-      	{% comment %}{% include 'definition-v1' %}{% endcomment %}
+      	{% comment %}{% section 'definition'  %}{% endcomment %}
         {% section 'definitions-new2'  %}
       
       	{% include 'notify-UI' %}
       
 		<script type="text/javascript">
 
-          	var activeRow, activeCol, getThumbOf, hot, getJSONdata2, hotHeaders, hot2, loadFromServer, plugin, plugin2, genCheck, uploadEnv, searchRow, prepareHot2, exportHot2As, btnChange, downloadFromServer, uploadToServer, startPageImport, img_ajax_upload, scrollOld ,clearHot, nanobar, currState, currRow, temp;
+          	var activeRow, activeCol, getThumbOf, hot, getJSONdata2, hotHeaders, hot2, loadFromServer, plugin, plugin2, genCheck, uploadEnv, searchRow, prepareHot2, exportHot2As, btnChange, downloadFromServer, uploadToServer, startPageImport, img_ajax_upload, scrollOld ,clearHot;
             
             $.fn.extend({
                 animateCss: function (animationName, callback) {
@@ -333,14 +331,6 @@
 			});
 
 			document.addEventListener("DOMContentLoaded", function() {
-              
-              	var options = {
-                    classname: 'class-nanobar',
-                    id: 'id-nanobar',
-                    target: $('#nav-wrapper')[0]
-                };
-
-                nanobar = new Nanobar( options );
 
 				var $table = $("#datasheet");
 
@@ -679,6 +669,10 @@
                                                                           }
                                                                         }
                                                                       }
+                                                                      if(change[0][1] == 'type'){
+                                                                      	hot.setDataAtCell(change[0][0], hot.propToCol('option1_value'), '');
+                                                                        hot.setDataAtCell(change[0][0], hot.propToCol('variant_price'), '');
+                                                                      }
                                                                     }catch(err){ console.log('err msg:', err.message); }
                                                                     // save all data to local storge if the edit happends
                                                                     localStorage['dataHot'] = JSON.stringify(formatData(hot.getData()));
@@ -691,7 +685,7 @@
                                                               queryMethod: onlyExactMatch,
                                                               callback: searchResult
                                                             },
-                  											contextMenu: ['row_above', 'row_below', 'remove_row', 'undo', 'redo'],//'-------------', 'copy', 'cut'],
+                  											contextMenu: ['row_above', 'row_below', '-------------', 'remove_row', '-------------', 'undo', 'redo','-------------', 'copy', 'cut'],
                                                             renderAllCols: true,
                                                             renderAllRows: true,
                   											rowHeights: '25',
@@ -1108,12 +1102,13 @@
                           e.preventDefault(); // prevent selection quirk
                           var vendorTag = instance.getDataAtCell(row, instance.propToCol('vendor'));
                             if(!vendorTag){
+                              	hot.selectCellByProp(row, 'vendor');
                             	show_message4("Select Brand before Selecting Tags", false);
                               	return false;
                             }
-                          var selectedTags = instance.getDataAtCell(row, col+1);console.log('selectedTags:',selectedTags);
+                          var selectedTags = instance.getDataAtCell(row, col+1);
                           if(selectedTags == null)selectedTags = ""
-                          selectedTags = (selectedTags.length > 0) ? $.unique(selectedTags.split(',')) : [];
+                          selectedTags = (selectedTags.length > 0) ? selectedTags.split(',') : []; console.log('selectedTags:',selectedTags);
                           $('#multiselectTag, #multiselectTag_to').html('');
                           function updateTags(tagList){
                             $('#multiselectTag').html('');
@@ -1121,10 +1116,7 @@
                               if(selectedTags.indexOf(tag) == -1){
                                 var tag_regions = '', pre = '', post = '';
                                 if(o[tag]){
-                                	//tag_regions = '<span class="w3-text-grey">' + o[tag].join(', ') + '</span>';
                                   	tag_regions = '('+o[tag].sort().join(', ').replace('California, GreatLakes, MidAtlantic, MidWest, Mountain, NorthEast, South, SouthEast', 'All Region')+')';
-                                  	pre = '<optgroup title="'+tag_regions+'" label="'+tag_regions+'">';
-                                    post = '</optgroup>';
                                 }
                                  //$('#multiselectTag').append(pre+'<option value="'+tag+'">'+tag+'</option>'+post);
                                  $('#multiselectTag').append('<option title="'+tag_regions+'" region="'+tag_regions+'" value="'+tag+'">'+tag+'</option>');
@@ -1144,13 +1136,10 @@
 
                           if(selectedTags.length > 0 && selectedTags[0] != ""){
                             selectedTags.forEach(function(tag, index){
-                              if(newTagList.indexOf(tag) == -1){
+                              if(newTagList.indexOf(tag) == -1){//console.log('currTags:',tag);
                                 var tag_regions = '', pre = '', post = '';
                                 if(o[tag]){
-                                	//tag_regions = '<span class="w3-text-grey">' + o[tag].join(', ') + '</span>';
                                   	tag_regions = '('+o[tag].sort().join(', ').replace('California, GreatLakes, MidAtlantic, MidWest, Mountain, NorthEast, South, SouthEast', 'All Region')+')';
-                                  	pre = '<optgroup title="'+tag_regions+'" label="'+tag_regions+'">';
-                                    post = '</optgroup>';
                                 }
                                 //$('#multiselectTag_to').append(pre+'<option value="'+tag+'">'+tag+'</option>'+post);
                                 $('#multiselectTag_to').append('<option title="'+tag_regions+'" region="'+tag_regions+'" value="'+tag+'">'+tag+'</option>');
@@ -1233,7 +1222,7 @@
 //                               $("#tagModal").off('hide.bs.modal').animateCss('zoomOutDown', function(modal){ $(modal).modal('hide'); });
                           });
                           $("#tagSave").off('click').one('click', function (e) {
-                            selectedTags = $('#multiselectTag_to option').map( function() { return this.getAttribute('value'); }).get().join(",");
+                            selectedTags = $.unique($('#multiselectTag_to option').map( function() { return this.getAttribute('value'); }).get()).join(",");
                             txt = (selectedTags == '') ? '' : ',';
                             selectedTags += txt + newTagList.join();
                             instance.setDataAtCell(row, col+1, selectedTags);
@@ -1285,14 +1274,29 @@
 
 				      Handsontable.dom.addEvent(btn, 'mousedown', function (e){
 				        e.preventDefault(); // prevent selection quirk
+                        var productType_ = instance.getDataAtCell(row, instance.propToCol('type'));
+                          if(!productType_){
+                              instance.selectCellByProp(row, 'type');
+                              show_message4("Select Type before Selecting Elements", false);
+                              return false;
+                          }
+                        var pos_arr = elementTypePOS; //'Aisle Interrupters,Banner,Case Card,Circular Static Cling,Horizontal Static,Mini Pole,Other,Wobbler,Outdoor Pole Sign,Poster,Pump Topper,Push Pull,Rail Strip Pages,Shelf Talker,Static Cling,Table Tent'.split(',');
                         var selectedOptions = instance.getDataAtCell(row, col+2);
                         if(selectedOptions == null)selectedOptions = ""
                         var optBkpData = selectedOptions;
                         selectedOptions = (selectedOptions.length > 0) ? selectedOptions.split(',') : [];
                         $('#multiselectOption, #multiselectOption_to').html('');
                         optionList.forEach(function(option, index){
-                          if(selectedOptions.indexOf(option) == -1)
-                        	$('#multiselectOption').append('<option value="'+option+'">'+option+'</option>');
+                          if(selectedOptions.indexOf(option) == -1){
+                            if(productType_ == 'POS' && elementTypePOS.indexOf(option) != -1){
+                              $('#multiselectOption').append('<option value="'+option+'">'+option+'</option>');
+                              $('#optionModal .modal-title').text('Select up to Ten (10) Elements');
+                            }
+                            if(productType_ == 'PTT' && elementTypePOS.indexOf(option) == -1){
+                              $('#multiselectOption').append('<option value="'+option+'">'+option+'</option>');
+                              $('#optionModal .modal-title').text('Select an Element');
+                            }
+                          }
                         });
                         
                         if(selectedOptions.length > 0 && selectedOptions[0] != ""){
@@ -1315,7 +1319,42 @@
                           afterMoveToLeft: function($left, $right, $options) { 
                             $('#optionSave').removeAttr('disabled');
                           },
-//                           sort: false
+                          moveToRight: function(Multiselect, $options, event, silent, skipStack) {
+                            var self = Multiselect; 
+                            var productType = (pos_arr.indexOf($options[0].value) != -1) ? 'POS' : 'PTT';
+                            var opt_at_right = $("#multiselectOption_to option");
+                            $options.each(function(index, option){
+                              optval = $(option)[0].value;
+                              opt_at_right = $("#multiselectOption_to option").map( function() { return this.getAttribute('value'); }).get();
+                              console.log(productType);
+                              if( (opt_at_right.length < 10 && productType == 'POS') || (opt_at_right.length < 1 && productType == 'PTT') )
+                                self.$right.append(option);
+                              else if(productType == 'POS'){
+                                alert('Maximum limit of 10 elements has been exceeded. If more than 10 elements are needed, split up the product into two products, grouping the elements and adjusting the title accordingly.');
+                                return false;
+                              }else if(productType == 'PTT'){
+                                alert('Due to the customized template for this element, this can be the only element selected for this product.');
+                                return false;
+                              }
+                            }).promise().done(function(){ w3.sortHTML('#multiselectOption', 'option'); });
+                            
+
+                            if ( !skipStack ) {
+                                self.undoStack.push(['left', $options ]);
+                                self.redoStack = [];
+                            }
+
+                            if ( typeof self.callbacks.sort == 'function' && !silent ) {
+                                self.$left.mSort(self.callbacks.sort);
+                            }
+
+                            if ( typeof self.callbacks.afterMoveToLeft == 'function' && !silent ) {
+                                self.callbacks.afterMoveToLeft( self.$left, self.$right, $options );
+                            }
+
+                            return self;
+                          }
+                          
                         });
                         
                         $('#optionSave').prop('disabled', 'disabled');
@@ -1583,13 +1622,15 @@
                         title = Handsontable.helper.stringify(hot.getDataAtCell(row, 3));
                        	brand = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('vendor')));
                         elements = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('option1_value')));
+                       	imgs = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('image_src')));
                        	if(title.length == 0)
-                          $('#error-log').append('<p>- Row '+(row+1)+': Product Title Missing. <i class="fa fa-external-link-square w3-text-grey" title="Go to this" style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'title\');"></i></p>');
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'title\');" title="Click to Go to here.">- Row '+(row+1)+': Product Title Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
                        	if(brand.length == 0)
-                          $('#error-log').append('<p>- Row '+(row+1)+': Product Brand Missing. <i class="fa fa-external-link-square w3-text-grey" title="Go to this" style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'vendor\');"></i></p>');
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'vendor\');" title="Click to Go to here.">- Row '+(row+1)+': Product Brand Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
                         if(elements.length == 0)
-                          $('#error-log').append('<p>- Row '+(row+1)+': Product Elements Missing. <i class="fa fa-external-link-square w3-text-grey" title="Go to this" style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'option1_value\');"></i></p>');
-                        
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'option1_value\');" title="Click to Go to here.">- Row '+(row+1)+': Product Elements Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
+                        if(imgs.length == 0)
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'image_src\');" title="Click to Go to here.">- Row '+(row+1)+': Atleast one product image required. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
                       }
                       if($('#error-log').text().length > 0){
                         $('#error-log').prepend('<h2>Error log</h2>').show();
@@ -1605,14 +1646,10 @@
                     if(validateHot(check)){
                       function start(callback){
                       	$('.intext-btn').first().prop('disabled', 'disabled');
-                      	freez('Processing  &nbsp;&nbsp;&nbsp;<i class="fa fa-refresh w3-spin">');
+                      	freez();
                       	genCheck = check;
                         uploadEnv = env || '';
-                        currState = 0;
-//                         myInt = setInterval(function(){
-//                           if($('.bar').last().width()*100/$(window).width() < )
-//                         },500);
-                        setTimeout(function(){ callback(); },100);
+                        setTimeout(function(){ callback(); },1000);
                       }  
                       start(function(){
                     	var data = formatData(hot.getData());
@@ -1670,71 +1707,28 @@
                     console.log(row); temp = row;
 //                     var option = hot2.getDataAtCell(row, 11).replace(/,/g, '\n');
 //                     console.log(option);
-                    {% comment %}{% endcomment %}
                     while(row >= 0){ 
-                      {% comment %}
                       processState = new Promise(function (resolve, reject){
                         if(row >= 0 && (uploadEnv || '').length > 0 || true){
 //                           $("#freezTxt").html(((temp-row)*100/temp)+'% processed');
   //                         show_message4(((temp-row)*100/temp)+'% processed',true,null);
-                          
                         }
                       });
                       processState.then(
                       setTimeout(processRow(row--),(temp-row)*500)); console.log('processing row:', row); 
-                      {% endcomment %}
-                      function processState(){
-                      	if(row >= 0 && (uploadEnv||'').length > 0){
-                          currState = (temp-row)*100/temp,
-                          nanobar.go(currState),
-                          console.log('curr:',currState);
-//                           function retryNano(){
-//                             while(true){ if($('.bar').last().width()*100/$(window).width() >= currState )break; else continue; }
-//                           }
-//                           $.when(retryNano).done(setTimeout(processRow(row--),(temp-row)*1000)).done(processState);
-                        }
-                      }
-                      
-                      function waitTill(){
-                      	if(currState >= (temp-row)*100/temp || (uploadEnv||'').length == 0)
-                         setTimeout(processRow(row--),100);
-                        else{
-                         nanobar.go((temp-row)*100/temp);
-                         setTimeout(waitTill,1000);
-                        }
-                      }
-                    
-//                          processRow(row--);
-                      $.when(processRow(row--)).done(processState);
                       
                       if(row < 0 && genCheck && uploadEnv.length > 0){
                          $.unblockUI();
                          console.log('row processing finished');
                          $('.intext-btn').not(':first').removeAttr('disabled');
-                         setTimeout( function(){ uploadTo(uploadEnv, "processed"); }, 1000);
+                        setTimeout( function(){ uploadTo(uploadEnv, "processed"); }, 1000);
                       }
                     }
                     
                     
-                    
                   }
               
-//                   function processState(row){
-//                     if(row >= 0 && (uploadEnv||'').length > 0){
-//                       currState = (temp-row)*100/temp,
-//                       nanobar.go(currState),
-//                       console.log('curr:',currState);
-//                       currRow = row;
-//                     }
-//                     if(row < 0 && genCheck && uploadEnv.length > 0){
-//                        $.unblockUI();
-//                        console.log('row processing finished');
-//                        $('.intext-btn').not(':first').removeAttr('disabled');
-// //                          setTimeout( function(){ uploadTo(uploadEnv, "processed"); }, 1000);
-//                     }	
-//                   }
-              
-                  function processRow(row){ console.log($('.bar').last().width()*100/$(window).width());
+                  function processRow(row){
                     var arr2D = [], arr2D2 = [], cur = [], i = 0;
                     var handle = Handsontable.helper.stringify(hot2.getDataAtCell(row, 2));
                   	var opt = Handsontable.helper.stringify(hot2.getDataAtCell(row, hot2.propToCol('option1_value')));
@@ -1759,8 +1753,6 @@
                       hot2.populateFromArray(row, 2, arr2D.fill([handle]), 'down');
                     else
                       hot2.populateFromArray(row, 2, arr2D2.fill([handle]), 'down');
-                    
-//                     processState(row);
                   }
               
 //-------------------------------------SEARCH FUNCTIONS-------------------------------------------------------------
@@ -1864,7 +1856,7 @@
                     }
                     
                     if(imgCheck){
-                      filename = filename.replace(extension,'').replace(/[^A-Z0-9]+/ig, "_").replace(/^_+|_+$/g,'')+'.'+extension;
+                      filename = filename.replace(extension,'').replace(/[^A-Z0-9]+/ig, "_").replace(/^_+|_+$/g,'')+'_'+new Date().getTime()+'.'+extension;
                       putImgFile(filename, attachment);
                     }
 				  }
@@ -2176,7 +2168,7 @@
                    else if(prodName.length > 0){
                       var queryResult = hot.search.query(prodName);
                       var len = (hot.getDataAtCell(searchRow, 3) == null) ? 0 : 1;
-//                       console.log(queryResult);
+                      console.log(queryResult);
                       if(queryResult.length > len){
     //                     if(queryResult[0].data == prodName && queryResult[1].data == prodName && queryResult[0].col == 3 && queryResult[1].col == 3){
                         if( countInArray(queryResult, prodName, 'data') > len && countInArray(queryResult, 3, 'col') > len ){
@@ -2211,7 +2203,7 @@
                           	show_message4('Error while checking at store.',false);
                           }
                         };
-//                      console.log("mystring:",mystring);
+                     console.log("mystring:",mystring);
                         xhttp.open("GET", "https://"+mystring+"@{{ shop.domain }}/admin/products.json?title="+encodeURI(prodName)+"&limit=1&fields=id,title", true);
                         xhttp.setRequestHeader("Content-type", "application/json; charset=UTF-8");
                         xhttp.setRequestHeader("Authorization", "Basic "+ encodedString);

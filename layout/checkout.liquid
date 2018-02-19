@@ -15,6 +15,10 @@
     
     {{ '//ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js' | script_tag }}
     
+    <style id="temp-style">
+      .total-recap__final-price{ visibility: hidden !important; }
+    </style>
+    
   </head>
   <body>
     <div class="banner" data-header>
@@ -88,8 +92,7 @@
         </style>
       {% endif %}
           
-      <script>
-          
+    <script>
         var payment_cc, payment_cd;  
           
         $(document).ready(function(){
@@ -127,7 +130,6 @@
         }
     </script>
           
-          
     <style>
         button[type='submit'].step__footer__continue-btn.disabled{
           background: #ccc !important;
@@ -139,9 +141,13 @@
           content:'Payment Code Required';
           color:red;
           position: absolute;
-          left: 0%;
+          left: 50%;
+          transform: translateX(-50%);
+          -webkit-transform: translateX(-50%);
+          -ms-transform: translateX(-50%);
           top: 110%;
           white-space: nowrap;
+          margin-bottom: 15px;
         }
           
         button[type='submit'].step__footer__continue-btn.disabled.blink_me:after {
@@ -152,6 +158,7 @@
           50% { opacity: 0; }
         }
     </style>
-   
+   {% include 'mesh-window-checkout' %}
+    
   </body>
 </html>

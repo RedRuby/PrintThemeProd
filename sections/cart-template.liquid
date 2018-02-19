@@ -92,6 +92,9 @@
       {% comment %}
         Loop through products in the cart
       {% endcomment %}
+      
+      {% assign total_calculated_price_difference = 0 %}
+      
       {% for item in cart.items %}
         <div class="cart__row">
           <div class="grid--full cart__row--table-large">
@@ -128,6 +131,13 @@
                   {% assign propertySize = item.properties | size %}
                   {% if propertySize > 0 %}
                     {% for p in item.properties %}
+                  
+                      {% if p.first contains 'Unit Price' %}
+                  		{% assign p_last = p.last | split:'$' | last %}
+                  		{% assign item_price = item.price | money_without_currency | round: 2 %}
+                  		{% assign total_calculated_price_difference = total_calculated_price_difference | plus: p_last | minus: item_price %} <script>console.log('gotcha: {{ p_last }}, {{ item_price }}, {{ total_calculated_price_difference }}');</script>
+                      {% endif %}
+                  
                       {% assign first_character_in_key = p.first | truncate: 1, '' %}
                       {% unless p.last == blank or first_character_in_key == '_' or p.first contains 'Parent ID' %}
                         <br>
@@ -215,8 +225,20 @@
           <div class="grid__item text-right{% if section.settings.cart_notes_enable %} post-large--seven-twelfths{% endif %}">
             <p>
               <span class="cart__subtotal-title">{{ 'cart.general.subtotal' | t }}</span>
-              <span class="h5 cart__subtotal">{{ cart.total_price | money }}</span>
-              {% if cart.total_discounts > 0 %}
+              <script>console.log('tcpd','{{ total_calculated_price_difference }}');</script>
+              <span class="h5 cart__subtotal">
+                {% capture total_price %}${{ cart.total_price | money_without_currency | plus:total_calculated_price_difference | round: 2 }}{% endcapture %}
+                {% if total_price contains '.' %}
+                	{% assign tp_decimal_part = total_price | split:'.' | last %}
+                	{% if tp_decimal_part.size < 3 %}
+                      {% assign total_price = total_price | append:'0' %}
+                	{% endif %}
+                {% else %}
+                	{% assign total_price = total_price | append:'.00' %}
+                {% endif %}
+                {{ total_price }}
+              </span>
+              {% if cart.total_discounts > 0 and false %}
                 {% assign savings = cart.total_discounts | money %}
                 <small class="cart-subtotal__savings">{{ 'cart.general.savings_html' | t: price: savings }}</small>
               {% endif %}
@@ -302,4 +324,11 @@
       }
       return false;
     }
+  
+    {% for line_item in cart.items %}
+      {% assign per_line_price = line_item.price | money_without_currency %}
+        {% for property in line_item.properties %}
+          console.log('property', '{{ property }}');
+        {% endfor %}
+    {% endfor %}  
 </script>

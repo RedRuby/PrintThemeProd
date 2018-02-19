@@ -138,7 +138,8 @@
      <button id="print-btn" type="button" class="btn one-whole" onclick="initExport();">Export</button>
     </div>
     <br>
-    <a id="exportPsudoLink" href="" target="_blank" class="hide"></a>
+    <a id="exportPsudoLink" href="" target="stealthFrame" class="hide"></a>
+    <iframe name="stealthFrame" style="display:none;"></iframe>
     
     {% if customer.tags contains Role_ASM or customer.tags contains Role_Admin %}
     <button class="btn" style="min-width:350px;" type="button" onclick="toggleRDash();">My Reports</button>
@@ -146,13 +147,20 @@
     <div id="reportDash" class="border w3-padding animated  w3-white" style="max-width:350px; display:none;">
       - <a href="javascript:agedExport();" hrefs="/apps/pepsi-print/collection_response/aged_reports.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Aged Order Report</a><br>
       {% unless customer.tags contains Role_Admin %}
-       - <a href="https://s3.amazonaws.com/printreports/PPS_{{ customer_region_tag |replace:'Region:', 'Standard_' }}.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Standard Report</a><br>
-       - <a href="https://s3.amazonaws.com/printreports/PPS_{{ customer_region_tag |replace:'Region:', 'Dashboard_' }}.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Dynamic Report</a><br>
+      {% if customer_region_tag contains region_NorthEast %}
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Standard_' }}_2017.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Standard Report (2017)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Dashboard_' }}_2017.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Dynamic Report (2017)</a><br>
+      {% endif %}
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Standard_' }}.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Standard Report (2018)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Dashboard_' }}.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Dynamic Report (2018)</a><br>
       {% endunless %}
       {% if customer.tags contains Role_Admin %}
-       - <a href="https://s3.amazonaws.com/printreports/PPS_Standard_All.xlsm">Standard Report</a><br>
-       - <a href="https://s3.amazonaws.com/printreports/PPS_Dashboard_All.xlsm">Dynamic Report</a><br>
-       - <a href="https://s3.amazonaws.com/printreports/ASM_KPI_Summary_v4.xlsm">ASM KPI Summary Report</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_Standard_All_2017.xlsm">Standard Report (2017)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All_2017.xlsm">Dynamic Report (2017)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5_2017.xlsm">ASM KPI Summary Report (2017)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_Standard_All.xlsm">Standard Report (2018)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All.xlsm">Dynamic Report (2018)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5.xlsm">ASM KPI Summary Report (2018)</a><br>
       {% endif %}
     </div>
     <br>
@@ -215,7 +223,30 @@
     $('#pc1').attr('href', $('#link-sales').attr('href'));
 	$('#pc2').attr('href', $('#link-food-service').attr('href'));
 	$('#pc3').attr('href', $('#link-all-other').attr('href'));
+    
+    $("#reportDash a").on('click', function(e){
+    	e.preventDefault();
+      	exportPsudoLink($(this).attr("href"));
+      	return false;
+    });
+    
   });
+  
+  function exportPsudoLink(data){
+    $.ajax({
+		type: 'HEAD',
+		url: data,
+      	crossDomain: true,
+      	dataType: 'jsonp',
+		error: function(xhr) {
+          console.log(xhr);
+          if(xhr.status == 404)
+            show_message2('Error in exporting or no report available.',false);
+		},
+      	timeout: 5000
+	});
+  	$('#exportPsudoLink').attr('href', data)[0].click();
+  }
 
   // media query event handler
   if (matchMedia) {
@@ -269,7 +300,7 @@
     var data = '/apps/pepsi-print/collection_response/print_orders.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}';
     var params = jQuery.extend({}, query); if(params.per_page != undefined) delete params.per_page;
     
-    if(selected == 'filtered' || selected == 'all'){
+    if((selected == 'filtered' || selected == 'all') && order_data.total_entries > 50){
       var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
       {% comment %}
       {% if customer.tags contains Role_User  %}
@@ -323,10 +354,15 @@
     {% endif %}
     {% endcomment %}
     
+    params.page = var_page;
+    if(selected == 'filtered' || selected == 'all')
+      params.per_page = order_data.total_entries;
+    else
+      params.per_page = var_per_page;
     data += ($.param(params).length != 0) ? '&'+$.param(params) : '';
     console.log('export url = '+data);
     
-    $('#exportPsudoLink').attr('href', data)[0].click();
+    exportPsudoLink(data);
     
 //     window.location.assign(data);  
 //     var data = prepareData(orderExport, printerExport);
@@ -448,9 +484,20 @@
   }
 }
 
+{% comment %}
 @media  print {
     thead, tbody, tfooter { 
         display: table-row-group;
+    }
+}
+{% endcomment %}
+
+@media print {
+    table tbody tr td:before,
+    table tbody tr td:after {
+        content : "" ;
+        height : 4px ;
+        display : block ;
     }
 }
 

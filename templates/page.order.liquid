@@ -549,21 +549,27 @@
     			{% if customer.tags contains Role_ASM %}
                   printer_id = data.order.printer_id;
                   $.when(setTimeout(fetch_Printers(),800)).done(function(){
-
-                    if('fulfilled' == data.order.fulfillment_status > 0){
+                    
+                    if('fulfilled' == data.order.fulfillment_status){
                       $('#shippingPrice').show();
+                      $('#asm_orderEdit, #asm_orderCancel').hide();
+                      $('#assign-printer').prop('disabled','disabled').css('cursor','not-allowed').prop('title','Can\'t edit fulfilled Order.');
                     }else{
                       $('#shippingPrice').hide();
+                      $('#asm_orderEdit, #asm_orderCancel').show();
+                      $('#assign-printer').removeAttr('disabled').css('cursor','pointer').prop('title','');
                     }	
                     
                     if(data.order.cancelled_at.length > 0){ 
                       $('#assign-printer').prop('disabled','disabled').css('cursor','not-allowed').prop('title','Can\'t edit cancelled Order.');
                       $('#asm_orderEdit, #asm_orderCancel').hide();
                     }else{
-                      $('#assign-printer').removeAttr('disabled').css('cursor','pointer').prop('title','');
-                      $('#asm_orderEdit, #asm_orderCancel').show();
+                      if('fulfilled' != data.order.fulfillment_status){
+                        $('#assign-printer').removeAttr('disabled').css('cursor','pointer').prop('title','');
+                        $('#asm_orderEdit, #asm_orderCancel').show();
+                      }
                     }
-
+                    
                   });
     
     			{% elsif customer.tags contains Role_Printer %}
@@ -610,12 +616,24 @@
       }).promise()
       	.done(function(){ 
           $('option[select = "selected"]').prop("selected", "selected"); 
+          if('fulfilled' == order_data.order.fulfillment_status){
+            $('#shippingPrice').show();
+            $('#asm_orderEdit, #asm_orderCancel').hide();
+            $('#assign-printer').prop('disabled','disabled').css('cursor','not-allowed').prop('title','Can\'t edit fulfilled Order.');
+          }else{
+            $('#shippingPrice').hide();
+            $('#asm_orderEdit, #asm_orderCancel').show();
+            $('#assign-printer').removeAttr('disabled').css('cursor','pointer').prop('title','');
+          }
+        
           if(order_data.order.cancelled_at.length > 0){ 
             $('#assign-printer').prop('disabled','disabled').css('cursor','not-allowed').prop('title','Can\'t edit cancelled Order.');
             $('#asm_orderEdit, #asm_orderCancel').hide();
           }else{
-            $('#assign-printer').removeAttr('disabled').css('cursor','pointer').prop('title','');
-            $('#asm_orderEdit, #asm_orderCancel').show();
+            if('fulfilled' != order_data.order.fulfillment_status){ console.log('');
+              $('#assign-printer').removeAttr('disabled').css('cursor','pointer').prop('title','');
+              $('#asm_orderEdit, #asm_orderCancel').show();
+            }
           }
       });
   }
@@ -836,11 +854,11 @@
 //     createThumbImg(data);
   }
   
-  const removeEmpty = (obj) => {
-    Object.keys(obj).forEach(k =>
-      (obj[k] && typeof obj[k] === 'object') && removeEmpty(obj[k]) ||
-      (!obj[k] && obj[k] !== undefined) && delete obj[k]
-    );
+  function removeEmpty(obj) {
+    Object.keys(obj).forEach(function(key) {
+      if (obj[key] && typeof obj[key] === 'object') removeEmpty(obj[key])
+      else if (obj[key] == null) delete obj[key]
+    });
     return obj;
   };
   

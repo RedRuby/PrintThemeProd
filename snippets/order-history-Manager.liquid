@@ -141,7 +141,7 @@
           dataType: 'json',
           success: function (data) { console.log(JSON.stringify(data));
                  	
-                    if(data.status == 'ok'){
+                    if(data.status == 'ok' && data.customers != undefined ){
                  
                     $.when(w3DisplayData('select_tml', data)).done(
                       w3DisplayData('selected_team', data)
@@ -159,7 +159,7 @@
                       }
                     }
                     else{
-                      $('#selected_team, #select_tl option:eq(2)').hide();
+                      $('#selected_team, #select_tml option:eq(2)').hide();
                       $('#select_team select option').removeAttr('disabled');
                     }
                  	$.unblockUI();
@@ -167,8 +167,7 @@
           },
           error: function(){
             $.unblockUI; show_message2('Error in fetching TeamList.',false);
-          },
-          complete: function(){ if(!state)fetch_TeamUsers(true); }
+          }
 
       });
   }
@@ -234,21 +233,29 @@
             	
                 if(200 == Number(data.status)){
 //                   	fetch_TeamUsers();
-                    setTimeout(fetch_TeamUsers,2000);	
+//                     setTimeout(fetch_TeamUsers,2000);
                   
-                  	if(var_customer_id == cid)
-                      updateState({customer_id: ''});
-//                     else
-//                       fetch_Orders();
+                  if(var_customer_id == cid)
+                    updateState({customer_id: ''});
                   	
-                  $('#select_team select option:eq(0)').prop('selected','selected');
                   	//$.unblockUI; 
                   setTimeout(function(){
-                  	if(status)
+                    if(status){
+                      $('#select_team option[value="'+cid+'"]').attr('disabled','disabled');
+                      $('#select_team select option:eq(0)').prop('selected','selected');
+                      $('#selected_team').append('<span class="btn--secondary btn-custom" style="margin:5px;" w3-repeat="customers" title="Brandon Pullen">'+$('#select_team option[value="'+cid+'"]').text()+'&nbsp;&nbsp;<a style="color:white;" href="javascript:void(0);" value="'+cid+'" onclick="editTeam(this,false);"><i class="fa fa-times" title="Remove '+$('#select_team option[value="'+cid+'"]').attr('title')+'"></i></a></span>');
+                      $('#select_tml').append('<option value="'+cid+'" w3-repeat="customers" title="'+$(obj).attr('title')+'" select="{{selected}}">'+$('#select_team option[value="'+cid+'"]').text()+'</option>');
+                      $('#selected_team').show();
                       show_message2('Added Successfully.',true);
-                    else
+                    }else{
+                      $('#select_team option[value="'+cid+'"]').removeAttr('disabled');
+                      $('#select_tml option[value="'+cid+'"]').remove();
+                      $(obj).parent().remove();
                       show_message2('Removed Successfully.',true);
-                  },2500);
+                      if($('#selected_team a').length == 0)
+                      	$('#selected_team').hide();
+                    }
+                  },100);
                   	
                 }else if(401 === Number(data.status)){
                   	$.unblockUI; show_message2(data.message,false);

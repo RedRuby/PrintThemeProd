@@ -1,0 +1,28 @@
+{%if cart %}
+  <script type="text/javascript">
+    var total_price = 0.0;
+
+    {% for line_item in cart.items %}
+       
+      {%assign per_line_price = line_item.price | money_without_currency%}
+      {% for property in line_item.properties %}
+        {% if property.first contains 'Unit Price'and property.last != blank%}
+          {% assign per_line_price = property.last | split:'$' | last | remove: ','%}
+        {% endif %}
+      {% endfor %}
+      total_price = total_price + {{per_line_price | times: line_item.quantity}};
+    {% endfor %}
+    set_price();
+    window.onload = function() {
+      set_price();
+      window.setInterval(
+        function(){
+          set_price();
+      },200 )
+    }
+
+    function set_price(){
+      $('#CartSection .h5.cart__subtotal').html('$'+total_price.toFixed(2));
+    }
+  </script>
+{% endif %}

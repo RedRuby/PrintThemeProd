@@ -112,7 +112,7 @@
           "1507134076418": {
             "type": "text-block",
             "settings": {
-              "popup_text": "SORRY FOR THE INCONVENIENCE\nTHIS SITE IS TEMPORARILY UNAVAILABLE.\nPlease visit\nwww.PepsiMountainPrintShop.com\n(password is: “enter”)",
+              "popup_text": "This website will be live as of P3, 02\/25. Please feel free to submit ‘test’ orders in the meantime. These orders will be cancelled out from the system prior to the start date. Please go to PepsiMountainPrintShop.com for orders that need to be produced.",
               "text_color": "#000000",
               "bg_color": "#ffffff",
               "popup_width": "640",
@@ -127,7 +127,7 @@
         ],
         "settings": {
           "show_popup": true,
-          "preview_popup": false
+          "preview_popup": true
         }
       },
       "1507132799381": {
@@ -195,6 +195,395 @@
           "show_sale_circle": false,
           "show_sold_out_circle": false,
           "center_grid_link": true
+        }
+      },
+      "definitions-new2": {
+        "type": "definitions-new2",
+        "blocks": {
+          "definitions-new2-0": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Aisle Interrupters",
+              "element_price": "0.75",
+              "type": "POS"
+            }
+          },
+          "definitions-new2-1": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Banner",
+              "element_price": "24.00",
+              "type": "POS"
+            }
+          },
+          "definitions-new2-2": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Case Card",
+              "element_price": "1.50",
+              "type": "POS"
+            }
+          },
+          "definitions-new2-10": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Die Cut Rail Strips",
+              "element_price": "0.12",
+              "type": "POS"
+            }
+          },
+          "definitions-new2-3": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Horizontal Static",
+              "element_price": "0.37",
+              "type": "POS"
+            }
+          },
+          "definitions-new2-4": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Mini Pole",
+              "element_price": "1.50",
+              "type": "POS"
+            }
+          },
+          "definitions-new2-5": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Other",
+              "element_price": "35.00",
+              "type": "POS"
+            }
+          },
+          "definitions-new2-6": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Outdoor Pole Sign",
+              "element_price": "0.75",
+              "type": "POS"
+            }
+          },
+          "definitions-new2-7": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Poster",
+              "element_price": "1.30",
+              "type": "POS"
+            }
+          },
+          "definitions-new2-8": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Pump Topper",
+              "element_price": "0.60",
+              "type": "POS"
+            }
+          },
+          "definitions-new2-9": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Push Pull",
+              "element_price": "0.75",
+              "type": "POS"
+            }
+          },
+          "definitions-new2-11": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Shelf Talker",
+              "element_price": "0.75",
+              "type": "POS"
+            }
+          },
+          "definitions-new2-12": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Static Cling",
+              "element_price": "0.37",
+              "type": "POS"
+            }
+          },
+          "definitions-new2-13": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Table Tent",
+              "element_price": "0.75",
+              "type": "POS"
+            }
+          },
+          "definitions-new2-14": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Window Mesh",
+              "element_price": "0.01",
+              "type": "PTT"
+            }
+          },
+          "definitions-new2-15": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Wobbler",
+              "element_price": "0.80",
+              "type": "POS"
+            }
+          },
+          "definitions-new2-16": {
+            "type": "markets",
+            "settings": {
+              "image": "",
+              "title": "NorthEast",
+              "content": "MKTSpanish,MKTBostonMegaCity,MKTPhillyMegaCity"
+            }
+          },
+          "definitions-new2-17": {
+            "type": "markets",
+            "settings": {
+              "image": "",
+              "title": "SouthEast",
+              "content": "MKTATLMegaCity,MKTGA,MKTSFLMegaCity,MKTCFLMegaCity,MKTCarolinas,MKTNFLMegaCity"
+            }
+          },
+          "definitions-new2-18": {
+            "type": "markets",
+            "settings": {
+              "image": "",
+              "title": "South",
+              "content": "MKTNMWTexas,MKTTexas"
+            }
+          },
+          "definitions-new2-19": {
+            "type": "markets",
+            "settings": {
+              "image": "",
+              "title": "Mountain",
+              "content": "MKTAlaska,MKTArizona,MKTColorado,MKTIdaho,MKTOregon,MKTUtah,MKTWashington,MKTHawaii,MKTNMWTexas"
+            }
+          },
+          "definitions-new2-20": {
+            "type": "markets",
+            "settings": {
+              "image": "",
+              "title": "California",
+              "content": ""
+            }
+          },
+          "definitions-new2-21": {
+            "type": "markets",
+            "settings": {
+              "image": "",
+              "title": "MidAtlantic",
+              "content": ""
+            }
+          },
+          "definitions-new2-22": {
+            "type": "markets",
+            "settings": {
+              "image": "",
+              "title": "MidWest",
+              "content": "MKTChicago,MKTWisconsin,MKTDakotas"
+            }
+          },
+          "definitions-new2-23": {
+            "type": "markets",
+            "settings": {
+              "image": "",
+              "title": "GreatLakes",
+              "content": ""
+            }
+          },
+          "1510730856283": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "2 x 3 Window Mesh Poster",
+              "element_price": "0.01",
+              "type": "PTT"
+            }
+          },
+          "1510730877183": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Wallpaper",
+              "element_price": "0.01",
+              "type": "PTT"
+            }
+          },
+          "1510730896146": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Store Banner",
+              "element_price": "0.01",
+              "type": "PTT"
+            }
+          },
+          "1510730915467": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Fountain Back",
+              "element_price": "0.02",
+              "type": "PTT"
+            }
+          },
+          "1510730963263": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Fountain Backsplash",
+              "element_price": "0.01",
+              "type": "PTT"
+            }
+          },
+          "1510730984087": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Cooler Vault Wrap",
+              "element_price": "0.01",
+              "type": "PTT"
+            }
+          },
+          "1510730996810": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Circular Static Cling",
+              "element_price": "0.10",
+              "type": "POS"
+            }
+          },
+          "1517294852378": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Frosty Paws Barrel Wrap",
+              "element_price": "15.70",
+              "type": "POS"
+            }
+          },
+          "1517303367079": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Rechargable Barrel Wrap",
+              "element_price": "15.70",
+              "type": "POS"
+            }
+          },
+          "1517303397987": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Rectangle Barrel Wrap",
+              "element_price": "15.70",
+              "type": "POS"
+            }
+          },
+          "1517505293726": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Base Wrap",
+              "element_price": "20.00",
+              "type": "POS"
+            }
+          },
+          "1517505332719": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Vending Snipe",
+              "element_price": "1.25",
+              "type": "POS"
+            }
+          },
+          "1517505368454": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Rite Price",
+              "element_price": "3.50",
+              "type": "POS"
+            }
+          },
+          "1518172216122": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Pennant Flags",
+              "element_price": "35.00",
+              "type": "POS"
+            }
+          }
+        },
+        "block_order": [
+          "definitions-new2-0",
+          "definitions-new2-1",
+          "definitions-new2-2",
+          "definitions-new2-10",
+          "definitions-new2-3",
+          "definitions-new2-4",
+          "definitions-new2-5",
+          "definitions-new2-6",
+          "definitions-new2-7",
+          "definitions-new2-8",
+          "definitions-new2-9",
+          "definitions-new2-11",
+          "definitions-new2-12",
+          "definitions-new2-13",
+          "definitions-new2-14",
+          "definitions-new2-15",
+          "definitions-new2-16",
+          "definitions-new2-17",
+          "definitions-new2-18",
+          "definitions-new2-19",
+          "definitions-new2-20",
+          "definitions-new2-21",
+          "definitions-new2-22",
+          "definitions-new2-23",
+          "1510730856283",
+          "1510730877183",
+          "1510730896146",
+          "1510730915467",
+          "1510730963263",
+          "1510730984087",
+          "1510730996810",
+          "1517294852378",
+          "1517303367079",
+          "1517303397987",
+          "1517505293726",
+          "1517505332719",
+          "1517505368454",
+          "1518172216122"
+        ],
+        "settings": {
+          "vendor_list": "1893,Amp,Any Brand,Aquafina,Brisk,bubly,Bundeburg,Caleb's Kola,Crush,Diet Pepsi,Dr. Pepper,Fruit Shoot,Gatorade,IZZE,Kevita,Kickstart,LIFEWTR,Lemon Lemon,Lipton,MUG,Manzanita Sol,Menehune,Metahune Water,Mist Twst,Mountain Dew,Muscle Milk,Naked Juice,No Fear,O.N.E.,Ocean Spray,PACt,Paso de Los Toro,Pepsi,Pepsi Zero,Portfolio,Propel,Pure Leaf,Quaker,RockStar,Schweppes,SoBe,Starbucks,Stubborn Soda,Tampico,Tropicana,Voss,Water+,Xyience",
+          "type_list": "POS,PTT",
+          "program_tag_list": "PR:BornInTheCarolinas,PR:ChilledDSD,PR:Emojis,PR:Hispanic,PR:Holiday,PR:MSCircularStaticClings,PR:MSPopoutRailStrips,PR:MSPriceChangeStickers,PR:MSStaticClings,PR:PSCowboys,PR:PSDewCountry,PR:PSGatorade,PR:PSPepsi,PR:PSRockets,PR:PSWestbrook,PR:Summer,PR:TaxFree,PR:WaterPlus",
+          "sports_tag_list": "ST:BaseballMLB,ST:BaseballMILB,ST:BasketballCollege,ST:BasketballNBA,ST:Fishing,ST:FootballCollege,ST:FootballNFL,ST:HockeyNHL,ST:NASCAR,ST:Soccer,ST:SuperBowl,ST:Surfing",
+          "speciality_tag_list": "SP:AisleInterrupters,SP:Banjo,SP:BaseWrap,SP:BumpBlasters,SP:ChannelIDStrip,SP:Clip,SP:DayGlow,SP:DieCutRailStrips,SP:FrostyPawsBarrelWrap,SP:Other,SP:PTTAquafina,SP:PTTBlue,SP:PTTDew,SP:PTTGatorade,SP:PTTPepsiZero,SP:PTTRockstar,SP:PTTSpanish,SP:PTTStarbucks,SP:PushPulls,SP:RechargeableBarrelWrap,SP:RectangularBarrelWrap,SP:RitePrice,SP:Truckback,SP:VendingSnipes",
+          "account_specific_tag_list": "AS:7Eleven,AS:Allsups,AS:AMPM,AS:BubbleClean,AS:BuyersCoop,AS:CAFishGrill,AS:Chevron,AS:CircleK,AS:ConocoShell,AS:CVS,AS:DollarGeneral,AS:FamilyDollar,AS:Fastrip,AS:GandMOil,AS:GuitarCenter,AS:Hyatt,AS:LittleCeasars,AS:LoafNJug,AS:PriceRite,AS:QuickChek,AS:Racetrac,AS:Sedanos,AS:ShopRite,AS:ShortlineExpress,AS:Speedway,AS:Spruces,AS:Stram,AS:Sunoco,AS:TerribleHerbst,AS:UnitedOil,AS:Walgreens,AS:Walmart,AS:Lowes,AS:Safeway,AS:Smiths,AS:Tesoro,AS:Bashas,AS:NTBA,AS:GHRA,AS:STMA",
+          "department_tag_list": "DPT:FoodService,DPT:MEM,DPT:Marketing,DPT:PermMerch,DPT:TradeExpense,DPT:Warehouse,DPT:Specialty,DPT:GroupsandErgs,DPT:Manuals,DPT:OutsideServices,DPT:SchematicBooks",
+          "new_tag_list": "New:NorthEast,New:SouthEast,New:California,New:S0uth,New:Mountain,New:MidAtlantic,New:MidWest,New:GreatLakes"
         }
       }
     },
