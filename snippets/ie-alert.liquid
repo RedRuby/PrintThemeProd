@@ -1,0 +1,96 @@
+<div id="ie-alert" class="{% unless template == 'customers/account' %}hide1{% endunless %}" style="display:none;">
+  <div class="hide1 ie-alert-parent text-center">
+      <div class="hide1 ie-alert-child text-center" >
+        <img src="{{"Internet-Explorer-logo.png" | file_url | replace:".png","_200x.png" }}">
+        <h6>Sorry, your browser is incompatible.</h6>
+        <p>Please try again using another browser.</p>
+      </div>
+  </div>
+</div>
+
+{{ 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css' | stylesheet_tag }}
+
+<script>
+  
+  $(document).ready(function(){
+      $.fn.extend({
+          animateCss: function (animationName) {
+              var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
+              this.addClass('animated ' + animationName).one(animationEnd, function() {
+                  $(this).removeClass('animated ' + animationName);
+              });
+          }
+      });
+    
+      $(window).resize(function(){
+          $(".ie-alert-child").css("margin-left", ($(window).width()-$(".ie-alert-child").width())/2-(window.innerWidth-$(window).width())+"px");
+      });
+    
+      {% if template contains "login" or template contains "register" %}
+          if(isIE()){
+            $("form[action='/account/login']").on("submit", function(){ 
+              {% if template contains "product" %}
+              	addCartClass(); 
+              {% endif %}
+              iePause(); 
+            });
+          }
+      {% endif %}
+  });	
+  
+  function detectIE(location){
+    if(location){
+      if(isIE())
+        iePause(location);
+      else
+        window.location.assign(location)
+    }else{
+      if(isIE())
+        iePause();
+      {% if template contains "product" %}
+//       	event.preventDefault();
+      	addCartClass();
+//         $("form[action='/cart/add']").submit();
+      {% endif %}
+    }
+  }
+  
+  function iePause(location){
+      if(!location){
+        $form = $(this);
+        event.preventDefault();
+      }
+      $("#ie-alert").show().find(".ie-alert-child").on("click", function(){ 
+        $("#ie-alert").hide(){% unless template contains "register" %}.addClass("hide"){% endunless %}.find(".ie-alert-child").off("click");
+        if(location){
+          window.location.assign(location)
+        }else{  
+          {% if template contains "product" %}
+              addCartClass();
+              $("form[action='/cart/add']").submit();//.on("submit", function(){ console.log("stuck again..."); });
+          {% elsif template contains "register" %}
+              ajaxSubmit();
+          {% else %}
+              $("form[action='/account/login']").off("submit").submit();//.on("submit", function(){ console.log("stuck again..."); });
+          {% endif %}
+        }
+      }).css("margin-left", ($(window).width()-$(".ie-alert-child").width())/2-(window.innerWidth-$(window).width())+"px").animateCss("bounceIn");
+      return false;
+  }
+  
+  function isIE() {
+      var ua = window.navigator.userAgent;
+
+      var msie = ua.indexOf('MSIE ');
+      if (msie > 0) {
+        return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+      }
+
+      var trident = ua.indexOf('Trident/');
+      if (trident > 0) {
+        var rv = ua.indexOf('rv:');
+        return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+      }
+      return false;
+  }
+</script>

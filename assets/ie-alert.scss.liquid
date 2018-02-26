@@ -1,0 +1,33 @@
+.ie-alert-parent{
+  display: -webkit-flex; /* Safari */
+  -webkit-flex-wrap: wrap; /* Safari 6.1+ */
+  display: flex;
+/*   justify-content: center; */
+  align-items: center;
+  flex-wrap:wrap;
+  background: rgba(0,0,0,0.7);
+  position: fixed;
+  top:0;
+  width:100vw;
+  height:100vh;
+  z-index:9999999999999;
+  .ie-alert-child{
+  	-webkit-flex: 2; /* Safari 6.1+ */
+    -ms-flex: 2; /* IE 10 */ 
+  	flex:2;
+    margin:auto;
+    max-width:450px;
+    background: #015287;
+    padding:10px 20px 40px;
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.08);
+    cursor:pointer;
+    *{
+      color:white !important;
+    }
+    h6{ font-size: 1.14em; }
+    img{
+      width:200px;
+      height:auto;
+    }
+  }
+}

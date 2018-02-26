@@ -200,7 +200,7 @@
 		      	<div class="container-fluid">
 		      		<div class="row">
 		      			<div class="col-sm-5">
-                            <label>Upload Image</label> <small>( ".jpg" | ".png" | ".gif" | ".svg", size &lt; 1 MB )</small>
+                            <label>Upload Image</label> <small style="font-size:75%;">( ".jpg" | ".png" | ".gif" | ".svg", size &lt; 1 MB )</small>
 				      		<input id="imgFileBrowse" type="file" class="" onchange="if(this.value.length > 0) encodeImageFileAsURL(this);" style="width:0px; height:0px; overflow:hidden;" accept="image/*" />
 		      				<div class="input-group">
 			      				<input id="imgFileTxt" type="text" readonly class="form-control" style="cursor:default;" onclick="document.getElementById('imgFileBrowse').click();" />
@@ -448,7 +448,7 @@
 													    className: "htRight",
 													    // contextMenu: true,
 													    fixedColumnsLeft: 4,
-													    colWidths: ['25' ,'10', '250', '400', '250', '150', '150', '150', '250', '100', '150', '0', '250', '0', '0', '0', '150', '250', '150', '250', '100'],
+													    colWidths: ['25' ,'10', '250', '400', '250', '150', '250', '150', '250', '100', '150', '0', '250', '0', '0', '0', '150', '250', '150', '250', '100'],
 													    //validator: /(\$[\d]+[\.]?[\d]{1,3})/,
 													    //placeholder: '$0.00',
 													    // columns: [{col: 0, className: "htCenter"},],
@@ -498,7 +498,7 @@
                                                                           	className: 'htLeft',
 // 																	   		readOnly: true,
                                                                             type: "dropdown",
-                                                                            source: typeList
+                                                                            source: typeList.concat([null])
 // 																	   		renderer: addType
 																		},
 																		{
@@ -669,10 +669,32 @@
                                                                           }
                                                                         }
                                                                       }
-                                                                      if(change[0][1] == 'type'){
-                                                                      	hot.setDataAtCell(change[0][0], hot.propToCol('option1_value'), '');
-                                                                        hot.setDataAtCell(change[0][0], hot.propToCol('variant_price'), '');
+                                                                      
+                                                                      if(change[0][1] == 'type'){console.log(change);
+                                                                        if(change[0][2].split(" ")[0] != change[0][3].split(" ")[0]){
+                                                                          hot.setDataAtCell(change[0][0], hot.propToCol('option1_value'), '');
+                                                                          hot.setDataAtCell(change[0][0], hot.propToCol('variant_price'), '');
+                                                                        }
+                                                                       {% comment %}
+                                                                        var tags = hot.getDataAtCell(change[0][0], 8) || "",
+                                                                            tag_arr = $.unique(tags.split(',').concat(newTagList));
+                                                                        if(change[0][3].indexOf("No") != -1){
+                                                                          if(tags.indexOf("NoCustomization") == -1){
+                                                                            tag_arr.push("NoCustomization");
+                                                                          }
+                                                                            hot.setDataAtCell(change[0][0], hot.propToCol('tags'), (tag_arr).join(',').replace(/^,+|,+$/g,''));
+//                                                                           }
+                                                                        }else{
+                                                                          if(tags.indexOf("NoCustomization") != -1){
+                                                                          	tag_arr.splice(tag_arr.indexOf("NoCustomization"), 1);
+                                                                          }
+//                                                                           if(change[0][3].length > 0 )
+                                                                            hot.setDataAtCell(change[0][0], hot.propToCol('tags'), (tag_arr).join(',').replace(/^,+|,+$/g,''));
+//                                                                           }
+                                                                        }
+                                                                       {% endcomment %}
                                                                       }
+                                                                      
                                                                     }catch(err){ console.log('err msg:', err.message); }
                                                                     // save all data to local storge if the edit happends
                                                                     localStorage['dataHot'] = JSON.stringify(formatData(hot.getData()));
@@ -1100,7 +1122,7 @@
 
                         Handsontable.dom.addEvent(btn, 'mousedown', function (e){
                           e.preventDefault(); // prevent selection quirk
-                          var vendorTag = instance.getDataAtCell(row, instance.propToCol('vendor'));
+                          var vendorTag = Handsontable.helper.stringify(instance.getDataAtCell(row, instance.propToCol('vendor'))).replace(" ","");
                             if(!vendorTag){
                               	hot.selectCellByProp(row, 'vendor');
                             	show_message4("Select Brand before Selecting Tags", false);
@@ -1224,8 +1246,10 @@
                           $("#tagSave").off('click').one('click', function (e) {
                             selectedTags = $.unique($('#multiselectTag_to option').map( function() { return this.getAttribute('value'); }).get()).join(",");
                             txt = (selectedTags == '') ? '' : ',';
-                            selectedTags += txt + newTagList.join();
-                            instance.setDataAtCell(row, col+1, selectedTags);
+//                             templ = ((instance.getDataAtCell(row, instance.propToCol('type'))).indexOf("No") != -1) ? "NoCustomization," : "";
+                            selectedTags += txt + vendorTag + "," + newTagList.join(",");
+                            selectedTags = $.unique(selectedTags.split(",")).join(",");
+                            instance.setDataAtCell(row, col+1, selectedTags); 
                             $(this).prop('disabled', 'disabled');
 //                             $("#tagModal").off('hide.bs.modal').one('hide.bs.modal', function(){ $(this).addClass('animated zoomOutDown'); }).modal('hide');
                             $("#tagModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
@@ -1288,16 +1312,18 @@
                         $('#multiselectOption, #multiselectOption_to').html('');
                         optionList.forEach(function(option, index){
                           if(selectedOptions.indexOf(option) == -1){
-                            if(productType_ == 'POS' && elementTypePOS.indexOf(option) != -1){
+                            if( (productType_ == 'POS' && elementTypePOS.indexOf(option) != -1) || (productType_.includes('No') && elementTypePOS_NOC.indexOf(option) != -1) ){
                               $('#multiselectOption').append('<option value="'+option+'">'+option+'</option>');
                               $('#optionModal .modal-title').text('Select up to Ten (10) Elements');
                             }
-                            if(productType_ == 'PTT' && elementTypePOS.indexOf(option) == -1){
+                            if(productType_ == 'PTT' && elementTypePTT.indexOf(option) != -1){
                               $('#multiselectOption').append('<option value="'+option+'">'+option+'</option>');
                               $('#optionModal .modal-title').text('Select an Element');
                             }
                           }
                         });
+                        
+                        window.curr_productType = productType_;
                         
                         if(selectedOptions.length > 0 && selectedOptions[0] != ""){
                           selectedOptions.forEach(function(option, index){
@@ -1321,18 +1347,19 @@
                           },
                           moveToRight: function(Multiselect, $options, event, silent, skipStack) {
                             var self = Multiselect; 
-                            var productType = (pos_arr.indexOf($options[0].value) != -1) ? 'POS' : 'PTT';
-                            var opt_at_right = $("#multiselectOption_to option");
+                            var productType = curr_productType; //(elementTypePTT.indexOf($options[0].value) != -1) ? 'PTT' : ( (elementTypePOS_NOC.indexOf($options[0].value) != -1) ? 'POS(No Customization)' : 'POS' ) ;
+                            var opt_at_right = $("#multiselectOption_to option"); //.map( function() { return this.getAttribute('value'); }).get();
                             $options.each(function(index, option){
                               optval = $(option)[0].value;
-                              opt_at_right = $("#multiselectOption_to option").map( function() { return this.getAttribute('value'); }).get();
-                              console.log(productType);
-                              if( (opt_at_right.length < 10 && productType == 'POS') || (opt_at_right.length < 1 && productType == 'PTT') )
+                              opt_at_right = self.$right.find("option").map( function() { return this.getAttribute('value'); }).get().length;
+//                               console.log(productType);
+//                               console.log(opt_at_right);
+                              if( (opt_at_right < 10 && productType.includes('POS')) || (opt_at_right < 1 && productType == 'PTT') )
                                 self.$right.append(option);
-                              else if(productType == 'POS'){
+                              else if(productType.includes('POS') && opt_at_right == 10){
                                 alert('Maximum limit of 10 elements has been exceeded. If more than 10 elements are needed, split up the product into two products, grouping the elements and adjusting the title accordingly.');
                                 return false;
-                              }else if(productType == 'PTT'){
+                              }else if( productType == 'PTT' && opt_at_right == 1 ){
                                 alert('Due to the customized template for this element, this can be the only element selected for this product.');
                                 return false;
                               }
@@ -1379,7 +1406,7 @@
                           	instance.setDataAtCell(row, instance.propToCol('variant_sku'), null);
                             instance.setDataAtCell(row, instance.propToCol('variant_price'), null);
                             instance.setDataAtCell(row, instance.propToCol('default_price'), null);
-                            instance.setDataAtCell(row, col+1, null);
+                            instance.setDataAtCell(row, col+2, null);
                           }else{
 //                             instance.setDataAtCell(row, 20, defaultPriceList);
                             $("#optionModal").off('hidden.bs.modal').one('hidden.bs.modal', function () {
@@ -1402,7 +1429,7 @@
 				      Handsontable.renderers.TextRenderer.apply(this, arguments);
 				    }
 
-				    return td;
+                    return td;
 				  }
               
                   function addPrice (instance, td, row, col, prop, value, cellProperties) {
@@ -1737,6 +1764,17 @@
                     var optLen = opt.split(',').length;
                     var imgLen = img.split(',').length;
                     var rowsBelow = (optLen > imgLen) ? optLen : imgLen;//console.log(rowsBelow);
+                    var type = Handsontable.helper.stringify(hot2.getDataAtCell(row, hot2.propToCol('type')));
+                    
+                    if(type.includes('No')){
+                      tag_col = hot2.propToCol('tags');
+                      tags_no_cust = hot2.getDataAtCell(row, tag_col).split(",");
+                      tags_no_cust.push("NoCustomization");
+                      console.log(tags_no_cust);
+                      hot2.setDataAtCell(row, tag_col, $.unique(tags_no_cust).join(","));
+                      hot2.setDataAtCell(row, hot2.propToCol('type'), "POS");
+                    }else {console.log('no no no');}
+                    
                     hot2.selectCellByProp(row, 'option1_value');
                     if(rowsBelow > 1)
                       hot2.alter('insert_row', row+1, rowsBelow-1);
@@ -2319,6 +2357,7 @@
                     error:function(data){
                       console.log(JSON.stringify(data)); //alert(JSON.stringify(data));
                       console.log('Some error occured..');
+                      show_message4('Some error occured..', false);
                     }
                   });
                   

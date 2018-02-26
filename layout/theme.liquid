@@ -252,6 +252,8 @@
   {{ 'timber.scss.css' | asset_url | stylesheet_tag }}
   {{ 'theme.scss.css' | asset_url | stylesheet_tag }}
 
+  {{ 'ie-alert.scss.css' | asset_url | stylesheet_tag }}
+  
   {{ 'custom-style.css' | asset_url | stylesheet_tag }}
   
   {% include 'custom-css-snippet' %}
@@ -321,7 +323,8 @@
  </head>
 
 <body id="{{ page_title | handle }}" class="{% if customer %}customer-logged-in {% endif %}template-{{ template | replace: '.', ' ' | truncatewords: 1, '' | handle }}" >
-
+  {% include 'ie-alert' %}
+  
   {% section 'header' %}
   
   {% if collection %}{% unless template == 'product' %}

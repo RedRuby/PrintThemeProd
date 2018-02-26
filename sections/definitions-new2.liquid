@@ -76,18 +76,31 @@
 {% endfor %}
 {% assign elementTypePTT_arr = elementTypePTT_arr |append:"]" |replace:",]","]" %}
 
-{% assign elementTypeSPL_arr = "[" %}
+{% assign elementTypePOS_NOC_arr = "[" %}
 {% for block in section.blocks %}
 	{% if block.settings.content.size != 0 and block.type == 'elements_and_prices' %}
           {% assign comma = ',' %}
           {% if forloop.last %}{% assign comma = '' %}{% endif %}
-          {% if block.settings.type == "SPL" %}
+          {% if block.settings.type == "POS(Customizable)" %}
             {% assign item_arr = '"' |append:block.settings.title |append:'"' |append:comma %}
-            {% assign elementTypeSPL_arr = elementTypeSPL_arr |append:item_arr %}
+            {% assign elementTypePOS_NOC_arr = elementTypePOS_NOC_arr |append:item_arr %}
           {% endif %}
 	{% endif %}
 {% endfor %}
-{% assign elementTypeSPL_arr = elementTypeSPL_arr |append:"]" |replace:",]","]" %}
+{% assign elementTypePOS_NOC_arr = elementTypePOS_NOC_arr |append:"]" |replace:",]","]" %}
+
+{% assign elementTypePOS_NOT_arr = "[" %}
+{% for block in section.blocks %}
+	{% if block.settings.content.size != 0 and block.type == 'elements_and_prices' %}
+          {% assign comma = ',' %}
+          {% if forloop.last %}{% assign comma = '' %}{% endif %}
+          {% if block.settings.type == "POS(No Template)" %}
+            {% assign item_arr = '"' |append:block.settings.title |append:'"' |append:comma %}
+            {% assign elementTypePOS_NOT_arr = elementTypePOS_NOT_arr |append:item_arr %}
+          {% endif %}
+	{% endif %}
+{% endfor %}
+{% assign elementTypePOS_NOT_arr = elementTypePOS_NOT_arr |append:"]" |replace:",]","]" %}
 
 <script  type="text/javascript">
   
@@ -104,18 +117,21 @@
   
   var defaultPriceList = '{{ defaultPrice_arr }}';
   
-  var elementTypePOS = $.unique({{ elementTypePOS_arr }}).sort();
-  
   var elementTypePTT = $.unique({{ elementTypePTT_arr }}).sort();
   
-  var elementTypeSPL = $.unique({{ elementTypeSPL_arr }}).sort();
+  var elementTypePOS_NOC = $.unique({{ elementTypePOS_NOC_arr }}.concat({{ elementTypePOS_NOT_arr }})).sort();
   
+  var elementTypePOS_NOT = $.unique({{ elementTypePOS_NOT_arr }}).sort();
+  
+  var elementTypePOS = $.unique({{ elementTypePOS_arr }}.concat({{ elementTypePOS_NOC_arr }})).sort();
+  
+  var optionList = $.unique(elementTypePOS.concat(elementTypePTT, elementTypePOS_NOT)).sort(); //["2 x 3 Window Mesh Poster", "Aisle Interrupters", "Banner", "Case Card", "Circular Static Cling", "Cooler Vault Wrap", "Fountain Back", "Fountain Backsplash", "Horizontal Static", "Mini Pole", "Other", "Outdoor Pole Sign", "Poster", "Pump Topper", "Push Pull", "Rail Strip Pages", "Shelf Talker", "Static Cling", "Store Banner", "Table Tent", "Wallpaper", "Window Mesh", "Wobbler"];
   
   var market_array = {{ market_arr |replace:',]',']' }};
               
   var vendorList = $.unique("{{ vendor_array }}".split(',')).sortIgnoreCase();
   
-  var typeList = $.unique("{{ type_array }}".split(',')).sort();
+  var typeList = $.unique("{{ type_array }}".split(',')).sort(); {% unless template contains "dev" %}typeList.splice(typeList.indexOf("POS(No Customization)"), 1);{% endunless %}
   
   var vendorTagList = $.unique("{{ vendor_tag_array }}".split(',')).sortIgnoreCase();
   
@@ -132,9 +148,7 @@
   var departmentTagList = $.unique("{{ department_tag_array }}".split(',')).sort();
   
   var newTagList = $.unique("{{ new_tag_array }}".split(',')).sort();
-  
-  var optionList = $.unique(elementTypePOS.concat(elementTypePTT, elementTypeSPL)).sort(); //["2 x 3 Window Mesh Poster", "Aisle Interrupters", "Banner", "Case Card", "Circular Static Cling", "Cooler Vault Wrap", "Fountain Back", "Fountain Backsplash", "Horizontal Static", "Mini Pole", "Other", "Outdoor Pole Sign", "Poster", "Pump Topper", "Push Pull", "Rail Strip Pages", "Shelf Talker", "Static Cling", "Store Banner", "Table Tent", "Wallpaper", "Window Mesh", "Wobbler"];
-  
+    
 //   var defaultPriceList = '{"Banner":"24.00","Case Card":"1.50","Horizontal Static":"0.37","Other":"0.00","Mini Pole":"1.50","Poster":"1.30","Pump Topper":"6.00","Rail Strip Pages":"0.12","Shelf Talker":"0.75","Static Cling":"0.37","Table Tent":"0.75","Window Mesh":"0.00","Wobbler":"0.08"}';
   
   var output = [], o = {};
@@ -270,7 +284,9 @@
             "options": [
               { "value": "POS", "label": "POS"},
               { "value": "PTT", "label": "PTT"},
-              { "value": "Speciality", "label": "SPL"}
+              { "value": "POS(No Customization)", "label": "POS(No Customization)"},
+              { "value": "POS(Customizable)", "label": "POS(Customizable)"},
+              { "value": "POS(No Template)", "label": "POS(No Template)"}
            ],
             "default": "POS"
           }

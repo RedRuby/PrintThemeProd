@@ -204,7 +204,7 @@
             {% endfor %}
           </div>
 
-          <form action="/cart/add" method="post" enctype="multipart/form-data" id="AddToCartForm" class="" onsubmit="addCartClass();">
+          <form action="/cart/add" method="post" enctype="multipart/form-data" id="AddToCartForm" class="" onsubmit="detectIE();">
             
             {% if product.available and product.variants.size > 0 %}
             
@@ -314,8 +314,8 @@
                   <input type="text" readonly disabled1 name="properties[__Total Fountain Backsplash Area(H x W)]" />
                   <input type="text" readonly disabled1 name="properties[__Fountain Backsplash Calculated Unit Price]" />
               {% elsif cooler_vault_wrap %}
-                  <input type="text" readonly disabled1 name="properties[__Total Cooler Vault Wrap Area(H x W)]" />
-                  <input type="text" readonly disabled1 name="properties[__Cooler Vault Wrap Calculated Unit Price]" />
+                  <input type="text" readonly disabled1 name="properties[__Total Cooler Vault Wrap Area(H x W)]" value="1"/>
+                  <input type="text" readonly disabled1 name="properties[__Cooler Vault Wrap Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
               {% elsif store_banner %}
                   <input type="text" readonly disabled1 name="properties[__Total Store Banner Area(H x W)]" />
                   <input type="text" readonly disabled1 name="properties[__Store Banner Calculated Unit Price]" />
@@ -662,6 +662,7 @@
     }
     
     else if($('[name="id"]').text().toLowerCase().indexOf('cooler vault wrap') != -1){
+//       $('input[name^="properties[Size "]')
       $('[data-option-name^="size-above-vault-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size ABOVE Vault</label>');
       $('[data-option-name^="size-left-of-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size LEFT of Vault</label>');
       $('[data-option-name^="size-right-of-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size RIGHT of Vault</label>');
@@ -670,17 +671,17 @@
       	cal_prod_price = 0.00;
         cal_win_area = 0.00;
 
-        cal_win_area += parseFloat($('[name^="properties[Size ABOVE Vault "]').first().val()) * parseFloat($('[name^="properties[Size ABOVE Vault "]').last().val());
-        cal_win_area += parseFloat($('[name^="properties[Size LEFT of Vault "]').first().val()) * parseFloat($('[name^="properties[Size LEFT of Vault "]').last().val());
-        cal_win_area += parseFloat($('[name^="properties[Size RIGHT of Vault "]').first().val()) * parseFloat($('[name^="properties[Size RIGHT of Vault "]').last().val());
+        cal_win_area += parseFloat($('[name^="properties[Size ABOVE Vault "]').first().val()) * parseFloat($('[name^="properties[Size ABOVE Vault "]').last().val()) || 0;
+        cal_win_area += parseFloat($('[name^="properties[Size LEFT of Vault "]').first().val()) * parseFloat($('[name^="properties[Size LEFT of Vault "]').last().val()) || 0;
+        cal_win_area += parseFloat($('[name^="properties[Size RIGHT of Vault "]').first().val()) * parseFloat($('[name^="properties[Size RIGHT of Vault "]').last().val()) || 0;
         
-        cal_prod_price += parseFloat($('[name^="properties[Size ABOVE Vault "]').first().val()) * parseFloat($('[name^="properties[Size ABOVE Vault "]').last().val()) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
-        cal_prod_price += parseFloat($('[name^="properties[Size LEFT of Vault "]').first().val()) * parseFloat($('[name^="properties[Size LEFT of Vault "]').last().val()) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
-        cal_prod_price += parseFloat($('[name^="properties[Size RIGHT of Vault "]').first().val()) * parseFloat($('[name^="properties[Size RIGHT of Vault "]').last().val()) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
+        cal_prod_price += ((parseFloat($('[name^="properties[Size ABOVE Vault "]').first().val()) * parseFloat($('[name^="properties[Size ABOVE Vault "]').last().val())) || 0) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
+        cal_prod_price += ((parseFloat($('[name^="properties[Size LEFT of Vault "]').first().val()) * parseFloat($('[name^="properties[Size LEFT of Vault "]').last().val())) || 0) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
+        cal_prod_price += ((parseFloat($('[name^="properties[Size RIGHT of Vault "]').first().val()) * parseFloat($('[name^="properties[Size RIGHT of Vault "]').last().val())) || 0) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
 
-        unit_price = ( addCommas((cal_prod_price).toFixed(2)) ).replace('NaN','{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}');
+        unit_price = ( addCommas((cal_prod_price).toFixed(2)) ).replace('$0.00','{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}');
 
-        $('[name="properties[__Total Cooler Vault Wrap Area(H x W)]"]').val(cal_win_area); 
+        $('[name="properties[__Total Cooler Vault Wrap Area(H x W)]"]').val(cal_win_area || 1); 
         $('[name="properties[__Cooler Vault Wrap Calculated Unit Price]"]').val(unit_price); 
         $('#ProductPrice').text( unit_price );
       });
@@ -826,7 +827,6 @@
   }
   
   function addCartClass(){
-    detectIE();
     if (typeof(Storage) !== "undefined") {
       sessionStorage.PrintATC = 1; //console.log(sessionStorage.PrintATC);
     }
@@ -840,31 +840,6 @@
     }
   }
     
-  function detectIE(location){
-     if(isIE()){
-      alert('Unsupported Browser Alert!\n\n{{ 'general.Unsupported_Browser_Msg' | t }}');
-      if(location)
-        window.location.assign(location);
-    }else
-      if(location)
-        window.location.assign(location);
-  }
-  
-  function isIE() {
-      var ua = window.navigator.userAgent;
-
-      var msie = ua.indexOf('MSIE ');
-      if (msie > 0) {
-        return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
-      }
-
-      var trident = ua.indexOf('Trident/');
-      if (trident > 0) {
-        var rv = ua.indexOf('rv:');
-        return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
-      }
-      return false;
-    }
 </script>
 
 <style>
@@ -887,5 +862,5 @@
 </style>
 
 <script type="text/javascript">
-//   console.log({{product | json}});
+  console.log(prod = {{product | json}});
 </script>

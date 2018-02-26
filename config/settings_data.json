@@ -233,7 +233,7 @@
               "image": "",
               "title": "Die Cut Rail Strips",
               "element_price": "0.12",
-              "type": "POS"
+              "type": "POS(Customizable)"
             }
           },
           "definitions-new2-3": {
@@ -260,7 +260,7 @@
               "image": "",
               "title": "Other",
               "element_price": "35.00",
-              "type": "POS"
+              "type": "POS(No Template)"
             }
           },
           "definitions-new2-6": {
@@ -269,7 +269,7 @@
               "image": "",
               "title": "Outdoor Pole Sign",
               "element_price": "0.75",
-              "type": "POS"
+              "type": "POS(No Template)"
             }
           },
           "definitions-new2-7": {
@@ -278,7 +278,7 @@
               "image": "",
               "title": "Poster",
               "element_price": "1.30",
-              "type": "POS"
+              "type": "POS(No Template)"
             }
           },
           "definitions-new2-8": {
@@ -314,7 +314,7 @@
               "image": "",
               "title": "Static Cling",
               "element_price": "0.37",
-              "type": "POS"
+              "type": "POS(Customizable)"
             }
           },
           "definitions-new2-13": {
@@ -477,16 +477,16 @@
               "image": "",
               "title": "Frosty Paws Barrel Wrap",
               "element_price": "15.70",
-              "type": "POS"
+              "type": "POS(Customizable)"
             }
           },
           "1517303367079": {
             "type": "elements_and_prices",
             "settings": {
               "image": "",
-              "title": "Rechargable Barrel Wrap",
+              "title": "Electric Barrel Wrap",
               "element_price": "15.70",
-              "type": "POS"
+              "type": "POS(Customizable)"
             }
           },
           "1517303397987": {
@@ -495,7 +495,7 @@
               "image": "",
               "title": "Rectangle Barrel Wrap",
               "element_price": "15.70",
-              "type": "POS"
+              "type": "POS(Customizable)"
             }
           },
           "1517505293726": {
@@ -504,7 +504,7 @@
               "image": "",
               "title": "Base Wrap",
               "element_price": "20.00",
-              "type": "POS"
+              "type": "POS(No Template)"
             }
           },
           "1517505332719": {
@@ -522,7 +522,7 @@
               "image": "",
               "title": "Rite Price",
               "element_price": "3.50",
-              "type": "POS"
+              "type": "POS(No Template)"
             }
           },
           "1518172216122": {
@@ -531,7 +531,52 @@
               "image": "",
               "title": "Pennant Flags",
               "element_price": "35.00",
-              "type": "POS"
+              "type": "POS(No Template)"
+            }
+          },
+          "1519112747547": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Floor Graphics",
+              "element_price": "0.01",
+              "type": "POS(No Template)"
+            }
+          },
+          "1519112800753": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Clips",
+              "element_price": "0.01",
+              "type": "POS(No Template)"
+            }
+          },
+          "1519112812541": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Border or Logo Tape",
+              "element_price": "0.01",
+              "type": "POS(No Template)"
+            }
+          },
+          "1519112833815": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Schematic Books",
+              "element_price": "0.01",
+              "type": "POS(No Template)"
+            }
+          },
+          "1519112922869": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Headers",
+              "element_price": "0.01",
+              "type": "POS(Customizable)"
             }
           }
         },
@@ -573,11 +618,16 @@
           "1517505293726",
           "1517505332719",
           "1517505368454",
-          "1518172216122"
+          "1518172216122",
+          "1519112747547",
+          "1519112800753",
+          "1519112812541",
+          "1519112833815",
+          "1519112922869"
         ],
         "settings": {
-          "vendor_list": "1893,Amp,Any Brand,Aquafina,Brisk,bubly,Bundeburg,Caleb's Kola,Crush,Diet Pepsi,Dr. Pepper,Fruit Shoot,Gatorade,IZZE,Kevita,Kickstart,LIFEWTR,Lemon Lemon,Lipton,MUG,Manzanita Sol,Menehune,Metahune Water,Mist Twst,Mountain Dew,Muscle Milk,Naked Juice,No Fear,O.N.E.,Ocean Spray,PACt,Paso de Los Toro,Pepsi,Pepsi Zero,Portfolio,Propel,Pure Leaf,Quaker,RockStar,Schweppes,SoBe,Starbucks,Stubborn Soda,Tampico,Tropicana,Voss,Water+,Xyience",
-          "type_list": "POS,PTT",
+          "vendor_list": "1893,Amp,Any Brand,Aquafina,Big Red,Brisk,bubly,Bundaberg,Caleb's Kola,Canada Dry,Crush,Diet Pepsi,Dr. Pepper,Fruit Shoot,Gatorade,IZZE,Kevita,Kickstart,LIFEWTR,Lemon Lemon,Lipton,MUG,Manzanita Sol,Menehune,Metahune Water,Mist Twst,Mountain Dew,Muscle Milk,Naked Juice,No Fear,O.N.E.,Ocean Spray,PACt,Paso de Los Toro,Pepsi,Pepsi Zero,Portfolio,Propel,Pure Leaf,Quaker,RockStar,Schweppes,SoBe,Starbucks,Stubborn Soda,Tampico,Tropicana,Voss,Water+,Xyience,Yachak",
+          "type_list": "POS,PTT,POS(No Customization)",
           "program_tag_list": "PR:BornInTheCarolinas,PR:ChilledDSD,PR:Emojis,PR:Hispanic,PR:Holiday,PR:MSCircularStaticClings,PR:MSPopoutRailStrips,PR:MSPriceChangeStickers,PR:MSStaticClings,PR:PSCowboys,PR:PSDewCountry,PR:PSGatorade,PR:PSPepsi,PR:PSRockets,PR:PSWestbrook,PR:Summer,PR:TaxFree,PR:WaterPlus",
           "sports_tag_list": "ST:BaseballMLB,ST:BaseballMILB,ST:BasketballCollege,ST:BasketballNBA,ST:Fishing,ST:FootballCollege,ST:FootballNFL,ST:HockeyNHL,ST:NASCAR,ST:Soccer,ST:SuperBowl,ST:Surfing",
           "speciality_tag_list": "SP:AisleInterrupters,SP:Banjo,SP:BaseWrap,SP:BumpBlasters,SP:ChannelIDStrip,SP:Clip,SP:DayGlow,SP:DieCutRailStrips,SP:FrostyPawsBarrelWrap,SP:Other,SP:PTTAquafina,SP:PTTBlue,SP:PTTDew,SP:PTTGatorade,SP:PTTPepsiZero,SP:PTTRockstar,SP:PTTSpanish,SP:PTTStarbucks,SP:PushPulls,SP:RechargeableBarrelWrap,SP:RectangularBarrelWrap,SP:RitePrice,SP:Truckback,SP:VendingSnipes",

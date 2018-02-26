@@ -210,7 +210,7 @@ console.log('no');
               {% endif %}
           	{% endif %}
           
-          	{% if tag_array contains childlink_handle.last %}
+          	{% if tag_array contains childlink_handle.last and linklists[grand_child_list_handle].links == blank %}
           		{% if link_handle == 'market-specific' and Mkt_list contains childlink.title %}
                   <li>
                     <a href="/collections/{{ collection_handle }}/{{ childlink_handle.last |handle}}{{ sort_url_params }}" class="{% if current_tags contains childlink_handle.last %} site-nav--active {% endif %} site-nav__link">{{ childlink.title | escape |remove:'PTT' |remove:'MKT' |remove:'AS:' |remove:'PR:' |remove:'SP:' |remove:'DPT:'}}</a>

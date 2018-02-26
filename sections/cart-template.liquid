@@ -59,7 +59,7 @@
             <h1 class="section-header__title">{{ 'cart.general.title' | t }}</h1>
           </div>
           <div class="grid__item one-half medium-down--one-whole1 text-right">
-            <button type="button" class="btn--secondary" onclick="detectIE();">{{ 'cart.general.checkout' | t }}</button>
+            <button type="button" class="btn--secondary" onclick="detectIE('pages/locations');">{{ 'cart.general.checkout' | t }}</button>
             <br><small class="note"><b>Note: </b>You will add quantities after you select locations during the checkout process.</small>
           </div>
         </div>
@@ -254,7 +254,7 @@
             <button type="submit" name="update" class="btn--secondary update-cart">{{ 'cart.general.update' | t }}</button>
             <button type="submit" name="checkout" class="btn">{{ 'cart.general.checkout' | t }}</button>
             {% endcomment %}
-            <button type="button" class="btn--secondary" onclick="detectIE();">{{ 'cart.general.checkout' | t }}</button>
+            <button type="button" class="btn--secondary" onclick="detectIE('pages/locations');">{{ 'cart.general.checkout' | t }}</button>
             {% if additional_checkout_buttons %}
               <div class="cart__additional_checkout">{{ content_for_additional_checkout_buttons }}</div>
             {% endif %}
@@ -289,42 +289,8 @@
   }
 {% endschema %}
 
+{% comment %}
 <script>
-  function detectIE(){
-    {% comment %} 
-//     var ua = window.navigator.userAgent;
-
-//     var msie = ua.indexOf('MSIE ');
-//     if (msie > 0) {
-//       console.log('its IE');
-//       if(confirm('for compatibility purposes please ensure you are utilizing\nChrome OR Safari')== true);
-//        window.location.assign('/pages/locations');
-//     }else
-//       window.location.assign('/pages/locations');
-    {% endcomment %}
-    if(isIE()){
-      alert('Unsupported Browser Alert!\n\n{{ 'general.Unsupported_Browser_Msg' | t }}');
-      	window.location.assign('/pages/locations');
-    }else
-      window.location.assign('/pages/locations');
-  }
-  
-  function isIE() {
-      var ua = window.navigator.userAgent;
-
-      var msie = ua.indexOf('MSIE ');
-      if (msie > 0) {
-        return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
-      }
-
-      var trident = ua.indexOf('Trident/');
-      if (trident > 0) {
-        var rv = ua.indexOf('rv:');
-        return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
-      }
-      return false;
-    }
-  
     {% for line_item in cart.items %}
       {% assign per_line_price = line_item.price | money_without_currency %}
         {% for property in line_item.properties %}
@@ -332,3 +298,4 @@
         {% endfor %}
     {% endfor %}  
 </script>
+{% endcomment %}
