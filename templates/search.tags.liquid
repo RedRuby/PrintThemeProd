@@ -1,0 +1,50 @@
+
+<div class="page-width" style>
+{% assign collects = "all,northeast-my-products,southeast-my-products,california-my-products,mountain-my-products,midatlantic-my-products,midwest-my-products,south-my-products,greatlakes-my-products" | split: "," %}
+
+{% for collect in collects %}
+
+    {% assign programm_tags = "" %}
+    {% assign sports_tags = "" %}
+    {% assign PTT_tags = "" %}
+    {% assign speciality_tags = "" %}
+    {% assign accSpecific_tags = "" %}
+    {% assign mktSpecific_tags = "" %}
+    {% assign department_tags = "" %}
+    {% assign brand_tags = "" %}
+
+    {% for tag in collections[collect].all_tags %}
+        {% unless tag contains "Region" or tag contains "New:" or tag contains "CustomPrice" %}
+            {% if tag contains "PR:" %}
+                {% assign programm_tags = programm_tags | append: tag | append: ", " %}
+            {% elsif tag contains "ST:" %}
+                {% assign sports_tags = sports_tags | append: tag | append: ", " %}
+            {% elsif tag contains "SP:PTT" %}
+                {% assign PTT_tags = PTT_tags | append: tag | append: ", " %}
+            {% elsif tag contains "SP:" %}
+                {% assign speciality_tags = speciality_tags | append: tag | append: ", " %}
+            {% elsif tag contains "AS:" %}
+                {% assign accSpecific_tags = accSpecific_tags | append: tag | append: ", " %}
+            {% elsif tag contains "MKT" %}
+                {% assign mktSpecific_tags = mktSpecific_tags | append: tag | append: ", " %}
+            {% elsif tag contains "DPT" %}
+                {% assign department_tags = department_tags | append: tag | append: ", " %}
+            {% else %}
+                {% assign brand_tags = brand_tags | append: tag | append: ", " %}
+            {% endif %}
+        {% endunless %}
+    {% endfor %}
+
+    <b>{{ collect }} programm_tags</b><br>{{ programm_tags }}<br><br>
+    <b>{{ collect }} sports_tags</b><br>{{ sports_tags }}<br><br>
+    <b>{{ collect }} PTT_tags</b><br>{{ PTT_tags }}<br><br>
+    <b>{{ collect }} speciality_tags</b><br>{{ speciality_tags }}<br><br>
+    <b>{{ collect }} accSpecific_tags</b><br>{{ accSpecific_tags }}<br><br>
+    <b>{{ collect }} mktSpecific_tags</b><br>{{ mktSpecific_tags }}<br><br>
+    <b>{{ collect }} department_tags</b><br>{{ department_tags }}<br><br>
+    <b>{{ collect }} brand_tags</b><br>{{ brand_tags }}<br><br>
+
+	<hr>
+{% endfor %}
+  
+</div>

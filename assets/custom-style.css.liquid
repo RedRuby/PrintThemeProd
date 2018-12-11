@@ -6,6 +6,16 @@
 /*   height:60px; */
 }
 
+@media (max-width: 768px){
+  .header-bar{
+     z-index:10000;
+  }
+  .header-bar #MobileNav{
+     max-height:95vh; 
+     overflow-y:scroll;
+  }
+}
+
 /* .header-bar1, .header-bar__right{height:45px;} */
 
 . squeeze li{ padding-top:0px ! important; padding-bottom:0px ! important; }
@@ -103,7 +113,7 @@ th,td,input,select,li,p,span{ font-size: 14px !important; }
 [data-option-name^='window-'] {max-width: 50% !important;}
 #sec_nav{position: static;}
 
-@media (min-width: 720px){
+@media (min-width: 936px){
   
 	#AddToCartForm button, #AddToCartForm select, #AddToCartForm input, #AddToCartForm textarea, #AddToCartForm .note, #AddToCartForm .w3-row{
         width:70% !important;

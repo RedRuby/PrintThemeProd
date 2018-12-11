@@ -201,7 +201,7 @@ required: cart. optional: _cart_pricing_item_count {% endcomment %}
   {% if script_asset != blank %}
     {% assign script_src = script_asset | asset_url %}
   {% elsif script_src == blank %}
-    {% capture script_src %}https://product-customizer-cdn.shopstorm.com/assets/javascripts/app/product-customizer-v1.js?shop={{shop.permanent_domain}}{% endcapture %}
+    {% capture script_src %}https://app-cdn.productcustomizer.com/assets/javascripts/app/product-customizer-v1.js?shop={{shop.permanent_domain}}{% endcapture %}
   {% endif %}
   {% if load_script_sync != blank %}
     <script src="{{ script_src }}"></script>

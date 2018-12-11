@@ -296,7 +296,7 @@
   var order_data = [];
   var printer_id = '';
   var cemail = "{{ customer.email }}"
-  var patt = new RegExp("id\=\\d");
+  var patt = new RegExp("id\=\\d+");
   var res = patt.test(url); //console.log(order_id);
   var btnState = null;
   
@@ -304,7 +304,7 @@
   
 //   $(document).ready(function(){
   	if(res){
-       order_id = url.split('id\=')[1];
+       order_id = url.split('id\=')[1].split('&')[0];
        fetch_Order(order_id, true, null);
     }
     else window.location.assign('{{ shop.url }}/account');

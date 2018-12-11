@@ -34,6 +34,18 @@
     {% assign customer_region_tag = region_GreatLakes %}
   {% endif %}
 
+  {% if customer.tags contains Role_User %}
+    {% assign customer_role_tag = Role_User %}
+  {% elsif customer.tags contains Role_Manager %}
+    {% assign customer_role_tag = Role_Manager %}
+  {% elsif customer.tags contains Role_Printer %}
+    {% assign customer_role_tag = Role_Printer %}
+  {% elsif customer.tags contains Role_ASM %}
+    {% assign customer_role_tag = Role_ASM %}
+  {% elsif customer.tags contains Role_Admin %}
+    {% assign customer_role_tag = Role_Admin %}
+  {% endif %}
+
 {% endif %}
 
 <div class="section-header section-header--large printModeExclude">
@@ -307,7 +319,7 @@
   var order_data = [];
   var printer_id = '';
   var cemail = "{{ customer.email }}"
-  var patt = new RegExp("id\=\\d");
+  var patt = new RegExp("id\=\\d+");
   var res = patt.test(url); //console.log(order_id);
   var btnState = null;
   var prev_page_params = (url.indexOf('&') != -1) ? '&'+url.substr(url.indexOf('&')+1, url.length-1) : ''; //url.split('&')[1]||'';
@@ -316,7 +328,7 @@
   
 //   $(document).ready(function(){
   	if(res){
-       order_id = url.split('id\=')[1];
+       order_id = url.split('id\=')[1].split('&')[0];
        fetch_Order(order_id, true, null);
     }
     else window.location.assign('{{ shop.url }}/account');
@@ -519,7 +531,7 @@
                   $('#cancelled').show(); $('#shipping_details').hide(); 
                 }
     
-    			if(data.order.notes != null ){ 
+    			if(Boolean(data.order.notes) {% if customer.tags contains Role_Manager or customer.tags contains Role_User %}&& false{% endif %}){ 
 //                   $('#note .note_text').text(data.notes).show();
 //                     console.log('note:', data.order.notes);
                     orderMsg = JSON.parse(data.order.notes.replace(/=>/g, ':'));
@@ -705,7 +717,7 @@
     //                 $('#OrderEditModal .discountType').text(data.order.sub_total);
     //                 $('#OrderEditModal .discountAmount').val(data.order.discount_codes[0].amount);
         {% comment %}
-        if(data.order.notes != null ){ 
+        if(Boolean(data.order.notes)){ 
     //                   $('#note .note_text').text(data.notes).show();
     //                     console.log('note:', data.order.notes);
             orderMsg = JSON.parse(data.order.notes.replace(/=>/g, ':'));
@@ -747,7 +759,7 @@
       $('#OrderEditModal .shipping_price').val(data.order.shipping_lines[0].price);
       $('#OrderEditModal .shipping_code').val(data.order.fulfillments[0].shipping_code);
       $('#OrderEditModal .tracking_company option[value = "'+data.order.fulfillments[0].tracking_company+'"]').prop('selected','selected');
-      if(data.order.fulfillments[0].tracking_company.indexOf('Pick Up') != -1 || data.order.fulfillments[0].tracking_company == 'Install'){ 
+      if(data.order.fulfillments[0].tracking_company.indexOf('Pick Up') != -1 || data.order.fulfillments[0].tracking_company == 'Install'  || data.order.fulfillments[0].tracking_company == 'Emailed (artwork only)'){ 
         $('#OrderEditModal .tracking_number').prop({'disabled':'disabled', 'value':''}).css('cursor', 'not-allowed'); 
         changeTracking(true);
       }else{ 
@@ -813,10 +825,13 @@
       myArray[i]["line_item_No"] = i;
 //       data['order']['properties_'+myArray[i]['product_id']] = myArray[i]['properties'];
       myArray2 = myArray[i]['properties']; nullCount = 0; //console.log(JSON.stringify(myArray2));
-      if((myArray[i]['properties'] || '').length == 1)
+      if((myArray[i]['properties'] || '').length == 0)
       	 $('head').append('<style class="prop-hide-style">#properties_'+myArray[i]['line_item_No']+'{ display:none; }</style>'); 
       else{
         for (x = 0; x < myArray2.length; x++) { //console.log(JSON.stringify(myArray2[x]));
+          try{
+            myArray2[x]['property_value'] = myArray2[x]['property_value'].replace("'","\'");
+          }catch(e){ console.log(myArray2[x]['property_name']); console.log(e.message); }
           if((myArray2[x]['property_value'] || '').length == 0 || myArray2[x]['property_name'] == 'Parent ID'){
   //         	delete myArray2[x]; 
               $('head').append('<style class="prop-hide-style">#properties_'+myArray[i]['line_item_No']+' p:nth-of-type('+(x+1)+'){ display:none; }</style>');

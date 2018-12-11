@@ -44,7 +44,7 @@
   
   function defreez(){$.unblockUI();} 
   
-  function show_message2(message,type){
+  function show_message2(message,type,noreload){
   	$.blockUI({ 
             message: '<div class="growlUI-added"><h3 class="flash-messg">'+message+'</h3></div>', 
             fadeIn: 700, 
@@ -68,7 +68,7 @@
               	boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
             },
            	onUnblock:	function(){
-                       if(!type){
+                       if(!type && !noreload){
                           show_message2('Try again or Reload', true);
                        }
             }

@@ -289,13 +289,28 @@
   }
 {% endschema %}
 
-{% comment %}
+{% comment %}{% endcomment %}
 <script>
     {% for line_item in cart.items %}
       {% assign per_line_price = line_item.price | money_without_currency %}
         {% for property in line_item.properties %}
-          console.log('property', '{{ property }}');
+          console.log('property', '= {{ property }}');
         {% endfor %}
     {% endfor %}  
+                      
+    $('a.cart__remove').on('click', function(){
+      $this = $(this);
+      if(event.button == 0){
+          event.preventDefault();
+          $.when(data = $.getJSON('/cart.js')).done(function(){ 
+            if(JSON.stringify({{ cart | json }}) === JSON.stringify(data.responseJSON) ){
+              location.assign($this.attr('href')); 
+            }else{
+              alert('Refreshing the cart, it is not updated!!');
+              location.reload();
+            }
+          });
+          return false;
+      }
+    });
 </script>
-{% endcomment %}

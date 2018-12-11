@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, height=device-height, minimum-scale=1.0, user-scalable=0">
     <meta name="referrer" content="origin">
 
-    <title>{{ page_title }}</title>
+    <title>{{ shop.name }} - {{ page_title }}</title>
 
     {{ content_for_header }}
 
@@ -21,7 +21,6 @@
     
   </head>
   <body>
-    {{ skip_to_content_link }}
     <div class="banner" data-header>
       <div class="wrap">
         {{ content_for_logo }}
@@ -32,6 +31,14 @@
 
     <div class="content" data-content>
       <div class="wrap">
+        <div class="sidebar" role="complementary">
+          <div class="sidebar__header">
+            {{ content_for_logo }}
+          </div>
+          <div class="sidebar__content">
+            {{ content_for_order_summary }}
+          </div>
+        </div>
         <div class="main" role="main">
           <div class="main__header">
             {{ content_for_logo }}
@@ -43,14 +50,6 @@
           </div>
           <div class="main__footer">
             {{ content_for_footer }}
-          </div>
-        </div>
-        <div class="sidebar" role="complementary">
-          <div class="sidebar__header">
-            {{ content_for_logo }}
-          </div>
-          <div class="sidebar__content">
-            {{ content_for_order_summary }}
           </div>
         </div>
       </div>
@@ -104,10 +103,7 @@
         function startPCC(){
           if($('button[type="submit"] span.btn__content:contains("COMPLETE ORDER")').parent().length > 0)
           	payment_cc = setInterval(function(){ //console.log('running')
-              
-              total_due = $('div[data-order-summary-section="payment-lines"]').first().find('span[data-checkout-payment-due-target]').attr('data-checkout-payment-due-target');
-              
-              if( ($('form[data-reduction-form="true"]').length > 0) || (total_due == '0') )
+              if($('form[data-reduction-form="true"]').length > 0)
               	releaseBtn();
               else
               	siezeBtn();

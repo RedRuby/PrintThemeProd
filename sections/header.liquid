@@ -119,7 +119,7 @@
 <!--                     <a href="/" style="position:absolute; left:0px; top:0px; z-index:0;"><img style="height:60px; background-color:white;" src="{{ 'Header_logo.png'|asset_url }}"></a> -->
                 {{ section.settings.header_text }}
               </div>
-            {% elsif section.settings.header_search_enable %}
+            {% elsif section.settings.header_search_enable and false %}
               <div class="header-bar__module header-bar__search">
                 {% include 'search-bar' with 'header' %}
               </div>
@@ -171,7 +171,7 @@
             </a>
           </div>
 
-          {% if section.settings.header_search_enable %}
+          {% if section.settings.header_search_enable and false %}
             {% unless section.settings.header_text == blank %}
               <div class="header-bar__module header-bar__search">
                 {% include 'search-bar' with 'header' %}

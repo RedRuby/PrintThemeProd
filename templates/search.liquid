@@ -21,6 +21,12 @@
 {% comment %}
   Check to enforce respond.js
 {% endcomment %}
+
+
+
+
+
+{% comment %}
 {% assign respond_js_secret_key = shop.domain | md5 %}
 {% unless search.terms == respond_js_secret_key %}
 
@@ -100,3 +106,8 @@
   {% include 'respond' %}
   {% layout none %}
 {% endunless %}
+
+{% endcomment %}
+
+{% layout none %}
+<meta content="0; url=/" http-equiv="refresh" />

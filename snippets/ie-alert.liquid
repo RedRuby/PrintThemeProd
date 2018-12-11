@@ -60,7 +60,8 @@
         $form = $(this);
         event.preventDefault();
       }
-      $("#ie-alert").show().find(".ie-alert-child").on("click", function(){ 
+    $("#ie-alert").show().find(".ie-alert-child").css("margin-left", ($(window).width()-$(".ie-alert-child").width())/2-(window.innerWidth-$(window).width())+"px").animateCss("bounceIn");
+    {% comment %}.on("click", function(){ 
         $("#ie-alert").hide(){% unless template contains "register" %}.addClass("hide"){% endunless %}.find(".ie-alert-child").off("click");
         if(location){
           window.location.assign(location)
@@ -74,7 +75,8 @@
               $("form[action='/account/login']").off("submit").submit();//.on("submit", function(){ console.log("stuck again..."); });
           {% endif %}
         }
-      }).css("margin-left", ($(window).width()-$(".ie-alert-child").width())/2-(window.innerWidth-$(window).width())+"px").animateCss("bounceIn");
+      });
+    {% endcomment %}
       return false;
   }
   

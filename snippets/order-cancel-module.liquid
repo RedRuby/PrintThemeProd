@@ -19,7 +19,7 @@
       <label><input type="radio" name="cancel-reason" value="Other- Fill in" onchange="changedData();" /> Other- Fill in</label>
     </div>
     
-    <textarea disabled required name="cancel-reason-other" class="" placeholder="Cancel Reason for Other (Maximum 36 Characters)" onchange="changedData();" maxlength="36"></textarea>
+    <textarea disabled required name="cancel-reason-other" class="" placeholder="Cancel Reason for Other (Maximum 200 Characters)" onchange="changedData();" maxlength="200"></textarea>
     <div class="textarea_feedback w3-right"></div>
     <br>
   	<div class="w3-onethird">
@@ -82,7 +82,7 @@
     var data = {cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: order_id };
    
 	
-    data.reason = ($('[name="cancel-reason"]:checked')[0].outerHTML != $('[name="cancel-reason"]').last()[0].outerHTML) ? $('[name="cancel-reason"]:checked').val() : $('[name="cancel-reason-other"]').val();          
+    data.reason = ($('[name="cancel-reason"]:checked')[0].outerHTML != $('[name="cancel-reason"]').last()[0].outerHTML) ? $('[name="cancel-reason"]:checked').val() : "Other - "+$('[name="cancel-reason-other"]').val();          
     
     
     console.log(JSON.stringify(data));

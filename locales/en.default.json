@@ -1,14 +1,14 @@
 {
   "general": {
     "Region_Market_Names": {
-      "NorthEast": "Spanish",
-      "SouthEast": "Atlanta Market,Georgia,South Florida and Central Florida,Carolinas,Georgia,North Florida,Central Florida",
-      "Mountain": "Alaska,Arizona,Colorado,Idaho,Oregon,Utah,Washington,Hawaii,New Mexico West Texas",
-      "California": "Spanish",
-      "South": "New Mexico West Texas,Texas",
-      "MidAtlantic": "Spanish",
-      "MidWest": "Chicago,Wisconsin,Dakotas",
-      "GreatLakes": "Spanish"
+      "NorthEast": "Spanish,Model Store,Boston Mega City,Philly Mega City",
+      "SouthEast": "Spanish,Model Store,Atlanta,Carolinas,Central Florida,Georgia,North Florida,South Florida",
+      "Mountain": "Spanish,Model Store,Alaska,Arizona,Colorado,Hawaii,Idaho,New Mexico West Texas,Oregon,Utah,Washington",
+      "California": "Spanish,Model Store",
+      "South": "Spanish,Model Store,Texas,GM POS,Medals (Outside Texas),Medals (Texas)",
+      "MidAtlantic": "Spanish,Model Store",
+      "MidWest": "Spanish,Model Store,Chicago,Dakotas,Minnesota,Wisconsin",
+      "GreatLakes": "Spanish,Model Store"
     },
     "Region_Tags": {
       "NorthEast": "Region:NorthEast",
@@ -31,7 +31,7 @@
     "Unsupported_Browser_Msg": "You are using an unsupported browser and may have difficulty with your site experience. Please switch to Chrome.",
     "Main-Menu": {
       "Brands": "amp,\nany-brand,\naquafina,\nbig-red,\nbrisk,\nbundeburg,\n1893,\ncalebs-kola,\ncrush,\ndiet-pepsi,\ndr-pepper,\nfruit-shoot,\ngatorade,\nkickstart,\nlemon-lemon\nlipton,\nmanzanita-sol,\nmetahune-water,\nmist-twst,\nmountain-dew,\nmuscle-milk,\nno-fear-energy,\no-n-e,\npact,\npaso-de-los-toro,\npepsi,\nportfolio,\npropel,\npure-leaf,\nlifewtr,\nrockstar,\nschweppes,\nsobe,\nstarbucks,\nstubborn-soda,\ntampico,\nxyience,\nwater+\n",
-      "Programs": "\nfootball-nfl,\nfootball,\nfootball-college,\nbasketball-college,\nbasketball-nba,\nhockey-nhl,\nsurfing,\nnascar,\nracing,\nsoccer,\nbaseball-mlb,\nbig-red,\ndewcision,\nfishing,\nskating,\nsuper-bowl,\nholiday,\nemojis,\nwater+,\n",
+      "Programs": "football-nfl,\nfootball,\nfootball-college,\nbasketball-college,\nbasketball-nba,\nhockey-nhl,\nsurfing,\nnascar,\nracing,\nsoccer,\nbaseball-mlb,\nbig-red,\ndewcision,\nfishing,\nskating,\nsuper-bowl,\nholiday,\nemojis,\nwater+,\n",
       "Speciality": "ptt-blue,\nptt-dew,\nptt-gatorade,\nptt-spanish\nptt-water+,\nptt-rockstar,\nbarrel-wraps,\ncorr-plast,\ntemplates",
       "Account_Specific": "walmart,\n7-eleven,\nam-pm,\nbubble-clean,\nca-fish-grill,\nchevron,\ncircle-k,\nconoco,\ncvs,\ndollar-general,\nfamily-dollar,\nfastrip,\ng-m-oil,\nguitar-center,\nlittle-ceasar,\nsafeway,\nshortline-express,\nstram,\nsedanos,\nterrible-herbst,\nunited-oil,\nhyatt,\nwalgreens",
       "Market_Specific": "mktalaska,\nmktutah,\nmktidaho,\nmktwisconsin,\nmktoregon,\nmktatlmegacity,\nmktcflmegacity,\nmktsflmegacity,\nmktnflmegacity,\nmkttexas,\nmktnmwtexas,\nmktcarolinas,\nmktarizona,\nmktchicago,\nmktdakotas,\nmkthawaii,\nmktga,\nmktaa,\nmktspanish,\nmktcolorado,\nmktwashington,\nmktwisconsin"

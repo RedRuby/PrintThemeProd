@@ -104,10 +104,7 @@
         function startPCC(){
           if($('button[type="submit"] span.btn__content:contains("COMPLETE ORDER")').parent().length > 0)
           	payment_cc = setInterval(function(){ //console.log('running')
-              
-              total_due = $('div[data-order-summary-section="payment-lines"]').first().find('span[data-checkout-payment-due-target]').attr('data-checkout-payment-due-target');
-              
-              if( ($('form[data-reduction-form="true"]').length > 0) || (total_due == '0') )
+              if($('form[data-reduction-form="true"]').length > 0)
               	releaseBtn();
               else
               	siezeBtn();

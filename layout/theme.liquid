@@ -1,5 +1,5 @@
 {% unless customer %}
-    {% if template contains 'index.stealth' or template contains 'customers/login' or template contains 'page.register' or template contains 'page.contact-us' or template contains 'customers/activate_account' or template contains 'customers/reset_password' %}
+    {% if template contains 'index.stealth' or template contains 'customers/login' or template contains 'page.register' or template contains 'page.contact-us' or template contains 'customers/activate_account' or template contains 'customers/reset_password' or template contains 'tags' or template == blank %}
     	{% assign send_to_login = false %}
     {% else %}
 		{% assign send_to_login = true %}
@@ -70,7 +70,27 @@
 {% endif %}
 <!-- end of Hits Analytics code -->
 
- <!-- BeginConsistentCartAddon --><script>{% if customer %}Shopify.merge_cart_text = '{{ "consistent_cart_addon.merge_cart_text" | t }}' ;Shopify.customer_logged_in = true ;Shopify.customer_email = "{{ customer.email }}" ;Shopify.log_uuids = true;{% else %}Shopify.customer_logged_in = false ;Shopify.customer_email = "" ;Shopify.log_uuids = true;{% endif %}</script><!-- EndConsistentCartAddon -->
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- BeginConsistentCartAddon -->  <script>  {% if customer %}  Shopify.merge_cart_text = '{{ "consistent_cart_addon.merge_cart_text" | t }}' ;  Shopify.customer_logged_in = true ;  Shopify.customer_email = "{{ customer.email }}" ;  Shopify.log_uuids = true;  {% else %}  Shopify.customer_logged_in = false ;  Shopify.customer_email = "" ;  Shopify.log_uuids = true;  {% endif %}  </script>  <!-- EndConsistentCartAddon -->
 </head>
 <body>	
     {% include 'buddha-megamenu' %}
@@ -412,6 +432,18 @@
     {% assign link_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase %}
     
     $(document).ready(function(){
+      	
+        {% if customer and false %} 
+          $.ajax({ 
+             url: "/apps/place_bulk_order?action_type=set_product_session&cid={{ customer.id }}",
+              data: {{ cart | json }},
+              dataType: 'json'
+           }).done(function(pdata) {
+              console.log(pdata);
+
+           });
+        {% endif %}
+      	
       	var url = document.URL;
       	var pattern = /\?sort_by=created-descending/;
         if(url.match(pattern)) {

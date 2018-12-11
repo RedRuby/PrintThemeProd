@@ -38,6 +38,8 @@
   {% elsif customer.tags contains Role_User or customer.tags contains Role_Printer or customer.tags contains Role_Manager %}
     {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-products' %}
     {% assign non_asm = true %}
+  {% else %}
+	{% assign collection_handle = "all" %}
   {% endif %}
 
   	{% assign product_in_region = false %}

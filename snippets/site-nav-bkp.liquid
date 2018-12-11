@@ -137,7 +137,7 @@ console.log('no');
           	{% assign grand_child_list_handle = childlink.title | handle %}
             {% if linklists[grand_child_list_handle].links != blank %}
               {% if childlink.handle == 'speciality' %}
-                <li class="site-nav--has-dropdown{% if current_tags contains childlink.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onclick="$('#speciality-ul').toggle();" onmouseout="document.getElementById('speciality-ul').style.display = 'none';">
+                <li class="site-nav--has-dropdown{% if current_tags contains childlink.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onmouseover="document.getElementById('speciality-ul').style.display = 'block';" onmouseout="document.getElementById('speciality-ul').style.display = 'none';">
                     <a hrefs="javascript:void(0);" styles="cursor:pointer;" class="site-nav__link">
                         {{ childlink.title }} 
                         <span class="icon-fallback-text">
@@ -158,7 +158,7 @@ console.log('no');
               {% endif %}
           
               {% if childlink.handle == 'trade-expense' %}
-                <li class="site-nav--has-dropdown{% if current_tags contains childlink.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onclick="$('#trade-expense-ul').toggle();" onmouseout="document.getElementById('trade-expense-ul').style.display = 'none';">
+                <li class="site-nav--has-dropdown{% if current_tags contains childlink.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onmouseover="document.getElementById('trade-expense-ul').style.display = 'block';" onmouseout="document.getElementById('trade-expense-ul').style.display = 'none';">
                     <a hrefs="javascript:void(0);" styles="cursor:pointer;" class="site-nav__link">
                         {{ childlink.title }} 
                         <span class="icon-fallback-text">
@@ -179,7 +179,7 @@ console.log('no');
               {% endif %}
           
               {% if childlink.handle == 'pos-university' %}
-          		<li class="site-nav--has-dropdown{% if current_tags contains link.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onclick="$('#pos-ul').toggle();" onmouseout="document.getElementById('pos-ul').style.display = 'none';">
+          		<li class="site-nav--has-dropdown{% if current_tags contains link.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onmouseover="document.getElementById('pos-ul').style.display = 'block';" onmouseout="document.getElementById('pos-ul').style.display = 'none';">
                   <a id="link-pos-university" hrefs="/pages/{{ childlink.handle }}" class="{% if current_tags contains childlink.handle %} site-nav--active {% endif %} site-nav__link">
                     {{ childlink.title | escape }}
                       <span class="icon-fallback-text">
@@ -201,15 +201,9 @@ console.log('no');
                     </li> -->
                     {% for grandchildlink in linklists[grand_child_list_handle].links %}
                     {% assign grandchildlink_handle = grandchildlink.url |split:'/' %}
-                    {% if customer and grandchildlink.url contains region_handle or grandchildlink.url contains "all" %}
                     <li>
                       <a id="link-pos{{forloop.index}}" href="{{ grandchildlink.url }}" class="{% if grandchildlink.active %} site-nav--active {% endif %} site-nav__link">{{ grandchildlink.title }}</a>
                     </li>
-                    {% elsif customer == blank and grandchildlink.url contains "all" %}
-                    <li>
-                      <a id="link-pos{{forloop.index}}" href="{{ grandchildlink.url }}" class="{% if grandchildlink.active %} site-nav--active {% endif %} site-nav__link">{{ grandchildlink.title }}</a>
-                    </li>
-                    {% endif %}
                     {% endfor %}
                   </ul>
                 </li>
@@ -235,7 +229,7 @@ console.log('no');
             {% endif %}
           	
           	{% if childlink.title == 'Payment Codes' %}
-              <li class="site-nav--has-dropdown{% if current_tags contains link.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onclick="$('#payment-codes-ul').toggle();" onmouseout="document.getElementById('payment-codes-ul').style.display = 'none';">
+              <li class="site-nav--has-dropdown{% if current_tags contains link.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onmouseover="document.getElementById('payment-codes-ul').style.display = 'block';" onmouseout="document.getElementById('payment-codes-ul').style.display = 'none';">
                 <a id="link-payment-codes" hrefs="/pages/{{ childlink.handle }}" class="{% if current_tags contains childlink.handle %} site-nav--active {% endif %} site-nav__link">
                   {{ childlink.title | escape }}
                 	<span class="icon-fallback-text">
@@ -258,7 +252,7 @@ console.log('no');
           
               {% comment %}
               {% if childlink.title == 'POS University' %}
-              <li class="site-nav--has-dropdown{% if current_tags contains link.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onclick="$('#pos-ul').toggle();" onmouseout="document.getElementById('pos-ul').style.display = 'none';">
+              <li class="site-nav--has-dropdown{% if current_tags contains link.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onmouseover="document.getElementById('pos-ul').style.display = 'block';" onmouseout="document.getElementById('pos-ul').style.display = 'none';">
                 <a id="link-pos-university" hrefs="/pages/{{ childlink.handle }}" class="{% if current_tags contains childlink.handle %} site-nav--active {% endif %} site-nav__link">
                   {{ childlink.title | escape }}
                 	<span class="icon-fallback-text">
@@ -315,7 +309,7 @@ console.log('no');
      	 $('#link{{ active_index }}').addClass('site-nav--active');
       {% endif %}
            
-//       $('.site-nav__dropdown').css('max-height', (window.innerHeight-60)+"px !important");
+      $('.site-nav__dropdown').css('max-height', (window.innerHeight-60)+"px !important");
     });
   
 </script>

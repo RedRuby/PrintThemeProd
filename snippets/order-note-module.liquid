@@ -39,13 +39,13 @@
     }
     orderMsg.order_msg.push({id:"{{ customer.id }}", role: "{{ customer_role_tag |replace:'Role:','' }}", text: $('#postTxt').val(), time: date.getTime()});
 //     $('#postTxt').val('');
-    prepareMsg(orderMsg, function(data){
-      w3DisplayData('orderNotes', data);
-    });
+//     prepareMsg(orderMsg, function(data){
+//       w3DisplayData('orderNotes', data);
+//     });
    {% comment %}{% endcomment %}
     data = {order_id: order_id, cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", note: JSON.stringify(orderMsg) };
     
-//     console.log('posting:', JSON.stringify(data));
+    console.log('posting:', JSON.stringify(data));
             
     freez();
     $.ajax({
@@ -57,6 +57,9 @@
       success: function(data){
 //         console.log(data.status);console.log(typeof parseInt(data.status));
       	if(parseInt(data.status) == 200){
+          prepareMsg(JSON.parse(data.result.replace(/=>/g,":")), function(data){
+            w3DisplayData('orderNotes', data);
+          });
           $('#postTxt').val('');
           $('#postBtn').prop('disabled', 'disabled');
           $.unblockUI();
@@ -83,20 +86,26 @@
        var re = new RegExp(replaceThis,"g"); 
        return this.replace(re, withThis);
     };
+    
+    function pad2(number) {
+         return (number < 10 ? '0' : '') + number;
+//          return ('0' + number).slice(-2);
+    }
 
 //         console.log(myArray);
     for (i = 0; i < myArray.length; i++) {
       date.setTime(myArray[i]['time']);
       diff = now.getDate() - date.getDate();
-      if(diff == 0){
+      same_month_year = (now.getMonth() == date.getMonth() && now.getFullYear() == date.getFullYear()) ? true : false;
+      if(diff == 0 && same_month_year){
         hrs = date.getHours();
-        myArray[i]['time'] = 'Today, '+((hrs>12) ? hrs-12 : hrs)+':'+date.getMinutes()+((hrs<12) ? ' am' : ' pm');
-      }else if(diff == 1){
+        myArray[i]['time'] = 'Today, '+pad2((hrs>12) ? hrs-12 : hrs)+':'+pad2(date.getMinutes())+((hrs<12) ? ' am' : ' pm');
+      }else if(diff == 1 && same_month_year){
         hrs = date.getHours();
-        myArray[i]['time'] = 'Yesterday, '+((hrs>12) ? hrs-12 : hrs)+':'+date.getMinutes()+((hrs<12) ? ' am' : ' pm');
+        myArray[i]['time'] = 'Yesterday, '+pad2((hrs>12) ? hrs-12 : hrs)+':'+pad2(date.getMinutes())+((hrs<12) ? ' am' : ' pm');
       }else{
         hrs = date.getHours();
-        myArray[i]['time'] = date.getDate()+'/'+date.getMonth()+'/'+date.getFullYear()+', '+((hrs>12) ? hrs-12 : hrs)+':'+date.getMinutes()+((hrs<12) ? ' am' : ' pm');
+        myArray[i]['time'] = pad2(date.getMonth()+1)+'/'+pad2(date.getDate())+'/'+date.getFullYear()+', '+pad2((hrs>12) ? hrs-12 : hrs)+':'+pad2(date.getMinutes())+((hrs<12) ? ' am' : ' pm');
       }
       
       urls = myArray[i]['text'].match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g)

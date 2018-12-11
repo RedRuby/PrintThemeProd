@@ -34,8 +34,51 @@
     soldOut: {{ 'products.product.sold_out' | t | json }},
     unavailable: {{ 'products.product.unavailable' | t | json }}
   }
+  
+  {% if cart.item_count > 0 %}
+  var cart_json = {{ cart | json }};
+  
+  function getParameterByName(name) {
+      var url = window.location.href;
+      name = name.replace(/[\[\]]/g, "\\$&");
+      var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+      results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }
+  
+  function shorten(s, max) {
+    return s.length > max ? s.substring(0, (max / 2) - 1) + '...' + s.substring(s.length - (max / 2) + 2, s.length) : s
+  }
+  
+  $(document).ready(function(){ 
+      line = getParameterByName('line'); 
+      
+      if(line){
+        item_prop = cart_json.items[line].properties;
+        $.each(item_prop, function(key,value) {
+            el = $('[name="properties['+key+']"]');
+            if( el.is('input[type="text"]') || el.is('textarea') ){ 
+              el.val(value).show();
+            }
+          	else if( el.is('input[type="file"]') ){ 
+              el.attr({'type':'text', 'title':value}).val(shorten(value, el.width()/7)).show();
+            }
+            else if(  el.is('input[type="radio"]') ||  el.is('input[type="checkbox"]') ){
+              el.filter('[value="'+value+'"]').prop('checked', 'checked').show();
+            }
+            else if(  el.is('select') ){
+              el.find('option[value="'+value+'"]').prop('selected', 'selected').trigger('change').show();
+            }
+        });
+        $('#AddToCartForm [name^="properties["]').prop({'readonly':'readonly', 'disabled': 'disabled'});
+      }
+  });
+  {% endif %}
+  
 </script>
 
 <style>
-    header, footer, .header-bar, .breadcrumb, #ProductSection .section-header, #ProductSection .grid-link__container { display:none !important; }
+    header, footer, .header-bar, .breadcrumb, #ProductSection .section-header, #ProductSection .grid-link__container, #chatra { display:none !important; }
 </style>

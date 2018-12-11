@@ -86,19 +86,20 @@
       <ul class="mobile-nav__sublist">  
         {% for childlink in linklists[child_list_handle].links %}
         {% assign childlink_handle = childlink.url |split:'/' %}
+        {% assign grand_child_list_handle = childlink.title | handle %}
           {% if tag_array contains childlink_handle.last %}
             <li class="mobile-nav__sublist-link">
               <a href="/collections/{{ collection_handle }}/{{ childlink_handle.last }}" class="{% if current_tags contains childlink.handle %} site-nav--active {% endif %}">{{ childlink.title }}</a>
             </li>
-          {% endif %}
+          
         
-          {% if childlink.title == 'Contact Us' %}
+          {% elsif childlink.title == 'Contact Us' %}
             <li class="mobile-nav__sublist-link">
               <a id="link2-contact" href="/pages/{{ childlink.handle }}{{ region_handle |prepend:'-' }}" class=" ">{{ childlink.title | escape }}</a>
             </li>
-          {% endif %}
+          
 
-          {% if childlink.title == 'Payment Codes' %}
+          {% elsif childlink.title == 'Payment Codes' %}
             <li class="mobile-nav__link " aria-haspopup="true">
               <a id="link2-payment-codes" hrefs="/pages/{{ childlink.handle }}" style="color:black;" class="mobile-nav__sublist-trigger">
                 {{ childlink.title | escape }}
@@ -116,18 +117,18 @@
                 </li>
               </ul>
             </li>
-          {% endif %}
-        
-          {% if childlink.title == 'POS University' %}
+          
+          
+          {% elsif childlink.title == 'POS University' %}
             <li class="mobile-nav__link " aria-haspopup="true">
               <a id="link2-payment-codes" hrefs="/pages/{{ childlink.handle }}" style="color:black;" class="mobile-nav__sublist-trigger">
                 {{ childlink.title | escape }}
                 {% include 'mobile-nav-icons' %}
               </a>
               <ul id="payment-codes-ul1" class="mobile-nav__sublist" styles="display:none;">
-                <li class="mobile-nav__sublist-link">
+<!--                 <li class="mobile-nav__sublist-link">
                   <a id="link2-pos-1" href="/pages/pos" class="">POS</a>
-                </li>
+                </li> -->
 <!--                 <li class="mobile-nav__sublist-link">
                   <a id="link2-pos-2" href="/pages/pos-2" class="">POS 2</a>
                 </li>
@@ -137,6 +138,36 @@
                 <li class="mobile-nav__sublist-link">
                   <a id="link2-pos-4" href="/pages/pos-4" class="">POS 4</a>
                 </li> -->
+                {% for grandchildlink in linklists[grand_child_list_handle].links %}
+                {% assign grandchildlink_handle = grandchildlink.url |split:'/' %}
+                {% if customer and grandchildlink.url contains region_handle or grandchildlink.url contains "all" %}
+                <li class="mobile-nav__sublist-link">
+                  <a id="link2-pos{{ forloop.index }}" href="{{ grandchildlink.url }}" class="{% if grandchildlink.active %} site-nav--active1 {% endif %}">{{ grandchildlink.title }}</a>
+                </li>
+                {% elsif customer == blank and grandchildlink.url contains "all" %}
+                <li class="mobile-nav__sublist-link">
+                  <a id="link2-pos{{ forloop.index }}" href="{{ grandchildlink.url }}" class="{% if grandchildlink.active %} site-nav--active1 {% endif %}">{{ grandchildlink.title }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+              </ul>
+            </li>
+        	
+          {% elsif linklists[grand_child_list_handle].links != blank %}
+        	<li class="mobile-nav__link " aria-haspopup="true">
+              <a id="link2-{{ childlink.handle }}" hrefs="/pages/{{ childlink.handle }}" style="color:black;" class="mobile-nav__sublist-trigger">
+                {{ childlink.title | escape }}
+                {% include 'mobile-nav-icons' %}
+              </a>
+              <ul id="{{ childlink.handle }}-ul1" class="mobile-nav__sublist" styles="display:none;">
+                {% for grandchildlink in linklists[grand_child_list_handle].links %}
+                  {% assign grandchildlink_handle = grandchildlink.url |split:'/' %}
+                  {% if tag_array contains grandchildlink_handle.last %}
+                  <li class="mobile-nav__sublist-link">
+                    <a id="link2-{{ childlink.handle }}-{{ forloop.index }}" href="/collections/{{ collection_handle }}/{{ grandchildlink_handle.last |handle}}{{ sort_url_params }}" class="">{{ grandchildlink.title }}</a>
+                  </li>
+                  {% endif %}
+				{% endfor %}
               </ul>
             </li>
           {% endif %}
@@ -174,7 +205,7 @@
   {% endif %}
   
   <li class="mobile-nav__link">
-    {% if section.settings.header_search_enable %}
+    {% if section.settings.header_search_enable and false %}
       <div class="header-bar__module header-bar__search">
         {% include 'search-bar' with 'header' %}
       </div>

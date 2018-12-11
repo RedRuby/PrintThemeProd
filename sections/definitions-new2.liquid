@@ -131,7 +131,7 @@
               
   var vendorList = $.unique("{{ vendor_array }}".split(',')).sortIgnoreCase();
   
-  var typeList = $.unique("{{ type_array }}".split(',')).sort(); {% unless template contains "dev" %}typeList.splice(typeList.indexOf("POS(No Customization)"), 1);{% endunless %}
+  var typeList = $.unique("{{ type_array }}".split(',')).sort();
   
   var vendorTagList = $.unique("{{ vendor_tag_array }}".split(',')).sortIgnoreCase();
   

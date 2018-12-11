@@ -25,7 +25,7 @@
     "type_accent_size": "16px",
     "type_accent_transform": true,
     "type_accent_spacing": false,
-    "favicon": "",
+    "favicon": "shopify:\/\/shop_images\/Header_logo_cropped5.png",
     "social_twitter_link": "",
     "social_facebook_link": "",
     "social_pinterest_link": "",
@@ -44,7 +44,7 @@
     "share_google": false,
     "social_sharing_style": "normal",
     "checkout_header_image": "",
-    "checkout_logo_image": "",
+    "checkout_logo_image": "shopify:\/\/shop_images\/Header_logo_cropped.png",
     "checkout_logo_position": "left",
     "checkout_logo_size": "medium",
     "checkout_body_background_image": "",
@@ -101,7 +101,7 @@
           "1507134060614": {
             "type": "text-block",
             "settings": {
-              "popup_text": "SORRY FOR THE INCONVENIENCE\nTHIS SITE IS TEMPORARILY UNAVAILABLE. \nPlease visit www.pepsicaliforniaprintshop.com",
+              "popup_text": "Only Google Chrome and Safari are supported browsers. Please do not use Internet Explorer.",
               "text_color": "#000000",
               "bg_color": "#ffffff",
               "popup_width": "640",
@@ -112,7 +112,7 @@
           "1507134076418": {
             "type": "text-block",
             "settings": {
-              "popup_text": "This website will be live as of P3, 02\/25. Please feel free to submit ‘test’ orders in the meantime. These orders will be cancelled out from the system prior to the start date. Please go to PepsiMountainPrintShop.com for orders that need to be produced.",
+              "popup_text": "Ensure you’re using the correct location\/department payment code. Using the wrong one will result in your request being cancelled upon initial review.",
               "text_color": "#000000",
               "bg_color": "#ffffff",
               "popup_width": "640",
@@ -200,6 +200,70 @@
       "definitions-new2": {
         "type": "definitions-new2",
         "blocks": {
+          "definitions-new2-17": {
+            "type": "markets",
+            "settings": {
+              "image": "",
+              "title": "SouthEast",
+              "content": "MKTATLMegaCity,MKTGA,MKTSFLMegaCity,MKTCFLMegaCity,MKTCarolinas,MKTNFLMegaCity"
+            }
+          },
+          "definitions-new2-16": {
+            "type": "markets",
+            "settings": {
+              "image": "",
+              "title": "NorthEast",
+              "content": "MKTSpanish,MKTBostonMegaCity,MKTPhillyMegaCity"
+            }
+          },
+          "definitions-new2-18": {
+            "type": "markets",
+            "settings": {
+              "image": "",
+              "title": "South",
+              "content": "MKTNMWTexas,MKTTexas,MKTGMPOS,MKTMedalsOutsideTexas,MKTMedalsTexas"
+            }
+          },
+          "definitions-new2-20": {
+            "type": "markets",
+            "settings": {
+              "image": "",
+              "title": "California",
+              "content": ""
+            }
+          },
+          "definitions-new2-19": {
+            "type": "markets",
+            "settings": {
+              "image": "",
+              "title": "Mountain",
+              "content": "MKTAlaska,MKTArizona,MKTColorado,MKTIdaho,MKTOregon,MKTUtah,MKTWashington,MKTHawaii,MKTNMWTexas"
+            }
+          },
+          "definitions-new2-21": {
+            "type": "markets",
+            "settings": {
+              "image": "",
+              "title": "MidAtlantic",
+              "content": ""
+            }
+          },
+          "definitions-new2-22": {
+            "type": "markets",
+            "settings": {
+              "image": "",
+              "title": "MidWest",
+              "content": "MKTChicago,MKTWisconsin,MKTDakotas"
+            }
+          },
+          "definitions-new2-23": {
+            "type": "markets",
+            "settings": {
+              "image": "",
+              "title": "GreatLakes",
+              "content": ""
+            }
+          },
           "definitions-new2-0": {
             "type": "elements_and_prices",
             "settings": {
@@ -215,7 +279,7 @@
               "image": "",
               "title": "Banner",
               "element_price": "24.00",
-              "type": "POS"
+              "type": "POS(Customizable)"
             }
           },
           "definitions-new2-2": {
@@ -260,7 +324,7 @@
               "image": "",
               "title": "Other",
               "element_price": "35.00",
-              "type": "POS(No Template)"
+              "type": "POS(Customizable)"
             }
           },
           "definitions-new2-6": {
@@ -278,7 +342,7 @@
               "image": "",
               "title": "Poster",
               "element_price": "1.30",
-              "type": "POS(No Template)"
+              "type": "POS(Customizable)"
             }
           },
           "definitions-new2-8": {
@@ -286,7 +350,7 @@
             "settings": {
               "image": "",
               "title": "Pump Topper",
-              "element_price": "0.60",
+              "element_price": "6.50",
               "type": "POS"
             }
           },
@@ -344,76 +408,12 @@
               "type": "POS"
             }
           },
-          "definitions-new2-16": {
-            "type": "markets",
-            "settings": {
-              "image": "",
-              "title": "NorthEast",
-              "content": "MKTSpanish,MKTBostonMegaCity,MKTPhillyMegaCity"
-            }
-          },
-          "definitions-new2-17": {
-            "type": "markets",
-            "settings": {
-              "image": "",
-              "title": "SouthEast",
-              "content": "MKTATLMegaCity,MKTGA,MKTSFLMegaCity,MKTCFLMegaCity,MKTCarolinas,MKTNFLMegaCity"
-            }
-          },
-          "definitions-new2-18": {
-            "type": "markets",
-            "settings": {
-              "image": "",
-              "title": "South",
-              "content": "MKTNMWTexas,MKTTexas"
-            }
-          },
-          "definitions-new2-19": {
-            "type": "markets",
-            "settings": {
-              "image": "",
-              "title": "Mountain",
-              "content": "MKTAlaska,MKTArizona,MKTColorado,MKTIdaho,MKTOregon,MKTUtah,MKTWashington,MKTHawaii,MKTNMWTexas"
-            }
-          },
-          "definitions-new2-20": {
-            "type": "markets",
-            "settings": {
-              "image": "",
-              "title": "California",
-              "content": ""
-            }
-          },
-          "definitions-new2-21": {
-            "type": "markets",
-            "settings": {
-              "image": "",
-              "title": "MidAtlantic",
-              "content": ""
-            }
-          },
-          "definitions-new2-22": {
-            "type": "markets",
-            "settings": {
-              "image": "",
-              "title": "MidWest",
-              "content": "MKTChicago,MKTWisconsin,MKTDakotas"
-            }
-          },
-          "definitions-new2-23": {
-            "type": "markets",
-            "settings": {
-              "image": "",
-              "title": "GreatLakes",
-              "content": ""
-            }
-          },
           "1510730856283": {
             "type": "elements_and_prices",
             "settings": {
               "image": "",
               "title": "2 x 3 Window Mesh Poster",
-              "element_price": "0.01",
+              "element_price": "5.01",
               "type": "PTT"
             }
           },
@@ -503,7 +503,7 @@
             "settings": {
               "image": "",
               "title": "Base Wrap",
-              "element_price": "20.00",
+              "element_price": "7.00",
               "type": "POS(No Template)"
             }
           },
@@ -539,8 +539,8 @@
             "settings": {
               "image": "",
               "title": "Floor Graphics",
-              "element_price": "0.01",
-              "type": "POS(No Template)"
+              "element_price": "5.00",
+              "type": "POS(Customizable)"
             }
           },
           "1519112800753": {
@@ -548,7 +548,7 @@
             "settings": {
               "image": "",
               "title": "Clips",
-              "element_price": "0.01",
+              "element_price": "35.00",
               "type": "POS(No Template)"
             }
           },
@@ -557,7 +557,7 @@
             "settings": {
               "image": "",
               "title": "Border or Logo Tape",
-              "element_price": "0.01",
+              "element_price": "4.00",
               "type": "POS(No Template)"
             }
           },
@@ -566,7 +566,7 @@
             "settings": {
               "image": "",
               "title": "Schematic Books",
-              "element_price": "0.01",
+              "element_price": "51.00",
               "type": "POS(No Template)"
             }
           },
@@ -575,12 +575,128 @@
             "settings": {
               "image": "",
               "title": "Headers",
-              "element_price": "0.01",
+              "element_price": "6.50",
               "type": "POS(Customizable)"
+            }
+          },
+          "1527854797686": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Frosted Decals",
+              "element_price": "25.00",
+              "type": "PTT"
+            }
+          },
+          "1528781689981": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Register Topper",
+              "element_price": "0.50",
+              "type": "POS(Customizable)"
+            }
+          },
+          "1530606048208": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Cooler Header",
+              "element_price": "0.01",
+              "type": "PTT"
+            }
+          },
+          "1528781716427": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Neck Hanger",
+              "element_price": "0.03",
+              "type": "POS(Customizable)"
+            }
+          },
+          "1528782063475": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Sticker IRC",
+              "element_price": "0.05",
+              "type": "POS(No Template)"
+            }
+          },
+          "1528782088512": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Tear Pad",
+              "element_price": "0.03",
+              "type": "POS(No Template)"
+            }
+          },
+          "1528782379648": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Display Topper",
+              "element_price": "11.00",
+              "type": "POS(No Template)"
+            }
+          },
+          "1528782408745": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Corner Board",
+              "element_price": "7.50",
+              "type": "POS(No Template)"
+            }
+          },
+          "1528782456243": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Rail Strip Pages",
+              "element_price": "0.50",
+              "type": "POS(Customizable)"
+            }
+          },
+          "1529042098805": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Belly Band",
+              "element_price": "0.15",
+              "type": "POS(No Template)"
+            }
+          },
+          "1529042176060": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Pennant String",
+              "element_price": "15.00",
+              "type": "POS(No Template)"
+            }
+          },
+          "1529042203575": {
+            "type": "elements_and_prices",
+            "settings": {
+              "image": "",
+              "title": "Menu",
+              "element_price": "0.50",
+              "type": "POS(No Template)"
             }
           }
         },
         "block_order": [
+          "definitions-new2-17",
+          "definitions-new2-16",
+          "definitions-new2-18",
+          "definitions-new2-20",
+          "definitions-new2-19",
+          "definitions-new2-21",
+          "definitions-new2-22",
+          "definitions-new2-23",
           "definitions-new2-0",
           "definitions-new2-1",
           "definitions-new2-2",
@@ -597,14 +713,6 @@
           "definitions-new2-13",
           "definitions-new2-14",
           "definitions-new2-15",
-          "definitions-new2-16",
-          "definitions-new2-17",
-          "definitions-new2-18",
-          "definitions-new2-19",
-          "definitions-new2-20",
-          "definitions-new2-21",
-          "definitions-new2-22",
-          "definitions-new2-23",
           "1510730856283",
           "1510730877183",
           "1510730896146",
@@ -623,17 +731,55 @@
           "1519112800753",
           "1519112812541",
           "1519112833815",
-          "1519112922869"
+          "1519112922869",
+          "1527854797686",
+          "1528781689981",
+          "1530606048208",
+          "1528781716427",
+          "1528782063475",
+          "1528782088512",
+          "1528782379648",
+          "1528782408745",
+          "1528782456243",
+          "1529042098805",
+          "1529042176060",
+          "1529042203575"
         ],
         "settings": {
-          "vendor_list": "1893,Amp,Any Brand,Aquafina,Big Red,Brisk,bubly,Bundaberg,Caleb's Kola,Canada Dry,Crush,Diet Pepsi,Dr. Pepper,Fruit Shoot,Gatorade,IZZE,Kevita,Kickstart,LIFEWTR,Lemon Lemon,Lipton,MUG,Manzanita Sol,Menehune,Metahune Water,Mist Twst,Mountain Dew,Muscle Milk,Naked Juice,No Fear,O.N.E.,Ocean Spray,PACt,Paso de Los Toro,Pepsi,Pepsi Zero,Portfolio,Propel,Pure Leaf,Quaker,RockStar,Schweppes,SoBe,Starbucks,Stubborn Soda,Tampico,Tropicana,Voss,Water+,Xyience,Yachak",
+          "vendor_list": "1893,Amp,Any Brand,Aquafina,Bang Energy,Big Red,Brisk,bubly,Bundaberg,Caleb's Kola,Canada Dry,Country Time,Crush,Diet Pepsi,Dr. Pepper,Fruit Shoot,Gatorade,IZZE,Jumex Refreshers,Kevita,Kickstart,LIFEWTR,Lemon Lemon,Lipton,MUG,Manzanita Sol,Menehune,Metahune Water,Mountain Dew,Muscle Milk,Naked Juice,No Fear,O.N.E.,Ocean Spray,PACt,Paso de Los Toro,Pepsi,Pepsi Zero,Portfolio,Propel,Pure Leaf,Quaker,Rockstar,Sierra Mist,Schweppes,SoBe,Starbucks,Stubborn Soda,Tampico,Tropicana,Voss,Water+,Xyience,Yachak",
           "type_list": "POS,PTT,POS(No Customization)",
-          "program_tag_list": "PR:BornInTheCarolinas,PR:ChilledDSD,PR:Emojis,PR:Hispanic,PR:Holiday,PR:MSCircularStaticClings,PR:MSPopoutRailStrips,PR:MSPriceChangeStickers,PR:MSStaticClings,PR:PSCowboys,PR:PSDewCountry,PR:PSGatorade,PR:PSPepsi,PR:PSRockets,PR:PSWestbrook,PR:Summer,PR:TaxFree,PR:WaterPlus",
+          "program_tag_list": "PR:BajaBlast,PR:BornInTheCarolinas,PR:ChilledDSD,PR:C&UFrostedDecals,PR:Emojis,PR:Hispanic,PR:Holiday,PR:HowDewIsDone2.0,PR:MSCircularStaticClings,PR:MSPopoutRailStrips,PR:MSPriceChangeStickers,PR:MSStaticClings,PR:PSCowboys,PR:PSDewCountry,PR:PSGatorade,PR:PSPepsi,PR:PSRockets,PR:PSWestbrook,PR:Summer,PR:TaxFree,PR:WaterPlus",
           "sports_tag_list": "ST:BaseballMLB,ST:BaseballMILB,ST:BasketballCollege,ST:BasketballNBA,ST:Fishing,ST:FootballCollege,ST:FootballNFL,ST:HockeyNHL,ST:NASCAR,ST:Soccer,ST:SuperBowl,ST:Surfing",
-          "speciality_tag_list": "SP:AisleInterrupters,SP:Banjo,SP:BaseWrap,SP:BumpBlasters,SP:ChannelIDStrip,SP:Clip,SP:DayGlow,SP:DieCutRailStrips,SP:FrostyPawsBarrelWrap,SP:Other,SP:PTTAquafina,SP:PTTBlue,SP:PTTDew,SP:PTTGatorade,SP:PTTPepsiZero,SP:PTTRockstar,SP:PTTSpanish,SP:PTTStarbucks,SP:PushPulls,SP:RechargeableBarrelWrap,SP:RectangularBarrelWrap,SP:RitePrice,SP:Truckback,SP:VendingSnipes",
-          "account_specific_tag_list": "AS:7Eleven,AS:Allsups,AS:AMPM,AS:BubbleClean,AS:BuyersCoop,AS:CAFishGrill,AS:Chevron,AS:CircleK,AS:ConocoShell,AS:CVS,AS:DollarGeneral,AS:FamilyDollar,AS:Fastrip,AS:GandMOil,AS:GuitarCenter,AS:Hyatt,AS:LittleCeasars,AS:LoafNJug,AS:PriceRite,AS:QuickChek,AS:Racetrac,AS:Sedanos,AS:ShopRite,AS:ShortlineExpress,AS:Speedway,AS:Spruces,AS:Stram,AS:Sunoco,AS:TerribleHerbst,AS:UnitedOil,AS:Walgreens,AS:Walmart,AS:Lowes,AS:Safeway,AS:Smiths,AS:Tesoro,AS:Bashas,AS:NTBA,AS:GHRA,AS:STMA",
+          "speciality_tag_list": "SP:AisleInterrupters,SP:Banjo,SP:BaseWrap,SP:BumpBlasters,SP:ChannelIDStrip,SP:Clip,SP:DayGlow,SP:DieCutRailStrips,SP:FrostyPawsBarrelWrap,SP:Other,SP:PTTAquafina,SP:PTTBlue,SP:PTTbubly,SP:PTTDew,SP:PTTGatorade,SP:PTTLIFEWTR,SP:PTTPepsiZero,SP:PTTEnergy,SP:PTTSpanish,SP:PTTStarbucks,SP:PushPulls,SP:RechargeableBarrelWrap,SP:RectangularBarrelWrap,SP:RitePrice,SP:Truckback,SP:VendingSnipes",
+          "account_specific_tag_list": "AS:7Eleven,AS:Allsups,AS:AMPM,AS:BubbleClean,AS:BuyersCoop,AS:CAFishGrill,AS:Chevron,AS:CircleK,AS:ConocoShell,AS:CVS,AS:DollarGeneral,AS:FamilyDollar,AS:Fastrip,AS:GandMOil,AS:GuitarCenter,AS:Houchens,AS:Hyatt,AS:LittleCeasars,AS:LoafNJug,AS:PriceRite,AS:QuickChek,AS:Racetrac,AS:Sedanos,AS:ShopRite,AS:ShortlineExpress,AS:Speedway,AS:Spruces,AS:Stram,AS:Sunoco,AS:TerribleHerbst,AS:UnitedOil,AS:Walgreens,AS:Walmart,AS:Lowes,AS:RoyalFarms,AS:Safeway,AS:Smiths,AS:Tesoro,AS:Bashas,AS:NTBA,AS:GHRA,AS:STMA,AS:AC&T,AS:HandyMart,AS:Shoppers,AS:Redskins",
           "department_tag_list": "DPT:FoodService,DPT:MEM,DPT:Marketing,DPT:PermMerch,DPT:TradeExpense,DPT:Warehouse,DPT:Specialty,DPT:GroupsandErgs,DPT:Manuals,DPT:OutsideServices,DPT:SchematicBooks",
           "new_tag_list": "New:NorthEast,New:SouthEast,New:California,New:S0uth,New:Mountain,New:MidAtlantic,New:MidWest,New:GreatLakes"
+        }
+      },
+      "featured-video": {
+        "type": "featured-video",
+        "blocks": {
+          "1526476165936": {
+            "type": "video",
+            "settings": {
+              "title": "Window Wrap Installation Instruction Video",
+              "video_url": "https:\/\/youtu.be\/ndZvrkOb22U"
+            }
+          },
+          "1542265704116": {
+            "type": "video",
+            "settings": {
+              "title": "Wall Wrap Installation Video",
+              "video_url": "https:\/\/youtu.be\/tzXE865_9Rc"
+            }
+          }
+        },
+        "block_order": [
+          "1526476165936",
+          "1542265704116"
+        ],
+        "settings": {
+          "title": ""
         }
       }
     },

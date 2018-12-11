@@ -6,6 +6,7 @@
     selectedPrices = (selectedPrices.length > 0) ? selectedPrices.split(',') : [];
 
 //     var selectedOptions = instance.getDataAtCell(row, col-6);
+    var defaultPrice = JSON.parse(defaultPriceList);
     if(selectedOptions == null)selectedOptions = "";
     selectedOptions = (selectedOptions.length > 0) ? selectedOptions.split(',') : [];
 
@@ -16,14 +17,14 @@
 //                           selectedOptions.forEach(function(option, index){
 // 							price[option] = '0.00';
 //                           });
-      price = JSON.parse(defaultPriceList);
+      price = defaultPrice;
     }else
       price = JSON.parse(price);
 
     $('#optionPriceModal tbody').html('');
     selectedOptions.forEach(function(option, index){
-        try{ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0) this.value = \'0.00\'; else this.value = (parseFloat(this.value)||0).toFixed(2); " value="'+ ((price[option] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? price[option] : "0.00") +'"></td></tr>'); }
-        catch(e){ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0) this.value = \'0.00\'; else this.value = (parseFloat(this.value)||0).toFixed(2); " value="'+ ((selectedPrices[index] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? selectedPrices[index] : "0.00") +'"></td></tr>'); }
+        try{ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0 || this.value == 0) this.value = \'0.01\'; else this.value = (parseFloat(this.value)||0.01).toFixed(2); " value="'+ ((price[option] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? price[option] : "0.01") +'"></td></tr>'); }
+        catch(e){ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0 || this.value == 0) this.value = \'0.01\'; else this.value = (parseFloat(this.value)||0.01).toFixed(2); " value="'+ ((selectedPrices[index] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? selectedPrices[index] : "0.01") +'"></td></tr>'); }
     });
 
 //     $("#priceSave").prop('disabled', 'disabled');

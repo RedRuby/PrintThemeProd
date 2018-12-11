@@ -185,6 +185,9 @@
               {% elsif variant.option1 == 'Store Banner' %}
                 {% assign store_banner = true %}
             
+              {% elsif variant.option1 == 'Cooler Header' %}
+                {% assign cooler_header = true %}
+            
               {% elsif variant.option1 == '2 x 3 Window Mesh Poster' %}
             	{% if variant.option2 == blank or variant.option2 == 'Default' %}
                   {% assign store_banner = true %}
@@ -198,6 +201,11 @@
                   <p>An Image of the space you are covering is required
   (hint: order via your iPad and upload right from your gallery!)
   Not required but really helpful is an Excel Map of the space you are covering if the space is more than 6 windows ...<br>Above is a sample of what these maps could look like.</p>
+				{% endif %}
+              {% elsif variant.option1 == 'Frosted Decals' %}
+            	{% if variant.option2 == blank or variant.option2 == 'Default' %}
+                  {% assign window_mesh = true %}
+                  <p>Quantity 1-10: $20.82 each<br /><br />Quantity: 10-50: $14.75 each<br /><br />Quantity 50-100: $10.24 each<br /><br />Quantity 100+: $8.87 each</p>
 				{% endif %}
             
               {% endif %}
@@ -301,24 +309,27 @@
             <div class="hide">
               {% if window_mesh %}
                   <label for="">Total Window Area(H x W) in sq. inch</label>
-                  <input type="text" readonly disabled1 name="properties[__Total Window Area(H x W)]" />
+                  <input type="text" readonly disabled1 name="properties[__Total Window Area(H x W)]" value="1"/>
                   <label for="">Window Mesh Calculated Unit Price</label>
-                  <input type="text" readonly disabled1 name="properties[__Window Mesh Calculated Unit Price]" />
+                  <input type="text" readonly disabled1 name="properties[__Window Mesh Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
               {% elsif wallpaper %}
-                  <input type="text" readonly disabled1 name="properties[__Total Wallpaper Area(H x W)]" />
-                  <input type="text" readonly disabled1 name="properties[__Wallpaper Calculated Unit Price]" />
+                  <input type="text" readonly disabled1 name="properties[__Total Wallpaper Area(H x W)]" value="1"/>
+                  <input type="text" readonly disabled1 name="properties[__Wallpaper Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
               {% elsif fountain_back %}
-                  <input type="text" readonly disabled1 name="properties[__Total Fountain Back Area(H x W)]" />
-                  <input type="text" readonly disabled1 name="properties[__Fountain Back Calculated Unit Price]" />
+                  <input type="text" readonly disabled1 name="properties[__Total Fountain Back Area(H x W)]" value="1"/>
+                  <input type="text" readonly disabled1 name="properties[__Fountain Back Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
               {% elsif fountain_backsplash %}
-                  <input type="text" readonly disabled1 name="properties[__Total Fountain Backsplash Area(H x W)]" />
-                  <input type="text" readonly disabled1 name="properties[__Fountain Backsplash Calculated Unit Price]" />
+                  <input type="text" readonly disabled1 name="properties[__Total Fountain Backsplash Area(H x W)]" value="1"/>
+                  <input type="text" readonly disabled1 name="properties[__Fountain Backsplash Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
               {% elsif cooler_vault_wrap %}
                   <input type="text" readonly disabled1 name="properties[__Total Cooler Vault Wrap Area(H x W)]" value="1"/>
                   <input type="text" readonly disabled1 name="properties[__Cooler Vault Wrap Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
               {% elsif store_banner %}
-                  <input type="text" readonly disabled1 name="properties[__Total Store Banner Area(H x W)]" />
-                  <input type="text" readonly disabled1 name="properties[__Store Banner Calculated Unit Price]" />
+                  <input type="text" readonly disabled1 name="properties[__Total Store Banner Area(H x W)]" value="1"/>
+                  <input type="text" readonly disabled1 name="properties[__Store Banner Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
+              {% elsif cooler_header %}
+                  <input type="text" readonly disabled1 name="properties[__Total Cooler Header Area(H x W)]" value="1"/>
+                  <input type="text" readonly disabled1 name="properties[__Cooler Header Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
               {% else %}
               
               {% endif %}
@@ -500,6 +511,28 @@
         }
      }); 
       
+     $('input[type="file"]').before("<div class='product-customizer-option-description'>Supported file types: '*.jpg', '*.png' and '*.pdf' with maximum file size 1MB </div>").bind('change', function(){
+            var file = this.files[0];
+        	var ext = this.value.match(/\.([^\.]+)$/)[1].toLowerCase();
+            switch(ext)
+            {
+                case 'jpg':
+                case 'jpeg':
+                case 'png':
+                case 'pdf':
+                    // alert('allowed');
+                	if(file.size/1024/1024 > 1 ){
+                    	show_message4('Invalid file size...',false,'Try adding file of size < 1 MB');
+						this.value='';
+                    }
+                    break;
+                default:
+                	show_message4('Invalid file type...',false,'Try adding file of supported types.');
+                    this.value='';
+            }
+        	
+      });
+      
      {% unless product.tags contains customer_region_tag %}
       setInterval( function(){ $('#AddToCartForm').bind('submit', function(e){ e.preventDefault(); }); }, 1000);
      {% endunless %}
@@ -546,13 +579,14 @@
     
     $('div[data-option-name = "logo-upload"]').remove();
     
-    
+    {% if template.name == 'product' and template.suffix != 'alternate' %}
     if($("input[name = 'properties[Price Point Needed]']").length > 0){
       $("input[name = 'properties[Price Point Needed]']").on('change', function(e){
         setPP(this);
       });
       $("[name='properties[Price Point Needed]'][value='No']").prop('checked', 'checked').change();
     }
+    {% endif %}
     
     $('#pc1').attr('href', $('#link-sales').attr('href'));
 	$('#pc2').attr('href', $('#link-food-service').attr('href'));
@@ -587,7 +621,7 @@
   	if($('[name="id"]').text().toLowerCase().indexOf('window mesh') != -1){
       
     for(i=1; i<=$("select[name = 'properties[# of Consecutive Windows]'] option").length; i++){
-    	$("[data-option-name = 'window-"+i+"-width'], [data-option-name = 'window-"+i+"-height']").addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend((i == 1) ? '<label>Window Size(s)</label>' : '');
+    	$("[data-option-name = 'window-"+i+"-width'], [data-option-name = 'window-"+i+"-height']").addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend((i == 1) ? '<label>Window Size(s) (required)</label>' : '');
 //       $("[name = 'properties[Window "+i+" Width in feet]'], [name = 'properties[Window "+i+" Width in inches]']").wrapAll('<div class="w3-row"></div>').wrap('<div class="w3-col s6"></div>');
 //       $("[name = 'properties[Window "+i+" Height in feet]'], [name = 'properties[Window "+i+" Height in inches]']").wrapAll('<div class="w3-row"></div>').wrap('<div class="w3-col s6"></div>');
       	$('[data-option-name^="window-"] label').hide();
@@ -621,7 +655,7 @@
     }
     
     else if($('[name="id"]').text().toLowerCase().indexOf('wallpaper') != -1){
-      $('[data-option-name^="wallpaper-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Wallpaper Size</label>');
+      $('[data-option-name^="wallpaper-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Wallpaper Size (required)</label>');
       $('[data-option-name^="wallpaper-"] label').hide();
       $('[name^="properties[Wallpaper "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
       	cal_prod_price = 0.00;
@@ -632,7 +666,7 @@
 
         unit_price = ( addCommas((cal_prod_price).toFixed(2)) ).replace('NaN','{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}');
 
-        $('[name="properties[__Total Wallpaper Area(H x W)]"]').val(cal_win_area); 
+        $('[name="properties[__Total Wallpaper Area(H x W)]"]').val(cal_win_area || 1); 
         $('[name="properties[__Wallpaper Calculated Unit Price]"]').val(unit_price); 
         $('#ProductPrice').text( unit_price );
       });
@@ -640,7 +674,7 @@
     }
     
     else if($('[name="id"]').text().toLowerCase().indexOf('fountain backsplash') != -1){
-      $('[data-option-name^="fountain-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size</label>');
+      $('[data-option-name^="fountain-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size (required)</label>');
       $('[data-option-name^="decal-size-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Decal Size (required)</label>');
       $('[data-option-name^="fountain-"] label, [data-option-name^="decal-size-"] label').hide();
       $('[name^="properties[Fountain "], [name^="properties[Decal Size "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
@@ -663,9 +697,9 @@
     
     else if($('[name="id"]').text().toLowerCase().indexOf('cooler vault wrap') != -1){
 //       $('input[name^="properties[Size "]')
-      $('[data-option-name^="size-above-vault-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size ABOVE Vault</label>');
-      $('[data-option-name^="size-left-of-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size LEFT of Vault</label>');
-      $('[data-option-name^="size-right-of-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size RIGHT of Vault</label>');
+      $('[data-option-name^="size-above-vault-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size ABOVE Vault (required)</label>');
+      $('[data-option-name^="size-left-of-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size LEFT of Vault (required)</label>');
+      $('[data-option-name^="size-right-of-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size RIGHT of Vault (required)</label>');
       $('[data-option-name^="size-above-vault-"] label, [data-option-name^="size-left-of-"] label,  [data-option-name^="size-right-of-"] label').hide();
       $('[name^="properties[Size ABOVE Vault "], [name^="properties[Size LEFT of Vault "], [name^="properties[Size RIGHT of Vault "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
       	cal_prod_price = 0.00;
@@ -714,7 +748,7 @@
     }
     
     else if($('[name="id"]').text().toLowerCase().indexOf('store banner') != -1){
-      $('[data-option-name^="size-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size(required) ( Maximum H-54 and W-300)</label>');
+      $('[data-option-name^="size-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size(required) ( Maximum H-54 and W-240)</label>');
       $('[data-option-name^="size-"] label').hide();
       obj1 = $('[name^="properties[Size "]').first();
       obj2 = $('[name^="properties[Size "]').last();
@@ -736,16 +770,16 @@
           }
         }
         obj2[0].setCustomValidity('');
-      	if(!isNaN(obj2.val()) && Number(obj2.val()) > 300 ){
+      	if(!isNaN(obj2.val()) && Number(obj2.val()) > 240 ){
            valid = false;
-           obj2[0].setCustomValidity('Maximum allowable value is 300');
-           obj2.val('300').trigger("input");
+           obj2[0].setCustomValidity('Maximum allowable value is 240');
+           obj2.val('240').trigger("input");
         
           // e.target.checkValidity()
           try{
             obj2[0].reportValidity();
           }catch(e){
-            msg += 'Maximum allowable width is 300 inches';
+            msg += 'Maximum allowable width is 240 inches';
           }
         }
         if(!valid && msg.length > 0){
@@ -767,6 +801,25 @@
           $('#ProductPrice').text( unit_price );
         }
       });
+    }
+    
+    else if($('[name="id"]').text().toLowerCase().indexOf('cooler header') != -1){
+    	$('[data-option-name^="size-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Cooler Header Size (required)</label>');
+        $('[data-option-name^="size-"] label').hide();
+      	
+      	$('[name^="properties[Size "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
+          cal_prod_price = 0.00;
+          cal_win_area = 0.00;
+
+          cal_win_area += parseFloat($('[name^="properties[Size "]').first().val()) * parseFloat($('[name^="properties[Size "]').last().val());
+          cal_prod_price += parseFloat($('[name^="properties[Size "]').first().val()) * parseFloat($('[name^="properties[Size "]').last().val()) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
+
+          unit_price = ( addCommas((cal_prod_price).toFixed(2)) ).replace('NaN','{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}');
+
+          $('[name="properties[__Total Cooler Header Area(H x W)]"]').val(cal_win_area); 
+          $('[name="properties[__Cooler Header Calculated Unit Price]"]').val(unit_price); 
+          $('#ProductPrice').text( unit_price );
+        });
     }
     
   }
@@ -804,7 +857,7 @@
     }
     else{
       $("[data-option-name='price-point']").show();
-      $("[name='properties[Price Point]']").prop({'required': 'required', 'patterns': '[\\d]+\.?[\\d]?'}).attr({'onchanges': 'formatThis(this);', 'oninput': 'this.value = this.value.match(/[\\d\.$/]+/);'});
+      $("[name='properties[Price Point]']").prop({'required': 'required', 'patterns': '[\\d]+\.?[\\d]?'}).attr({'onchanges': 'formatThis(this);', 'oninputs': 'this.value = this.value.match(/[\\d\.$/]+/);'});
     }
   }
     

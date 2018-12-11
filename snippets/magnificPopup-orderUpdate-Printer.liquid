@@ -16,7 +16,7 @@
   <input type="text" patterns="" required class="shipping_code" name="shipping_code" value="" placeholder="Enter Shipping Code" onchange="contentChanged();" />
   {% endcomment %}
   <label class="text-left" for="" >Delivery Method</label>
-  <select class="tracking_company" required name="tracking_company" onchange="if( this.value == 'Pick Up' || this.value == 'Pick Up/Company Truck' || this.value == 'Install' ){ changeTracking(true); }else{ changeTracking(false); } if(this.value == 'Other'){ showOtherMethod(true); }else {  showOtherMethod(false); } contentChanged();">
+  <select class="tracking_company" required name="tracking_company" onchange="if( this.value == 'Pick Up' || this.value == 'Pick Up/Company Truck' || this.value == 'Install' || this.value == 'Emailed (artwork only)' ){ changeTracking(true); }else{ changeTracking(false); } if(this.value == 'Other'){ showOtherMethod(true); }else {  showOtherMethod(false); } contentChanged();">
     <option class="UPS" value="UPS">UPS</option>
     <option class="USPS" value="USPS">USPS</option>
     <option class="FedEx" value="FedEx">FedEx</option>
@@ -24,6 +24,7 @@
     <option class="Pick-Up-or-Company-Truck" value="Pick Up/Company Truck">Pick Up/Company Truck</option>
     <option class="FedEx-3rd-party" value="FedEx (Third party account)">FedEx (Third party account)</option>
     <option class="Install" value="Install">Install</option>
+    <option class="Emailed-artwork-only" value="Emailed (artwork only)">Emailed (artwork only)</option>
     <option class="Other" value="Other">Other</option>
   </select>
   <div style="display:none;">  
@@ -33,7 +34,7 @@
     <label class="text-left" for="" >Tracking Number <b><small style="margin-top: 8px!important; font-size:11px;" class="tracking_num_title w3-right"></small></b></label>
   <div style="position:relative;">
     <div style="position:relative;">
-      <input type="text" class="tracking_number" name="tracking_number" required value="" pattern="[A-za-z0-9]{0,18}" maxlength="18" titles="Enter an alphanumeric Tracking Number of upto 18 Characters." placeholder="Enter Tracking Number" oninput="validateTracking(this);" onchange="contentChanged();" />
+      <input type="text" class="tracking_number" name="tracking_number" required value="" pattern1="[A-za-z0-9]{0,18}" maxlength="18" titles="Enter an alphanumeric Tracking Number of upto 18 Characters." placeholder="Enter Tracking Number" oninput="validateTracking(this);" onchange="contentChanged();" />
       <button class="no-btn w3-right removeTracking" title="Remove this Tracking No." style="position:absolute; bottom:5px; right:10px;" onclick="removeTracking(this);"><i class="fa fa-minus-square"></i></button>
     </div>
     <button class="w3-right no-btn add_tno" title="Add More Tracking No." style="position:absolute; bottom:5px; right:10px; z-index:100;" type="button" onclick="addTracking(this);"><i class="fa fa-plus-square w3-white"></i></button>
@@ -143,10 +144,10 @@
       	$('#OrderEditModal .tracking_number, #OrderEditModal .add_tno').removeAttr('disabled').css('cursor', '');
     	$tracking_company = $('[name="tracking_company"] option').filter(':selected').attr('value');
         switch($tracking_company){
-          case 'UPS': $('#OrderEditModal .tracking_number').prop({'pattern':'[A-za-z0-9]{10,18}','maxlength':'18','titles':'Enter an alphanumeric Tracking Number of upto 18 Characters.'}); break;
-          case 'USPS': $('#OrderEditModal .tracking_number').prop({'pattern':'[0-9]{10,22}','maxlength':'22','titles':'Enter a numeric Tracking Number of upto 22 Characters.'}); break;
-          case 'FedEx': $('#OrderEditModal .tracking_number').prop({'pattern':'[0-9]{10,15}','maxlength':'15','titles':'Enter a numeric Tracking Number of upto 15 Characters.'}); break;
-          case 'FedEx (Third party account)': $('#OrderEditModal .tracking_number').prop({'pattern':'[0-9]{10,15}','maxlength':'15','titles':'Enter a numeric Tracking Number of upto 15 Characters.'}); break;
+          case 'UPS': $('#OrderEditModal .tracking_number').prop({'pattern1':'[A-za-z0-9]{10,18}','maxlength':'18','titles':'Enter an alphanumeric Tracking Number of upto 18 Characters.'}); break;
+          case 'USPS': $('#OrderEditModal .tracking_number').prop({'pattern1':'[0-9]{10,22}','maxlength':'22','titles':'Enter a numeric Tracking Number of upto 22 Characters.'}); break;
+          case 'FedEx': $('#OrderEditModal .tracking_number').prop({'pattern1':'[0-9]{10,15}','maxlength':'15','titles':'Enter a numeric Tracking Number of upto 15 Characters.'}); break;
+          case 'FedEx (Third party account)': $('#OrderEditModal .tracking_number').prop({'pattern1':'[0-9]{10,15}','maxlength':'15','titles':'Enter a numeric Tracking Number of upto 15 Characters.'}); break;
           case 'Other': $('#OrderEditModal .tracking_number').removeAttr('pattern maxlength'); break;
         }
     	
@@ -168,19 +169,19 @@
     }
   }
   
-  function validateTracking(obj){
+  function validateTracking(obj){ return false;
     pattern = obj.pattern;
     value = obj.value;
     try{
       var valid = new RegExp('^'+pattern+'$').test(value);
     }catch(e){ console.log('valid:', valid); }
     
-    obj.setCustomValidity('');
+    //obj.setCustomValidity('');
      if (!valid) {
        obj.setCustomValidity('Invalid tracking information');
      }
      // e.target.checkValidity()
-     obj.reportValidity();
+     //obj.reportValidity();
   }
   
   function contentChanged(){ $('#OrderEditModal button[type = "submit"]').removeAttr('disabled'); }
@@ -189,7 +190,33 @@
     freez();
   	e.preventDefault();
     e.stopPropagation();
-  	
+    
+    if($('#OrderEditModal .shipping_price').val() == ""){      
+      $('#OrderEditModal .shipping_price').focus();
+      show_message2("Shipping cost can't be empty.",false,true);
+      return false;
+    }
+    
+    else if($('#OrderEditModal .tracking_company').val() == 'Other' && $('#OrderEditModal .method_name').val() == ""){
+      $('#OrderEditModal .method_name').focus();
+      show_message2("Please specify other delivery method.",false,true);
+      return false;
+    }
+    
+    else if(!noTracking){
+      var abort = false;
+      $('#OrderEditModal .tracking_number').each(function(index, item){
+        if($(item).val() == ""){
+          	abort = true;
+          	$(item).focus();
+        	show_message2("Tracking information can't be empty.",false,true);
+          	return false;
+        }
+      });
+      if(abort) return false;
+    }
+    
+    
     order_id = $(obj).attr('order_id');
     var data = {cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: order_id, shipping: {}, fulfillment: {}, bemail: bemail };
     data.shipping["shipping_price"] = $('#OrderEditModal .shipping_price').val();
