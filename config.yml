@@ -1,14 +1,19 @@
 development:
-  password: c2ac9a66d730d561e136beafd7588abc
-  theme_id: "184081169"
+  password: 4b3ecd0a3632bb2dad49446b79ce2363
+  theme_id: "43836342385"
   store: pepsi-print-beta.myshopify.com
-  readonly: true
+  readonly: false
+  ignore_files:
+    - config/settings_data.json
+  timeout: 600s
 production:
   password: c2ac9a66d730d561e136beafd7588abc
   theme_id: "184081169"
   store: pepsiprint.myshopify.com
-  timeout: 60s
+  timeout: 600s
   readonly: true
+  ignore_files:
+    - config/settings_data.json
 test:
   password: 44005067de10891d9a8308a0ad679b1c
   theme_id: live

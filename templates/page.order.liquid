@@ -809,6 +809,8 @@
 //        showOrderData(data);
   }
 
+  {% include 'customer-account-common-code' with 'collection-handle-code' %}
+
   function dataHide(data){
   	var i; 
     var x;
@@ -821,7 +823,7 @@
     var myArray = data.order.line_items;  //console.log(JSON.stringify(myArray));
     for (i = 0; i < myArray.length; i++) {
       str = myArray[i]["title"].replace().replace(' / Default','').replace(' / {{ customer_region_tag }}','');
-      myArray[i]["title"] = str;
+      myArray[i]["title"] = {% unless customer.tags contains  %}{% endunless %}'<a href="/collections/{{ collection_handle }}/products/'+myArray[i]["handle"]+"?variant?="+myArray[i]["variant_id"]+'">' + str + {% unless customer.tags contains  %}'</a>'{% endunless %};
       myArray[i]["line_item_No"] = i;
 //       data['order']['properties_'+myArray[i]['product_id']] = myArray[i]['properties'];
       myArray2 = myArray[i]['properties']; nullCount = 0; //console.log(JSON.stringify(myArray2));
