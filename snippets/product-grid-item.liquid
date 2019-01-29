@@ -3,9 +3,9 @@
 {% assign within_collection = collection_handle |prepend:'/collections/' |append:'/products/' %}
 
 {%if collection %}
-	{% assign href = featured.url | within:collection %}
+  {% assign href = featured.url | within:collection %}
 {% else %}
-	{% assign href = featured.url | replace:'/products/', within_collection %}
+  {% assign href = featured.url | replace:'/products/', within_collection %}
 {% endif %}
 
 {% unless current_collection == blank %}
@@ -92,7 +92,7 @@
 <!--            <script>console.log("{{ region_min_price }}");</script> -->
             {% capture price %}${{ region_min_price }}{% endcapture %}
               {% endif %}
-        	{% endif %}
+          {% endif %}
           {% endfor %}
         {% endif %}
         {% endunless %}
