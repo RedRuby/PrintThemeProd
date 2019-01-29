@@ -1,6 +1,6 @@
 {% if customer  %}
 
-  {% include 'customer-account-common-code' with 'theme-layout-code' 
+  {% include 'customer-account-common-code' with 'theme-layout-code' %}
 
   {% if customer and customer.tags contains Role_ASM %}
     {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-my-products' %}
