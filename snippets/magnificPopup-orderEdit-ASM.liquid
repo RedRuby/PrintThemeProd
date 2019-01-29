@@ -7,7 +7,7 @@
 
 
 <div id="OrderEditModal" class="white-popup-block text-center" style="display:none;">
-  <form action="" method="post" onsubmit="editOrder(event, this);" order_id=""> 
+  <form action="" method="post" onsubmit="if($('.order_qty').map(function(){ return this.value; }).get().indexOf('0') != -1 ){ if(confirm('This will remove all \'0\' quantity line-items from order.\n Click \'OK\' to Confirm')){ editOrder(event, this); }else{ event.preventDefault(); }}else{editOrder(event, this);}" order_id=""> 
     <div class="grid">
       <div class=" grid__item small--one-whole one-half">
         <h2 class="text-left">Edit Order #<span class="orderName" style="font-size:inherit !important;"></span></h2>

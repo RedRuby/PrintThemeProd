@@ -178,6 +178,27 @@ console.log('no');
                 </li><!-- HAS DROPDOWN 2 -->
               {% endif %}
           
+              {% if region_handle == "california" and childlink.handle == 'groups-ergs' or childlink.handle == 'human-resources' %}
+                <li class="site-nav--has-dropdown{% if current_tags contains childlink.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onclick="$('#{{-childlink.handle-}}-ul').toggle();" onmouseout="document.getElementById('{{- childlink.handle-}}-ul').style.display = 'none';">
+                    <a hrefs="javascript:void(0);" styles="cursor:pointer;" class="site-nav__link">
+                        {{ childlink.title }}
+                        <span class="icon-fallback-text">
+                          <span class="icon icon-arrow-down" aria-hidden="true"></span>
+                        </span>
+                    </a>
+                    <ul id="{{-childlink.handle-}}-ul" class="site-nav__dropdown" style="display:none; left:-40%; position:absolute;" onmouseover="this.style.display = 'block';">
+                    {% for grandchildlink in linklists[grand_child_list_handle].links %}
+                    {% assign grandchildlink_handle = grandchildlink.url |split:'/' %}
+                        {% if tag_array contains grandchildlink_handle.last %}
+                        <li>
+                            <a href="/collections/{{ collection_handle }}/{{ grandchildlink_handle.last |handle}}{{ sort_url_params }}" class="{% if current_tags contains childlink.handle %} site-nav--active {% endif %} site-nav__link">{{ grandchildlink.title }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                </li><!-- HAS DROPDOWN 2 -->
+              {% endif %}
+          
               {% if childlink.handle == 'pos-university' %}
           		<li class="site-nav--has-dropdown{% if current_tags contains link.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onclick="$('#pos-ul').toggle();" onmouseout="document.getElementById('pos-ul').style.display = 'none';">
                   <a id="link-pos-university" hrefs="/pages/{{ childlink.handle }}" class="{% if current_tags contains childlink.handle %} site-nav--active {% endif %} site-nav__link">

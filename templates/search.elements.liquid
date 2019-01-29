@@ -1,0 +1,5 @@
+{% layout none %}
+
+{% capture definition %}{% section "definitions-new2" %}{% endcapture %}
+
+{{ definition | split: "defaultPriceList = " | last | split: ";" | first | remove: "'" }}

@@ -104,15 +104,26 @@
         
         {% capture price %}{{ featured.price | money }}{% endcapture %}
         
-        {% unless collection.title == 'All' %}
         {% if product.options.size == 2 %}
           {% for option in product.options_with_values %}
     		{% if option.name == 'Region' %}
-    		  {% if option.values contains customer_region_tag %}
+    		  {% if option.values contains customer_region_tag and collection.title != 'All' %}
         		{% assign region_variant_price_array = '' %}
         		{% for variant in product.variants %}
-                  {% assign variant_region = variant.title |split:' / ' |last %}
-                  {% if  variant_region == customer_region_tag %}
+                  {% assign variant_region = variant.option2 %}
+                  {% if  variant_region == customer_region_tag and variant.price > 0 %}
+        			{% assign variant_price = variant.price |money_without_currency %}
+        			{% assign region_variant_price_array = region_variant_price_array |append:',' |append:variant_price %}
+                  {% endif %}
+        		{% endfor %}
+        		{% assign region_min_price = region_variant_price_array |remove_first:',' |split:',' |sort |first %}
+<!--         		<script>console.log("{{ region_min_price }}");</script> -->
+        		{% capture price %}${{ region_min_price }}{% endcapture %}
+              {% else %}
+        		{% assign region_variant_price_array = '' %}
+        		{% for variant in product.variants %}
+                  {% assign variant_region = variant.option2 %}
+                  {% if variant.price > 0 and variant_region == 'Default' or collection.title == 'All' %}
         			{% assign variant_price = variant.price |money_without_currency %}
         			{% assign region_variant_price_array = region_variant_price_array |append:',' |append:variant_price %}
                   {% endif %}
@@ -124,7 +135,6 @@
         	{% endif %}
           {% endfor %}
         {% endif %}
-        {% endunless %}
         
         {% if on_sale %}
         <span class="visually-hidden">{{ 'products.product.regular_price' | t }}</span>

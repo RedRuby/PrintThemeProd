@@ -72,7 +72,7 @@
               el.find('option[value="'+value+'"]').prop('selected', 'selected').trigger('change').show();
             }
         });
-        $('#AddToCartForm [name^="properties["]').prop({'readonly':'readonly', 'disabled': 'disabled'});
+        $('#AddToCartForm [name^="properties["], .product-single__variants1').prop({'readonly':'readonly', 'disabled': 'disabled'});
       }
   });
   {% endif %}
@@ -80,5 +80,5 @@
 </script>
 
 <style>
-    header, footer, .header-bar, .breadcrumb, #ProductSection .section-header, #ProductSection .grid-link__container, #chatra { display:none !important; }
+    header, footer, .header-bar, .breadcrumb, #ProductSection .section-header, #ProductSection .grid-link__container, #chatra, #AddToCart2 { display:none !important; }
 </style>

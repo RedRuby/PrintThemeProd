@@ -1,35 +1,4 @@
-  {% assign Role_User = 'general.Role.User' | t %}
-  {% assign Role_Printer = 'general.Role.Printer' | t %}
-  {% assign Role_Manager = 'general.Role.Manager' | t %}
-  {% assign Role_ASM = 'general.Role.ASM' | t %}
-  {% assign Role_Admin = 'general.Role.Admin' | t %}
-
-  {% assign region_NorthEast = "general.Region_Tags.NorthEast" | t %}
-  {% assign region_SouthEast = "general.Region_Tags.SouthEast" | t %}
-  {% assign region_California = "general.Region_Tags.California" | t %}
-  {% assign region_South = "general.Region_Tags.South" | t %}
-  {% assign region_Mountain = "general.Region_Tags.Mountain" | t %}
-  {% assign region_MidAtlantic = "general.Region_Tags.MidAtlantic" | t %}
-  {% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
-  {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
-
-  {% if customer.tags contains region_NorthEast %}
-    {% assign customer_region_tag = region_NorthEast %}
-  {% elsif customer.tags contains region_SouthEast %}
-    {% assign customer_region_tag = region_SouthEast %}
-  {% elsif customer.tags contains region_California %}
-    {% assign customer_region_tag = region_California %}
-  {% elsif customer.tags contains region_South %}
-    {% assign customer_region_tag = region_South %}
-  {% elsif customer.tags contains region_Mountain %}
-    {% assign customer_region_tag = region_Mountain %}
-  {% elsif customer.tags contains region_MidAtlantic %}
-    {% assign customer_region_tag = region_MidAtlantic %}
-  {% elsif customer.tags contains region_MidWest %}
-    {% assign customer_region_tag = region_MidWest %}
-  {% elsif customer.tags contains region_GreatLakes %}
-    {% assign customer_region_tag = region_GreatLakes %}
-  {% endif %}
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
 
 <div class="section-header section-header--large printModeExclude">
   <h1 class="section-header__title">{{ 'customer.account.title' | t }}</h1>
@@ -39,13 +8,13 @@
 
   <div class="grid__item {% if customer.tags contains Role_ASM %}three-quarters{% else %}two-thirds{% endif %} medium-down--one-whole print-one-whole">
     <h2 style="display:inline-block;" class="h3"><b>{{ 'customer.orders.title' | t }}:{% if customer.tags contains Role_ASM or customer.tags contains Role_Printer %}&nbsp;&nbsp;<div style="display:inline; border-bottom:2px solid black; font-size:16px;" class1="w3-border-bottom">Individual View</div>&nbsp;&nbsp;{% endif %}
-    
+
       {% if customer.tags contains Role_ASM or customer.tags contains Role_Printer %}
       <a style="display:inline-block;font-size:16px;" class="printModeExclude w3-text-black" href="/account?view=summary-list">Group View</a>
       {% endif %}
-      
+
     </b></h2>
-    
+
     <div class="w3-right printModeExclude text-right per_page_wrapper" style="display:inline-block; width:{% if customer.tags contains Role_ASM %}238px{% else %}212px{% endif %};">
       <label for="per_page" style="display:inline-block;" class="">Per Page: &nbsp;</label>
       <select id="per_page" class="per_page" style="max-width:60px; display:inline-block;" onchange="updateState({page: '1',per_page: this.value});updatePerPage(this.value);">
@@ -56,11 +25,11 @@
         <option {% if customer_per_page == '50' %}selected{% endif %} value='50'>50</option>
       </select>
     </div>
-    
+
     <button id="printOrder" styles="margin: 0 20px;" type="button" class="btn btn--secondary btn--primary1 printModeExclude w3-right" onclick="windowPrint();" title="Print this order"><i class="fa fa-print"></i> Print Order History</button>
-    
+
 	<br><br>
-    
+
     {% comment %}
       If we have past orders, loop through each one
     {% endcomment %}
@@ -79,7 +48,7 @@
       {% elsif customer.tags contains Role_Manager %}
         {% include 'order-history-Manager' with customer_region_tag %}
       {% elsif customer.tags contains Role_Admin %}
-        {% include 'order-history-Admin'  with customer_region_tag %} 
+        {% include 'order-history-Admin'  with customer_region_tag %}
       {% elsif customer.tags contains Role_User %}
         {% include 'order-history-User' with customer_region_tag %}
       {% elsif customer.tags contains Role_Printer %}
@@ -112,11 +81,11 @@
         </table>
         {% endcomment %}
       </div>
-    
-      
+
+
   <p id="order-none" style="display:none;">{{ 'customer.orders.none' | t }}</p>
 
-   
+
 
   </div>
 
@@ -128,7 +97,7 @@
     {{ customer.default_address | format_address }}
 
     <p><a href="/account/addresses">{{ 'customer.account.view_addresses' | t }} ({{ customer.addresses_count }})</a></p>
-    
+
     <button class="btn" style="min-width:350px;" type="button" onclick="toggleDash();">Export Order History</button>
     <br>
     <div id="printDash" class="border w3-padding animated  w3-white" style="max-width:350px; display:none;">
@@ -140,7 +109,7 @@
     <br>
     <a id="exportPsudoLink" href="" target="stealthFrame" class="hide"></a>
     <iframe name="stealthFrame" style="display:none;"></iframe>
-    
+
     {% if customer.tags contains Role_ASM or customer.tags contains Role_Admin %}
     <button class="btn" style="min-width:350px;" type="button" onclick="toggleRDash();">My Reports</button>
     <br>
@@ -151,24 +120,16 @@
        - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Standard_' }}_2017.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Standard Report (2017)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Dashboard_' }}_2017.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Dynamic Report (2017)</a><br>
       {% endif %}
-       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Standard_' |replace:'0','o' }}_2018.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Standard Report (2018)</a><br>
-       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Dashboard_' |replace:'0','o' }}_2018.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Dynamic Report (2018)</a><br>
-      
-       - <a style="pointer-events: none;" class="w3-text-grey" hrefs="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Standard_' |replace:'0','o' }}.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Standard Report (2019)</a><br>
-       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Dashboard_' |replace:'0','o' }}.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Dynamic Report (2019)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Standard_' |replace:'0','o' }}.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Standard Report (2018)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Dashboard_' |replace:'0','o' }}.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Dynamic Report (2018)</a><br>
       {% endunless %}
       {% if customer.tags contains Role_Admin %}
        - <a href="https://print-reports.s3.amazonaws.com/PPS_Standard_All_2017.xlsm">Standard Report (2017)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All_2017.xlsm">Dynamic Report (2017)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5_2017.xlsm">ASM KPI Summary Report (2017)</a><br>
-      
-       - <a href="https://print-reports.s3.amazonaws.com/PPS_Standard_All_2018.xlsm">Standard Report (2018)</a><br>
-       - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All_2018.xlsm">Dynamic Report (2018)</a><br>
-       - <a href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5_2018.xlsm">ASM KPI Summary Report (2018)</a><br>
-      
-       - <a style="pointer-events: none;" class="w3-text-grey" hrefs="https://print-reports.s3.amazonaws.com/PPS_Standard_All.xlsm">Standard Report (2019)</a><br>
-       - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All.xlsm">Dynamic Report (2019)</a><br>
-       - <a style="pointer-events: none;" class="w3-text-grey" hrefs="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5.xlsm">ASM KPI Summary Report (2019)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_Standard_All.xlsm">Standard Report (2018)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All.xlsm">Dynamic Report (2018)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5.xlsm">ASM KPI Summary Report (2018)</a><br>
       {% endif %}
     </div>
     <br>
@@ -184,14 +145,14 @@
         <option w3-repeat="customers" value="{% raw %}{{id}}{% endraw %}" title="{% raw %}{{first_name}} {{last_name}}{% endraw %}" select="{% raw %}{{selected}}{% endraw %}">{% raw %}{{email}}{% endraw %}</option>
       </select>
     </div>
-    
+
     <div id="selected_team" class="" style="border:1px solid #aaa; border-radius:5px; display:none;">
       <span class="btn--secondary btn-custom" style="margin:5px;" w3-repeat="customers" title="{% raw %}{{first_name}} {{last_name}}{% endraw %}">{% raw %}{{email}}{% endraw %}&nbsp;&nbsp;<a style="color:white;" href="javascript:void(0);" value="{% raw %}{{id}}{% endraw %}" onclick="editTeam(this,false);"><i class="fa fa-times" title="Remove {% raw %}{{first_name}} {{last_name}}{% endraw %}"></i></a></span>
     </div>
     {% endif %}
-    
+
 <!--     <br> -->
-    
+
     <h3 class="h3 hide"><b>Payment Codes</b></h3>
     <div id="pcDash" class="border1 w3-padding1 animated text-center1 w3-white hide" style="max-width:350px; display:none1;">
       - <a id="pc1" target="_blank" href=""> Sales</a><br>
@@ -210,7 +171,51 @@
       <a target="_blank" href="https://www.microsoft.com/en-in/windows/microsoft-edge"><i class="fa fa-edge"></i> MS Edge</a><br>
       <a target="_blank" href="https://www.microsoft.com/en-in/download/internet-explorer.aspx"><i class="fa fa-internet-explorer"></i> Internet Explorer</a> -->
     </div>
+
+    {% if customer.tags contains 'SuperUser'  %}
+      <br>
+      <label>Role / Region Switch</label>
+      <select onchange="updateCustomer(this.value);">
+        <option value="{{ Role_ASM }}" {% if customer.tags contains Role_ASM %}selected{% endif %}>{{ Role_ASM }}</option>
+        <option value="{{ Role_Admin }}" {% if customer.tags contains Role_Admin %}selected{% endif %}>{{ Role_Admin }}</option>
+        <option value="{{ Role_Printer }}" {% if customer.tags contains Role_Printer %}selected{% endif %}>{{ Role_Printer }}</option>
+        <option value="{{ Role_User }}" {% if customer.tags contains Role_User %}selected{% endif %}>{{ Role_User }}</option>
+        <option value="{{ Role_Manager }}" {% if customer.tags contains Role_Manager %}selected{% endif %}>{{ Role_Manager }}</option>
+      </select>
+      <select onchange="updateCustomer(this.value);">
+        <option value="{{ region_California }}" {% if customer_region_tag == region_California' %}selected{% endif %}>{{ region_California }}</option>
+        <option value="{{ region_GreatLakes }}" {% if customer_region_tag == region_GreatLakes' %}selected{% endif %}>{{ region_GreatLakes }}</option>
+        <option value="{{ region_MidAtlantic }}" {% if customer_region_tag == region_MidAtlantic' %}selected{% endif %}>{{ region_MidAtlantic }}</option>
+        <option value="{{ region_MidWest }}" {% if customer_region_tag == region_MidWest' %}selected{% endif %}>{{ region_MidWest }}</option>
+        <option value="{{ region_Mountain }}" {% if customer_region_tag == region_Mountain' %}selected{% endif %}>{{ region_Mountain }}</option>
+        <option value="{{ region_NorthEast }}" {% if customer_region_tag == region_NorthEast' %}selected{% endif %}>{{ region_NorthEast }}</option>
+        <option value="{{ region_South }}" {% if customer_region_tag == region_South' %}selected{% endif %}>{{ region_South }}</option>
+        <option value="{{ region_SouthEast }}" {% if customer_region_tag == region_SouthEast' %}selected{% endif %}>{{ region_SouthEast }}</option>
+        <option value="{{ region_External }}" {% unless customer.tags contains Role_Printer %}disabled{% endunless %} {% if customer.tags contains region_External' %}selected{% endif %}>{{ region_External }}</option>
+      </select>
     
+      <script>
+        function updateCustomer(tag_val){
+          freez();
+            $.ajax({
+                  url: 'apps/pepsi-print/customer/change_tag.json?customer_id={{ customer.id }}&new_tag='+tag_val,
+                  type: 'POST',
+                  dataType: 'json',
+                  success: function(data){
+                        console.log(JSON.stringify(data));
+                        // $.unblockUI();
+                      location.reload();
+
+                  },
+                  error: function(){
+                    $.unblockUI; show_message2('Error',false);
+                  }
+
+            });
+        }
+      </script>
+    {% endif %}
+
   </div>
 
 </div>
@@ -221,25 +226,25 @@
               console.log("{{shop.domain}}");
   var orderExport = [];
   var printerExport = [];
-              
+
 //   $(window).load(function(){
 //     setInterval(function(){ $('.per_page_wrapper').css('width', $('#td_select').width()+'px');}, 2000);
 //   });
-              
+
   $(document).ready(function(){
   	$('#start_date').val('');
     $('#pc1').attr('href', $('#link-sales').attr('href'));
 	$('#pc2').attr('href', $('#link-food-service').attr('href'));
 	$('#pc3').attr('href', $('#link-all-other').attr('href'));
-    
+
     $("#reportDash a:not(a.aged)").on('click', function(e){
     	e.preventDefault();
       	exportPsudoLink($(this).attr("href"));
       	return false;
     });
-    
+
   });
-  
+
   function exportPsudoLink(data){
     $.ajax({
 		type: 'HEAD',
@@ -278,7 +283,7 @@
     }
 
   }
-  
+
   function toggleBDash(){
     if($('#browserDash.flipInX').length != 0){
       $('#browserDash').removeClass('flipInX').addClass('flipOutX').delay(1000).hide(0);
@@ -286,7 +291,7 @@
       $('#browserDash').removeClass('flipOutX').addClass('flipInX').show(0);
     }
   }
-  
+
   function toggleRDash(){
     if($('#reportDash.flipInX').length != 0){
       $('#reportDash').removeClass('flipInX').addClass('flipOutX').delay(1000).hide(0);
@@ -294,7 +299,7 @@
       $('#reportDash').removeClass('flipOutX').addClass('flipInX').show(0);
     }
   }
-  
+
   function toggleDash(){
     if($('#printDash.flipInX').length != 0){
       $('#printDash').removeClass('flipInX').addClass('flipOutX').delay(1000).hide(0);
@@ -307,7 +312,7 @@
     var selected = $('[name = "exportType"]').filter(':checked').val();
     var data = '/apps/pepsi-print/collection_response/print_orders.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}';
     var params = jQuery.extend({}, query); if(params.per_page != undefined) delete params.per_page;
-    
+
     if((selected == 'filtered' || selected == 'all') && order_data.total_entries > 50){
       var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
       {% comment %}
@@ -327,28 +332,28 @@
         data.end_date = var2;
       }
       {% endcomment %}
-      
+
       if(selected == 'filtered'){
         if(params.page != undefined)delete params.page;
         data = jQuery.extend({}, data, params);
       }
-        
+
       console.log(JSON.stringify(data));
       exportLarge(data);
       return;
     }
-    
+
     {% comment %}
     if(selected == 'current'){
-      data += '&page='+var3; 
+      data += '&page='+var3;
     }
     if(selected == 'filtered' || ( var1.length > 0 && selected != 'all' )){
       data += '&start_date='+var1+'&end_date='+var2;
     }
-    
+
     {% assign Role_Manager = 'general.Role.Manager' | t %}
 	{% assign Role_Admin = 'general.Role.Admin' | t %}
-    
+
     {% if customer.tags contains Role_Manager %}
       if(var4 != '' && selected != 'all'){
         data += '&customer_id='+var4;
@@ -361,7 +366,7 @@
    		data += '&customer_id='+'{{ customer.id }}';
     {% endif %}
     {% endcomment %}
-    
+
     params.page = var_page;
     if(selected == 'filtered' || selected == 'all')
       params.per_page = order_data.total_entries;
@@ -369,12 +374,12 @@
       params.per_page = var_per_page;
     data += ($.param(params).length != 0) ? '&'+$.param(params) : '';
     console.log('export url = '+data);
-    
+
     exportPsudoLink(data);
-    
-//     window.location.assign(data);  
+
+//     window.location.assign(data);
 //     var data = prepareData(orderExport, printerExport);
-    
+
     {%comment%}
   	$.ajax({
           url: 'http://54.71.28.218/pepsiprint/exportExcel.php',
@@ -386,16 +391,16 @@
             	console.log(JSON.stringify(data));
     			$('#exportPsudoLink').attr('href', data).trigger('click');
             	$.unblockUI();
-                
+
           },
           error: function(){
             $.unblockUI; show_message2('Error in Exporting.',false);
           }
-          
+
     });
     {%endcomment%}
   }
-  
+
   function prepareData(data1,data2){
   	var i;
     var x;
@@ -410,11 +415,11 @@
       }
       data1["orders"][i]["payment_code"] = '';
       data1["orders"][i]["cancelled_status"] = '';
-    } 
+    }
     console.log(JSON.stringify(data1));
     return(data1);
   }
-  
+
   function agedExport(){
 	freez();
     $.ajax({
@@ -430,10 +435,10 @@
       error: function(){
         $.unblockUI; show_message2('Error in Exporting.',false);
       }
-          
+
     });
   }
-  
+
   function exportLarge(data){
 	freez();
     $.ajax({
@@ -449,12 +454,12 @@
       error: function(){
         $.unblockUI; show_message2('Error in Exporting.',false);
       }
-          
+
     });
   }
-           
+
   function windowPrint(){
-    $.when( 
+    $.when(
       $('{% unless customer.tags contains Role_Printer %}header .grid--full:not(:nth-of-type(1)),{% endunless %} .header-bar, .printModeExclude:visible, footer').hide().toggleClass('visible'),
       $('.site-header__logo img').css('margin','0 0'),
 
@@ -463,25 +468,25 @@
         $('.print-one-whole').toggleClass('one-whole {% if customer.tags contains Role_ASM %}three-quarters{% else %}two-thirds{% endif %}'),
       $('.th-span').toggleClass('th-span th-spaned')
 
-    ).done(function(){ 
+    ).done(function(){
     	setTimeout(window.print(), 10);
     });
-    
+
     {% comment %}{% endcomment %}
     $('{% unless customer.tags contains Role_Printer %}header .grid--full:not(:nth-of-type(1)),{% endunless %} .header-bar, .printModeExclude.visible, footer').show().toggleClass('visible');
     $('.site-header__logo img').css('margin','0 auto');
     $('.site-header__logo').toggleClass('w3-col s3');
-    
+
     $('.printModeInclude').toggleClass('hide');
       $('.print-one-whole').toggleClass('one-whole {% if customer.tags contains Role_ASM %}three-quarters{% else %}two-thirds{% endif %}');
     $('.th-span').toggleClass('th-span th-spaned');
 
-    
+
   }
-</script> 
+</script>
 
 <style>
-  
+
 @media print{
    /* applied to our table */
   .w3-table1, tr, td{ position: relative !important; }
@@ -494,7 +499,7 @@
 
 {% comment %}
 @media  print {
-    thead, tbody, tfooter { 
+    thead, tbody, tfooter {
         display: table-row-group;
     }
 }
@@ -513,6 +518,6 @@ a.cancelled{
   text-decoration: line-through !important;
   color: gray !important;
 }
-  
-  
+
+
 </style>

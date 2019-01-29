@@ -154,6 +154,17 @@
             </li>
         	
           {% elsif linklists[grand_child_list_handle].links != blank %}
+        	{% if childlink.handle == 'groups-ergs' or childlink.handle == 'human-resources' %}
+        		{% if region_handle == "california" %}
+        			{% assign show_link = true %}
+        		{% else %}
+        			{% assign show_link = false %}
+        		{% endif %}
+        	{% else %}
+        		{% assign show_link = true %}
+        	{% endif %}
+        
+        	{% if show_link %}
         	<li class="mobile-nav__link " aria-haspopup="true">
               <a id="link2-{{ childlink.handle }}" hrefs="/pages/{{ childlink.handle }}" style="color:black;" class="mobile-nav__sublist-trigger">
                 {{ childlink.title | escape }}
@@ -170,6 +181,7 @@
 				{% endfor %}
               </ul>
             </li>
+        	{% endif %}	
           {% endif %}
         
            	<script>
