@@ -16,6 +16,12 @@
   }
 }
 
+@media only screen and (min-width: 769px) and (max-width: 1250px){
+  .template-customers-login .push--large--one-quarter{
+    border-left: none !important;
+  }
+}
+
 /* .header-bar1, .header-bar__right{height:45px;} */
 
 . squeeze li{ padding-top:0px ! important; padding-bottom:0px ! important; }
@@ -107,7 +113,7 @@ th,td,input,select,li,p,span{ font-size: 14px !important; }
   font-size: 13px !important; 
 }
 
-#AddToCartForm button, #AddToCartForm select, #AddToCartForm input, #AddToCartForm textarea{
+#AddToCartForm button:not(.fstChoiceRemove), #AddToCartForm select, #AddToCartForm input:not(.fstQueryInput), #AddToCartForm textarea{
 	width:100% !important;
 }
 [data-option-name^='window-'] {max-width: 50% !important;}
@@ -115,7 +121,7 @@ th,td,input,select,li,p,span{ font-size: 14px !important; }
 
 @media (min-width: 936px){
   
-	#AddToCartForm button, #AddToCartForm select, #AddToCartForm input, #AddToCartForm textarea, #AddToCartForm .note, #AddToCartForm .w3-row{
+	#AddToCartForm button:not(.fstChoiceRemove), #AddToCartForm select, #AddToCartForm input:not(.fstQueryInput), #AddToCartForm textarea, #AddToCartForm .note, #AddToCartForm .w3-row{
         width:70% !important;
     }
   
@@ -124,27 +130,30 @@ th,td,input,select,li,p,span{ font-size: 14px !important; }
   	#sec_nav, #nav-1{position: relative;}
   
   	.site-nav2-fixed{
-        top:41px;
+        top:47px;
         position:fixed !important;
-        width:95%;
+        width:100%;
+        left: 0;
         z-index:100;
       	background-color: white;
     /*       	box-shadow: 0px 0px 2px 1px gray; transition: box-shadow 0.3s ease; */
     }
   
   	.site-nav-fixed{
-        top:88px;
+        top:94px;
         position:fixed !important;
-        width:95%;
+        width:100%;
+        left: 0;
         z-index:100;
       	background-color: white;
         box-shadow: 0 5px 5px -5px #333; transition: box-shadow 0.3s ease;
     }
   
   	.site-nav3-fixed{
-        top:41px;
+        top:47px;
         position:fixed !important;
         width:95%;
+        left: 0;
       	padding:0 200px;
         z-index:100;
       	background-color: white;
@@ -152,7 +161,7 @@ th,td,input,select,li,p,span{ font-size: 14px !important; }
     }
    
   	.logo-fixed{
-    	top:45px;
+    	top:47px;
         position:fixed !important;
       	z-index:1040 !important;
     }

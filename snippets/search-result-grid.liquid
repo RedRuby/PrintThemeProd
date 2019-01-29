@@ -1,49 +1,3 @@
-{% if customer  %}
-
-  {% assign Role_User = 'general.Role.User' | t %}
-  {% assign Role_Printer = 'general.Role.Printer' | t %}
-  {% assign Role_Manager = 'general.Role.Manager' | t %}
-  {% assign Role_ASM = 'general.Role.ASM' | t %}
-  {% assign Role_Admin = 'general.Role.Admin' | t %}
-
-  {% assign region_NorthEast = "general.Region_Tags.NorthEast" | t %}
-  {% assign region_SouthEast = "general.Region_Tags.SouthEast" | t %}
-  {% assign region_California = "general.Region_Tags.California" | t %}
-  {% assign region_South = "general.Region_Tags.South" | t %}
-  {% assign region_Mountain = "general.Region_Tags.Mountain" | t %}
-  {% assign region_MidAtlantic = "general.Region_Tags.MidAtlantic" | t %}
-  {% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
-  {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
-
-  {% if customer.tags contains region_NorthEast %}
-    {% assign customer_region_tag = region_NorthEast %}
-  {% elsif customer.tags contains region_SouthEast %}
-    {% assign customer_region_tag = region_SouthEast %}
-  {% elsif customer.tags contains region_California %}
-    {% assign customer_region_tag = region_California %}
-  {% elsif customer.tags contains region_South %}
-    {% assign customer_region_tag = region_South %}
-  {% elsif customer.tags contains region_Mountain %}
-    {% assign customer_region_tag = region_Mountain %}
-  {% elsif customer.tags contains region_MidAtlantic %}
-    {% assign customer_region_tag = region_MidAtlantic %}
-  {% elsif customer.tags contains region_MidWest %}
-    {% assign customer_region_tag = region_MidWest %}
-  {% elsif customer.tags contains region_GreatLakes %}
-    {% assign customer_region_tag = region_GreatLakes %}
-  {% endif %}
-
-  {% if customer and customer.tags contains Role_ASM %}
-    {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-my-products' %}
-  {% elsif customer.tags contains Role_User or customer.tags contains Role_Printer or customer.tags contains Role_Manager %}
-    {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-products' %}
-    {% assign non_asm = true %}
-  {% else %}
-	{% assign collection_handle = "all" %}
-  {% endif %}
-
-{% endif %}
-
 {% comment %}
 
   This snippet gives you a grid layout for each search result.
@@ -64,10 +18,10 @@
 {% endunless %}
 
 <div class="grid__item search-result {{ grid_item_width }}{% if settings.collections_center_grid_link %} text-center{% endif %}">
+  {% assign item_url = '/collections/' |append: collection_handle |append: item.url  %}
 
   {% if item.featured_image or item.image %}
     {% assign image_alt = item.title | escape %}
-  	{% assign item_url = '/collections/' |append: collection_handle |append: item.url  %}
     <a {% unless non_asm %}href="{{ item_url }}"{% endunless %} title="{{ image_alt  }}">
       {{ item | img_url: 'medium' | img_tag: image_alt }}
     </a>

@@ -1,31 +1,4 @@
-{% assign region_NorthEast = "general.Region_Tags.NorthEast" | t %}
-{% assign region_SouthEast = "general.Region_Tags.SouthEast" | t %}
-{% assign region_California = "general.Region_Tags.California" | t %}
-{% assign region_South = "general.Region_Tags.South" | t %}
-{% assign region_Mountain = "general.Region_Tags.Mountain" | t %}
-{% assign region_MidAtlantic = "general.Region_Tags.MidAtlantic" | t %}
-{% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
-{% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
-{% assign region_External = "general.Region_Tags.External" | t %}
-
-{% if customer.tags contains region_NorthEast %}
-  {% assign customer_region_tag = region_NorthEast %}
-{% elsif customer.tags contains region_SouthEast %}
-  {% assign customer_region_tag = region_SouthEast %}
-{% elsif customer.tags contains region_California %}
-  {% assign customer_region_tag = region_California %}
-{% elsif customer.tags contains region_South %}
-  {% assign customer_region_tag = region_South %}
-{% elsif customer.tags contains region_Mountain %}
-  {% assign customer_region_tag = region_Mountain %}
-{% elsif customer.tags contains region_MidAtlantic %}
-  {% assign customer_region_tag = region_MidAtlantic %}
-{% elsif customer.tags contains region_MidWest %}
-  {% assign customer_region_tag = region_MidWest %}
-{% elsif customer.tags contains region_GreatLakes %}
-  {% assign customer_region_tag = region_GreatLakes %}
-{% endif %}	
-
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
 
 <!-- <script
 			  src="https://code.jquery.com/jquery-3.1.0.slim.min.js"
@@ -36,7 +9,7 @@
 <!-- {{ '//ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js' | script_tag }} -->
 
 <!-- {{ 'jquery.mousewheel-3.0.6.pack.js' | asset_url | script_tag }} -->
-  
+
 <script type="text/java script">
  var $= jquery.noConflict();
 </script>
@@ -57,7 +30,7 @@
 <a href="javascript:;" class="js-toggle-preview-modal" id="sample"></a> <!-- here we set a decoy link for the frame to be triggered-->
 
 <div class="hide">
-	
+
 </div>
 
 <iframe id="my_iframe" src="{{ page.content }}?cid={{customer.id}}&cregion={{customer_region_tag}}" frameborder="0" scrolling="no" allowtransparency="true" style="position: static; left: 0px; right: 0px; width: 100%;  height: 0px; border: none; margin:;" onload="resizeIframe(this)">
@@ -65,15 +38,15 @@
 </iframe>
 
 <script language="javascript" type="text/javascript">
-  
+
   appFrameHeight = '';
-  
+
   scrollTop = "";
-  
+
   iframeObj = document.getElementById('my_iframe');
-  
+
   var _config = {
-    
+
       // What you might want to change
       addToCartBtnLabel:             'Add to cart',
       addedToCartBtnLabel:           'Added',
@@ -82,8 +55,8 @@
       howLongTillBtnReturnsToNormal: 1000, // in milliseconds.
       cartCountSelector:             '.header-bar__cart-count',
       cartTotalSelector:             '#CartCost',
-      // 'aboveForm' for top of add to cart form, 
-      // 'belowForm' for below the add to cart form, and 
+      // 'aboveForm' for top of add to cart form,
+      // 'belowForm' for below the add to cart form, and
       // 'nextButton' for next to add to cart button.
   //     feedbackPosition:              'aboveForm',
 
@@ -93,7 +66,7 @@
       shopifyAjaxAddURL:             '/cart/add.js',
       shopifyAjaxCartURL:            '/cart.js'
   	};
-  
+
   function resizeIframe(objr) {
     $(window).scrollTop(0);
     if(objr.contentWindow.document.getElementsByClassName('blockUI').length > 0){
@@ -109,20 +82,20 @@
 //     alert(fobj.innerHTML);
 //     setTimeout(function(){ resizeIframe(obj); }, 3000);
   }
-  
-  
-//   setInterval(function(){ 
+
+
+//   setInterval(function(){
 //     fobj = obj.contentWindow.document.getElementById('fancybox-wrap');
 //     if(fobj != null){
 //       if(fobj.style.display == 'block') {compress(obj);}
 //       else resizeIframe(obj);
 //     }
 //   }, 3000);
-  
+
   $(document).ready(function(){
   	$('#MainContent .page-width').removeClass('page-width');
 //     $('.grid div').last().prop('id','vertical-ali');
-    
+
     $('.js-toggle-preview-modal').magnificPopup({
         type: 'iframe',
         mainClass: 'mfp-fade',
@@ -135,24 +108,24 @@
         callbacks: {
           open: function() {
 //             window.setTimeout( function() { document.getElementById('password').focus(); }, 50 );
-            
+
           },
           close: function(){
 //               if( contentUpdated ){ location.reload(); }
           }
         }
     });
-    
+
     var version = detectIE();
     console.log("browser = "+version);
     if (version) {
 //       document.getElementById('price-list').style.position = 'absolute';
         console.log("browser = "+version);
-    } 
-    
+    }
+
   });
-  
-  function compress(objc){ 
+
+  function compress(objc){
     objc.style.height = '800px';
   	objc.contentWindow.document.getElementById('fancybox-content').style.height = '600px';
   }
@@ -160,7 +133,7 @@
   function readyFancy(){
       $("a#sample").trigger("click");
   }
-  function callMe(site){ 
+  function callMe(site){
 //       $("#sample").fancybox({
 //           'margin'             : 10,
 //           'padding'            : 10,
@@ -184,18 +157,18 @@
   $("#sample").prop('href', '{{shop.secure_url}}'+site+'');
   	readyFancy();
   }
-  
+
   function fancyOn(){
      scrollTop = $(window).scrollTop();
      document.getElementById('my_iframe').style.height = window.innerHeight+"px";
      $(window).scrollTop(135);
   }
-  
+
   function fancyOff(){
-     document.getElementById('my_iframe').style.height = appFrameHeight; 
+     document.getElementById('my_iframe').style.height = appFrameHeight;
      $(window).scrollTop(scrollTop);
   }
-  
+
   function openPage(page){
     var $id = "";
     if(page == 1){
@@ -214,21 +187,21 @@
       $id.click();
   	}
   }
-  
+
   function getValue(){
     iframeObj.contentWindow.postMessage({call:'sendValue', value: '{{ settings.color_secondary }}' }, '*');
   }
-  
+
   console.log('{{customer.id}}');
-              
+
   function hideHeaderFooter(){
 //     $('header, footer').addClass('hide');
     parent.location.assign('{{shop.secure_url}}/account/login');
   }
-  
+
   function updateCart(){
       $.getJSON(_config.shopifyAjaxCartURL, function(cart) {
-        	
+
           if (_config.cartCountSelector && $(_config.cartCountSelector).size()) {
             var value = $(_config.cartCountSelector).html() || '0';
             $(_config.cartCountSelector).html(value.replace(/[0-9]+/,cart.item_count)).removeClass('hidden-count');
@@ -244,7 +217,7 @@
               }
               if (newCurrency) {
                 $(_config.cartTotalSelector).html('<span class=money>' + Shopify.formatMoney(Currency.convert(cart.total_price, "{{ shop.currency }}", newCurrency), Currency.money_format[newCurrency]) + '</span>');
-              } 
+              }
               else {
                 $(_config.cartTotalSelector).html(Shopify.formatMoney(cart.total_price, "{{ shop.money_format | remove: "'" | remove: '"' }}"));
               }
@@ -255,12 +228,12 @@
           };
         });
   }
-                                                
+
   Shopify.formatMoney = function(thePrice, theFormat) {
-    
+
     var formatPattern = /\{\{\s*(\w+)\s*\}\}/;
     theFormat = (theFormat || this.money_format);
-    
+
     if (typeof thePrice == 'string') {
         thePrice = thePrice.replace(/[^0-9]/g,'');
         }
@@ -271,59 +244,59 @@
         case 0:
         thePrice = '000';
         break;
-        
+
         case 1:
         thePrice = '00' + thePrice;
         break;
-        
+
         case 2:
         thePrice = '0' + thePrice;
         break;
-        
+
         default:
         break;
         }
-    
+
     var decimalsString = thePrice.substr(thePrice.length - 2);
     var unitsString = thePrice.substr(0, thePrice.length - 2);
     var separator = ',';
     var decimalsSeparator = '.';
-    
+
     function addSeparator(moneyString, separator) {
         separator = (separator || ',');
         return moneyString.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1' + separator);
         }
-    
+
     switch(theFormat.match(formatPattern)[1]) {
-        
+
         case 'amount_no_decimals':
         decimalsString = '';
         decimalsSeparator = '';
         break;
-        
+
         case 'amount_with_comma_separator':
         separator = '.';
         decimalsSeparator = ',';
         break;
-        
+
         case 'amount_no_decimals_with_comma_separator':
         separator = '.';
         decimalsString = '';
         decimalsSeparator = '';
         break;
-        
+
         default:
         break;
-        
+
         }
-    
+
     var output1 = addSeparator(unitsString, separator) + decimalsSeparator + decimalsString;
     var output2 = theFormat.replace(formatPattern, output1);
     return output2;
 
     }
-            
-            
+
+
     function detectIE() {
       var ua = window.navigator.userAgent;
 

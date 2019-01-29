@@ -110,13 +110,32 @@
         {%- case option_type -%}
         {%- when 'select' -%}
           <span class="product-customizer-select-wrap">
-            <select id="{{ option_id }}" name="properties[{{ option_name }}]" {%- if option_required -%}required="required"{%- endif -%}>
+            <select id="{{ option_id }}" {% if option_name contains 'multiple' %}multiple class="multiselect"{% endif %} name="properties[{{ option_name }}]" {%- if option_required -%}required="required"{%- endif -%}>
               {%- if option_placeholder -%}<option value="">{{ option_placeholder }}</option>{%- endif -%}
               {%- for option_value in option_values -%}
                 <option value="{{ option_value }}" data-index="{{ forloop.index0 }}">{{ option_value }}{%- if option_price != null and option_price[forloop.index0] != null and option_price[forloop.index0] != empty -%} (+{{ option_price[forloop.index0] | money }}){%- endif -%}</option>
               {%- endfor -%}
             </select>
           </span>
+          {% if option_name contains 'multiple' and assets_loaded != true %}
+            <!-- <link rel="stylesheet" href="https://rawgit.com/dbrekalo/attire/master/dist/css/build.min.css"> -->
+            <script src="https://rawgit.com/dbrekalo/attire/master/dist/js/build.min.js"></script>
+            {{ 'fastselect.css' | asset_url | stylesheet_tag }}
+            {{ 'fastselect.js' | asset_url | script_tag }}
+            <style>
+
+                .fstElement { font-size: 1.2em; }
+                .fstToggleBtn { min-width: 16.5em; }
+
+                .submitBtn { display: none; }
+
+                .fstMultipleMode { display: block; }
+                .fstMultipleMode .fstControls { width: 100%; }
+
+            </style>
+            <script type="text/javascript">$('.multiselect').fastselect();</script>
+            {% assign assets_loaded = true %}
+          {% endif %}
         {%- when 'text' -%}
           {% assign option_name_array = option_name | split:' ' %}
           {% assign option_placeholder_array = option_placeholder | split:' ' %}

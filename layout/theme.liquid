@@ -20,8 +20,8 @@
             <title></title>
             <meta content="2; url={{shop.secure_url}}/account/login" http-equiv="refresh" />
           	<script>
-                  var parentURL = parent.window.document.location.pathname;
-                  console.log(parentURL);
+                var parentURL = parent.window.document.location.pathname;
+                console.log(parentURL);
                 if( parentURL.indexOf("/admin/themes/{{ theme.id }}/editor") != -1 ){ 
                     window.location.assign('{{shop.secure_url}}/index?view=stealth');
                  }else{
@@ -38,63 +38,35 @@
                  }
           	</script>
           	<style>
-              body:hover{cursor:wait;}
+              html:hover, body:hover{cursor:wait !important;}
             </style>
-  {{ 'shopstorm-apps.scss.css' | asset_url | stylesheet_tag }}
-  {% include 'buddha-megamenu-before' %}
-  {% include 'shopstorm-scripttags' %}
+            {{ 'shopstorm-apps.scss.css' | asset_url | stylesheet_tag }}
+            {% include 'buddha-megamenu-before' %}
+            {% include 'shopstorm-scripttags' %}
 
 
+            <!-- Hits Analytics tracking code -->
+            {% if shop.customer_accounts_enabled %}
+              {% if customer %}
+                <script type="text/javascript">
+                    function hitsReady() {
+                        if (typeof hits != 'undefined')
+                            hits('user','identify', {'id' : '{{ customer.id }}'});
+                        else
+                            setTimeout(hitsReady,500);
+                    }
+                    window.attachEvent ? window.attachEvent('onload', hitsReady) : window.addEventListener('load', hitsReady, false);
+                </script>
+              {% endif %}
+            {% endif %}
+            <!-- end of Hits Analytics code -->
 
 
-
-
-
-
-
-
-
-<!-- Hits Analytics tracking code -->
-{% if shop.customer_accounts_enabled %}
-  {% if customer %}
-    <script type="text/javascript">
-        function hitsReady() {
-            if (typeof hits != 'undefined')
-                hits('user','identify', {'id' : '{{ customer.id }}'});
-            else
-                setTimeout(hitsReady,500);
-        }
-        window.attachEvent ? window.attachEvent('onload', hitsReady) : window.addEventListener('load', hitsReady, false);
-    </script>
-  {% endif %}
-{% endif %}
-<!-- end of Hits Analytics code -->
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- BeginConsistentCartAddon -->  <script>  {% if customer %}  Shopify.merge_cart_text = '{{ "consistent_cart_addon.merge_cart_text" | t }}' ;  Shopify.customer_logged_in = true ;  Shopify.customer_email = "{{ customer.email }}" ;  Shopify.log_uuids = true;  {% else %}  Shopify.customer_logged_in = false ;  Shopify.customer_email = "" ;  Shopify.log_uuids = true;  {% endif %}  </script>  <!-- EndConsistentCartAddon -->
-</head>
-<body>	
-    {% include 'buddha-megamenu' %}
-</body>
+            <!-- BeginConsistentCartAddon -->  <script>  {% if customer %}  Shopify.merge_cart_text = '{{ "consistent_cart_addon.merge_cart_text" | t }}' ;  Shopify.customer_logged_in = true ;  Shopify.customer_email = "{{ customer.email }}" ;  Shopify.log_uuids = true;  {% else %}  Shopify.customer_logged_in = false ;  Shopify.customer_email = "" ;  Shopify.log_uuids = true;  {% endif %}  </script>  <!-- EndConsistentCartAddon -->
+        </head>
+        <body>	
+            {% include 'buddha-megamenu' %}
+        </body>
     </html>
 {% else %}
 
@@ -103,42 +75,41 @@
 {% if no_region == true or no_access == true %}
 	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html>
-        <head>
-            <title></title>
-            {% if no_region == true %}
-              <meta content="0; url={{shop.secure_url}}/pages/no-region-alotted" http-equiv="refresh" />
-            {% endif %}
+      <head>
+          <title></title>
+          {% if no_region == true %}
+            <meta content="0; url={{shop.secure_url}}/pages/no-access" http-equiv="refresh" />
+          {% endif %}
 
-            {% if no_access == true %}
-              {% if template contains 'collection' and collection.handle == 'all' %}
-          		<meta content="0; url={{shop.secure_url}}/collections/{{collection_handle}}" http-equiv="refresh" />
-              {% else %}
-              	<meta content="0; url={{shop.secure_url}}/pages/error" http-equiv="refresh" />
-              {% endif %}
+          {% if no_access == true %}
+            {% if template contains 'collection' and collection.handle == 'all' %}
+        		<meta content="0; url={{shop.secure_url}}/collections/{{collection_handle}}" http-equiv="refresh" />
+            {% else %}
+            	<meta content="0; url={{shop.secure_url}}/pages/error" http-equiv="refresh" />
             {% endif %}
-          	<style>
-              body:hover{cursor:wait;}
-            </style>
+          {% endif %}
+        	<style>
+            body:hover{cursor:wait;}
+          </style>
           {% include 'buddha-megamenu-before' %}
-<!-- Hits Analytics tracking code -->
-{% if shop.customer_accounts_enabled %}
-  {% if customer %}
-    <script type="text/javascript">
-        function hitsReady() {
-            if (typeof hits != 'undefined')
-                hits('user','identify', {'id' : '{{ customer.id }}'});
-            else
-                setTimeout(hitsReady,500);
-        }
-        window.attachEvent ? window.attachEvent('onload', hitsReady) : window.addEventListener('load', hitsReady, false);
-    </script>
-  {% endif %}
-{% endif %}
-<!-- end of Hits Analytics code -->
-
- </head>
-        <body>  {% include 'buddha-megamenu' %}
-</body>
+          <!-- Hits Analytics tracking code -->
+          {% if shop.customer_accounts_enabled %}
+            {% if customer %}
+              <script type="text/javascript">
+                  function hitsReady() {
+                      if (typeof hits != 'undefined')
+                          hits('user','identify', {'id' : '{{ customer.id }}'});
+                      else
+                          setTimeout(hitsReady,500);
+                  }
+                  window.attachEvent ? window.attachEvent('onload', hitsReady) : window.addEventListener('load', hitsReady, false);
+              </script>
+            {% endif %}
+          {% endif %}
+          <!-- end of Hits Analytics code -->
+      </head>
+      <body>  {% include 'buddha-megamenu' %}
+      </body>
     </html>
 {% else %}
 
@@ -240,28 +211,31 @@
   {% unless template contains 'customers' or template contains 'page.order' %}
     
   {% endunless %}
-<!-- Hits Analytics tracking code -->
-{% if shop.customer_accounts_enabled %}
-  {% if customer %}
-    <script type="text/javascript">
-        function hitsReady() {
-            if (typeof hits != 'undefined')
-                hits('user','identify', {'id' : '{{ customer.id }}'});
-            else
-                setTimeout(hitsReady,500);
-        }
-        window.attachEvent ? window.attachEvent('onload', hitsReady) : window.addEventListener('load', hitsReady, false);
-    </script>
+  <!-- Hits Analytics tracking code -->
+  {% if shop.customer_accounts_enabled %}
+    {% if customer %}
+      <script type="text/javascript">
+          function hitsReady() {
+              if (typeof hits != 'undefined')
+                  hits('user','identify', {'id' : '{{ customer.id }}'});
+              else
+                  setTimeout(hitsReady,500);
+          }
+          window.attachEvent ? window.attachEvent('onload', hitsReady) : window.addEventListener('load', hitsReady, false);
+      </script>
+    {% endif %}
   {% endif %}
-{% endif %}
-<!-- end of Hits Analytics code -->
-
+  <!-- end of Hits Analytics code -->
  </head>
 
 <body id="{{ page_title | handle }}" class="{% if customer %}customer-logged-in {% endif %}template-{{ template | replace: '.', ' ' | truncatewords: 1, '' | handle }}" >
   {% include 'ie-alert' %}
   
-  {% section 'header' %}
+  {% if fs_shop_active %}
+    {% section 'header-fs' %}
+  {% else %}
+    {% section 'header' %}
+  {% endif %}
   
   {% if collection %}{% unless template == 'product' %}
     <div class="hide">
@@ -305,7 +279,7 @@
   
   {{ 'theme.js' | asset_url | script_tag }}
   
-<!--   {{ 'https://cdnjs.cloudflare.com/ajax/libs/shopify-cartjs/0.4.1/cart.min.js' | script_tag }} -->
+  <!--   {{ 'https://cdnjs.cloudflare.com/ajax/libs/shopify-cartjs/0.4.1/cart.min.js' | script_tag }} -->
   
   {{ 'affix-2.js' | asset_url | script_tag }}
   
@@ -391,11 +365,11 @@
           $('.grid .grid__item').first().prepend('<button type="button" class="btn" onclick="goBack();">Back</button><br><br>');
           //<div class="note">Copy and paste your payment code <b><i> from the list below </b></i> into the \'Payment Code\' section during checkout.  Payment codes are based on your regional distribution location. Like If you are in Gallup, New Mexico, your payment code is \'GallupNM\'.</div><br>
         }
-//     	var patt = new RegExp("\?sort\_by\=created\-descending");
-//         var res = patt.test(url); console.log(res);
-//       	if(res){
-//           $('#link-new').addClass('site-nav--active');
-//         }
+      //     	var patt = new RegExp("\?sort\_by\=created\-descending");
+      //         var res = patt.test(url); console.log(res);
+      //       	if(res){
+      //           $('#link-new').addClass('site-nav--active');
+      //         }
       
       {% if template contains 'collection' %}
       var i = [];
@@ -468,40 +442,40 @@
         
     }
 
-//     console.log(JSON.stringify({{ cart | json }}));
-//     	console.log(myIP());
-//     console.log('{{ customer.id }}');
-    var parentURL = parent.window.document.location.pathname;
-//     console.log(parentURL);
-//     $.getScript("http://api.hostip.info/get_html.php?callback=myIP");
+  //     console.log(JSON.stringify({{ cart | json }}));
+  //     	console.log(myIP());
+  //     console.log('{{ customer.id }}');
+      var parentURL = parent.window.document.location.pathname;
+  //     console.log(parentURL);
+  //     $.getScript("http://api.hostip.info/get_html.php?callback=myIP");
+      
+  //     setTimeout(function(){debugger;}, 3000);
+      
+      function myIP(data) {
+  //         if (window.XMLHttpRequest) xmlhttp = new XMLHttpRequest();
+  //         else xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+
+  //         xmlhttp.open("GET","http://api.hostip.info/get_html.php",false);
+  //         xmlhttp.send();
+
+  //         hostipInfo = xmlhttp.responseText.split("\n");
+        	
+        	hostipInfo = data.split("\n");
+
+          for (i=0; hostipInfo.length >= i; i++) {
+              ipAddress = hostipInfo[i].split(":");
+              if ( ipAddress[0] == "IP" ) console.log( ipAddress[1]);
+          }
+
+          return false;
+      }
+      
+      console.log("ctoken = {{ customer.id  | hmac_sha1: shop.domain }}");
+                  
+    </script>
+  <!--     <p id="scroll" style="color:red; position:fixed; bottom:50px; right:60px; z-index:9999999; display:none;"></p> -->
     
-//     setTimeout(function(){debugger;}, 3000);
-    
-    function myIP(data) {
-//         if (window.XMLHttpRequest) xmlhttp = new XMLHttpRequest();
-//         else xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-
-//         xmlhttp.open("GET","http://api.hostip.info/get_html.php",false);
-//         xmlhttp.send();
-
-//         hostipInfo = xmlhttp.responseText.split("\n");
-      	
-      	hostipInfo = data.split("\n");
-
-        for (i=0; hostipInfo.length >= i; i++) {
-            ipAddress = hostipInfo[i].split(":");
-            if ( ipAddress[0] == "IP" ) console.log( ipAddress[1]);
-        }
-
-        return false;
-    }
-    
-    console.log("ctoken = {{ customer.id  | hmac_sha1: shop.domain }}");
-                
-  </script>
-<!--     <p id="scroll" style="color:red; position:fixed; bottom:50px; right:60px; z-index:9999999; display:none;"></p> -->
-  
-<!--   <script type="text/javascript">
+  <!--   <script type="text/javascript">
     jQuery(function() {
         CartJS.init({{ cart | json }}, {
             "dataAPI": false,
@@ -515,7 +489,8 @@
   {% unless template contains 'customers/login' or customer.email contains 'Monitor' %}
  	 {% section 'popup-section' %}
   {% endunless %}
-  
+
+  {% include 'customer-account-common-code' with 'set_token' %}  
 </body>
 </html>
 {% endif %}

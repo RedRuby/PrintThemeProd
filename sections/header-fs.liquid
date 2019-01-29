@@ -96,7 +96,7 @@
             <ul class="header-bar__module header-bar__module--list">
               {% if customer %}
               	<li>
-                  <span>Logged in as: {{ customer.name }}( {{ customer_region_tag |remove:'Region:' |replace:'0','o' }}{% unless customer.tags contains Role_Admin %} / {% endunless %}{{ customer_role_tag |remove:'Role:' |replace:'Printer','Vendor' |replace:'SiteUser','User' |replace:'UserManager','Manager' }} )&nbsp; | </span>
+                  <span>Logged in as: {{ customer.name }}( {{ customer_region_tag |remove:'Region:' |replace:'0','o' }}{% unless customer.tags contains Role_Admin %} / {% endunless %}{{ customer_role_tag |remove:'Role:' |replace:'Printer','Vendor' |replace:'FSUser','User' |replace:'ChannelManager','Manager' }} )&nbsp; | </span>
                 </li>
                 <li>
                   <a href="/account">{{ 'layout.customer.account' | t }}</a>&nbsp; |
@@ -192,6 +192,7 @@
         </div>
       </div>
 
+      {% comment %}
       <div class="grid--full medium-down--hide1">
         <div id="sec_nav" style="{% unless template contains 'collection' %}{% endunless %}padding-top:30px; bottom:80px;" class="grid__item" data-spy="affix" data-offset-top="50">
           {% assign Role_ASM = 'general.Role.ASM' | t %}
@@ -200,6 +201,7 @@
           {% endif %}
         </div>
       </div>
+      {% endcomment %}
 
 
       <div class="grid--full medium-down--hide" style="height:0px !important; display:block1;">
@@ -309,7 +311,7 @@
 
 {% schema %}
   {
-    "name": "Header",
+    "name": "Header(FS)",
     "settings": [
       {
         "type": "image_picker",

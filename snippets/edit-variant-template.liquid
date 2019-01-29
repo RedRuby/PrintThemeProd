@@ -1,31 +1,5 @@
-{% if customer  %}
-    {% assign region_NorthEast = "general.Region_Tags.NorthEast" | t %}
-    {% assign region_SouthEast = "general.Region_Tags.SouthEast" | t %}
-    {% assign region_California = "general.Region_Tags.California" | t %}
-    {% assign region_South = "general.Region_Tags.South" | t %}
-    {% assign region_Mountain = "general.Region_Tags.Mountain" | t %}
-    {% assign region_MidAtlantic = "general.Region_Tags.MidAtlantic" | t %}
-    {% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
-    {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
 
-    {% if customer.tags contains region_NorthEast %}
-      {% assign customer_region_tag = region_NorthEast %}
-    {% elsif customer.tags contains region_SouthEast %}
-      {% assign customer_region_tag = region_SouthEast %}
-    {% elsif customer.tags contains region_California %}
-      {% assign customer_region_tag = region_California %}
-    {% elsif customer.tags contains region_South %}
-      {% assign customer_region_tag = region_South %}
-    {% elsif customer.tags contains region_Mountain %}
-      {% assign customer_region_tag = region_Mountain %}
-    {% elsif customer.tags contains region_MidAtlantic %}
-      {% assign customer_region_tag = region_MidAtlantic %}
-    {% elsif customer.tags contains region_MidWest %}
-      {% assign customer_region_tag = region_MidWest %}
-    {% elsif customer.tags contains region_GreatLakes %}
-      {% assign customer_region_tag = region_GreatLakes %}
-    {% endif %}
-{% endif %}
 <div class="product-single">
   <div class="grid product-single__hero">
     <div class="grid__item post-large--one-half">
@@ -67,22 +41,22 @@
                 {% continue %}
               {% endif %}
 
-              {% if variant.available and check == true %}   <script>//check_variant_option2 == false</script>   
+              {% if variant.available and check == true %}   <script>//check_variant_option2 == false</script>
                 {% for variant1 in product.variants %}
                   {% assign variant_title_array4custom = variant1.title | split: ' / ' %}
-                  {%if variant_title_array4custom contains variant_title_array.first and variant_title_array4custom contains customer_region_tag %} 
-                    {% assign region_var_price = variant1.price | money_without_currency %} 
-                    {% assign region_var_id = variant1.id %} 
+                  {%if variant_title_array4custom contains variant_title_array.first and variant_title_array4custom contains customer_region_tag %}
+                    {% assign region_var_price = variant1.price | money_without_currency %}
+                    {% assign region_var_id = variant1.id %}
                     {% break %}
                   {%endif%}
                 {% endfor %}
-              
+
                 {% if region_var_id == '' %}
                   {% assign variant_id_for_name = variant.id %}
                 {% else %}
                   {% assign variant_id_for_name = region_var_id %}
-                {% endif %}  
-                {% if region_var_price == '' %}   
+                {% endif %}
+                {% if region_var_price == '' %}
                   {% assign variant_price_value = variant.price | money_without_currency %}
                 {% else %}
                   {% assign variant_price_value = region_var_price %}
@@ -100,26 +74,26 @@
 
               {% endif %}
             {% endfor %}
-              
+
             </tbody>
           </table>
-          
+
           {% unless count %}
             <div class="note text-center"> <h3>No variant available for this product.</h3> </div>
           {% endunless %}
-          
+
           <input type="submit" handler="{{ product.handle }}"  class="btn open-popup" value="Save" id="edit-variant-submit-{{product.id}}" disabled />
           <button type="button" class="btn" onclick="document.getElementsByClassName('mfp-close')[0].click();">Back</button>
-      </form> 
+      </form>
     </span>
   </div>
 </div>
-<script type="text/javascript">  
+<script type="text/javascript">
   var cemail = "{{ customer.email }}"
 
   function reactClick(obj){
 	    //alert('you clicked "'+$(obj).prop('id')+'" of form "'+$(obj).parent().prop('id')+'"');
-    data = $("#"+$(obj).parent().prop('id')).serializeArray(); 
+    data = $("#"+$(obj).parent().prop('id')).serializeArray();
     $.ajax({type: "POST",
             url: "/print_app/product_price/create_option",
             data: { variant_info: data, product_id: "8335550097" },
@@ -128,4 +102,3 @@
             //}
            });  }
  </script>
-

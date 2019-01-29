@@ -26,7 +26,10 @@
 
 
 
-{% comment %}
+{% comment %}{% endcomment %}
+
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
+
 {% assign respond_js_secret_key = shop.domain | md5 %}
 {% unless search.terms == respond_js_secret_key %}
 
@@ -36,6 +39,7 @@
       Avoid accessing search.results before the opening paginate tag.
       If you do, the pagination of results will be broken.
     {% endcomment %}
+
     {% paginate search.results by 10 %}
 
       {% comment %}
@@ -62,7 +66,13 @@
         {% if grid_results == false %}
 
           <hr>
-          {% for item in search.results %}
+          {% for item in search.results %}{% comment %}
+            {% unless item.tags contains customer_region_tag %}
+              {% continue %}
+            {% else %}
+              {% if count == 10 %}{% break %}{% endif %}
+              {% assign count = count | default:0 | plus: 1 %}
+            {% endunless %}{% endcomment %}
             {% include 'search-result' %}
             <hr>
           {% endfor %}
@@ -72,6 +82,12 @@
           <div class="grid-uniform">
             {% for item in search.results %}
               {% assign grid_item_width = 'post-large--one-quarter medium--one-third small--one-half' %}
+              {% unless item.tags contains customer_region_tag %}
+                {% continue %}
+              {% else %}
+                {% if count == 10 %}{% break %}{% endif %}
+                {% assign count = count | default:0 | plus: 1 %}
+              {% endunless %}
               {% include 'search-result-grid' %}
             {% endfor %}
           </div>
@@ -107,7 +123,9 @@
   {% layout none %}
 {% endunless %}
 
-{% endcomment %}
 
+
+{% comment %}
 {% layout none %}
 <meta content="0; url=/" http-equiv="refresh" />
+{% endcomment %}

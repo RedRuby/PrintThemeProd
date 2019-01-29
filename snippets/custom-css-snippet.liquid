@@ -2,4 +2,21 @@
   {% if template contains 'collection' %}
     .section-header__title{display:none;}
   {% endif %}
+
+  .main-content{
+  {% if customer %}
+  	{% if customer.tags contains Role_ASM %}
+      min-height: calc(99vh - 319px);
+  	{% elsif customer.tags contains Role_User %}
+	  min-height: calc(99vh - 272px);
+  	{% elsif customer.tags contains Role_%}
+
+  	{% elsif customer.tags contains Role_%}
+
+  	{% endif customer.tags contains Role_%}
+  	}
+  {% else %}
+  	  min-height: calc(99vh - 219px);
+  {% endif %}
+  }
 </style>

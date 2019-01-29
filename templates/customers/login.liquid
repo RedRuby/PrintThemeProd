@@ -11,7 +11,11 @@
     <p>
   </div>
 
-  <div class="grid__item wide--one-half large--one-half small--text-center"  style="border-left:1px lightgrey solid;">
+  <div class="grid__item wide--hide medium-down--hide">
+    <hr style="border-color: lightgrey;">
+  </div>
+
+  <div class="grid__item wide--one-half large--one-half small--text-center push--large--one-quarter"  style="border-left:1px lightgrey solid;">
 
     {% comment %}
       If a user has successfully requested a new password, the form.posted_successfully? variable
@@ -167,3 +171,5 @@
       $('[name="checkout_url"]').val('/');
   }, 500);
 </script>
+
+{% include 'customer-account-common-code' with 'save_token' %}

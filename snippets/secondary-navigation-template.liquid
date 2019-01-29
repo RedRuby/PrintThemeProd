@@ -1,33 +1,6 @@
 {% if customer  %}
-	
-  {% assign region_NorthEast = "general.Region_Tags.NorthEast" | t %}
-  {% assign region_SouthEast = "general.Region_Tags.SouthEast" | t %}
-  {% assign region_California = "general.Region_Tags.California" | t %}
-  {% assign region_South = "general.Region_Tags.South" | t %}
-  {% assign region_Mountain = "general.Region_Tags.Mountain" | t %}
-  {% assign region_MidAtlantic = "general.Region_Tags.MidAtlantic" | t %}
-  {% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
-  {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
 
-  {% if customer.tags contains region_NorthEast %}
-    {% assign customer_region_tag = region_NorthEast %}
-  {% elsif customer.tags contains region_SouthEast %}
-    {% assign customer_region_tag = region_SouthEast %}
-  {% elsif customer.tags contains region_California %}
-    {% assign customer_region_tag = region_California %}
-  {% elsif customer.tags contains region_South %}
-    {% assign customer_region_tag = region_South %}
-  {% elsif customer.tags contains region_Mountain %}
-    {% assign customer_region_tag = region_Mountain %}
-  {% elsif customer.tags contains region_MidAtlantic %}
-    {% assign customer_region_tag = region_MidAtlantic %}
-  {% elsif customer.tags contains region_MidWest %}
-    {% assign customer_region_tag = region_MidWest %}
-  {% elsif customer.tags contains region_GreatLakes %}
-    {% assign customer_region_tag = region_GreatLakes %}
-  {% endif %}
-
-  {% assign collection_handle = customer_region_tag | remove: 'Region:' | downcase |replace:'s0uth','south' %}
+  {% include 'customer-account-common-code' with 'theme-layout-code' %}
 
 {% endif %}
 
@@ -37,16 +10,16 @@
   	{% comment %}
   	<li {% if link.active %}class="site-nav--active"{% endif %}>
       <a href="/collections/universal-list/" class="site-nav__link12"><button type="button" class="btn--secondary">Universal Product List</button></a>
-    </li> 
+    </li>
    {% endcomment %}
     <li {% if link.active %}class="site-nav--active"{% endif %}>
-      <a href="/collections/{{ collection_handle }}-my-products{{ sort_url_params }}" class="site-nav__link12"><button type="button" class="btn--secondary">My Products</button></a>
+      <a href="/collections/{{ collection_handle | split: '-' | first }}-my-products{{ sort_url_params }}" class="site-nav__link12"><button type="button" class="btn--secondary">My Products</button></a>
     </li>
     <li {% if link.active %}class="site-nav--active"{% endif %}>
-      <a href="/collections/{{ collection_handle }}-not-in-my-products{{ sort_url_params }}" class="site-nav__link12"><button type="button" class="btn--secondary">Products Not in My List</button></a>
+      <a href="/collections/{{ collection_handle | split: '-' | first }}-not-in-my-products{{ sort_url_params }}" class="site-nav__link12"><button type="button" class="btn--secondary">Products Not in My List</button></a>
     </li>
   	<li {% if link.active %}class="site-nav--active"{% endif %}>
-      <a href="/collections/{{ collection_handle }}-new{{ sort_url_params }}" class="site-nav__link12"><button type="button" class="btn--secondary">New</button></a>
+      <a href="/collections/{{ collection_handle | split: '-' | first }}-new{{ sort_url_params }}" class="site-nav__link12"><button type="button" class="btn--secondary">New</button></a>
     </li>
   	{% comment %}
     <li {% if link.active %}class="site-nav--active"{% endif %}>
@@ -56,4 +29,4 @@
       <a href="/pages/locations" class="site-nav__link12"><button type="button" class="btn--secondary">Location</button></a>
     </li>
   	{% endcomment %}
-</ul>  
+</ul>
