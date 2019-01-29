@@ -115,6 +115,8 @@
       };
   }
   
+  //   var defaultPriceList = '{"Banner":"24.00","Case Card":"1.50","Horizontal Static":"0.37","Other":"0.00","Mini Pole":"1.50","Poster":"1.30","Pump Topper":"6.00","Rail Strip Pages":"0.12","Shelf Talker":"0.75","Static Cling":"0.37","Table Tent":"0.75","Window Mesh":"0.00","Wobbler":"0.08"}';
+  
   var defaultPriceList = '{{ defaultPrice_arr }}';
   
   var elementTypePTT = $.unique({{ elementTypePTT_arr }}).sort();
@@ -148,8 +150,6 @@
   var departmentTagList = $.unique("{{ department_tag_array }}".split(',')).sort();
   
   var newTagList = $.unique("{{ new_tag_array }}".split(',')).sort();
-    
-//   var defaultPriceList = '{"Banner":"24.00","Case Card":"1.50","Horizontal Static":"0.37","Other":"0.00","Mini Pole":"1.50","Poster":"1.30","Pump Topper":"6.00","Rail Strip Pages":"0.12","Shelf Talker":"0.75","Static Cling":"0.37","Table Tent":"0.75","Window Mesh":"0.00","Wobbler":"0.08"}';
   
   var output = [], o = {};
   $(document).ready(function(){ 
@@ -283,8 +283,7 @@
             "label": "Select Element Type",
             "options": [
               { "value": "POS", "label": "POS"},
-              { "value": "PTT", "label": "PTT"},
-              { "value": "POS(No Customization)", "label": "POS(No Customization)"},
+              { "value": "PTT", "label": "PTT"},  
               { "value": "POS(Customizable)", "label": "POS(Customizable)"},
               { "value": "POS(No Template)", "label": "POS(No Template)"}
            ],

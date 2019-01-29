@@ -126,7 +126,7 @@
           {% endfor %}
 
           <div class="product-description rte" itemprop="description">
-            {{ product.description | remove: "An Image of the space you are covering is required" | replace: "//cdn.shopify.com/s/files/1/0415/9233/files/Screen_shot_2014-06-17_at_1.27.15_PM_large.png?10392", '" class="hide' | replace: "<img","<img class='hide'" | remove: "åÊ" }}
+            {{ product.description | remove: "An Image of the space you are covering is required" | replace: "//cdn.shopify.com/s/files/1/0415/9233/files/Screen_shot_2014-06-17_at_1.27.15_PM_large.png?10392", '" class="hide' | replace: "<img","<img class='hide'" | remove: "ĂĽĂ" }}
             {% if has_post_descipt_note %}
             <p><i>All requests are subject to approval.</i></p>
             {% endif %}
@@ -159,7 +159,7 @@
 
               {% elsif variant.option1 == '2 x 3 Window Mesh Poster' %}
             	{% if variant.option2 == blank or variant.option2 == 'Default' %}
-                  {% assign store_banner = true %}
+                  {% assign 2x3_window_mesh = true %}
                   <p>2 x 3 Window Mesh Posters under Paint the Town are printed on view-through window mesh and are the only available option for pricing on windows.</p>
 				{% endif %}
 

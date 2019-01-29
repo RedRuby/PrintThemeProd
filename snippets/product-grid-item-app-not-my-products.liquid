@@ -78,21 +78,21 @@
 
         {% if product.options.size == 2 %}
           {% for option in product.options_with_values %}
-    		{% if option.name == 'Region' %}
-    		  {% if option.values contains customer_region_tag %}
-        		{% assign region_variant_price_array = '' %}
-        		{% for variant in product.variants %}
+        {% if option.name == 'Region' %}
+          {% if option.values contains customer_region_tag %}
+            {% assign region_variant_price_array = '' %}
+            {% for variant in product.variants %}
                   {% assign variant_region = variant.title |split:' / ' |last %}
                   {% if  variant_region == customer_region_tag %}
-        			{% assign variant_price = variant.price |money_without_currency %}
-        			{% assign region_variant_price_array = region_variant_price_array |append:',' |append:variant_price %}
+              {% assign variant_price = variant.price |money_without_currency %}
+              {% assign region_variant_price_array = region_variant_price_array |append:',' |append:variant_price %}
                   {% endif %}
-        		{% endfor %}
-        		{% assign region_min_price = region_variant_price_array |remove_first:',' |split:',' |sort |first %}
-<!--         		<script>console.log("{{ region_min_price }}");</script> -->
-        		{% capture price %}${{ region_min_price }}{% endcapture %}
+            {% endfor %}
+            {% assign region_min_price = region_variant_price_array |remove_first:',' |split:',' |sort |first %}
+<!--            <script>console.log("{{ region_min_price }}");</script> -->
+            {% capture price %}${{ region_min_price }}{% endcapture %}
               {% endif %}
-        	{% endif %}
+          {% endif %}
           {% endfor %}
         {% endif %}
 
@@ -187,10 +187,10 @@
           </span>
         </div>
       </div>
-  	</div>
+    </div>
 
-<!--   	<a href="#EditModal" style="" handler="{{ product.handle }}"  title="Edit this product" class="js-toggle-edit-modal" data-mfp-src="#EditModal" onclick="addToModal(this);">Edit</a> -->
-	{% endcomment %}
+<!--    <a href="#EditModal" style="" handler="{{ product.handle }}"  title="Edit this product" class="js-toggle-edit-modal" data-mfp-src="#EditModal" onclick="addToModal(this);">Edit</a> -->
+  {% endcomment %}
 
 
 </div>
@@ -204,6 +204,6 @@
   }
 
   function toggleAction(obj){
-  	$(obj).find('.task-wrapper1').toggle();
+    $(obj).find('.task-wrapper1').toggle();
   }
 </script>

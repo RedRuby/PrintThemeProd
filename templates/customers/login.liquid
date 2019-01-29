@@ -5,8 +5,8 @@
     <br>
     <p class="h3" style="margin:0px 10%;">We have created a fantastic updated online print shop experience for you.
        <br><br>
-       If you are a first time visitor to this new site, please register by selecting the “REGISTER FOR AN ACCOUNT” box on this page. 
-	   <br><br>
+       If you are a first time visitor to this new site, please register by selecting the âREGISTER FOR AN ACCOUNTâ box on this page. 
+     <br><br>
        If you have already registered, just sign in with your email and password to start your customized experience.
     <p>
   </div>
@@ -28,7 +28,7 @@
 
     <div id="CustomerLoginForm">
       {% form 'customer_login' %}
-      	<input type="hidden" name="checkout_url" value="/pages/welcome" />
+        <input type="hidden" name="checkout_url" value="/pages/welcome" />
 
         <div class="section-header section-header--large">
           <h1 class="section-header__title">{{ 'customer.login.title' | t }}</h1>
@@ -53,7 +53,7 @@
         <p>
           <input type="submit" class="btn" value="{{ 'customer.login.sign_in' | t }}">
         </p>
-      	<p>OR</p>
+        <p>OR</p>
         <p>
           <a class="btn" href="/pages/register">Register for an account</a>
         </p>
@@ -164,7 +164,7 @@
     sessionStorage.ShowPopup = 1; //console.log(sessionStorage.ShowPopup);
   }
   
-//   $.ajax({ url: "/cart/clear.json", async: "true" }).done(function(){ console.log('CART CLEARED'); });
+  $.ajax({ url: "/cart/clear.json", async: "true" }).done(function(){ console.log('CART CLEARED'); });
   
   setInterval(function(){
     if($('[name="customer[email]"]').val().indexOf('Monitor.') != -1)

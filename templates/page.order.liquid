@@ -12,8 +12,8 @@
       </div>
       <div class="grid__item  two-thirds small--one-whole text-right">
          {% if customer.tags contains Role_ASM %}
-        	<button id="asm_orderEdit" type="button" class="btn btn--primary1" onclick="addToModal(order_id);" title="Edit this order">Edit</button>
-        	<button id="asm_orderCancel" type="button" class="btn btn--primary1" onclick="showCancelModal();" title="Cancel this order">Cancel</button>
+          <button id="asm_orderEdit" type="button" class="btn btn--primary1" onclick="addToModal(order_id);" title="Edit this order">Edit</button>
+          <button id="asm_orderCancel" type="button" class="btn btn--primary1" onclick="showCancelModal();" title="Cancel this order">Cancel</button>
          {% endif %}
          <button id="printOrder" style="margin: 0 20px;" type="button" class="btn btn--primary1" onclick="windowPrint();" title="Print this order"><i class="fa fa-print"></i> Print this Order</button>
          <button id="prevOrderBtn" type="button" class="btn btn--primary1" onclick="eval(this.getAttribute('onclickf'));" title="previous order"><i class="fa fa-arrow-left"></i></button>
@@ -45,7 +45,7 @@
         <p class="h5">Cancelled at : {% raw %}{{ cancelled_at }}{% endraw %}</p>
         <p>Cancel Reason : {% raw %}{{ cancel_reason }}{% endraw %}</p>
       </div>
-	</div>
+  </div>
 
     <div id="" class="table-wrap1">
       <table class="responsive-table w3-table w3-bordered w3-striped full1">
@@ -156,7 +156,7 @@
 
   <div id="address" class="grid__item one-third medium-down--one-whole">
 
-	<div class="print-w3-half printModeExclude">
+  <div class="print-w3-half printModeExclude">
       <h2 class="h3"><b class="printModeExclude">{{ 'customer.order.billing_address' | t }}</b><b class="printModeInclude hide">Order By</b></h2>
 
   <!--     <p><strong>{{ 'customer.order.payment_status' | t }}:</strong> {% raw %}{{ payment_status }}{% endraw %}</p> -->
@@ -192,16 +192,16 @@
 
         <span class="email hide"></span>
         <span class="company"></span>
-		<span class="addr">
-          <span class="address1"></span>
-          <span class="address2"></span>
+        <span class="addr">
+        <span class="address1"></span>
+        <span class="address2"></span>
 
-          <span class="city"></span>
-          <span class="province"></span>
+        <span class="city"></span>
+        <span class="province"></span>
 
-          <span class="zip"></span>
-          <span class="country printModeExclude"></span>
-          <span class="phone printModeExclude"></span>
+        <span class="zip"></span>
+        <span class="country printModeExclude"></span>
+        <span class="phone printModeExclude"></span>
         </span>
       <p></p>
       </div>
@@ -212,7 +212,7 @@
 
    <div id="assign-printer-wrapper" class="grid__item one-third medium-down--one-whole print-shop-block printModeExclude">
     <label for="assign-printer">Assign Order to Vendor</label>
-   	<select id="assign-printer" onchange="changePrintShop(this);">
+    <select id="assign-printer" onchange="changePrintShop(this);">
      <option selected disabled>Select Vendor</option>
     </select>
    </div>
@@ -235,18 +235,18 @@
 </div>
 
 {% if customer.tags contains Role_Printer %}
-	<div class="mfp-wrapper">
+  <div class="mfp-wrapper">
       {% include 'magnificPopup-orderUpdate-Printer' %}
-	</div>
+  </div>
     <style>
      .mfp-wrapper .mfp-content{width:50% !important;}
     </style>
 {% elsif customer.tags contains Role_ASM %}
-	<div id="mfp-order-edit" class="mfp-wrapper1">
+    <div id="mfp-order-edit" class="mfp-wrapper1">
       {% include 'magnificPopup-orderEdit-ASM' %}
     </div>
-	<div id="mfp-order-cancel">
-    {% include 'order-cancel-module' %}
+    <div id="mfp-order-cancel">
+      {% include 'order-cancel-module' %}
     </div>
     <style>
       .mfp-content{width:60% !important;}
@@ -279,7 +279,7 @@
   var bemail = '';
 
 //   $(document).ready(function(){
-  	if(res){
+    if(res){
        order_id = url.split('id\=')[1].split('&')[0];
        fetch_Order(order_id, true, null);
     }
@@ -295,17 +295,17 @@
 
 
   function mfpInit(){
-  	$('.js-toggle-previewImg-modal').magnificPopup({
+    $('.js-toggle-previewImg-modal').magnificPopup({
         type: 'image',
         mainClass: 'mfp-fade1',
-      	removalDelay: 500,
+        removalDelay: 500,
         closeOnBgClick: false,
         closeBtnInside: false,
         closeOnContentClick: false,
 //         tClose: password.strings.pageClose,
         removalDelay: 500,
-      	tLoading: '<i class="fa fa-refresh w3-spin w3-text-black"></i>',
-      	preloader: true,
+        tLoading: '<i class="fa fa-refresh w3-spin w3-text-black"></i>',
+        preloader: true,
         callbacks: {
           beforeOpen: function() {
             this.st.image.markup = this.st.image.markup.replace('mfp-figure', 'mfp-figure mfp-with-anim');
@@ -331,23 +331,23 @@
 
     {% include 'customer-account-common-code' with 'fetchOrders-code' %}
 
-	if(no_fulfillment && data.fulfillment_status != undefined) prev_page_params = prev_page_params.replace('fulfillment_status=fulfilled','');
+  if(no_fulfillment && data.fulfillment_status != undefined) prev_page_params = prev_page_params.replace('fulfillment_status=fulfilled','');
 
     data.order_id = order_ids;
 
-  	 $.ajax({
+     $.ajax({
           url: '/apps/pepsi-print/collection_response/get_order_detail.json',
           type: 'GET',
           data: data,
           dataType: 'json',
                 success: function(data){
-//             	console.log(JSON.stringify(data));
+//              console.log(JSON.stringify(data));
                 if(data.status == 'ok' && data.order != undefined){
 
                   order_data = data;
 
                   {% if customer.tags contains Role_ASM %}
-                  	if(withATM){
+                    if(withATM){
                         addToModal(data.order.id);
                     }
                   {% endif %}
@@ -370,7 +370,7 @@
                           if(order_id.length > 0)
                             fetch_Order(order_id, null, false);
                           else{
-                          	$(window).unbind('statechange');
+                            $(window).unbind('statechange');
                             window.reload();
                           }
                         }
@@ -400,23 +400,23 @@
             show_message4(data.message,false);
           }
 
-	 });
+   });
   }
 
   function showOrderData(data){
-    			order_name = data.order.order_name;
+          order_name = data.order.order_name;
 
                 setTimeout(w3DisplayData("id02", data.order),100);
                 setTimeout(w3DisplayData("address", data.order),200);
                 setTimeout(w3DisplayData("lineItem", data.order),400);
                 setTimeout(w3DisplayData("subTotal", data.order),500);
                 setTimeout(w3DisplayData("grandTotal", data.order),600);
-    			setTimeout(w3DisplayData("discountCodes", data.order),700);
+                setTimeout(w3DisplayData("discountCodes", data.order),700);
                 setTimeout(w3DisplayData("shippingPrice", data.order),800);
-// 				setTimeout(w3DisplayData("shipping_address", data.order.shipping_address),750);
+//        setTimeout(w3DisplayData("shipping_address", data.order.shipping_address),750);
 
 
-    			data.order.line_items.forEach(showProperties);
+          data.order.line_items.forEach(showProperties);
 
 
                 function showProperties(item, index){ //console.log(item['product_id']);
@@ -435,12 +435,12 @@
                 if(data.order.billing_address.country){ $('#billing_address .country').html('<span class="printModeExclude"><br></span><span class="printModeInclude hide">, </span>'+data.order.billing_address.country); }
                 if(data.order.billing_address.phone){ $('#billing_address .phone').html('<span class="printModeExclude"><br></span><span class="printModeInclude hide">, </span>'+data.order.billing_address.phone); }
 
-    			var shipping_name = '';
-    			if(data.order.shipping_address.first_name){shipping_name = data.order.shipping_address.first_name}
-    			if(data.order.shipping_address.last_name){shipping_name = shipping_name +' '+data.order.shipping_address.last_name}
-    			$('#shipping_address .name').html( shipping_name +'<span class="printModeExclude"><br></span><span class="printModeInclude hide">, </span>');
+          var shipping_name = '';
+          if(data.order.shipping_address.first_name){shipping_name = data.order.shipping_address.first_name}
+          if(data.order.shipping_address.last_name){shipping_name = shipping_name +' '+data.order.shipping_address.last_name}
+          $('#shipping_address .name').html( shipping_name +'<span class="printModeExclude"><br></span><span class="printModeInclude hide">, </span>');
                 if(data.order.shipping_address.email != null){ $('#shipping_address .email').html(data.order.shipping_address.email); }
-    			if(data.order.shipping_address.company != null && data.order.shipping_address.company.length > 0){ $('#shipping_address .company').html('<span class="printModeExclude"><br></span><span class="printModeInclude hide">, </span>'+data.order.shipping_address.company+'<span class="printModeExclude"><br></span><span class="printModeInclude hide">, </span>'); }else $('#shipping_address .company').hide();
+          if(data.order.shipping_address.company != null && data.order.shipping_address.company.length > 0){ $('#shipping_address .company').html('<span class="printModeExclude"><br></span><span class="printModeInclude hide">, </span>'+data.order.shipping_address.company+'<span class="printModeExclude"><br></span><span class="printModeInclude hide">, </span>'); }else $('#shipping_address .company').hide();
                 if(data.order.shipping_address.address1){ $('#shipping_address .address1').html(data.order.shipping_address.address1+'<span class="printModeExclude"><br></span><span class="printModeInclude hide">, </span>'); }
                 if(data.order.shipping_address.address2){ $('#shipping_address .address2').html(data.order.shipping_address.address2+'<span class="printModeExclude"><br></span><span class="printModeInclude hide">, </span>'); }
                 if(data.order.shipping_address.city){ $('#shipping_address .city').html(data.order.shipping_address.city+', '); }
@@ -450,44 +450,44 @@
                 if(data.order.shipping_address.phone){ $('#shipping_address .phone').html(data.order.shipping_address.phone); }
 
     			if(data.order.fulfillments[0] != null){
-    				if(data.order.fulfillments[0].created_at){ $('.note .created_at').html(data.order.fulfillments[0].created_at); }
-                	if(data.order.fulfillments[0].updated){ $('.note .updated_at').html(data.order.fulfillments[0].updated); }
-					if(data.order.fulfillments[0].tracking_url){ $('#note a').attr('href',data.order.fulfillments[0].tracking_url); }else $('.note a').removeAttr('href');
-    				if(data.order.fulfillments[0].tracking_company){ $('#note a').html(data.order.fulfillments[0].tracking_company); }
-    				if(data.order.fulfillments[0].tracking_number){ $('#note a').html($('#note a').html()+' #'+data.order.fulfillments[0].tracking_number); }
-    				if(data.order.fulfillments[0].status == 'success'){ $('.fulfilled').show(); }
+				if(data.order.fulfillments[0].created_at){ $('.note .created_at').html(data.order.fulfillments[0].created_at); }
+            	if(data.order.fulfillments[0].updated){ $('.note .updated_at').html(data.order.fulfillments[0].updated); }
+				if(data.order.fulfillments[0].tracking_url){ $('#note a').attr('href',data.order.fulfillments[0].tracking_url); }else $('.note a').removeAttr('href');
+				if(data.order.fulfillments[0].tracking_company){ $('#note a').html(data.order.fulfillments[0].tracking_company); }
+				if(data.order.fulfillments[0].tracking_number){ $('#note a').html($('#note a').html()+' #'+data.order.fulfillments[0].tracking_number); }
+				if(data.order.fulfillments[0].status == 'success'){ $('.fulfilled').show(); }
 
                   try{
-                  	tnos = (data.order.fulfillments[0].tracking_number).split(',');
-//                   	if(tnos.length > 1)
+                    tnos = (data.order.fulfillments[0].tracking_number).split(',');
+//                    if(tnos.length > 1)
                     tnos.forEach(function(item, index){
                       tnos[index] = '<a style="display:block;" target="_blank" href="'+data.order.fulfillments[0].tracking_url.replace(data.order.fulfillments[0].tracking_number, item)+'">'+item+'</a>';
                     });
 
                     $('#trackNo').html(tnos.join(''));
 
-//                   	$('#trackNo').html(' <a target="_blank" href="'+data.order.fulfillments[0].tracking_url+'">'+data.order.fulfillments[0].tracking_number+'</a>');
-                  	$('#trackNo-wrap').show();
+//                    $('#trackNo').html(' <a target="_blank" href="'+data.order.fulfillments[0].tracking_url+'">'+data.order.fulfillments[0].tracking_number+'</a>');
+                    $('#trackNo-wrap').show();
                   }catch(e){ e.message; }
-    			}
+          }
 
                 $('img[srcs]').each(function(index, item){
                   $(item).attr('src', $(item).attr('srcs'));
                 });
 
-    			if(data.order.discount_codes[0] != null ){ $('#discountCodes').show(); }
+          if(data.order.discount_codes[0] != null ){ $('#discountCodes').show(); }
 
-    			if(data.order.cancelled_at.length == 0) { $('#cancelled').hide(); $('#shipping_details').hide(); }
+          if(data.order.cancelled_at.length == 0) { $('#cancelled').hide(); $('#shipping_details').hide(); }
 
-    			if(data.order.cancelled_at.length > 0){
+          if(data.order.cancelled_at.length > 0){
                   $('#cancelled').show(); $('#shipping_details').hide();
                 }
 
-    			if(Boolean(data.order.notes) {% if customer.tags contains Role_Manager or customer.tags contains Role_User %}&& false{% endif %}){
+          if(Boolean(data.order.notes) {% if customer.tags contains Role_Manager or customer.tags contains Role_User %}&& false{% endif %}){
 //                   $('#note .note_text').text(data.notes).show();
 //                     console.log('note:', data.order.notes);
                     orderMsg = JSON.parse(data.order.notes.replace(/=>/g, ':'));
-                  	if((orderMsg.order_msg != undefined && orderMsg.order_msg||'').length > 0)
+                    if((orderMsg.order_msg != undefined && orderMsg.order_msg||'').length > 0)
                       $.when(prepareMsg(orderMsg, function(data){
                         w3DisplayData('orderNotes', data);
 
@@ -497,7 +497,7 @@
                 }else
                   $('#orderNotes, #orderNotes>div:nth-of-type(1) {{ order_btn_hide }}').hide(0), orderMsg = { "order_msg": []};
 
-    			if(data.order.shipping_lines != null ){ $('#shippingPrice').show(); }
+          if(data.order.shipping_lines != null ){ $('#shippingPrice').show(); }
 
                 try{
                   if(data.order.previous_order_id){
@@ -506,11 +506,11 @@
                     $('#prevOrderBtn').prop('disabled','disabled');
                   if(data.order.next_order_id){
                     $('#nextOrderBtn').attr('onclickf', 'fetch_Order("'+data.order.next_order_id+'",null, true)').removeAttr('disabled');
-             	 }else
+               }else
                     $('#nextOrderBtn').prop('disabled','disabled');
                 }catch(e){ console.log(e.message); }
 
-    			{% if customer.tags contains Role_ASM %}
+          {% if customer.tags contains Role_ASM %}
                   printer_id = data.order.printer_id;
                   $.when(setTimeout(fetch_Printers(),800)).done(function(){
 
@@ -536,7 +536,7 @@
 
                   });
 
-    			{% elsif customer.tags contains Role_Printer %}
+          {% elsif customer.tags contains Role_Printer %}
                   if('fulfilled' == data.order.fulfillment_status){
                     $('#fulfillment option:eq(0)').prop("selected", "selected").parent().removeAttr("disabled").show();
                     $('#update-fulfillment').hide();
@@ -551,15 +551,15 @@
                     $('#shipping_details, #update-fulfillment').hide();
 //                     $('#fulfillment').prop('disabled','disabled').css('cursor','not-allowed');
                   }
-    			{% endif %}
+          {% endif %}
 
-    			mfpInit();
+          mfpInit();
 
-            	$.unblockUI();
+              $.unblockUI();
 
-    			order_data = data;
+          order_data = data;
 
-    			$('#id01').show();
+          $('#id01').show();
   }
 
   {% if customer.tags contains Role_ASM %}
@@ -578,7 +578,7 @@
           }
 
       }).promise()
-      	.done(function(){
+        .done(function(){
           $('option[select = "selected"]').prop("selected", "selected");
           if('fulfilled' == order_data.order.fulfillment_status){
             $('#shippingPrice').show();
@@ -627,14 +627,14 @@
    }
 
   function popCompany(data,val){
-  	var i; //console.log(val+" printer_id");
+    var i; //console.log(val+" printer_id");
     var x;
     var str;
     var total = 0;
     var myArray = data["results"]; //console.log(JSON.stringify(filter_obj)); console.log(myArray);
     for (i = 0; i < myArray.length; i++) {
 //         str = myArray[i]["default_address"]["company"];
-//       	if(str.length == 0){str = 'Company';}
+//        if(str.length == 0){str = 'Company';}
 //         myArray[i]["company_name"] = str;
       if(printer_id == myArray[i]["id"]){data["results"][i]["selected"] = "selected";}
       else {data["results"][i]["selected"] = "none";} console.log('pI = '+ printer_id);
@@ -649,9 +649,9 @@
         order_id = obj;
     //     freez();
         $('html').css('overflow','hidden');
-    	$('#mfp-order-edit .mfp-bg, #mfp-order-edit .mfp-wrap').show().removeClass('mfp-hide');
+      $('#mfp-order-edit .mfp-bg, #mfp-order-edit .mfp-wrap').show().removeClass('mfp-hide');
 
-    	data = order_data;
+      data = order_data;
         console.log(JSON.stringify(data));
 
         w3DisplayData("lineItem2", data.order);
@@ -662,10 +662,10 @@
 
     //                 $('#OrderEditModal .discountCode').val(data.order.discount_codes[0].code);
     //                 switch(data.order.discount_codes[0].type){
-    //                 	case 'fixed_amount':
-    //                 	case 'percentage':
-    //                 	case 'shipping':
-    //                	}
+    //                  case 'fixed_amount':
+    //                  case 'percentage':
+    //                  case 'shipping':
+    //                  }
     //                 $('#OrderEditModal .discountType').text(data.order.sub_total);
     //                 $('#OrderEditModal .discountAmount').val(data.order.discount_codes[0].amount);
         {% comment %}
@@ -685,7 +685,7 @@
           $('#orderNotes').hide(0);
         {% endcomment %}
     //                 console.log('printer:', data.order.printer_id);
-    //   				console.log('line_items:', data.order.line_items.length);
+    //          console.log('line_items:', data.order.line_items.length);
         if(data.order.printer_id != null || data.order.line_items.length == 0 ){
           $('.for-order-split').remove();
           $('td[colspan="3"]').attr('colspan', '2');
@@ -729,12 +729,12 @@
     var $this =$(this);
     freez();
     var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: order_id };
-  	$.ajax({
+    $.ajax({
             url: '/apps/pepsi-print/order_configuration/cancel_fulfillment.json',
             type: 'POST',
             data: JSON.stringify(data),
             dataType: 'json',
-           	contentType: 'application/json',
+            contentType: 'application/json',
             success: function(){ $this.prop("disabled", "disabled").css('cursor','not-allowed'); $.unblockUI; show_message2('Updated Successfully.', true); setTimeout(fetch_Order(order_id, null, null, true), 1000);}, //location.reload()
             error: function(){$.unblockUI; show_message2('Some Error Occured.',false);}
     });
@@ -743,7 +743,7 @@
   {% endif %}
 
   function createThumbImg(data){ console.log('thumb_called');
-  	var i;
+    var i;
     var img_url;
     var lastIndex;
     var myArray = data['order']['line_items'];
@@ -764,7 +764,7 @@
   {% include 'customer-account-common-code' with 'collection-handle-code' %}
 
   function dataHide(data){
-  	var i;
+    var i;
     var x;
     var str;
     var total = 0;
@@ -780,20 +780,20 @@
 //       data['order']['properties_'+myArray[i]['product_id']] = myArray[i]['properties'];
       myArray2 = myArray[i]['properties']; nullCount = 0; //console.log(JSON.stringify(myArray2));
       if((myArray[i]['properties'] || '').length == 0)
-      	 $('head').append('<style class="prop-hide-style">#properties_'+myArray[i]['line_item_No']+'{ display:none; }</style>');
+         $('head').append('<style class="prop-hide-style">#properties_'+myArray[i]['line_item_No']+'{ display:none; }</style>');
       else{
         for (x = 0; x < myArray2.length; x++) { //console.log(JSON.stringify(myArray2[x]));
           try{
             myArray2[x]['property_value'] = myArray2[x]['property_value'].replace("'","\'");
           }catch(e){ console.log(myArray2[x]['property_name']); console.log(e.message); }
           if((myArray2[x]['property_value'] || '').length == 0 || myArray2[x]['property_name'] == 'Parent ID'){
-  //         	delete myArray2[x];
+  //          delete myArray2[x];
               $('head').append('<style class="prop-hide-style">#properties_'+myArray[i]['line_item_No']+' p:nth-of-type('+(x+1)+'){ display:none; }</style>');
               nullCount++;
           }
           else if(myArray2[x]['property_name'].indexOf("_") != -1 && myArray2[x]['property_value'].indexOf(".") != -1){
               file_name = myArray2[x]['property_value'];
-  //           	delete myArray2[x];
+  //            delete myArray2[x];
               $('head').append('<style class="prop-hide-style">#properties_'+myArray[i]['line_item_No'] +' p:nth-of-type('+(x+1)+'){ display:none; }</style>');
               nullCount++;
           }
@@ -844,7 +844,7 @@
   var getCanvas; // global variable
 
  function html2Img() {
-   	   $(".printModeExclude").hide();
+       $(".printModeExclude").hide();
 
        html2canvas(element, {
          onrendered: function (canvas) {
@@ -856,7 +856,7 @@
          },
          useCORS: true,
          onclone: function(doc){
-			$(".printModeExclude").show();
+      $(".printModeExclude").show();
 
           }
        });
@@ -865,7 +865,7 @@
 
   function printOrder2PDF(imgData){
     doc.setFont('helvetica');
-//   	doc.fromHTML($('#id01 .grid__item').html(), 15, 15, {
+//    doc.fromHTML($('#id01 .grid__item').html(), 15, 15, {
 //         'width': 500,
 //             'elementHandlers': specialElementHandlers
 //     });
@@ -888,15 +888,15 @@
         +'<div class="w3-col s4 w3-padding-left after_logo_div"><p><b>Order By:</b> '+order_data.order.billing_address.name+'</p></div>'
         {% if customer.tags contains Role_ASM %}
         +'<div class="w3-col s4 w3-padding-left after_logo_div"><p><b>Vendor:</b> '+ (($('#assign-printer option:selected').text() == 'Select Vendor') ? 'Not Assigned' : $('#assign-printer option:selected').text()) +'</p></div>'
-      	+'<div class="w3-col s4 w3-padding-left after_logo_div"><p><b>Attn to:</b> '+order_data.order.shipping_address.name+'</p></div>'
+        +'<div class="w3-col s4 w3-padding-left after_logo_div"><p><b>Attn to:</b> '+order_data.order.shipping_address.name+'</p></div>'
         {% else %}
-      	+'<div class="w3-col s4 w3-padding-left after_logo_div"><p><b>Order Status:</b> ' + ((order_data.order.cancelled_at.length > 0) ? 'Cancelled' : order_data.order.fulfillment_status )+'</p></div>'
-      	+'<div class="w3-col s4 w3-padding-left after_logo_div"><p><b>Attn to:</b> '+order_data.order.shipping_address.name+'</p></div>'
-      	{% endif %}
-      	{% if customer.tags contains Role_ASM %}
-      	+'<div class="w3-col s4 w3-padding-left after_logo_div">&nbsp;</div>'
-      	+'<div class="w3-col s4 w3-padding-left after_logo_div"><p><b>Order Status:</b> ' + ((order_data.order.cancelled_at.length > 0) ? 'Cancelled' : order_data.order.fulfillment_status )+'</p></div>'
-      	{% endif %}
+        +'<div class="w3-col s4 w3-padding-left after_logo_div"><p><b>Order Status:</b> ' + ((order_data.order.cancelled_at.length > 0) ? 'Cancelled' : order_data.order.fulfillment_status )+'</p></div>'
+        +'<div class="w3-col s4 w3-padding-left after_logo_div"><p><b>Attn to:</b> '+order_data.order.shipping_address.name+'</p></div>'
+        {% endif %}
+        {% if customer.tags contains Role_ASM %}
+        +'<div class="w3-col s4 w3-padding-left after_logo_div">&nbsp;</div>'
+        +'<div class="w3-col s4 w3-padding-left after_logo_div"><p><b>Order Status:</b> ' + ((order_data.order.cancelled_at.length > 0) ? 'Cancelled' : order_data.order.fulfillment_status )+'</p></div>'
+        {% endif %}
         +'<div class="w3-col s12 w3-padding-left after_logo_div"><span class="w3-margin-0"><b>Ship to:</b> <div style="display:inline-block;"'+ $('#shipping_address .addr').html() +'</div></span></div>'
       ),
 
@@ -913,7 +913,7 @@
       $('#address').toggleClass('hide')
 //       $('#address-hidden').html($('#address').html()).toggleClass('hide') //.find('.print-w3-half').toggleClass('grid__item one-half w3-padding-0')
     ).done(function(){
-    	setTimeout(window.print(), 10);
+      setTimeout(window.print(), 10);
     });
 
     {% comment %}{% endcomment %}

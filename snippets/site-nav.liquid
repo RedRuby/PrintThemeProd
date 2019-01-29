@@ -176,7 +176,7 @@ console.log('no');
                     <ul id="{{-childlink.handle-}}-ul" class="site-nav__dropdown" style="display:none; left:-40%; position:absolute;" onmouseover="this.style.display = 'block';">
                     {% for grandchildlink in linklists[grand_child_list_handle].links %}
                     {% assign grandchildlink_handle = grandchildlink.url |split:'/' %}
-                        {% if tag_array contains grandchildlink_handle.last or true %}
+                        {% if tag_array contains grandchildlink_handle.last %}
                         <li>
                             <a href="/collections/{{ collection_handle }}/{{ grandchildlink_handle.last |handle}}{{ sort_url_params }}" class="{% if current_tags contains childlink.handle %} site-nav--active {% endif %} site-nav__link">{{ grandchildlink.title }}</a>
                         </li>
