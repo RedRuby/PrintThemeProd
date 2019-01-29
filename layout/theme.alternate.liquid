@@ -29,7 +29,7 @@
                     }
                     else
                       parent.location.assign('{{shop.secure_url}}/account/login?redirect=' + url);
-                    
+
                   }
                   parent.location.assign('{{shop.secure_url}}/account/login');
 //               }
@@ -39,78 +39,7 @@
     </html>
 {% else %}
 
-{% if customer %}
-  {% assign region_NorthEast = "general.Region_Tags.NorthEast" | t %}
-  {% assign region_SouthEast = "general.Region_Tags.SouthEast" | t %}
-  {% assign region_California = "general.Region_Tags.California" | t %}
-  {% assign region_South = "general.Region_Tags.South" | t %}
-  {% assign region_Mountain = "general.Region_Tags.Mountain" | t %}
-  {% assign region_MidAtlantic = "general.Region_Tags.MidAtlantic" | t %}
-  {% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
-  {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
-
-  {% assign Role_User = 'general.Role.User' | t %}
-  {% assign Role_Printer = 'general.Role.Printer' | t %}
-  {% assign Role_Manager = 'general.Role.Manager' | t %}
-  {% assign Role_ASM = 'general.Role.ASM' | t %}
-  {% assign Role_Admin = 'general.Role.Admin' | t %}
-
-  {% if customer.tags contains Role_User %}
-    {% assign customer_role_tag = Role_User %}
-  {% elsif customer.tags contains Role_Manager %}
-    {% assign customer_role_tag = Role_Manager %}
-  {% elsif customer.tags contains Role_Printer %}
-    {% assign customer_role_tag = Role_Printer %}
-  {% elsif customer.tags contains Role_ASM %}
-    {% assign customer_role_tag = Role_ASM %}
-  {% elsif customer.tags contains Role_Admin %}
-    {% assign customer_role_tag = Role_Admin %}
-  {% endif %}
-
-  {% if customer.tags contains region_NorthEast or customer.tags contains region_SouthEast or customer.tags contains region_Mountain or customer.tags contains region_California or customer.tags contains region_South or customer.tags contains region_MidWest or customer.tags contains region_MidAtlantic or customer.tags contains region_GreatLakes %}
-	{% if customer.tags contains region_NorthEast %}
-      {% assign customer_region_tag = region_NorthEast %}
-    {% elsif customer.tags contains region_SouthEast %}
-      {% assign customer_region_tag = region_SouthEast %}
-    {% elsif customer.tags contains region_California %}
-      {% assign customer_region_tag = region_California %}
-    {% elsif customer.tags contains region_South %}
-      {% assign customer_region_tag = region_South %}
-    {% elsif customer.tags contains region_Mountain %}
-      {% assign customer_region_tag = region_Mountain %}
-    {% elsif customer.tags contains region_MidAtlantic %}
-      {% assign customer_region_tag = region_MidAtlantic %}
-    {% elsif customer.tags contains region_MidWest %}
-      {% assign customer_region_tag = region_MidWest %}
-    {% elsif customer.tags contains region_GreatLakes %}
-      {% assign customer_region_tag = region_GreatLakes %}
-    {% endif %}	
-
-  {% else %}
-    {% unless template contains 'page.no-region' %}
-      {% assign no_region = true %}
-	{% endunless %}
-  {% endif %}
-{% endif %}
-
-{% if template contains 'collection' and collection.handle %}
-  {% unless collection.title contains customer_region_tag %} {% assign no_access = true %} {% assign collec = true %} {% endunless %}
-{% elsif template contains 'product' %}
-  {% unless customer.tags contains Role_ASM %}
-	  {% unless product.tags contains customer_region_tag %} {% assign no_access = true %} {% assign prod = true %} {% endunless %}
-  {% endunless %}
-{% endif %}
-
-{% if customer.tags contains Role_Printer %}
-  {% unless template contains 'customers/account' or template contains 'page.order' or template contains 'page.error' or template contains 'page.welcome' %}
-      {% assign no_access = true %}
-  {% endunless %}
-{% endif %}
-
-{% if customer.tags contains Role_Admin %}
-    {% assign no_region = false %}
-	{% assign no_access = false %}
-{% endif %}
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
 
 {% if no_region == true or no_access == true %}
 	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -154,7 +83,7 @@
   <title>
   {{ page_title }}{% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}{% unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}
   </title>
-  
+
   {% if page_description %}
   <meta name="description" content="{{ page_description | escape }}">
   {% endif %}
@@ -168,7 +97,7 @@
   <meta name="theme-color" content="{{ settings.color_primary }}">
 
   <!-- CSS ================================================== -->
-  
+
   {% if template contains 'customers/account' or template contains 'page.order' %}
   	{{ 'w3css.css' | asset_url | stylesheet_tag }}
   	{% if template contains 'customers/account' %}
@@ -176,21 +105,21 @@
     {{ 'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' | stylesheet_tag }}
   	{% endif %}
   {% endif %}
-  
+
   {{ 'timber.scss.css' | asset_url | stylesheet_tag }}
   {{ 'theme.scss.css' | asset_url | stylesheet_tag }}
 
   {{ 'custom-style.css' | asset_url | stylesheet_tag }}
-  
+
   {% include 'custom-css-snippet' %}
-  
+
   {% include 'google-fonts' %}
-  
+
   {{ 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css' | stylesheet_tag }}
-  
+
   <script>
     window.theme = window.theme || {};
-    
+
     var theme = {
       strings: {
         zoomClose: {{ "products.zoom.close" | t | json }},
@@ -216,7 +145,7 @@
   {{ content_for_header }}
 
   {% include 'oldIE-js' %}
-  
+
   {{ '//ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js' | script_tag }}
 
   {% comment %}
@@ -232,7 +161,7 @@
 <body id="{{ page_title | handle }}" class="{% if customer %}customer-logged-in {% endif %}template-{{ template | replace: '.', ' ' | truncatewords: 1, '' | handle }}" >
 
   <div class="hide">{% section 'header' %}</div>
-  
+
   {% if collection %}{% unless template == 'product' %}
     <div class="hide">
       <div id="carousal">{% section 'carousal' %}</div>
@@ -245,7 +174,7 @@
         });
     </script>
   {% endunless %}{% endif %}
-  
+
   <main class="wrapper main-content" role="main">
     {% comment %}
     {% assign Role_ASM = 'general.Role.ASM' | t %}
@@ -262,17 +191,17 @@
   </main>
 
   <div class="hide">{% section 'footer' %}</div>
-      
-  {% if template contains 'customers/account' or template contains 'page.order' %} 
+
+  {% if template contains 'customers/account' or template contains 'page.order' %}
   	{{ 'w3data.js' | asset_url | script_tag }} {%comment%} {%endcomment%}
   	{% if template contains 'customers/account' %}
     {{ 'jquery-ui.js' | asset_url | script_tag }}
     {{ 'jquery.simplePagination.js' | asset_url | script_tag }}
-  	{% endif %} 
-  {% endif %} 
-  
+  	{% endif %}
+  {% endif %}
+
   {{ 'theme.js' | asset_url | script_tag }}
-  
+
   <script>
     jQuery(function() {
       jQuery('.swatch :radio').change(function() {
@@ -286,34 +215,34 @@
           .trigger('change');
       });
     });
-    
+
     $(document).ready(function(){
       	var url = document.URL;
       	var pattern = /\?sort_by=created-descending/;
         if(url.match(pattern)) {
           $('#link-new, #link2-new').addClass('site-nav--active');//console.log('turu');
         }
-      
+
       	pattern = /\/pages\/contact-us-/;
         if(url.match(pattern)) {
           $('#link-contact, #link7, #link2-contact, #link27').addClass('site-nav--active');
         }
-      
+
       	pattern = /-payment-codes-/;
         if(url.match(pattern)) {
           $('#link-sales, #link-payment-codes, #link7, #link2-sales, #link2-payment-codes, #link27').addClass('site-nav--active');
         }
-      
+
       	pattern = /\/pages\/payment-codes-/;
         if(url.match(pattern)) {
           $('#link-food-service, #link-payment-codes, #link7, #link2-food-service, #link2-payment-codes, #link27').addClass('site-nav--active');
         }
-      
+
       	pattern = /\/pages\/payment-code-all-other/;
         if(url.match(pattern)) {
           $('#link-all-other, #link-payment-codes, #link7, #link2-all-other, #link2-payment-codes, #link27').addClass('site-nav--active');
         }
-      
+
       	pattern = /payment-code/;
         if(url.match(pattern)) {
           $('.grid .grid__item').first().prepend('<button type="button" class="btn" onclick="goBack();">Back</button><br><br>');
@@ -323,29 +252,29 @@
 //       	if(res){
 //           $('#link-new').addClass('site-nav--active');
 //         }
-      
+
       {% if template contains 'collection' %}
       var i = [];
-      
+
       $('.product-content-wrapper').each(function(index, item){
       	i[index] = $(item).css('height').split('px')[0]; //console.log(i[index]);
       }).promise()
       	.done(function(){
           var max_h = Math.max.apply(Math,i); //console.log(max_h);
           $('.product-content-wrapper').each(function(index, item){ $(item).css('height', max_h.toString()+"px"); });
-      });	
+      });
       {% endif %}
-      
+
     });
-    
+
     if (typeof(Storage) !== "undefined") {
       {% if customer %}
-      	localStorage.customer_status = 'loggedin'; 
+      	localStorage.customer_status = 'loggedin';
       {% else %}
       	localStorage.customer_status = 'loggedout';
       {% endif %}
     }
-    
+
     function goBack(){
       var currentUrl = window.location.href;
       window.history.back();
@@ -356,7 +285,7 @@
               window.close();
           }
       }, 500);
-        
+
     }
 
     console.log('{{ collection.title }}'); //'{{ 'general.Region_Tags.NorthEast' | t }}');

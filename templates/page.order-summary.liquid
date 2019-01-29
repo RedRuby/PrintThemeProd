@@ -1,40 +1,4 @@
-{% if customer  %}
-
-  {% assign Role_User = 'general.Role.User' | t %}
-  {% assign Role_Printer = 'general.Role.Printer' | t %}
-  {% assign Role_Manager = 'general.Role.Manager' | t %}
-  {% assign Role_ASM = 'general.Role.ASM' | t %}
-  {% assign Role_Admin = 'general.Role.Admin' | t %}
-
-  {% assign region_NorthEast = "general.Region_Tags.NorthEast" | t %}
-  {% assign region_SouthEast = "general.Region_Tags.SouthEast" | t %}
-  {% assign region_California = "general.Region_Tags.California" | t %}
-  {% assign region_South = "general.Region_Tags.South" | t %}
-  {% assign region_Mountain = "general.Region_Tags.Mountain" | t %}
-  {% assign region_MidAtlantic = "general.Region_Tags.MidAtlantic" | t %}
-  {% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
-  {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
-  {% assign region_External = "general.Region_Tags.External" | t %}
-
-  {% if customer.tags contains region_NorthEast %}
-    {% assign customer_region_tag = region_NorthEast %}
-  {% elsif customer.tags contains region_SouthEast %}
-    {% assign customer_region_tag = region_SouthEast %}
-  {% elsif customer.tags contains region_California %}
-    {% assign customer_region_tag = region_California %}
-  {% elsif customer.tags contains region_South %}
-    {% assign customer_region_tag = region_South %}
-  {% elsif customer.tags contains region_Mountain %}
-    {% assign customer_region_tag = region_Mountain %}
-  {% elsif customer.tags contains region_MidAtlantic %}
-    {% assign customer_region_tag = region_MidAtlantic %}
-  {% elsif customer.tags contains region_MidWest %}
-    {% assign customer_region_tag = region_MidWest %}
-  {% elsif customer.tags contains region_GreatLakes %}
-    {% assign customer_region_tag = region_GreatLakes %}
-  {% endif %}
-
-{% endif %}
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
 
 <div class="section-header section-header--large printModeExclude">
   <h1 class="section-header__title">{{ 'customer.account.title' | t }}</h1>
@@ -65,9 +29,9 @@
     <div id="id02" class="printModeExclude">
 
       <h2 class="h3 printModeInclude1 order_name_h2" ><b>Order #{% raw %}{{ order_name }}{% endraw %}</b> </h2>
-      <p class="" style="display:inline-block;"><b class="printModeExclude">Placed on :</b> {% raw %}{{ order_date }}{% endraw %}</p>  	
-    
-      
+      <p class="" style="display:inline-block;"><b class="printModeExclude">Placed on :</b> {% raw %}{{ order_date }}{% endraw %}</p>
+
+
       <div id="cancelled" class="errors" style="display:none;">
         <p class="h5">Cancelled at : {% raw %}{{ cancelled_at }}{% endraw %}</p>
         <p>Cancelled reason : {% raw %}{{ cancelled_at }}{% endraw %}</p>
@@ -141,7 +105,7 @@
         </tfoot>
       </table>
     </div> {% endcomment %}
-    
+
     <div id="" class="table-wrap1">
       <table class="responsive-table w3-table w3-bordered w3-striped full1">
         <thead>
@@ -154,10 +118,10 @@
           </tr>
         </thead>
         <tbody id="lineItem">
-          
+
           <tr w3-repeat="line_items">
             <td>
-              
+
               <div class="row">
                 <div class="w3-col s4">
                   <img src="{{ 'ajax-loader.gif' |asset_url }}" srcs="{% raw %}{{ product_thumb_url }}{% endraw %}" style="max-width:100px; cursor:zoom-in;" class="js-toggle-previewImg-modal zoom-lightbox1" data-mfp-src="{% raw %}{{ product_image_url }}{% endraw %}">
@@ -172,31 +136,31 @@
                   </div>
                 </div>
               </div>
-              
+
             </td>
             <td>{% raw %}{{ sku }}{% endraw %}</td>
             <td class="text-right">{% raw %}{{ price }}{% endraw %}</td>
             <td class="text-right">{% raw %}{{ quantity }}{% endraw %}</td>
             <td class="text-right">{% raw %}{{ total }}{% endraw %}</td>
           </tr>
-          
+
         </tbody>
-        
+
         <tbody id="discountCodes" style="display:none;">
           <tr w3-repeat="discount_codes" class="order_summary discount">
             <td colspan="4">{{ 'customer.order.discount' | t }} <b>{% raw %}{{ code }}{% endraw %}</b></td>
             <td class="text-right">-${% raw %}{{ amount }}{% endraw %}</td>
           </tr>
         </tbody>
-        
-        <tbody>  
+
+        <tbody>
           <tr id="subTotal">
             <td colspan="4">{{ 'customer.order.subtotal' | t }}</td>
             <td class="text-right">${% raw %}{{ sub_total }}{% endraw %}</td>
           </tr>
         </tbody>
-        
-        <tbody id="shippingPrice" style="display:none;">  
+
+        <tbody id="shippingPrice" style="display:none;">
           <tr w3-repeat="shipping_lines">
             <td colspan="4">{{ 'customer.order.shipping' | t }} <b>{% raw %}({{ title }}){% endraw %}</b> <span id="trackNo-wrap" style="display:none;"> &nbsp;&nbsp;&nbsp;<b>Tracking No. : </b> <span id="trackNo"></span></span></td>
             <td class="text-right">${% raw %}{{ price }}{% endraw %}</td>
@@ -213,11 +177,11 @@
             <td colspan="4"><strong>{{ 'customer.order.total' | t }}</strong></td>
             <td class="text-right"><strong>${% raw %}{{ total }}{% endraw %} {{ order.currency }}</strong></td>
           </tr>
-          
+
         </tfoot>
       </table>
-      
-      
+
+
     </div>
 
   </div>
@@ -249,7 +213,7 @@
       </p>
     </div>
    </div>
-      
+
     <div id="order_names" class="w3-row print-w3-half">
       <h2>Order Group Names</h2>
       <div w3-repeat="order_group_names" class="w3-col s4">
@@ -259,7 +223,7 @@
   </div>
 
   {% if customer.tags contains Role_ASM %}
-   
+
 <!--    <div id="assign-printer-wrapper" class="grid__item one-third medium-down--one-whole print-shop-block">
     <label for="assign-printer">Assign Order to Vendor</label>
    	<select id="assign-printer" onchange="changePrintShop(this);">
@@ -278,7 +242,7 @@
     <button id="update-fulfillment" class="js-toggle-update-modal1 updateBtn btn" style="display:none; min-width:350px;" title="Update this order" status="" onclick="addToModal(this);" order_id="" >Update Fulfillment</button>
   </div> -->
   {% endif %}
-  
+
 </div>
 
 
@@ -299,9 +263,9 @@
   var patt = new RegExp("id\=\\d+");
   var res = patt.test(url); //console.log(order_id);
   var btnState = null;
-  
+
   var bemail = '';
-  
+
 //   $(document).ready(function(){
   	if(res){
        order_id = url.split('id\=')[1].split('&')[0];
@@ -309,15 +273,15 @@
     }
     else window.location.assign('{{ shop.url }}/account');
 //   });
-  
-  
-  
+
+
+
 //   var printer_values    = null;
-//   var selectList = document.getElementById("assign-printer");    
+//   var selectList = document.getElementById("assign-printer");
 //   var order_tags = null;
 
-                              
-                              
+
+
   function mfpInit(){
   	$('.js-toggle-previewImg-modal').magnificPopup({
         type: 'image',
@@ -340,23 +304,23 @@
         }
       });
   }
-  
-  
-  
+
+
+
   function fetch_Order(order_ids, first, state){
     btnState = state;
     order_id = order_ids;
     $('.prop-hide-style').remove();
     freez();
     var data = {order_id: order_ids, cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
-                
+
   	 $.ajax({
           url: '/apps/pepsi-print/collection_response/{% if customer.tags contains Role_Printer %}get_printer_job_view_details.json{% elsif customer.tags contains Role_ASM %}get_asm_group_list_details.json{% endif  %}',
           type: 'GET',
           data: data,
           dataType: 'json',
                 success: function(data){
-//             	console.log(JSON.stringify(data)); 
+//             	console.log(JSON.stringify(data));
                 if(data.status == 'ok' && data.order != undefined){
                   {% if customer.tags contains Role_Printer %}
 //                   if(data.order.printer_id == {{ customer.id }})
@@ -369,7 +333,7 @@
                     $(document).ready(function(){
                       History.Adapter.bind(window, 'statechange', function(){ console.log('state outside:', btnState);
                         if(btnState == null){ console.log('state inside:', btnState);
-                          order_id = History.getState().url.split('id=')[1]||''; 
+                          order_id = History.getState().url.split('id=')[1]||'';
                           if(order_id.length > 0)
                             fetch_Order(order_id, null, false);
                           else{
@@ -381,7 +345,7 @@
 //                       dataHide(data);
                       $.when(dataHide(data)).done($.when(createThumbImg(data)).done(showOrderData(data))).done($('a[printer^="Printer:"]').css('color','#aaa'));
                     });
-                  
+
                   if(first == null){console.log('pushed:', order_id);
                     if(btnState == true)
                       History.pushState({ url: document.location.href }, document.title, "?id="+order_id);
@@ -396,37 +360,37 @@
                   show_message4(data.message,false);
 //                   setTimeout(function(){ window.location.assign('{{ shop.url }}/account'); }, 3000);
                 }
-                
-                
+
+
           },
           error: function(){
             show_message4(data.message,false);
           }
-          
+
 	 });
   }
-  
+
   function showOrderData(data){
-    			order_name = data.order.order_name;            
-    
+    			order_name = data.order.order_name;
+
                 if(data.order.cancelled_at.length > 0){ $('#cancelled').show(); $('#shipping_details, #update-fulfillment, #assign-printer-wrapper').hide(); }
                 setTimeout(w3DisplayData("id02", data.order),100);
-                setTimeout(w3DisplayData("address", data.order),200); 
-                setTimeout(w3DisplayData("lineItem", data.order),400); 
+                setTimeout(w3DisplayData("address", data.order),200);
+                setTimeout(w3DisplayData("lineItem", data.order),400);
                 setTimeout(w3DisplayData("subTotal", data.order),500);
                 setTimeout(w3DisplayData("grandTotal", data.order),600);
 //     			setTimeout(w3DisplayData("discountCodes", data.order),700);
 //                 setTimeout(w3DisplayData("shippingPrice", data.order),800);
 // 				setTimeout(w3DisplayData("shipping_address", data.order.shipping_address),750);
-    
-    			
+
+
     			data.order.line_items.forEach(showProperties);
-    			
-    			
+
+
                 function showProperties(item, index){ //console.log(item['product_id']);
 					setTimeout( w3DisplayData("properties_"+item['line_item_No'], item), 900+100*index);
                 }
-    			
+
     			$('#billing_address .name').text(data.order.billing_address.name);
     			if(data.order.customer.email != null){ $('#billing_address .email').html(data.order.customer.email); }
     			bemail = data.order.customer.email;
@@ -438,7 +402,7 @@
                 if(data.order.billing_address.zip){ $('#billing_address .zip').text(', '+data.order.billing_address.zip); }
                 if(data.order.billing_address.country){ $('#billing_address .country').html('<br>'+data.order.billing_address.country); }
                 if(data.order.billing_address.phone){ $('#billing_address .phone').html('<br>'+data.order.billing_address.phone); }
-    			
+
 //     			var shipping_name = '';
 //     			if(data.order.shipping_address.first_name){shipping_name = data.order.shipping_address.first_name}
 //     			if(data.order.shipping_address.last_name){shipping_name = shipping_name +' '+data.order.shipping_address.last_name}
@@ -452,7 +416,7 @@
 //                 if(data.order.shipping_address.zip){ $('#shipping_address .zip').text(', '+data.order.shipping_address.zip); }
 //                 if(data.order.shipping_address.country){ $('#shipping_address .country').html('<br>'+data.order.shipping_address.country); }
 //                 if(data.order.shipping_address.phone){ $('#shipping_address .phone').html('<br>'+data.order.shipping_address.phone); }
-    
+
 //     			if(data.order.fulfillments[0] != null){
 //     				if(data.order.fulfillments[0].created_at){ $('.note .created_at').html(data.order.fulfillments[0].created_at); }
 //                 	if(data.order.fulfillments[0].updated){ $('.note .updated_at').html(data.order.fulfillments[0].updated); }
@@ -462,29 +426,29 @@
 //     				if(data.order.fulfillments[0].status == 'success'){ $('.fulfilled').show(); }
 //                   	$('#trackNo').html(' <a target="_blank" href="'+data.order.fulfillments[0].tracking_url+'">'+data.order.fulfillments[0].tracking_number+'</a>').parent().show();
 //     			}
-    
+
                 $('img[srcs]').each(function(index, item){
                   $(item).attr('src', $(item).attr('srcs'));
                 });
-    			
+
 //     			if(data.order.discount_codes[0] != null ){ $('#discountCodes').show(); }
-    
-//     			if(data.order.notes != null ){ 
+
+//     			if(data.order.notes != null ){
 // //                   $('#note .note_text').text(data.notes).show();
 // //                     console.log('note:', data.order.notes);
 //                     orderMsg = JSON.parse(data.order.notes.replace(/=>/g, ':'));
 //                   	if((orderMsg.order_msg||'').length > 0)
 //                       $.when(prepareMsg(orderMsg, function(data){
 //                         w3DisplayData('orderNotes', data);
-						
+
 //                       })).done(function(){ $('#orderNotes').show(0); });{% unless customer.tags contains Role_ASM or customer.tags contains Role_Printer %}
 //                     else
 //                       $('#orderBtn').hide(0);{% endunless %}
 //                 }else
 //                   $('#orderNotes').hide(0);
-                  
+
 //     			if(data.order.shipping_lines != null ){ $('#shippingPrice').show(); }
-    
+
                 try{
                   if(data.order.previous_order_id){
                     $('#prevOrderBtn').attr('onclickf', 'fetch_Order("'+data.order.previous_order_id+'",null, false)').removeAttr('disabled');
@@ -494,8 +458,8 @@
                     $('#nextOrderBtn').attr('onclickf', 'fetch_Order("'+data.order.next_order_id+'",null, true)').removeAttr('disabled');
              	 }else
                     $('#nextOrderBtn').prop('disabled','disabled');
-                }catch(e){ console.log(e.message); }    			
-    
+                }catch(e){ console.log(e.message); }
+
     			{% if customer.tags contains Role_ASM %}
 				printer_id = data.order.printer_id;
                 if('fulfilled' == data.order.fulfillment_status){$('select').prop('disabled','disabled').css('cursor','not-allowed');}
@@ -507,22 +471,22 @@
                     $('#shipping_details').hide();
                     $('#update-fulfillment').attr('order_id', data.order.id).show();
                   }
-    				
+
                   if(data.order.cancelled_at.length > 0){ $('#shipping_details, #update-fulfillment').hide(); }
     			{% endif %}
-    
-    			mfpInit();			
-    
-            	$.unblockUI(); 
-    
+
+    			mfpInit();
+
+            	$.unblockUI();
+
     			order_data = data;
-    			
-    			$('#id01').show(); 
+
+    			$('#id01').show();
   }
-  
-  
+
+
   function createThumbImg(data){ console.log('thumb_called');
-  	var i; 
+  	var i;
     var img_url;
     var lastIndex;
     var myArray = data['order']['line_items'];
@@ -534,14 +498,14 @@
         data['order']['line_items'][i]["product_thumb_url"] = img_url.substr(0, lastIndex)+'_150x'+img_url.substr(lastIndex);
       }else
         data['order']['line_items'][i]["product_thumb_url"] = 'http://placeholdit.imgix.net/~text?txtsize=35&bg=ddd&txtclr=aaa&txt=No%20Image&w=150&h=200&txttrack=0';
-    } 
+    }
 //     console.log(JSON.stringify(data));
 //     return(data);
 //        showOrderData(data);
   }
 
   function dataHide(data){
-  	var i; 
+  	var i;
     var x;
     var str;
     var total = 0;
@@ -558,13 +522,13 @@
       myArray2 = myArray[i]['properties']; nullCount = 0; //console.log(JSON.stringify(myArray2));
       for (x = 0; x < myArray2.length; x++) { //console.log(JSON.stringify(myArray2[x]));
         if((myArray2[x]['property_value'] || '').length == 0 || myArray2[x]['property_name'] == 'Parent ID'){
-//         	delete myArray2[x]; 
+//         	delete myArray2[x];
           	$('head').append('<style class="prop-hide-style">#properties_'+myArray[i]['line_item_No']+'{ display:none; }</style>');
             nullCount++;
         }
         else if(myArray2[x]['property_name'].indexOf("_") != -1 && myArray2[x]['property_value'].indexOf(".") != -1){
         	file_name = myArray2[x]['property_value'];
-//           	delete myArray2[x];	
+//           	delete myArray2[x];
           	$('head').append('<style class="prop-hide-style">#properties_'+myArray[i]['line_item_No']+'{ display:none; }</style>');
             nullCount++;
         }
@@ -584,14 +548,14 @@
         }
       } //if(myArray[i]['properties'].length == nullCount){ $('head').append('<style>#properties_'+myArray[i]['line_item_No']+'{ display:none; }</style>'); }
       //else{ $('head').append('<style>#properties_'+myArray[i]['line_item_No']+' p:nth-last-child(1){ display:none; }</style>'); }
-    } 
+    }
 //     data = removeEmpty(data);
 //     console.log(JSON.stringify(data));
 //     return(data);
 //     $.when(createThumbImg(data)).done(showOrderData(data));
 //     createThumbImg(data);
   }
-  
+
   function removeEmpty(obj) {
     Object.keys(obj).forEach(function(key) {
       if (obj[key] && typeof obj[key] === 'object') removeEmpty(obj[key])
@@ -599,20 +563,20 @@
     });
     return obj;
   };
-  
+
   var doc = new jsPDF();
   var specialElementHandlers = {
       '#editor': function (element, renderer) {
           return true;
       }
   };
-  
+
   var element = $('html'); //$('#id01 .grid__item'); // global variable
   var getCanvas; // global variable
- 
- function html2Img() { 
-   	   $(".printModeExclude").hide();		
-   
+
+ function html2Img() {
+   	   $(".printModeExclude").hide();
+
        html2canvas(element, {
          onrendered: function (canvas) {
 //              imgURL = canvas.toDataURL("image/png");
@@ -624,12 +588,12 @@
          useCORS: true,
          onclone: function(doc){
 			$(".printModeExclude").show();
-           
+
           }
        });
 
   }
-  
+
   function printOrder2PDF(imgData){
     doc.setFont('helvetica');
 //   	doc.fromHTML($('#id01 .grid__item').html(), 15, 15, {
@@ -640,14 +604,14 @@
     var date = new Date();
     doc.save(order_name+'-print-at-'+date.getTime()+'.pdf');
   }
-  
+
   function windowPrint(){
-    $.when( 
+    $.when(
       $('{% unless customer.tags contains Role_Printer %}header .grid--full:not(:nth-of-type(1)),{% endunless %} .header-bar, .printModeExclude:visible, footer').hide().toggleClass('visible'),
       $('.site-header__logo img').css('margin','0 0'),
       $('.site-header__logo').toggleClass('w3-col s3').after('<div class="w3-col s9 w3-padding-left after_logo_div"></div>'),
       $('.after_logo_div').html('<div class="w3-col s4 w3-padding-left after_logo_div"><p><b>Order By:</b> '+order_data.order.billing_address.name+'</p></div>'
-       +'<div class="w3-col s4 w3-padding-left after_logo_div" style="height:'+'px;"><p><b>Order Date:</b> '+order_data.order.order_date.split('{{ 'now' | date: "%Y" }}')[0]+' {{ 'now' | date: "%Y" }}'+'</p></div>'                        
+       +'<div class="w3-col s4 w3-padding-left after_logo_div" style="height:'+'px;"><p><b>Order Date:</b> '+order_data.order.order_date.split('{{ 'now' | date: "%Y" }}')[0]+' {{ 'now' | date: "%Y" }}'+'</p></div>'
        ),
 //       $('.after_logo_div').append('<br><h4>Order by: </h4>'+$('#billing_address .name').text()+', '+$('#billing_address .email').text()+' | <h4>Order Vendor: </h4>'+($('#assign-printer option:selected').text() == 'Select Vendor') ? 'Not Assigned' : $('#assign-printer option:selected').text() ),
 //       $('.fulfillment_block2').html(' | '+$('.fulfillment_block').html()),
@@ -657,7 +621,7 @@
       $('.print-one-whole').toggleClass('w3-right one-whole two-thirds'),
       $('#address').toggleClass('hide'),
       $('#address-hidden').html($('#address').html().replace(/ s4/g,' s2')+'<br><br>').toggleClass('hide') //.find('.print-w3-half').toggleClass('grid__item one-half w3-padding-0')
-    ).done(function(){ 
+    ).done(function(){
     	window.print();
     });
     {% comment %}{% endcomment %}
@@ -666,12 +630,12 @@
     $('.site-header__logo').toggleClass('w3-col s3');
     $('.after_logo_div').remove();
     $('#address-hidden, #id01').css({'position':'', 'bottom':''});
-    
+
 //     $('#id01, #id02').find('.grid__item:nth-of-type(1)').toggleClass('w3-padding-0').first().css('margin','');
     $('.printModeInclude').toggleClass('hide');
     $('.print-one-whole').toggleClass('w3-right one-whole two-thirds');
     $('#address').toggleClass('hide');
     $('#address-hidden').html('').toggleClass('hide').find('.print-w3-half').toggleClass('grid__item one-half w3-padding-0')
-    
+
   }
-</script> 
+</script>

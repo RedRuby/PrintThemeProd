@@ -7,11 +7,11 @@
 
   <div class="grid__item two-thirds medium-down--one-whole print-one-whole">
     <h2 style="display:inline-block;" class="h3"><b>Order History:&nbsp;&nbsp;<div style="display:inline; border-bottom:2px solid #000;font-size:16px;">Group View</div>&nbsp;&nbsp;
-    
+
       {% if customer.tags contains Role_ASM or customer.tags contains Role_Printer %}{% endif %}
       <a style="display:inline-block;font-size:16px;" class="printModeExclude w3-text-black" href="/account"> Individual View</a>
     </b></h2>
-    
+
     <div class="w3-right printModeExclude" style="display:inline-block;width:140px;">
       <label for="per_page" style="display:inline-block;" class="">Per Page: &nbsp;</label>
       <select id="per_page" class="per_page" style="max-width:60px; display:inline-block;" onchange="updateState({page: '1',per_page: this.value});updatePerPage(this.value);">
@@ -22,16 +22,16 @@
         <option {% if customer_per_page == '50' %}selected{% endif %} value='50'>50</option>
       </select>
     </div>
-    
+
     <button id="printOrder" style="margin: 0 10px;" type="button" class="btn btn--secondary btn--primary1 w3-right printModeExclude" onclick="windowPrint();" title="Print this order"><i class="fa fa-print"></i> Print Order History</button>
-    
+
 	<br><br>
 
     {% comment %}
       If we have past orders, loop through each one
     {% endcomment %}
 
-    
+
 
       <div class="table-wrap">
         {% comment %}
@@ -59,56 +59,25 @@
         </table>
         {% endcomment %}
       </div>
-    
-    {% assign Role_User = 'general.Role.User' | t %}
-    {% assign Role_Printer = 'general.Role.Printer' | t %}
-    {% assign Role_Manager = 'general.Role.Manager' | t %}
-    {% assign Role_ASM = 'general.Role.ASM' | t %}
-    {% assign Role_Admin = 'general.Role.Admin' | t %}
-    
+
+    {% include 'customer-account-common-code' with 'theme-layout-code' %}
+
     {% if customer and customer.tags contains Role_ASM %}
-      {% include 'order-summary-ASM' %} 
+      {% include 'order-summary-ASM' %}
     {% elsif customer.tags contains Role_Manager %}
       {% include 'order-history-Manager' %}
     {% elsif customer.tags contains Role_Admin %}
-      {% include 'order-history-Admin' %} 
+      {% include 'order-history-Admin' %}
     {% elsif customer.tags contains Role_User %}
       {% include 'order-history-User' %}
     {% elsif customer.tags contains Role_Printer %}
       {% include 'order-summary-Printer' %}
     {% endif %}
-    
-    {% assign region_NorthEast = "general.Region_Tags.NorthEast" | t %}
-    {% assign region_SouthEast = "general.Region_Tags.SouthEast" | t %}
-    {% assign region_California = "general.Region_Tags.California" | t %}
-    {% assign region_South = "general.Region_Tags.South" | t %}
-    {% assign region_Mountain = "general.Region_Tags.Mountain" | t %}
-    {% assign region_MidAtlantic = "general.Region_Tags.MidAtlantic" | t %}
-    {% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
-    {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
 
-    {% if customer.tags contains region_NorthEast %}
-      {% assign customer_region_tag = region_NorthEast %}
-    {% elsif customer.tags contains region_SouthEast %}
-      {% assign customer_region_tag = region_SouthEast %}
-    {% elsif customer.tags contains region_California %}
-      {% assign customer_region_tag = region_California %}
-    {% elsif customer.tags contains region_South %}
-      {% assign customer_region_tag = region_South %}
-    {% elsif customer.tags contains region_Mountain %}
-      {% assign customer_region_tag = region_Mountain %}
-    {% elsif customer.tags contains region_MidAtlantic %}
-      {% assign customer_region_tag = region_MidAtlantic %}
-    {% elsif customer.tags contains region_MidWest %}
-      {% assign customer_region_tag = region_MidWest %}
-    {% elsif customer.tags contains region_GreatLakes %}
-      {% assign customer_region_tag = region_GreatLakes %}
-    {% endif %}
-    
-      
+
   <p id="order-none" style="display:none;">{{ 'customer.orders.none' | t }}</p>
 
-   
+
 
   </div>
 
@@ -131,7 +100,7 @@
     </div>
     <br>
     <a id="exportPsudoLink" href="" target="_blank" class="hide"></a>
-    
+
     {% if customer.tags contains Role_ASM or customer.tags contains Role_Admin %}
     <button class="btn" style="min-width:350px;" type="button" onclick="toggleRDash();">My Reports</button>
     <br>
@@ -160,14 +129,14 @@
         <option w3-repeat="customers" value="{% raw %}{{id}}{% endraw %}" title="{% raw %}{{first_name}} {{last_name}}{% endraw %}" select="{% raw %}{{selected}}{% endraw %}">{% raw %}{{email}}{% endraw %}</option>
       </select>
     </div>
-    
+
     <div id="selected_team" class="" style="border:1px solid #aaa; border-radius:5px; display:none;">
       <span class="btn--secondary btn-custom" style="margin:5px;" w3-repeat="customers" title="{% raw %}{{first_name}} {{last_name}}{% endraw %}">{% raw %}{{email}}{% endraw %}&nbsp;&nbsp;<a style="color:white;" href="javascript:void(0);" value="{% raw %}{{id}}{% endraw %}" onclick="editTeam(this,false);"><i class="fa fa-times" title="Remove {% raw %}{{first_name}} {{last_name}}{% endraw %}"></i></a></span>
     </div>
     {% endif %}
-    
+
 <!--     <br> -->
-    
+
     <h3 class="h3 hide"><b>Payment Codes</b></h3>
     <div id="pcDash" class="border1 w3-padding1 animated text-center1 w3-white hide" style="max-width:350px; display:none1;">
       - <a id="pc1" target="_blank" href=""> Sales</a><br>
@@ -187,7 +156,7 @@
       <a target="_blank" href="https://www.microsoft.com/en-in/windows/microsoft-edge"><i class="fa fa-edge"></i> MS Edge</a><br>
       <a target="_blank" href="https://www.microsoft.com/en-in/download/internet-explorer.aspx"><i class="fa fa-internet-explorer"></i> Internet Explorer</a> -->
     </div>
-    
+
   </div>
 
 </div>
@@ -198,7 +167,7 @@
               console.log("{{shop.domain}}");
   var orderExport = [];
   var printerExport = [];
-              
+
   $(document).ready(function(){
   	$('#start_date').val('');
     $('#pc1').attr('href', $('#link-sales').attr('href'));
@@ -228,7 +197,7 @@
     }
 
   }
-  
+
   function toggleBDash(){
     if($('#browserDash.flipInX').length != 0){
       $('#browserDash').removeClass('flipInX').addClass('flipOutX').delay(1000).hide(0);
@@ -236,7 +205,7 @@
       $('#browserDash').removeClass('flipOutX').addClass('flipInX').show(0);
     }
   }
-  
+
   function toggleRDash(){
     if($('#reportDash.flipInX').length != 0){
       $('#reportDash').removeClass('flipInX').addClass('flipOutX').delay(1000).hide(0);
@@ -244,7 +213,7 @@
       $('#reportDash').removeClass('flipOutX').addClass('flipInX').show(0);
     }
   }
-  
+
   function toggleDash(){
     if($('#printDash.flipInX').length != 0){
       $('#printDash').removeClass('flipInX').addClass('flipOutX').delay(1000).hide(0);
@@ -256,7 +225,7 @@
   function initExport(){
     var selected = $('[name = "exportType"]').filter(':checked').val();
     var data = '/apps/pepsi-print/collection_response/print_orders.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}';
-    
+
     if(selected == 'filtered' || selected == 'all'){
       var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
       {% if customer.tags contains Role_User  %}
@@ -278,17 +247,17 @@
       exportLarge(data);
       return;
     }
-    
+
     if(selected == 'current'){
-      data += '&page='+var3; 
+      data += '&page='+var3;
     }
     if(selected == 'filtered' || ( var1.length > 0 && selected != 'all' )){
       data += '&start_date='+var1+'&end_date='+var2;
     }
-    
+
     {% assign Role_Manager = 'general.Role.Manager' | t %}
 	{% assign Role_Admin = 'general.Role.Admin' | t %}
-    
+
     {% if customer.tags contains Role_Manager %}
       if(var4 != '' && selected != 'all'){
         data += '&customer_id='+var4;
@@ -300,13 +269,13 @@
     {% elsif customer.tags contains Role_User %}
    		data += '&customer_id='+'{{ customer.id }}';
     {% endif %}
-    
+
     console.log('export url = '+data);
-    
+
     $('#exportPsudoLink').attr('href', data)[0].click();
-//     window.location.assign(data);  
+//     window.location.assign(data);
 //     var data = prepareData(orderExport, printerExport);
-    
+
     {%comment%}
   	$.ajax({
           url: 'http://54.71.28.218/pepsiprint/exportExcel.php',
@@ -318,16 +287,16 @@
             	console.log(JSON.stringify(data));
     			$('#exportPsudoLink').attr('href', data).trigger('click');
             	$.unblockUI();
-                
+
           },
           error: function(){
             $.unblockUI; show_message2('Error in Exporting.',false);
           }
-          
+
     });
     {%endcomment%}
   }
-  
+
   function prepareData(data1,data2){
   	var i;
     var x;
@@ -342,11 +311,11 @@
       }
       data1["orders"][i]["payment_code"] = '';
       data1["orders"][i]["cancelled_status"] = '';
-    } 
+    }
     console.log(JSON.stringify(data1));
     return(data1);
   }
-  
+
   function agedExport(){
 	freez();
     $.ajax({
@@ -362,10 +331,10 @@
       error: function(){
         $.unblockUI; show_message2('Error in Exporting.',false);
       }
-          
+
     });
   }
-  
+
   function exportLarge(data){
 	freez();
     $.ajax({
@@ -381,12 +350,12 @@
       error: function(){
         $.unblockUI; show_message2('Error in Exporting.',false);
       }
-          
+
     });
   }
-            
+
   function windowPrint(){
-    $.when( 
+    $.when(
       $('{% unless customer.tags contains Role_Printer %}header .grid--full:not(:nth-of-type(1)),{% endunless %} .header-bar, .printModeExclude:visible, footer').hide().toggleClass('visible'),
       $('.site-header__logo img').css('margin','0 0'),
 
@@ -395,25 +364,25 @@
         $('.print-one-whole').toggleClass('one-whole two-thirds'),
       $('.th-span').toggleClass('th-span th-spaned')
 
-    ).done(function(){ 
+    ).done(function(){
     	setTimeout(window.print(), 10);
     });
-    
+
     {% comment %}{% endcomment %}
     $('{% unless customer.tags contains Role_Printer %}header .grid--full:not(:nth-of-type(1)),{% endunless %} .header-bar, .printModeExclude.visible, footer').show().toggleClass('visible');
     $('.site-header__logo img').css('margin','0 auto');
     $('.site-header__logo').toggleClass('w3-col s3');
-    
+
     $('.printModeInclude').toggleClass('hide');
       $('.print-one-whole').toggleClass('one-whole two-thirds');
     $('.th-span').toggleClass('th-span th-spaned');
 
-    
+
   }
-</script> 
+</script>
 
 <style>
-  
+
 @media print{
    /* applied to our table */
   .w3-table1, tr, td{ position: relative !important; }
@@ -424,15 +393,15 @@
   }
 }
 
-  
+
 {% comment %}
 @media  print {
-    thead, tbody, tfooter { 
+    thead, tbody, tfooter {
         display: table-row-group;
     }
 }
 {% endcomment %}
-  
+
 @media print {
     table tbody tr td:before,
     table tbody tr td:after {
@@ -441,7 +410,7 @@
         display : block ;
     }
 }
-  
+
 a.cancelled{
   text-decoration: line-through !important;
   color: gray !important;

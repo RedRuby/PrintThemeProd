@@ -28,6 +28,13 @@
       "Printer": "Role:Printer",
       "Admin": "Role:MasterAdmin"
     },
+    "FSRole": {
+      "FSUser": "Role:FSUser",
+      "NSM": "Role:NSM",
+      "FSManager": "Role:ChannelManager",
+      "Designer": "Role:Designer",
+      "FSAdmin": "Role:FSAdmin"
+    },
     "Unsupported_Browser_Msg": "You are using an unsupported browser and may have difficulty with your site experience. Please switch to Chrome.",
     "Main-Menu": {
       "Brands": "amp,\nany-brand,\naquafina,\nbig-red,\nbrisk,\nbundeburg,\n1893,\ncalebs-kola,\ncrush,\ndiet-pepsi,\ndr-pepper,\nfruit-shoot,\ngatorade,\nkickstart,\nlemon-lemon\nlipton,\nmanzanita-sol,\nmetahune-water,\nmist-twst,\nmountain-dew,\nmuscle-milk,\nno-fear-energy,\no-n-e,\npact,\npaso-de-los-toro,\npepsi,\nportfolio,\npropel,\npure-leaf,\nlifewtr,\nrockstar,\nschweppes,\nsobe,\nstarbucks,\nstubborn-soda,\ntampico,\nxyience,\nwater+\n",

@@ -5,13 +5,17 @@
     <br>
     <p class="h3" style="margin:0px 10%;">We have created a fantastic updated online print shop experience for you.
        <br><br>
-       If you are a first time visitor to this new site, please register by selecting the “REGISTER FOR AN ACCOUNT” box on this page. 
-	   <br><br>
+       If you are a first time visitor to this new site, please register by selecting the âREGISTER FOR AN ACCOUNTâ box on this page. 
+     <br><br>
        If you have already registered, just sign in with your email and password to start your customized experience.
     <p>
   </div>
 
-  <div class="grid__item wide--one-half large--one-half small--text-center"  style="border-left:1px lightgrey solid;">
+  <div class="grid__item wide--hide medium-down--hide">
+    <hr style="border-color: lightgrey;">
+  </div>
+
+  <div class="grid__item wide--one-half large--one-half small--text-center push--large--one-quarter"  style="border-left:1px lightgrey solid;">
 
     {% comment %}
       If a user has successfully requested a new password, the form.posted_successfully? variable
@@ -24,7 +28,7 @@
 
     <div id="CustomerLoginForm">
       {% form 'customer_login' %}
-      	<input type="hidden" name="checkout_url" value="/pages/welcome" />
+        <input type="hidden" name="checkout_url" value="/pages/welcome" />
 
         <div class="section-header section-header--large">
           <h1 class="section-header__title">{{ 'customer.login.title' | t }}</h1>
@@ -49,7 +53,7 @@
         <p>
           <input type="submit" class="btn" value="{{ 'customer.login.sign_in' | t }}">
         </p>
-      	<p>OR</p>
+        <p>OR</p>
         <p>
           <a class="btn" href="/pages/register">Register for an account</a>
         </p>
@@ -167,3 +171,6 @@
       $('[name="checkout_url"]').val('/');
   }, 500);
 </script>
+
+{% include 'customer-account-common-code' with 'save_token' %}
+

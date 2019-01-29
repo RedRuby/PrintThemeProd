@@ -1,19 +1,6 @@
 {% if customer  %}
-	
-  {% assign Role_User = 'general.Role.User' | t %}
-  {% assign Role_Printer = 'general.Role.Printer' | t %}
-  {% assign Role_Manager = 'general.Role.Manager' | t %}
-  {% assign Role_ASM = 'general.Role.ASM' | t %}
-  {% assign Role_Admin = 'general.Role.Admin' | t %}
 
-  {% assign region_NorthEast = "general.Region_Tags.NorthEast" | t %}
-  {% assign region_SouthEast = "general.Region_Tags.SouthEast" | t %}
-  {% assign region_California = "general.Region_Tags.California" | t %}
-  {% assign region_South = "general.Region_Tags.South" | t %}
-  {% assign region_Mountain = "general.Region_Tags.Mountain" | t %}
-  {% assign region_MidAtlantic = "general.Region_Tags.MidAtlantic" | t %}
-  {% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
-  {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
+  {% include 'customer-account-common-code' with 'theme-layout-code' %}
 
   {% if customer.tags contains region_NorthEast %}
     {% assign customer_region_tag = region_NorthEast %}
@@ -96,7 +83,7 @@ console.log('no');
 </script>
 <script>console.log("");</script> -->
 
-                
+
   List out your main-menu linklist (default)
 
   More info on linklists:
@@ -106,11 +93,11 @@ console.log('no');
 {% assign sort_url_params = '?sort_by=created-descending' %}
 
 <ul class="site-nav" role="navigation" id="AccessibleNav" style="{% if customer.tags contains Role_Printer %}display:none;{% endif %}">
-  
+
   <li {% if link.active %}class="site-nav--active"{% endif %}>
     <a id="link-new" href="/collections/{{ collection_handle }}?sort_by=created-descending" class="site-nav__link">New!</a>
   </li>
-  
+
   {% for link in site-nav.links %}
     {% comment %}
       Create a dropdown menu by naming a linklist the same as a link in the parent nav
@@ -133,13 +120,13 @@ console.log('no');
           {% for childlink in linklists[child_list_handle].links %}
           {% assign childlink_handle = childlink.url |split:'/' %}
 <!--           <script>console.log("handlers : {{ childlink.handle }} - {{ childlink_handle.last }}");</script> -->
-          
+
           	{% assign grand_child_list_handle = childlink.title | handle %}
             {% if linklists[grand_child_list_handle].links != blank %}
               {% if childlink.handle == 'speciality' %}
                 <li class="site-nav--has-dropdown{% if current_tags contains childlink.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onmouseover="document.getElementById('speciality-ul').style.display = 'block';" onmouseout="document.getElementById('speciality-ul').style.display = 'none';">
                     <a hrefs="javascript:void(0);" styles="cursor:pointer;" class="site-nav__link">
-                        {{ childlink.title }} 
+                        {{ childlink.title }}
                         <span class="icon-fallback-text">
                           <span class="icon icon-arrow-down" aria-hidden="true"></span>
                         </span>
@@ -156,11 +143,11 @@ console.log('no');
                     </ul>
                 </li><!-- HAS DROPDOWN 2 -->
               {% endif %}
-          
+
               {% if childlink.handle == 'trade-expense' %}
                 <li class="site-nav--has-dropdown{% if current_tags contains childlink.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onmouseover="document.getElementById('trade-expense-ul').style.display = 'block';" onmouseout="document.getElementById('trade-expense-ul').style.display = 'none';">
                     <a hrefs="javascript:void(0);" styles="cursor:pointer;" class="site-nav__link">
-                        {{ childlink.title }} 
+                        {{ childlink.title }}
                         <span class="icon-fallback-text">
                           <span class="icon icon-arrow-down" aria-hidden="true"></span>
                         </span>
@@ -177,7 +164,7 @@ console.log('no');
                     </ul>
                 </li><!-- HAS DROPDOWN 2 -->
               {% endif %}
-          
+
               {% if childlink.handle == 'pos-university' %}
           		<li class="site-nav--has-dropdown{% if current_tags contains link.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onmouseover="document.getElementById('pos-ul').style.display = 'block';" onmouseout="document.getElementById('pos-ul').style.display = 'none';">
                   <a id="link-pos-university" hrefs="/pages/{{ childlink.handle }}" class="{% if current_tags contains childlink.handle %} site-nav--active {% endif %} site-nav__link">
@@ -209,7 +196,7 @@ console.log('no');
                 </li>
               {% endif %}
           	{% endif %}
-          
+
           	{% if tag_array contains childlink_handle.last and linklists[grand_child_list_handle].links == blank %}
           		{% if link_handle == 'market-specific' and Mkt_list contains childlink.title %}
                   <li>
@@ -221,13 +208,13 @@ console.log('no');
                   </li>
           		{% endif %}
           	{% endif %}
-          
+
           	{% if childlink.title == 'Contact Us' %}
               <li>
                 <a id="link-contact" href="/pages/{{ childlink.handle }}{% if customer %}{% unless customer.tags contains Role_Admin %}{{ customer_region_tag |prepend:'-' | remove: 'Region:' |replace:'0','o' | downcase }}{% endunless %}{% endif %}" class="{% if current_tags contains childlink.handle %} site-nav--active {% endif %} site-nav__link">{{ childlink.title | escape }}</a>
               </li>
             {% endif %}
-          	
+
           	{% if childlink.title == 'Payment Codes' %}
               <li class="site-nav--has-dropdown{% if current_tags contains link.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onmouseover="document.getElementById('payment-codes-ul').style.display = 'block';" onmouseout="document.getElementById('payment-codes-ul').style.display = 'none';">
                 <a id="link-payment-codes" hrefs="/pages/{{ childlink.handle }}" class="{% if current_tags contains childlink.handle %} site-nav--active {% endif %} site-nav__link">
@@ -249,7 +236,7 @@ console.log('no');
                 </ul>
               </li>
               {% endif %}
-          
+
               {% comment %}
               {% if childlink.title == 'POS University' %}
               <li class="site-nav--has-dropdown{% if current_tags contains link.handle %} site-nav--active{% endif %}" style="position:relative;" aria-haspopup="true" onmouseover="document.getElementById('pos-ul').style.display = 'block';" onmouseout="document.getElementById('pos-ul').style.display = 'none';">
@@ -280,7 +267,7 @@ console.log('no');
               {% endif %}
               {% endcomment %}
           <script>
-            {%if current_tags contains childlink_handle.last %}{% assign active_index = primary_index %}{% assign active = true %}{% endif %} 
+            {%if current_tags contains childlink_handle.last %}{% assign active_index = primary_index %}{% assign active = true %}{% endif %}
           </script>
           {% endfor %}
         </ul>
@@ -291,25 +278,25 @@ console.log('no');
       </li>
     {% endif %}
   {% endfor %}
-  		
-  		
-      
-  
-     
+
+
+
+
+
 </ul>
 
 <script>
-  
+
     $(document).ready(function(){
       {% if customer.tags contains Role_Printer %}
       	$('#AccessibleNav').block({message:'', overlayCSS: { backgroundColor: 'white', cursor: 'not-allowed'} });
       {% endif %}
-      
+
       {% if active == true %}
      	 $('#link{{ active_index }}').addClass('site-nav--active');
       {% endif %}
-           
+
       $('.site-nav__dropdown').css('max-height', (window.innerHeight-60)+"px !important");
     });
-  
+
 </script>

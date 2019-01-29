@@ -1,0 +1,13 @@
+{%- layout none -%}
+
+{% capture api_data %}
+{
+	{%- if collection.products.size > 0 -%}
+		"total": {{ collection.products.size }},
+		{%- paginate collection.products by 2 -%}
+			"ids": {{ collection.products | map: "id" | json }}
+		{%- endpaginate -%}
+	{%- endif -%}
+}
+{% endcapture %}
+{{ api_data | strip | strip_newlines | strip_html }}

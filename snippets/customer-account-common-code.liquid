@@ -1,8 +1,167 @@
-{% assign Role_User = 'general.Role.User' | t %}
-{% assign Role_Printer = 'general.Role.Printer' | t %}
-{% assign Role_Manager = 'general.Role.Manager' | t %}
-{% assign Role_ASM = 'general.Role.ASM' | t %}
-{% assign Role_Admin = 'general.Role.Admin' | t %}
+{% if customer  %}
+
+  {% assign Role_User = 'general.Role.User' | t %}
+  {% assign Role_Printer = 'general.Role.Printer' | t %}
+  {% assign Role_Manager = 'general.Role.Manager' | t %}
+  {% assign Role_ASM = 'general.Role.ASM' | t %}
+  {% assign Role_Admin = 'general.Role.Admin' | t %}
+
+  {% assign Role_FSUser = 'general.FSRole.FSUser' | t %}
+  {% assign Role_Designer = 'general.FSRole.Designer' | t %}
+  {% assign Role_FSManager = 'general.FSRole.FSManager' | t %}
+  {% assign Role_NSM = 'general.FSRole.NSM' | t %}
+  {% assign Role_FSAdmin = 'general.FSRole.FSAdmin' | t %}
+
+{% endif %}
+
+
+{% if customer-account-common-code == 'theme-layout-code' %}
+  {% if customer %}
+    {% assign region_NorthEast = "general.Region_Tags.NorthEast" | t %}
+    {% assign region_SouthEast = "general.Region_Tags.SouthEast" | t %}
+    {% assign region_California = "general.Region_Tags.California" | t %}
+    {% assign region_South = "general.Region_Tags.South" | t %}
+    {% assign region_Mountain = "general.Region_Tags.Mountain" | t %}
+    {% assign region_MidAtlantic = "general.Region_Tags.MidAtlantic" | t %}
+    {% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
+    {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
+    {% assign region_External = "general.Region_Tags.External" | t %}
+
+    {% if customer.tags contains region_NorthEast or customer.tags contains region_SouthEast or customer.tags contains region_Mountain or customer.tags contains region_California or customer.tags contains region_South or customer.tags contains region_MidWest or customer.tags contains region_MidAtlantic or customer.tags contains region_GreatLakes %}
+      {% if customer.tags contains region_NorthEast %}
+        {% assign customer_region_tag = region_NorthEast %}
+      {% elsif customer.tags contains region_SouthEast %}
+        {% assign customer_region_tag = region_SouthEast %}
+      {% elsif customer.tags contains region_California %}
+        {% assign customer_region_tag = region_California %}
+      {% elsif customer.tags contains region_South %}
+        {% assign customer_region_tag = region_South %}
+      {% elsif customer.tags contains region_Mountain %}
+        {% assign customer_region_tag = region_Mountain %}
+      {% elsif customer.tags contains region_MidAtlantic %}
+        {% assign customer_region_tag = region_MidAtlantic %}
+      {% elsif customer.tags contains region_MidWest %}
+        {% assign customer_region_tag = region_MidWest %}
+      {% elsif customer.tags contains region_GreatLakes %}
+        {% assign customer_region_tag = region_GreatLakes %}
+      {% endif %}
+
+    {% else %}
+      {% unless template contains 'page.no-region' %}
+        {% assign no_region = true %}
+      {% endunless %}
+    {% endif %}
+
+    {% include 'customer-account-common-code' with 'collection-handle-code' %}
+
+    {% include 'customer-account-common-code' with 'collection-handle-code-fs' %}
+
+    {% include "customer-account-common-code" with "shop-check" %}
+
+    {% unless fs_shop_active %}
+      {% include 'customer-account-common-code' with 'collection-handle-code' %}
+    {% endunless %}
+
+    {% unless customer_role_tag or page.handle == "no-access" %}
+      {% assign no_region = true %}
+    {% endunless %}
+
+  {% endif %}
+
+  {% if template contains 'collection' and collection.handle %}
+    {% unless collection.title contains customer_region_tag %} {% assign no_access = true %} {% assign collec = true %} {% endunless %}
+    {% if template contains 'my-products' %}
+      {% unless customer.tags contains Role_ASM %}{% assign no_access = true %} {% endunless %}
+    {% endif %}
+  {% elsif template contains 'product' %}
+    {% unless customer.tags contains Role_ASM %}
+      {% unless product.tags contains customer_region_tag %} {% assign no_access = true %} {% assign prod = true %} {% endunless %}
+    {% endunless %}
+  {% endif %}
+
+  {% if customer.tags contains Role_Printer %}
+    {% unless template contains 'customers/account' or template contains 'customers/addresses' or template contains 'page.order' or template contains 'page.error' or template contains 'page.welcome' or template contains 'page.contact-us' %}
+        {% assign no_access = false %}
+    {% endunless %}
+
+    {% if customer.tags contains 'Region:External' %}
+    {% assign no_region = false %}
+    {% endif %}
+  {% endif %}
+
+  {% if customer.tags contains Role_Admin or fs_shop_active %}
+      {% assign no_region = false %}
+    {% assign no_access = false %}
+  {% endif %}
+{% endif %}
+
+
+{% if customer-account-common-code == 'shop-check' %}
+  {% if customer_has_fs and cart.attributes["shop"] == "fs" or fs_shop_active %}
+    {% assign fs_shop_active = true %}
+  {% endif %}
+{% endif %}
+
+
+{% if customer-account-common-code == 'collection-handle-code-fs' %}
+  {% assign customer_role_tag = false %}
+  {% if customer.tags contains Role_FSUser %}
+    {% assign customer_role_tag = Role_FSUser %}
+  {% elsif customer.tags contains Role_FSManager %}
+    {% assign customer_role_tag = Role_FSManager %}
+  {% elsif customer.tags contains Role_Designer %}
+    {% assign customer_role_tag = Role_Designer %}
+  {% elsif customer.tags contains Role_NSM %}
+    {% assign customer_role_tag = Role_NSM %}
+  {% elsif customer.tags contains Role_FSAdmin %}
+    {% assign customer_role_tag = Role_FSAdmin %}
+    {% assign collection_handle = 'all' %}
+  {% endif %}
+
+  {% if customer_role_tag %}
+    {% assign customer_has_fs = true %}
+    {% unless customer_has_retail %}
+      {% assign fs_shop_active = true %}
+    {% endunless %} 
+  {% endif %}
+{% endif %}
+
+
+{% if customer-account-common-code == 'collection-handle-code' %}
+  {% assign customer_role_tag = false %}
+  {% if customer.tags contains Role_User %}
+    {% assign customer_role_tag = Role_User %}
+    {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-products' %}
+  {% elsif customer.tags contains Role_Manager %}
+    {% assign customer_role_tag = Role_Manager %}
+    {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-products' %}
+  {% elsif customer.tags contains Role_Printer %}
+    {% assign customer_role_tag = Role_Printer %}
+  {% elsif customer.tags contains Role_ASM %}
+    {% assign customer_role_tag = Role_ASM %}
+    {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-my-products' %}
+  {% elsif customer.tags contains Role_Admin %}
+    {% assign customer_role_tag = Role_Admin %}
+    {% assign collection_handle = 'all' %}
+  {% endif %}
+
+  {% if customer_role_tag %}
+    {% if customer.tags contains Role_ASM %}
+      {% assign collection_handle = collection.handle %}
+      {% unless collection %}
+          {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-my-products' %}
+      {% endunless %}
+    {% elsif customer.tags contains Role_Admin %}
+      {% assign collection_handle = 'all' %}
+    {% elsif customer.tags contains Role_User or customer.tags contains Role_Manager %}
+      {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-products' %}
+      {% assign non_asm = true %}
+    {% endif %}
+
+    {% assign customer_has_retail = true %}
+  {% endif %}
+{% endif %}
+
 
 {% if customer-account-common-code == 'table-header-code' %}
   <th class="text-center"><span class="th-span">{{ 'customer.orders.order_number' | t }}</span><div class="btn-group printModeExclude"><button type="button" class="name_asc_btn" onclick="updateState({order_by_name: 'ASC', order_by_order_by: '', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-up"></i></button><button type="button" class="name_desc_btn" onclick="updateState({order_by_name: 'DESC', order_by_order_by: '', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-down"></i></button></div></th>
@@ -43,7 +202,7 @@
   <div class="hide">
     <form target="shop-frame" accept-charset="UTF-8" id="per-page" action="/contact" class="contact-form" method="post">
       <input name="form_type" type="hidden" value="customer">
-      <input name="utf8" type="hidden" value="✓">
+      <input name="utf8" type="hidden" value="Ă˘ÂÂ">
       <input types="hidden" name="contact[email]" value="{{ customer.email }}"/>
       <input id="update-me" types="hidden" name="contact[tags]" value="" />
       <button type="submit">S</button>
@@ -78,25 +237,25 @@
   var var_region_tag = '';
   var var_customer_id = '';
   var var_order_status = '';
-  
+
   var order_data = '';
 
-  var query = ''; 
-  
+  var query = '';
+
   var bemail = '';
-  
+
   var ctags = '{{ customer.tags |join:',' |remove:'PerPage:10' |remove:'PerPage:20' |remove:'PerPage:30' |remove:'PerPage:40' |remove:'PerPage:50' |replace:' ','~' |replace:',',' ' |strip |replace:' ',',' |replace:'~',' ' }}';
-  
+
 {% endif %}
-  
-  
-  
+
+
+
 
 
 {% if customer-account-common-code == 'doc-ready-code' %}
 
   $('.per_page option:contains('+var_per_page+')').prop('selected','selected');
-    
+
   $(".datepicker").datepicker({
       showAnim: "drop",
       dateFormat: "mm/dd/yy",
@@ -129,8 +288,8 @@
 
     var uri = new YouAreI(document.location.href);
         query = uri.query_get();
-    
-    
+
+
     var_start_date = (query.start_date != undefined) ? query.start_date : '';
     var_end_date = (query.end_date != undefined) ? query.end_date : '';
     var_page = (query.page != undefined) ? query.page : '1';
@@ -161,7 +320,7 @@
 	if(var_assigned_printer.length != 0){ data.assigned_printer = var_assigned_printer; $('#select_tl option[value="'+var_assigned_printer+'"]').prop('selected','selected'); }
 	if(var_region_tag.length != 0){ data.region_tag = var_region_tag; $('#select_rg option[value="'+var_region_tag+'"]').prop('selected','selected'); }
 	if(var_customer_id.length != 0){ data.customer_id = var_customer_id; $('#select_rg option[value="'+var_customer_id+'"]').prop('selected','selected'); }
-	if(var_order_status.length != 0){ data.order_status = var_order_status; $('#select_tl option[value="'+var_order_status+'"]').prop('selected','selected'); }	
+	if(var_order_status.length != 0){ data.order_status = var_order_status; $('#select_tl option[value="'+var_order_status+'"]').prop('selected','selected'); }
 
 	console.log(JSON.stringify(data));
 
@@ -197,23 +356,23 @@
     return x1 + x2;
   }
 
-  
+
   function updateState(param){ //console.log(JSON.stringify(param)); //start_date,end_date,page,per_page,fulfillment_status,order_name,order_by_discount_codes,order_by_date,order_by_fulfillment_status){
-    
-    data = {  
+
+    data = {
       {% comment %}
-      start_date: (param.start_date != undefined) ? param.start_date : var_start_date, 
-      end_date: (param.end_date != undefined) ? param.end_date : var_end_date, 
-      page: (param.page != undefined) ? param.page : var_page, 
-      per_page: (param.per_page != undefined) ? param.per_page : var_per_page, 
-      fulfillment_status: (param.fulfillment_status != undefined) ? param.fulfillment_status : var_fulfillment_status, 
-      order_by_name: (param.order_by_name != undefined) ? param.order_by_name : var_order_by_name, 
-      order_by_discount_codes: (param.order_by_discount_codes != undefined) ? param.order_by_discount_codes : var_order_by_discount_codes, 
-      order_by_date: (param.order_by_date != undefined) ? param.order_by_date : var_order_by_date, 
-      order_by_fulfillment_status: (param.order_by_fulfillment_status != undefined) ? param.order_by_fulfillment_status : var_order_by_fulfillment_status 
+      start_date: (param.start_date != undefined) ? param.start_date : var_start_date,
+      end_date: (param.end_date != undefined) ? param.end_date : var_end_date,
+      page: (param.page != undefined) ? param.page : var_page,
+      per_page: (param.per_page != undefined) ? param.per_page : var_per_page,
+      fulfillment_status: (param.fulfillment_status != undefined) ? param.fulfillment_status : var_fulfillment_status,
+      order_by_name: (param.order_by_name != undefined) ? param.order_by_name : var_order_by_name,
+      order_by_discount_codes: (param.order_by_discount_codes != undefined) ? param.order_by_discount_codes : var_order_by_discount_codes,
+      order_by_date: (param.order_by_date != undefined) ? param.order_by_date : var_order_by_date,
+      order_by_fulfillment_status: (param.order_by_fulfillment_status != undefined) ? param.order_by_fulfillment_status : var_order_by_fulfillment_status
       {% endcomment %}
     };
-                              
+
     if(param.start_date != undefined)data.start_date = param.start_date; else if(var_start_date.length != 0)data.start_date = var_start_date;
     if(param.end_date != undefined)data.end_date = param.end_date; else if(var_end_date.length != 0)data.end_date = var_end_date;
     if(param.page != undefined)data.page = param.page; else if(var_page.length != 0)data.page = var_page;
@@ -229,20 +388,20 @@
     if(param.customer_id != undefined)data.customer_id = param.customer_id; else if(var_customer_id.length != 0)data.customer_id = var_customer_id;
     if(param.order_status != undefined)data.order_status = param.order_status; else if(var_order_status.length != 0)data.order_status = var_order_status;
 
-    
+
 //     console.log(JSON.stringify(data))
     data = removeEmpty(data);
 //     console.log(JSON.stringify(data))
-    
+
     if(document.location.href == History.getState().url && false){
       History.replaceState({ url: document.location.href }, document.title, '?'+History.getState().url.split('?')[1]||'');
     }else{
       summary_view_param = {% if template == 'customers/account.summary-list' %}'view=summary-list&'{% else %}''{% endif %};
       History.pushState({ url: document.location.href }, document.title, ($.param(data).length != 0) ? '?' +summary_view_param +$.param(data) : '' +summary_view_param );
     }
-    fetch_Orders(); 
+    fetch_Orders();
   }
-  
+
   function toggleOrderBtns(btn , data){ console.log('called-for:', data)
     $('#table-style').html('');
     switch(btn){
@@ -253,7 +412,7 @@
       case 'fulfillment_status': if(data == 'ASC') $('#table-style').append('<style>.fulfillment_status_asc_btn{ color: white !important; }</style>'); else $('#table-style').append('<style>.fulfillment_status_desc_btn{ color: white !important; }</style>'); console.log('called-for:', btn); break;
     }
   }
-  
+
 {% comment %}
   const removeEmpty = (obj) => {
     Object.keys(obj).forEach(k =>
@@ -279,10 +438,10 @@
     var res;
     var date;
     var total = 0;
-    var myArray = data["orders"]; 
-    
+    var myArray = data["orders"];
+
     order_data = data;
-    
+
     {% if template == 'customers/account' %}
       for (i = 0; i < myArray.length; i++) {
           str = myArray[i]["total"];
@@ -298,9 +457,9 @@
           total += Number(res);
       }
     {% endif %}
-    
+
     data["grand_total"] = addCommas(total.toFixed(2));
-    
+
     var ttl_itms = data["total_entries"];
     if(ttl_itms > 0){
     $('#paginationInit').pagination({
@@ -315,7 +474,7 @@
       	ellipsePageSet: false,
 //         cssStyle: 'light-theme'
     });
-    
+
       $("#order-none").hide();
       $("#id02, .per_pageContainer, #order-list").show();
     }else{
@@ -326,8 +485,86 @@
 
 {% endif %}
 
+{% if customer-account-common-code == 'save_token' %}
+  {% include 'base64' %}
 
+  <script>
+    
+    $(document).ready(function(){
+        $form = $('main form').first();
+        $form.bind('submit', function(e){
+            e.preventDefault();
+            e.stopPropagation();
+            if(navigator.cookieEnabled)
+              setToken("secreToken", Base64.encode($('[name="customer[password]"]').val()), 1);
+            else
+              bkp($('[name="customer[password]"]').val());
+            $form.unbind('submit').submit();
+        });
+    });
+    
+    function bkp(value){
+      if (typeof(Storage) !== "undefined") {
+          localStorage.secreToken = Base64.encode(value);
+          // localStorage.secret = value;
+          // console.log(localStorage);
+      }
+    }
+
+    function setToken(cname, cvalue, exdays) {
+      var d = new Date();
+      d.setTime(d.getTime() + (exdays*24*60*60*1000));
+      var expires = "expires="+ d.toUTCString();
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+  </script>
+{% endif %}
+
+{% if customer-account-common-code == 'set_token' %}
+  {% if customer %} 
+  <script>
+    if(['{{ shop.url }}/account/login', '{{ shop.url }}/account/activate', '{{ shop.url }}/account/reset', '{{ shop.url }}/pages/welcome'].join(',').indexOf(document.referrer) != -1 && document.referrer != "{{ shop.url }}/" && document.referrer != "" ){
+      var $token = (navigator.cookieEnabled) ? geToken("secreToken") : localStorage.secreToken ;
+      $.ajax({
+          url: '/apps/place_bulk_order/set_token?cid={{ customer.id }}',
+          type: 'POST',
+          data: { 'id': '{{ customer.id }}', 'token': $token },
+          success: function(data){
+            console.log(data);
+            if(data.status == "200"){
+              console.log(data); 
+            }else{
+              console.log(data);
+            }
+
+          },
+
+          error: function(data){ 
+            console.log(data);
+          }
+
+        });
+    }
+    function geToken(cname) {
+      var name = cname + "=";
+      var decodedCookie = decodeURIComponent(document.cookie);
+      var ca = decodedCookie.split(';');
+      for(var i = 0; i <ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+              c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+              return c.substring(name.length, c.length);
+          }
+      }
+      return "";
+  }
+  </script>
+  {% endif %}
+{% endif %}
 
 
 
 {% comment %}</script>{% endcomment %}
+
