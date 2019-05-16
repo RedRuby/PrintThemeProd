@@ -1,0 +1,250 @@
+<div class="mfp-bg mfp-fade mfp-ready w3-black" style="opacity:0.8; display:none;"></div>
+
+<div class="mfp-wrap mfp-auto-cursor mfp-fade mfp-ready mfp-hide" tabindex="-1" style="overflow-x: hidden; overflow-y: auto;" style="display:none;">
+  <div class="mfp-container mfp-s-ready mfp-inline-holder">
+    <div class="mfp-content w3-padding-xlarge w3-card-2 w3-white animated fast">
+      <div id="OrderFulfillmentModal" class="white-popup-block text-center wrapper" style="display:none;">
+        <form action="" method="post" onsubmit="if(noTracking == true || confirm('Click \'OK\', to confirm that you have no more tracking numbers to add.') == true )updateOrder(event, this); else return false;" order_id="">
+          <br><br>
+          <h2 class="">Update Fulfillment for Order #<span style="font-size:inherit !important;" class="orderName"></span></h2>
+          <!--    <hr/> -->
+          <br>
+          <label class="text-left" for="design_fee" >Design Fee <span class="w3-text-red">*</span></label>
+          <input type="text" pattern="^\d+((\.)\d{1,2})?$" maxlength="8" onchange="if(parseFloat(this.value) > 99999.99){ this.value = 99999.99; alert('Maximum value for Design Fee is 99999.99');}" required class="design_fee" name="design_fee" value="" placeholder="Enter Design Fee" onchange="contentChanged_Fulfillment();" />
+          <label class="text-left" for="shipping_price" >Shipping Cost <span class="w3-text-red">*</span></label>
+          <input type="text" pattern="^\d+((\.)\d{1,2})?$" maxlength="8" onchange="if(parseFloat(this.value) > 99999.99){ this.value = 99999.99; alert('Maximum value for Shipping Cost is 99999.99');}" required class="shipping_price" name="shipping_price" value="" placeholder="Enter Shipping Cost" onchange="contentChanged_Fulfillment();" />
+          {% comment %}
+          <label class="text-left" for="" >Shipping Code</label>
+          <input type="text" patterns="" required class="shipping_code" name="shipping_code" value="" placeholder="Enter Shipping Code" onchange="contentChanged_Fulfillment();" />
+          {% endcomment %}
+          <label class="text-left" for="" >Delivery Method <span class="w3-text-red">*</span></label>
+          <select class="tracking_company" required name="tracking_company" onchange="if( this.value == 'Pick Up' || this.value == 'Pick Up/Company Truck' || this.value == 'Install' || this.value == 'Emailed (artwork only)' ){ changeTracking(true); }else{ changeTracking(false); } if(this.value == 'Other'){ showOtherMethod(true); }else {  showOtherMethod(false); } contentChanged_Fulfillment();">
+            <option class="UPS" value="UPS">UPS</option>
+            <option class="USPS" value="USPS">USPS</option>
+            <option class="FedEx" value="FedEx">FedEx</option>
+            <option class="Pick-Up" value="Pick Up">Pick Up</option>
+            <option class="Pick-Up-or-Company-Truck" value="Pick Up/Company Truck">Pick Up/Company Truck</option>
+            <option class="FedEx-3rd-party" value="FedEx (Third party account)">FedEx (Third party account)</option>
+            <option class="Install" value="Install">Install</option>
+            <option class="Emailed-artwork-only" value="Emailed (artwork only)">Emailed (artwork only)</option>
+            <option class="Other" value="Other">Other</option>
+          </select>
+          <div style="display:none;">  
+            <label class="text-left" for="otherMethod_name" >Delivery Method Name <span class="w3-text-red">*</span></label>
+            <input id="otherMethod_name" type="text" title="Enter Delivery Method Name." disabled required value="" class="method_name" name="method_name" placeholder="Enter Delivery Method Name" onchange="contentChanged_Fulfillment();" />
+          </div>
+          <label class="text-left" for="" >Tracking Number <b><small style="margin-top: 8px!important; font-size:11px;" class="tracking_num_title w3-right"></small></b></label>
+          <div style="position:relative;">
+            <div style="position:relative;">
+              <input type="text" class="tracking_number" name="tracking_number" required value="" pattern1="[A-za-z0-9]{0,18}" maxlength="18" titles="Enter an alphanumeric Tracking Number of upto 18 Characters." placeholder="Enter Tracking Number" oninput="validateTracking(this);" onchange="contentChanged_Fulfillment();" />
+              <button class="no-btn1 btn--secondary w3-right removeTracking" title="Remove this Tracking No." style="position:absolute; bottom:0px; padding: 8.1px 13px; right:0px;" onclick="removeTracking(this);"><i class="fa fa-minus"></i></button>
+            </div>
+            <button class="w3-right no-btn1 btn--secondary add_tno" title="Add More Tracking No." style="position:absolute; bottom:0px; padding: 8.1px 13px; right:0px; z-index:100;" type="button" onclick="addTracking(this);"><i class="fa fa-plus "></i></button>
+          </div>
+          <small style="margin-bottom: 8px!important; font-size:11px;" class="w3-left"><b>Note: </b>Use + sign to add ALL Tracking Numbers before processing Update.</small>
+          {% comment %}
+          <label class="text-left" for="" >Tracking URL</label>
+          <input type="text" patterns="" required value="" class="tracking_url" name="tracking_url" placeholder="Enter Tracking URL" onchange="contentChanged_Fulfillment();" />
+          {% endcomment %}
+          <!--   <hr> -->
+          <!--   <label><input type="checkbox" name=""> send email to customer.</label> -->
+          <br class="w3-clear">
+          <br/>
+          <a class="goTo w3-center" href="/pages/order?id=" style="display:none;">
+            <button type="button" class="btn btn-primary min-width-250">View order detail</button>
+          </a>
+          <br>
+          <button type="submit" disabled class="btn btn-primary min-width-200" >Update</button>
+          <br>
+          <button type="button" class="btn w3-margin-top min-width-100" onclick="updateFulfillmentModal();">Back</button><br>
+        </form>
+      </div>
+      <button title="Close (Esc)" onclick="updateFulfillmentModal();" type="button" class="mfp-close">×</button>
+      <div class="mfp-preloader w3-center center-block" style="display:initial; position: relative;">
+        <br><br>
+        {% include 'customer-account-common-code' with 'order-loader' %}
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+  
+  var order_id = '';
+  var changed_Fulfillment = '';
+  var mfpHTML_Fulfillment = '';
+  var noTracking = false;
+  
+  $(document).ready(function(){
+  	 mfpHTML_Fulfillment = $('#OrderFulfillmentModal').html();
+  });
+  
+  function updateFulfillmentModal(){
+    $('#mfp-order-fulfill .mfp-content').removeClass('slideInUp').addClass('bounceOutDown');
+    setTimeout(function(){
+    $('.mfp-bg, .mfp-wrap, #OrderFulfillmentModal').delay(1000).hide().addClass('mfp-hide');
+    $('html').css('overflow','auto');
+    $('.mfp-preloader').show();
+  	$('#OrderFulfillmentModal *').remove();
+    $('#OrderFulfillmentModal').html(mfpHTML_Fulfillment); 
+    }, 800);
+    if( changed_Fulfillment == true ){ changed_Fulfillment = ''; fetch_Orders(); }
+  }
+  
+  function addTracking(obj, data){  console.log("ffdata: "+data)
+    $(obj).before($(obj).prev('div').prop('outerHTML'));
+    $('#OrderFulfillmentModal .add_tno').prev().find('input').val(data||'');
+    $('.removeTracking').show(0).last().hide(0);
+  }
+  
+  function removeTracking(obj){
+  	$(obj).parent().remove();
+  }
+  
+  function changeTracking(state){
+    if(state){ 
+      noTracking = true;
+      $('.tracking_num_title').html('(Tracking Number not required)');
+      $('#OrderFulfillmentModal .tracking_number, #OrderFulfillmentModal .add_tno').prop({'disabled':'disabled', 'value':''}).css('cursor', 'not-allowed');
+    }else
+      	$('#OrderFulfillmentModal .tracking_number, #OrderFulfillmentModal .add_tno').removeAttr('disabled').css('cursor', '');
+    	$tracking_company = $('[name="tracking_company"] option').filter(':selected').attr('value');
+        switch($tracking_company){
+          case 'UPS': $('#OrderFulfillmentModal .tracking_number').prop({'pattern1':'[A-za-z0-9]{10,18}','maxlength':'18','titles':'Enter an alphanumeric Tracking Number of upto 18 Characters.'}); break;
+          case 'USPS': $('#OrderFulfillmentModal .tracking_number').prop({'pattern1':'[0-9]{10,22}','maxlength':'22','titles':'Enter a numeric Tracking Number of upto 22 Characters.'}); break;
+          case 'FedEx': $('#OrderFulfillmentModal .tracking_number').prop({'pattern1':'[0-9]{10,15}','maxlength':'15','titles':'Enter a numeric Tracking Number of upto 15 Characters.'}); break;
+          case 'FedEx (Third party account)': $('#OrderFulfillmentModal .tracking_number').prop({'pattern1':'[0-9]{10,15}','maxlength':'15','titles':'Enter a numeric Tracking Number of upto 15 Characters.'}); break;
+          case 'Other': $('#OrderFulfillmentModal .tracking_number').removeAttr('pattern maxlength'); break;
+        }
+    	
+        if($('#OrderFulfillmentModal .tracking_number').is(':disabled')){
+          noTracking = true;
+          $('.tracking_num_title').html('(Tracking Number not required)');
+          $('#OrderFulfillmentModal .tracking_number').prop({'title':'Tracking Number not required.'});
+        }else{
+          noTracking = false;
+          $('.tracking_num_title').text('');
+        }
+  }
+  
+  function showOtherMethod(state){
+    if(state){
+      $('#otherMethod_name').removeAttr('disabled').parent().show();
+    }else{
+      $('#otherMethod_name').val('').prop('disabled','disabled').parent().hide();
+    }
+  }
+  
+  function validateTracking(obj){ return false;
+    pattern = obj.pattern;
+    value = obj.value;
+    try{
+      var valid = new RegExp('^'+pattern+'$').test(value);
+    }catch(e){ console.log('valid:', valid); }
+    
+    //obj.setCustomValidity('');
+     if (!valid) {
+       obj.setCustomValidity('Invalid tracking information');
+     }
+     // e.target.checkValidity()
+     //obj.reportValidity();
+  }
+  
+  function contentChanged_Fulfillment(){ $('#OrderFulfillmentModal button[type = "submit"]').removeAttr('disabled'); }
+  
+  function updateOrder(e, obj){
+    freez();
+  	e.preventDefault();
+    e.stopPropagation();
+    
+    if($('#OrderFulfillmentModal .shipping_price').val() == ""){      
+      $('#OrderFulfillmentModal .shipping_price').focus();
+      show_message2("Shipping cost can't be empty.",false,true);
+      return false;
+    }
+    
+    else if($('#OrderFulfillmentModal .tracking_company').val() == 'Other' && $('#OrderFulfillmentModal .method_name').val() == ""){
+      $('#OrderFulfillmentModal .method_name').focus();
+      show_message2("Please specify other delivery method.",false,true);
+      return false;
+    }
+    
+    else if(!noTracking){
+      var abort = false;
+      $('#OrderFulfillmentModal .tracking_number:visible').each(function(index, item){
+        if($(item).val() == ""){
+        	abort = true;
+        	$(item).focus();
+        	show_message2("Tracking information can't be empty.",false,true);
+        	return false;
+        }
+      });
+      if(abort) return false;
+    }
+    
+    
+    order_id = $(obj).attr('order_id');
+    var data = {cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: obj.getAttribute('order_id'), shipping: {}, fulfillment: {}, bemail: bemail };
+    data.shipping["design_fee"] = $('#OrderFulfillmentModal .design_fee').val();
+    data.shipping["shipping_price"] = (parseFloat($('#OrderFulfillmentModal .shipping_price').val())+parseFloat(data.shipping["design_fee"])).toFixed(2).toString();
+//     data.shipping["shipping_code"] = $('#OrderFulfillmentModal .shipping_code').val();
+    $tracking_company = $('#OrderFulfillmentModal .tracking_company').val();
+    data.fulfillment["tracking_company"] = ($tracking_company == 'Other') ? $('#otherMethod_name').val() : $tracking_company;
+    data.fulfillment["tracking_number"] = ($('#OrderFulfillmentModal .tracking_number:visible').map( function() { return this.value; }).get()).join(',');
+//     data.fulfillment["tracking_url"] = $('#OrderFulfillmentModal .tracking_url').val();
+                
+    console.log(JSON.stringify(data));
+    {% comment %}{% endcomment %}
+    $.ajax({
+      url: '/apps/pepsi-print/fs_order_configuration/edit_order.json',
+          type: 'POST',
+          data: JSON.stringify(data),
+          dataType: 'json',
+          contentType: "application/json;",
+          statusCode: {
+            401:function() { console.log("401") },
+            404:function() { console.log("404"); },
+            200:function() { console.log("200"); },
+            201:function() { console.log("201"); },
+            202:function() { console.log("202"); }
+          },
+          success: function(data){
+            	console.log(JSON.stringify(data));
+            	
+                if(200 === Number(data.status)){
+                  	freez();
+                    setTimeout( function (){ 
+                      //addToModal(data.result); 
+                      var $goTo = $('#OrderFulfillmentModal .goTo');
+                      $goTo.prop('href', '/pages/order?id='+data.result);
+                      $goTo.show();
+                      {% if template contains 'page.order' %}
+  //                   		fetch_Order(data.result);
+                          location.replace('/pages/order?id='+data.result+prev_page_params);
+                      {% endif %}
+                      $('#OrderFulfillmentModal').find('button[type = "submit"], input, select').prop('disabled','disabled').end().find('button[type = "submit"]').hide();
+                      changed_Fulfillment = true;
+  //                   	$.unblockUI; 
+                      show_message2('Updated Successfully.',true);
+                    }, 1500);
+                }else if(401 === Number(data.status)){
+                	show_message2(data.message,false);
+                }else{
+                	show_message2(data.message,false); console.log('else');
+                }
+           
+            
+            	
+          },
+          error: function(data){
+            show_message2('Some Error Occured.',false);
+          }
+          
+	 });
+    
+    //return false;
+    console.log(order_id);
+  
+  }
+  
+</script>

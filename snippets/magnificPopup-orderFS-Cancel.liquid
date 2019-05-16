@@ -1,0 +1,175 @@
+<div class="mfp-bg mfp-fade mfp-ready w3-black" style="display:none; opacity:0.8;"></div>
+
+<div class="mfp-wrap mfp-auto-cursor mfp-fade mfp-ready mfp-hide" tabindex="-1" style="overflow-x: hidden; overflow-y: auto;" style="display:none;">
+  <div class="mfp-container mfp-s-ready mfp-inline-holder">
+   
+    <div class="mfp-content w3-padding-xlarge w3-card-2 w3-white animated fast">
+
+      <div id="OrderCancelModal" class="white-popup-block text-center wrapper" styles="display:none;">
+        <form action="" method="post" onsubmit="if(confirm('Click \'OK\' to confirm for '+this.getAttribute('order_name')+' order rejection.') == true)cancelOrder(event, this); else false" order_id=""> 
+          <br><br>
+          <h1 class="">Cancel Order #<span class="orderName" style="font-size:inherit !important;"></span></h1>
+          <br>
+          <div class="text-left">
+            <label for="">Cancellation Reason <span class="w3-text-red">*</span></label>
+            <select name="cancel-reason" id="" onchange="changedDataCancel();">
+              <option value="">Select</option>
+              <option value="Program Cancelled Locally">Program Cancelled Locally</option>
+              <option value="Ordered too much">Ordered too much</option>
+              <option value="Budget Limitation">Budget Limitation</option>
+              <option value="Ordered Incorrectly">Ordered Incorrectly</option>
+              <option value="No longer wants">No longer wants</option>
+              <option value="Other- Fill in">Other- Fill in</option>
+            </select>
+          </div>
+          
+          <div style="display: none;">
+            <textarea disabled required name="cancel-reason-other" class="w3-margin-0" placeholder="Cancel Reason for Other (Maximum 200 Characters)" onchange="changedDataCancel();" maxlength="200"></textarea>
+            <div class="textarea_feedback w3-right"></div>
+            <br>
+          </div>
+        	
+          <div class="w3-block">
+            <br>
+            <a class="goTo w3-center" href="/pages/order?id=" style="display:none;">
+              <button type="button" class="btn btn-primary min-width-250">View order detail</button>
+            </a>
+            <button type="submit" class="btn btn-primary min-width-200" disabled="">Cancel Order</button>
+            <br><br>
+            <button type="button" class="btn min-width-100" onclick="updateCancelModal();">Back</button>
+          </div>
+          <br>
+        </form>
+      </div>
+
+      <button title="Close (Esc)" onclick="updateCancelModal();" type="button" class="mfp-close">×</button>
+    </div>
+    {% comment %}<div class="mfp-preloader w3-center center-block" style="display:initial;"><i class="fa fa-refresh w3-spin"></i></div>{% endcomment %}
+  </div>
+
+  {% comment %}<button title="Close (Esc)" onclick="updateCancelModal();" type="button" class="mfp-close">×</button>{% endcomment %}
+
+</div>
+
+
+
+<script>
+  var mfpHTML_Cancel = '';
+  var changedCancel = "";
+  $(document).ready(function(){
+  	 mfpHTML_Cancel = $('#OrderCancelModal').html();
+  });
+  
+  function updateCancelModal(){
+    $('#mfp-order-cancel .mfp-content').removeClass('slideInUp').addClass('bounceOutDown');
+    setTimeout(function(){
+    $('#mfp-order-cancel .mfp-bg, #mfp-order-cancel .mfp-wrap').delay(1000).hide().addClass('mfp-hide');
+    $('html').css('overflow','auto');
+  	$('#OrderCancelModal *, .mfp-note').remove();
+    $('#OrderCancelModal').html('').append(mfpHTML_Cancel); 
+    }, 800);
+
+    if( changedCancel == true ){ changedCancel = ''; fetch_Orders(); }
+  }
+  
+  function changedDataCancel(){ 
+    $('#OrderCancelModal button[type = "submit"]').removeAttr('disabled');
+    doc = $('[name="cancel-reason-other"]');
+    
+    if($('[name="cancel-reason"]').val().indexOf('Other') > -1)
+      doc.prop('disabled', false).parent().show(); 
+    else
+      doc.val('').prop('disabled', true).trigger('keyup').parent().hide();
+  }
+  
+  
+  function cancelOrder(e, obj){
+    freez();
+  	e.preventDefault();
+    e.stopPropagation();
+    
+    order_id = $(obj).attr('order_id');
+    var data = {cid: "{{ customer.id }}", cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: $(obj).attr('order_id') };
+   
+	
+    data.reason = ($('[name="cancel-reason"]').val().indexOf('Other') == -1) ? $('[name="cancel-reason"]').val() : "Other - "+$('[name="cancel-reason-other"]').val();          
+    
+    
+    console.log(JSON.stringify(data));
+                
+    {% comment %}{% endcomment %}
+    $.ajax({
+      url: '/apps/pepsi-print/fs_order_configuration/cancel_order.json',
+          type: 'POST',
+          data: JSON.stringify(data),
+          dataType: 'json',
+          contentType: "application/json;",
+          statusCode: {
+            401:function() { console.log("401") },
+            404:function() { console.log("404"); },
+            200:function() { console.log("200"); },
+            201:function() { console.log("201"); },
+            202:function() { console.log("202"); }
+          },
+          success: function(data){
+            	console.log(JSON.stringify(data));
+            	
+                if(200 === Number(data.status)){
+                  	$('#OrderCancelModal button[type = "submit"]').prop('disabled', 'disabled');
+                  	freez();
+                  	show_message2('Updated Successfully.',true);
+                   	setTimeout( function (){ 
+                      {% if template contains 'page.order' %}
+                        location.reload();
+                      {% else %}
+                        var $goTo = $('#OrderCancelModal .goTo');
+                        $goTo.prop('href', '/pages/order?id='+data.result);
+                        $goTo.show();
+                        $('#OrderCancelModal').find('button[type = "submit"], input, select').prop('disabled','disabled').end().find('button[type = "submit"]').hide();
+                        // updateCancelModal();
+                        // fetch_Orders();
+                      {% endif %}
+                      changedCancel = true;
+                    	// $.unblockUI; 
+                      
+                    }, 1500);
+                }else if(401 === Number(data.status)){
+                	show_message2(data.message,false);
+                }else{
+                	show_message2(data.message,false); console.log('else');
+                }
+           
+            
+            	
+          },
+          error: function(data){
+            show_message2('Some Error Occured.',false);
+          }
+          
+    });
+    
+    
+  }
+  
+  function showCancelModal(order_id, order_name){
+      $('html').css('overflow','hidden');
+      $('#mfp-order-cancel .mfp-content').removeClass('bounceOutDown').addClass('slideInUp');
+      $('#mfp-order-cancel .mfp-bg, #mfp-order-cancel .mfp-wrap').show().removeClass('mfp-hide');
+      
+    	setTimeout(function(){
+        $('#OrderCancelModal form').attr({'order_id': order_id, 'order_name': order_name});
+        $('#OrderCancelModal .orderName').text(order_name);
+        $('.mfp-wrap').css('max-height', '100vh');
+      }, 800);
+
+      var text_max = $('[name="cancel-reason-other"]').attr('maxlength');
+      $('.textarea_feedback').html(text_max + ' characters remaining');
+
+      $('[name="cancel-reason-other"]').off('keyup').on('keyup', function() {
+          var text_length = $(this).val().length;
+          var text_remaining = text_max - text_length;
+
+          $('.textarea_feedback').html(text_remaining + ' characters remaining');
+      });
+  }
+</script>

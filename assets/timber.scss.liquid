@@ -1145,8 +1145,8 @@ html input[disabled] {
   &[disabled],
   &.disabled {
     cursor: default;
-    color: $disabledBorder;
-    background-color: $disabledGrey;
+    {% comment %}color: $disabledBorder;
+    background-color: $disabledGrey;{% endcomment %}
   }
 }
 

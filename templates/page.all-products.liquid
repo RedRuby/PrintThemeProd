@@ -6,12 +6,14 @@
 <html>
 	<head>
 		<title>Catalog</title>
-      	{% if customer.tags contains Role_User or customer.tags contains Role_Manager %}
+      	{% if customer_role_tag == Role_User or customer_role_tag == Role_Manager %}
           <meta content="0; url={{shop.secure_url}}/collections/{{ customer_region_tag | remove: 'Region:' | downcase | append: '-products?sort_by=created-descending' | replace:'s0uth','south' }}" http-equiv="refresh" />
-      	{% elsif customer.tags contains Role_ASM %}
+      	{% elsif customer_role_tag == Role_ASM %}
           <meta content="0; url={{shop.secure_url}}/collections/{{ customer_region_tag | remove: 'Region:' | downcase | append: '-my-products?sort_by=created-descending' | replace:'s0uth','south' }}" http-equiv="refresh" />
-      	{% elsif customer.tags contains Role_Admin %}
+      	{% elsif customer_role_tag == Role_Admin %}
           <meta content="0; url={{shop.secure_url}}/collections/{{ customer_region_tag | remove: 'Region:' | downcase | append: 'all?sort_by=created-descending' | replace:'s0uth','south' }}" http-equiv="refresh" />
+        {% elsif fs_shop_active %}
+          <meta content="0; url=/collections/mod?sort_by=created-descending" http-equiv="refresh" />
       	{% endif %}
 	</head>
 	<body>

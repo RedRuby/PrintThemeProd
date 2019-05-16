@@ -1,14 +1,6 @@
 {% layout 'theme.alternate' %}
 
-{% if customer  %}
-
-  {% assign Role_User = 'general.Role.User' | t %}
-  {% assign Role_Printer = 'general.Role.Printer' | t %}
-  {% assign Role_Manager = 'general.Role.Manager' | t %}
-  {% assign Role_ASM = 'general.Role.ASM' | t %}
-  {% assign Role_Admin = 'general.Role.Admin' | t %}
-
-{% endif %}
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
 
 {% if product.type  == 'SHOPSTORM_HIDDEN_PRODUCT' %}
   Product is not available
@@ -19,11 +11,13 @@
   The contents of the product.liquid template can be found in /sections/product-template.liquid
 {% endcomment %}
 
-{% section 'product-template' %}
-
-{% if customer and customer.tags contains Role_ASM %}
-<!-- modalContent {% include 'edit-variant-template' %} modalContent -->
+<!-- psudoContent -->
+{% if fs_shop_active %}
+  {% section 'product-template-fs' %}
+{% else %}
+  {% section 'product-template' %}
 {% endif %}
+<!-- psudoContent -->
 
 <script>
   // Override default values of shop.strings for each template.

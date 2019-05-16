@@ -1,22 +1,82 @@
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
+
 <style>
   {% if template contains 'collection' %}
     .section-header__title{display:none;}
   {% endif %}
 
-  .main-content{
   {% if customer %}
-  	{% if customer.tags contains Role_ASM %}
-      min-height: calc(99vh - 319px);
-  	{% elsif customer.tags contains Role_User %}
-	  min-height: calc(99vh - 272px);
-  	{% elsif customer.tags contains Role_%}
+    .site-header {
+        padding-top: 70px !important;
+    }
+  {% endif %}
 
-  	{% elsif customer.tags contains Role_%}
+  .main-content{
+  {% if customer and customer_role_tag %}
+  	{% if customer_role_tag == Role_ASM %}
+      min-height: calc(99vh - 339px);
+  	{% elsif fs_shop_active == true %}
+  	  min-height: calc(99vh - 328px);
+  	{% elsif fs_shop_active != true %}
+      min-height: calc(99vh - 228px);
+  	{% elsif customer_role_tag == Role_%}
 
-  	{% endif customer.tags contains Role_%}
+    {% else %}
+      min-height: calc(99vh - 253px);
+    {% endif %}
   	}
   {% else %}
-  	  min-height: calc(99vh - 219px);
+      {% if fs_shop_active %}
+        min-height: calc(99vh - 221px);
+      {% else %}
+    	  min-height: calc(99vh - 221px);
+      {% endif %}
   {% endif %}
   }
+  
+  {% if customer_role_tag contains Role_FSAdmin %}{% endif %}
+  .placeholdLoader{
+  /*background-color: #cccccc !important;*/
+  outline: none !important;
+  border: none !important;
+  pointer-events: none !important;
+  cursor: pointer !important;
+  color: transparent !important;
+  opacity: 0.4 !important;
+  animation-duration: 15s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: placeHolderShimmer;
+  animation-timing-function: linear;
+  background: #cccccc;
+  /*background: linear-gradient(to right, #cccccc 8%, #dddddd 33%, #cccccc 18%);*/
+  background: linear-gradient(to right, #d0d0d0 8%, #dddddd 18%, #d0d0d0 33%);
+  /*background-size: 800px 104px;
+  height: 96px;
+  position: relative;*/
+}
+
+.placeholdLoader *{
+  visibility: hidden !important;
+}
+
+@-webkit-keyframes placeHolderShimmer{
+    0%{
+      background-position: -500px 0
+    }
+    100%{
+      background-position: 500px 0
+    }
+}
+
+
+@keyframes placeHolderShimmer{
+    0%{
+      background-position: -500px 0
+    }
+    100%{
+      background-position: 500px 0
+    }
+}
+
 </style>

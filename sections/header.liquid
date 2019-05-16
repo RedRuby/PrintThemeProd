@@ -8,10 +8,8 @@
 
 
 <style>
-  .site-header__logo {
-    a {
-      max-width: {{ section.settings.logo_max_width }}px;
-    }
+  .site-header__logo img {
+    max-width: {{ section.settings.logo_max_width }}px;
   }
 
   /*================= If logo is above navigation ================== */
@@ -68,15 +66,17 @@
 
                 {% if customer_has_retail and customer_has_fs %}
                   {% if fs_shop_active %}
-                    <button type="button" class="btn--secondary" style="padding: 4px 8px;" onclick="changeShop('retail');"><small>Retail</small></button>&nbsp; | &nbsp;<button type="button" class="btn--secondary" style="background-color: #0e5aa8; padding: 4px 8px;"><small>Food Service</small></button>
+                    <button type="button" class="btn btn--secondary" style="padding: 4px 8px;"><small>MOD</small></button>&nbsp;&nbsp;
+                    <button type="button" class="btn btn--secondary" style="opacity: 0.4; padding: 4px 8px;" onclick="changeShop('{{ shop_url_retail }}');"><small>Pepsi Print Studios</small></button>
                   {% else %}
-                    <button type="button" class="btn--secondary" style="background-color: #0e5aa8; padding: 4px 8px;"><small>Retail</small></button>&nbsp; | &nbsp;<button type="button" class="btn--secondary" style="padding: 4px 8px;" onclick="changeShop('fs');"><small>Food Service</small></button>
+                    <button type="button" class="btn btn--secondary" style="padding: 4px 8px;"><small>Pepsi Print Studios</small></button>&nbsp;&nbsp;
+                    <button type="button" class="btn btn--secondary" style="opacity: 0.4; padding: 4px 8px;" onclick="changeShop('{{ shop_url_fs }}');"><small>MOD</small></button>
                   {% endif %}
                 {% else %}
                   {% if customer_has_retail %}
-                    Retail
+                    Pepsi Print Studios
                   {% elsif customer_has_fs %}
-                    Food Service
+                    MOD
                   {% endif %}
                 {% endif %}
 
@@ -96,22 +96,22 @@
             <ul class="header-bar__module header-bar__module--list">
               {% if customer %}
               	<li>
-                  <span>Logged in as: {{ customer.name }}( {{ customer_region_tag |remove:'Region:' |replace:'0','o' }}{% unless customer.tags contains Role_Admin %} / {% endunless %}{{ customer_role_tag |remove:'Role:' |replace:'Printer','Vendor' |replace:'SiteUser','User' |replace:'UserManager','Manager' }} )&nbsp; | </span>
+                  <span>Logged in as: {{ customer.name }}( {{ customer_region_tag | remove:'Region:' | replace:'0','o' | replace:"SouthEast", "Sunbelt" | replace:"MidAtlantic", "Metro Atlantic" }}{% unless customer.tags contains Role_Admin %} / {% endunless %}{{ customer_role_tag | remove:'Role:' | replace:'Printer','Vendor' | replace:'SiteUser','User' | replace:'UserManager','Manager' }} )&nbsp; | </span>
                 </li>
                 <li>
-                  <a href="/account">{{ 'layout.customer.account' | t }}</a>&nbsp; |
+                  <u><a href="/account">{{ 'layout.customer.account' | t }}</a></u>&nbsp; |
                 </li>
                 <li>
-                  <a href ="javascript:void(0);" onclick="clogout()"> {{ 'layout.customer.log_out' | t }}</a>
+                  <u><a href ="javascript:void(0);" onclick="clogout()"> {{ 'layout.customer.log_out' | t }}</a></u>
                   <!-- {{ 'layout.customer.log_out' | t | customer_logout_link }} -->
                 </li>
               {% else %}
                 <li>
-                  {{ 'layout.customer.log_in' | t | customer_login_link }}
+                  <u>{{ 'layout.customer.log_in' | t | customer_login_link }}</u>
                 </li>
                 <li>{{ 'layout.customer.or' | t }}</li>
                 <li>
-                  <a href='/pages/register' >{{ 'layout.customer.create_account' | t }}</a>
+                  <u><a href='/pages/register' >{{ 'layout.customer.create_account' | t }}</a></u>
                 </li>
               {% endif %}
             </ul>
@@ -133,7 +133,7 @@
             </a>
           </div>
 
-          {% if section.settings.header_search_enable %}
+          {% if section.settings.header_search_enable and false %}
             {% unless section.settings.header_text == blank %}
               <div class="header-bar__module header-bar__search">
                 {% include 'search-bar' with 'header' %}
@@ -168,10 +168,10 @@
           {% if template == 'index' %}
             <h1 class="site-header__logo{% if section.settings.left_aligned_logo %} post-large--left{% endif %}" itemscope itemtype="http://schema.org/Organization">
           {% else %}
-            <div class="h1 site-header__logo{% if section.settings.left_aligned_logo %} post-large--left{% endif %}" itemscope itemtype="http://schema.org/Organization">
+            <div class="h1 site-header__logo{% if section.settings.left_aligned_logo and customer %} post-large--left{% endif %}" itemscope itemtype="http://schema.org/Organization">
           {% endif %}
             {% if section.settings.logo != blank %}
-              {% capture image_size %}{{ section.settings.logo_max_width }}x{% endcapture %}
+              {% capture image_size %}{{ section.settings.logo_max_width | times: 2 }}x{% endcapture %}
               <img id="psudo img" class="hide" src="{{ section.settings.logo | img_url: image_size }}" alt="{{ shop.name }}" itemprop="logo">
               <a id="header--logo" href="/" itemprop="url" style="position:relative; z-index:98;">
                 <img src="{{ section.settings.logo | img_url: image_size }}" alt="{{ shop.name }}" itemprop="logo">
@@ -204,7 +204,7 @@
 
       <div class="grid--full medium-down--hide" style="height:0px !important; display:block1;">
         <div id="nav-1" class="grid__item" style="{% if customer.tags contains Role_ASM %}padding-top1:30px; bottom:50px;{% endif %}">
-          {% if customer and customer_role_tag and customer_region_tag %}
+          {% if customer and customer_role_tag and customer_role_tag != Role_Printer %}
             {% include 'site-nav' with linklists[section.settings.nav_menu] %}
           {% endif %}
         </div>
@@ -249,63 +249,8 @@
     </div>
   </header>
 </div>
-<script type="text/javascript">
-  //console.log({{ shop.domain }});
-  function clogout(){
-    if(localStorage.customer_status == 'loggedin'){
-      localStorage.customer_status = 'loggedout';
-      console.log('sessionout-with-loggedout');
-     $.ajax({
-        url: "/apps/pepsi-print/product_configuration/set_logout",
-      	data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
-        dataType: 'jsonp',
-        type: "GET",
-       	complete:function(pdata) {
-        		console.log(pdata);
-        	location.href = "/account/logout";
-           }
-       }).done(function(pdata) {
-       console.log(pdata);
-     });
-    }
-    else{
-    console.log('direct-loggedout');
-  	window.location.href = "/account/logout";
-    }
 
- }
-
- function changeShop(shop){
-    freez();
-    $.ajax({
-      url: "/cart.js",
-      data: { "attributes[shop]" : shop },
-      type: "POST",
-      success:function(data) {
-        // location.href = "/account";
-        location.reload();
-      },
-      error:function(data) {
-        console.log(data);
-        show_message2('Some Error Occured.',false);
-      },
-   });
- }
-
-//  if(__st['cid'] == undefined){
-//    alert("hi");
-//   $.ajax({
-//     url: "/apps/pepsi-print/?action_type=set_logout",
-//     dataType: 'jsonp',
-//     type: "GET"
-//   }).done(function(pdata) {
-//     console.log(pdata)
-//   });
-//  }
-
- var customer_region = '{{ customer_region_tag |remove:'Region:' |replace:'0','o' }}';
-
-</script>
+{% include 'customer-account-common-code' with 'header-script-code' %}
 
 {% schema %}
   {

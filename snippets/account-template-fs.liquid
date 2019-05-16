@@ -1,23 +1,19 @@
 {% include 'customer-account-common-code' with 'theme-layout-code' %}
+{% include 'customer-account-common-code' with 'access-rights-fs' %}
 
-<div class="section-header section-header--large printModeExclude">
-  <h1 class="section-header__title">{{ 'customer.account.title' | t }}</h1>
+<div class="section-header1 section-header--large1 printModeExclude">
+  <h1 class="section-header__title"><b class="placeholdLoader">{{ 'customer.account.title' | t }}</b></h1>
+  <hr style="margin: 15px 0;">
 </div>
 
 <div class="grid">
 
-  <div class="grid__item {% if customer.tags contains Role_ASM %}three-quarters{% else %}two-thirds{% endif %} medium-down--one-whole print-one-whole">
-    <h2 style="display:inline-block;" class="h3"><b>{{ 'customer.orders.title' | t }}:{% if customer.tags contains Role_ASM or customer.tags contains Role_Printer %}&nbsp;&nbsp;<div style="display:inline; border-bottom:2px solid black; font-size:16px;" class1="w3-border-bottom">Individual View</div>&nbsp;&nbsp;{% endif %}
+  <div class="grid__item medium-down-- one-whole print-one-whole1">
+    <h2 style="display:inline-block;" class="h3 w3-margin-0"><b class="placeholdLoader">{{ 'customer.orders.title' | t }}</b></h2>
 
-      {% if customer.tags contains Role_ASM or customer.tags contains Role_Printer %}
-      <a style="display:inline-block;font-size:16px;" class="printModeExclude w3-text-black" href="/account?view=summary-list">Group View</a>
-      {% endif %}
-
-    </b></h2>
-
-    <div class="w3-right printModeExclude text-right per_page_wrapper" style="display:inline-block; width:{% if customer.tags contains Role_ASM %}238px{% else %}212px{% endif %};">
-      <label for="per_page" style="display:inline-block;" class="">Per Page: &nbsp;</label>
-      <select id="per_page" class="per_page" style="max-width:60px; display:inline-block;" onchange="updateState({page: '1',per_page: this.value});updatePerPage(this.value);">
+    <div class="w3-right printModeExclude text-right per_page_wrapper" style="display:none; width:238px;">
+      <label for="per_page" style="display:inline-block;" class="placeholdLoader">Per Page: &nbsp;</label>
+      <select id="per_page" class="per_page placeholdLoader" style="max-width:60px; display:inline-block;" onchange="updateState({page: '1',per_page: this.value});updatePerPage(this.value);">
         <option selected value='10'>10</option>
         <option {% if customer_per_page == '20' %}selected{% endif %} value='20'>20</option>
         <option {% if customer_per_page == '30' %}selected{% endif %} value='30'>30</option>
@@ -26,78 +22,62 @@
       </select>
     </div>
 
-    <button id="printOrder" styles="margin: 0 20px;" type="button" class="btn btn--secondary btn--primary1 printModeExclude w3-right" onclick="windowPrint();" title="Print this order"><i class="fa fa-print"></i> Print Order History</button>
-
-	<br><br>
+    <br><br>
 
     {% comment %}
       If we have past orders, loop through each one
     {% endcomment %}
-      {% if customer.tags |join:',' contains 'PerPage:' %}
-    	{% for tag in customer.tags %}
-          {% if tag contains 'PerPage' %}
-    		{% assign customer_per_page = tag |split:':' |last %}{% break %}
-          {% endif %}
-    	{% endfor %}
-      {% else %}
-    	{% assign customer_per_page = '' %}
-      {% endif %}
+    {% if customer.tags |join:',' contains 'PerPage:' %}
+    {% for tag in customer.tags %}
+        {% if tag contains 'PerPage' %}
+      {% assign customer_per_page = tag |split:':' |last %}{% break %}
+        {% endif %}
+    {% endfor %}
+    {% else %}
+    {% assign customer_per_page = '' %}
+    {% endif %}
 
-      {% if customer.tags contains Role_NSM %}
-        {% include 'fs-order-history-NSM' with customer_region_tag %}
-      {% elsif customer.tags contains Role_FSManager %}
-        {% include 'fs-order-history-Manager' with customer_region_tag %}
-      {% elsif customer.tags contains Role_FSAdmin %}
-        {% include 'fs-order-history-Admin'  with customer_region_tag %}
-      {% elsif customer.tags contains Role_FSUser %}
-        {% include 'fs-order-history-User' with customer_region_tag %}
-      {% elsif customer.tags contains Role_Designer %}
-        {% include 'fs-order-history-Designer' with customer_region_tag %}
-      {% endif %}
+    {% if customer_role_tag == Role_NSM %}
+      {% include 'fs-order-history-NSM' with customer_region_tag %}
+    {% elsif customer_role_tag == Role_FSManager %}
+      {% include 'fs-order-history-Manager' with customer_region_tag %}
+    {% elsif customer_role_tag == Role_FSAdmin %}
+      {% include 'fs-order-history-Admin'  with customer_region_tag %}
+    {% elsif customer_role_tag == Role_FSUser %}
+      {% include 'fs-order-history-User' with customer_region_tag %}
+    {% elsif customer_role_tag == Role_Designer %}
+      {% include 'fs-order-history-Designer' with customer_region_tag %}
+    {% endif %}
 
-      <div class="table-wrap">
-        {% comment %}
-        <table class="full w3-hide">
-          <thead>
-            <tr>
-              <th>{{ 'customer.orders.order_number' | t }}</th>
-              <th>{{ 'customer.orders.date' | t }}</th>
-              <th>{{ 'customer.orders.payment_status' | t }}</th>
-              <th>{{ 'customer.orders.fulfillment_status' | t }}</th>
-              <th>{{ 'customer.orders.total' | t }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for order in customer.orders %}
-              <tr>
-                <td>{{ order.name | link_to: order.customer_url }}</td>
-                <td>{{ order.created_at | date: "%b %d, %Y" }}</td>
-                <td>{{ order.financial_status_label }}</td>
-                <td>{{ order.fulfillment_status_label }}</td>
-                <td>{{ order.total_price | money }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% endcomment %}
-      </div>
-
-
-  <p id="order-none" style="display:none;">{{ 'customer.orders.none' | t }}</p>
-
-
-
+    <p id="order-none" style="display:none; width: 150px;" class="placeholdLoader">{{ 'customer.orders.none' | t }}</p>
+    <hr class="w3-margin-top printModeExclude">
   </div>
 
-  <div class="grid__item {% if customer.tags contains Role_ASM %}asm-col one-quarter{% else %}one-third{% endif %} medium-down--one-whole printModeExclude">
-    <h2 class="h3"><b>{{ 'customer.account.details' | t }}</b></h2>
+  <div class="grid__item medium-down--one-whole one-half printModeExclude">
+    {% if customer_role_tag == Role_FSAdmin %}
+    <a href="/account?view=prod-upload-form-mod" target="_blank">
+      <button id="printOrder" type="button" class="btn btn-primary printModeExclude placeholdLoader" title="Print this order"><i class="fa fa-upload"></i>&nbsp; Upload Products</button>
+    </a>
+    <br><br>
+    {% endif %}
+    
+    {% if can_order %}
+    <h2 class="h3"><b class="placeholdLoader">{{ 'customer.account.details' | t }}</b></h2>
 
-    <span class="h5" title="{{ customer.email }}">{{ customer.name }}</span>
+    <span class="h5 placeholdLoader" title="{{ customer.email }}">{{ customer.name }}</span>
 
-    {{ customer.default_address | format_address }}
+    <span class="placeholdLoader">{{ customer.default_address | format_address }}</span>
 
-    <p><a href="/account/addresses">{{ 'customer.account.view_addresses' | t }} ({{ customer.addresses_count }})</a></p>
-
+    <p>
+      <a href="/account/addresses" class="w3-text-blue placeholdLoader"><b>{{ 'customer.account.view_addresses' | t }} ({{ customer.addresses_count }})</b></a>
+    </p>
+    
+    <p>
+      <a href="/account/addresses?view=shipping" class="w3-text-blue placeholdLoader"><b>Shipping Addresses</b></a>
+    </p>
+    {% endif %}
+    
+    {% comment %}              
     <button class="btn" style="min-width:350px;" type="button" onclick="toggleDash();">Export Order History</button>
     <br>
     <div id="printDash" class="border w3-padding animated  w3-white" style="max-width:350px; display:none;">
@@ -110,12 +90,12 @@
     <a id="exportPsudoLink" href="" target="stealthFrame" class="hide"></a>
     <iframe name="stealthFrame" style="display:none;"></iframe>
 
-    {% if customer.tags contains Role_ASM or customer.tags contains Role_Admin %}
+    {% if customer_role_tag == Role_ASM or customer_role_tag == Role_Admin %}
     <button class="btn" style="min-width:350px;" type="button" onclick="toggleRDash();">My Reports</button>
     <br>
     <div id="reportDash" class="border w3-padding animated  w3-white" style="max-width:350px; display:none;">
-      - <a href="javascript:agedExport();" class="aged" hrefs="/apps/pepsi-print/collection_response/aged_reports.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Open Order Report</a><br>
-      {% unless customer.tags contains Role_Admin %}
+      - <a href="javascript:agedExport();" class="aged" hrefs="/apps/pepsi-print/fs_collection_response/aged_reports.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Open Order Report</a><br>
+      {% unless customer_role_tag == Role_Admin %}
       {% if customer_region_tag contains region_NorthEast %}
        - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Standard_' }}_2017.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Standard Report (2017)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Dashboard_' }}_2017.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Dynamic Report (2017)</a><br>
@@ -123,7 +103,7 @@
        - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Standard_' |replace:'0','o' }}.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Standard Report (2018)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Dashboard_' |replace:'0','o' }}.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Dynamic Report (2018)</a><br>
       {% endunless %}
-      {% if customer.tags contains Role_Admin %}
+      {% if customer_role_tag == Role_Admin %}
        - <a href="https://print-reports.s3.amazonaws.com/PPS_Standard_All_2017.xlsm">Standard Report (2017)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All_2017.xlsm">Dynamic Report (2017)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5_2017.xlsm">ASM KPI Summary Report (2017)</a><br>
@@ -133,12 +113,16 @@
       {% endif %}
     </div>
     <br>
-    {% if customer.tags contains Role_ASM or customer.tags contains Role_Admin %}
+    {% if customer_role_tag == Role_ASM or customer_role_tag == Role_Admin %}
     <a target="_blank" href="/pages/product-upload-form" onclicks="window.open('');" onc="('https://s3.amazonaws.com/printreports/PepsiPrintProductUploadForm_v7.xlsm');" ><button class="btn" style="min-width:350px;" type="button">Upload Products</button></a><br><br>
     {% endif %}
-<!--     <a href="/pages/locations"><button class="btn" style="min-width:350px;" type="button">Add Location for Regional List</button></a> -->
-    {% elsif customer.tags contains Role_Manager %}
-    <div id="select_team" class="">
+    <!--     <a href="/pages/locations"><button class="btn" style="min-width:350px;" type="button">Add Location for Regional List</button></a> -->
+    elsif
+    {% endif %}
+    {% endcomment %}
+
+    {% if customer_role_tag == Role_FSManager %}
+    <div id="select_team" class="placeholdLoader">
       <label>View Regional Staff List</label>
       <select id="select_{% raw %}{{id}}{% endraw %}" onchange="editTeam(this, true); this.title = this.options[this.selectedIndex].innerHTML;" title="" class="assign-printer" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{fulfillment_status}}{% endraw %}">
         <option selected disabled>Click to Select your team members</option>
@@ -146,12 +130,13 @@
       </select>
     </div>
 
-    <div id="selected_team" class="" style="border:1px solid #aaa; border-radius:5px; display:none;">
+    <div id="selected_team" class="placeholdLoader" style="border:1px solid #aaa; border-radius:5px; display:none;">
       <span class="btn--secondary btn-custom" style="margin:5px;" w3-repeat="customers" title="{% raw %}{{first_name}} {{last_name}}{% endraw %}">{% raw %}{{email}}{% endraw %}&nbsp;&nbsp;<a style="color:white;" href="javascript:void(0);" value="{% raw %}{{id}}{% endraw %}" onclick="editTeam(this,false);"><i class="fa fa-times" title="Remove {% raw %}{{first_name}} {{last_name}}{% endraw %}"></i></a></span>
     </div>
     {% endif %}
 
-<!--     <br> -->
+    {% comment %}
+    <!--     <br> -->
 
     <h3 class="h3 hide"><b>Payment Codes</b></h3>
     <div id="pcDash" class="border1 w3-padding1 animated text-center1 w3-white hide" style="max-width:350px; display:none1;">
@@ -160,27 +145,28 @@
       - <a id="pc3" target="_blank" href=""> Trade Expense</a><br>
     </div>
     <br>
-<!--     <button class="btn" style="min-width:350px;" type="button" onclick="toggleBDash();">Update Your Browser</button> -->
+    
+    <!--     <button class="btn" style="min-width:350px;" type="button" onclick="toggleBDash();">Update Your Browser</button> -->
     <h3 class="h3"><b>Update Your Browser</b></h3>
-<!--     <br> -->
+    <!--     <br> -->
     <div id="browserDash" class="border1 w3-padding1 animated text-center1 w3-white" style="max-width:350px; display:none1;">
       - <a target="_blank" href="https://www.google.com/chrome/"><i class="fa fa-chrome"></i> Google Chrome</a><br>
       - <a target="_blank" href="https://support.apple.com/en-us/HT204416"><i class="fa fa-safari"></i> Safari</a><br>
-<!--       <a target="_blank" href="https://www.mozilla.org/en-US/firefox/new/"><i class="fa fa-firefox"></i> Mozilla Firefoxi</a><br>
+    <!--       <a target="_blank" href="https://www.mozilla.org/en-US/firefox/new/"><i class="fa fa-firefox"></i> Mozilla Firefoxi</a><br>
       <a target="_blank" href="http://www.opera.com/"><i class="fa fa-opera"></i> Opera</a><br>
       <a target="_blank" href="https://www.microsoft.com/en-in/windows/microsoft-edge"><i class="fa fa-edge"></i> MS Edge</a><br>
       <a target="_blank" href="https://www.microsoft.com/en-in/download/internet-explorer.aspx"><i class="fa fa-internet-explorer"></i> Internet Explorer</a> -->
-    </div>
-
-    {% if customer.tags contains 'SuperUser'  %}
+    </div>{% endcomment %}
+   
+    {% if customer.tags contains 'SuperUser' %}
       <br>
       <label>Role / Region Switch</label>
       <select onchange="updateCustomer(this.value);">
-        <option value="{{ Role_NSM }}" {% if customer.tags contains Role_NSM %}selected{% endif %}>{{ Role_NSM }}</option>
-        <option value="{{ Role_FSAdmin }}" {% if customer.tags contains Role_FSAdmin %}selected{% endif %}>{{ Role_FSAdmin }}</option>
-        <option value="{{ Role_Designer }}" {% if customer.tags contains Role_Designer %}selected{% endif %}>{{ Role_Designer }}</option>
-        <option value="{{ Role_FSUser }}" {% if customer.tags contains Role_FSUser %}selected{% endif %}>{{ Role_FSUser }}</option>
-        <option value="{{ Role_FSManager }}" {% if customer.tags contains Role_FSManager %}selected{% endif %}>{{ Role_FSManager }}</option>
+        <option value="{{ Role_NSM }}" {% if customer_role_tag == Role_NSM %}selected{% endif %}>{{ Role_NSM }}</option>
+        <option value="{{ Role_FSAdmin }}" {% if customer_role_tag == Role_FSAdmin %}selected{% endif %}>{{ Role_FSAdmin }}</option>
+        <option value="{{ Role_Designer }}" {% if customer_role_tag == Role_Designer %}selected{% endif %}>{{ Role_Designer }}</option>
+        <option value="{{ Role_FSUser }}" {% if customer_role_tag == Role_FSUser %}selected{% endif %}>{{ Role_FSUser }}</option>
+        <option value="{{ Role_FSManager }}" {% if customer_role_tag == Role_FSManager %}selected{% endif %}>{{ Role_FSManager }}</option>
       </select>
       <select onchange="updateCustomer(this.value);">
         <option value="{{ region_California }}" {% if customer_region_tag == region_California' %}selected{% endif %}>{{ region_California }}</option>
@@ -191,9 +177,7 @@
         <option value="{{ region_NorthEast }}" {% if customer_region_tag == region_NorthEast' %}selected{% endif %}>{{ region_NorthEast }}</option>
         <option value="{{ region_South }}" {% if customer_region_tag == region_South' %}selected{% endif %}>{{ region_South }}</option>
         <option value="{{ region_SouthEast }}" {% if customer_region_tag == region_SouthEast' %}selected{% endif %}>{{ region_SouthEast }}</option>
-        {% comment %}
-        <option value="{{ region_External }}" {% unless customer.tags contains Role_Printer %}disabled{% endunless %} {% if customer.tags contains region_External' %}selected{% endif %}>{{ region_External }}</option>
-        {% endcomment %}
+        <option value="{{ region_External }}" {% unless customer_role_tag == Role_Printer %}disabled{% endunless %} {% if customer_role_tag == region_External' %}selected{% endif %}>{{ region_External }}</option>
       </select>
     
       <script>
@@ -220,47 +204,75 @@
 
   </div>
 
+  <div class="grid__item medium-down--one-whole one-half printModeExclude medium-down--text-center text-right">
+    <button id="printOrder" type="button" class="btn1 btn--secondary printModeExclude placeholdLoader" onclick="window.print(); /*windowPrint();*/" title="Print this order"><i class="fa fa-print"></i>&nbsp; Print Order History</button>&nbsp;&nbsp;
+
+    <button id="exportOrder" type="button" class="btn1 btn--secondary printModeExclude placeholdLoader" onclick="toggleDash();" title="Toggle Export Order History Section"><i class="fa fa-download"></i>&nbsp; Export Order History</button>&nbsp;&nbsp;
+
+    <button id="myReports" type="button" class="btn1 btn--secondary printModeExclude placeholdLoader" onclick="toggleRDash();" title="Toggle My Reports Section"><i class="fa fa-line-chart"></i>&nbsp; My Reports</button>
+    <br><br>
+    <div id="reportDash" class="border w3-padding animated w3-white w3-right text-left placeholdLoader" style="width: 100%; max-width:350px; display:none;">
+      - <a href="javascript:agedExport();" class="aged" hrefs="/apps/pepsi-print/fs_collection_response/aged_reports.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Open Order Report</a><br>
+      
+       - <a href="#">Report Link 1</a><br>
+       - <a href="#">Report Link 2</a><br>
+       - <a href="#">Report Link 3</a><br>
+       - <a href="#">Report Link 4</a><br>
+       - <a href="#">Report Link 5</a><br>
+       - <a href="#">Report Link 6</a><br>
+      
+    </div>
+
+    <div id="printDash" class="border w3-padding animated w3-white w3-right text-left placeholdLoader" style="width: 100%; max-width:350px; display:none;">
+     <label><input type="radio" checked name="exportType" value="current"> Current Page Orders</label>
+     <label class="w3-text-grey"><input id="radio2" disabled type="radio" name="exportType" value="filtered"> All Filtered Orders</label>
+     <label><input type="radio" name="exportType" value="all"> All Orders</label>
+     <br>
+     <button id="print-btn" type="button" class="btn one-whole" onclick="initExport();">Export</button>
+    </div>
+  </div>
+
 </div>
 
 
 <script type="text/javascript">
   console.log("{{ customer.id  | hmac_sha1: shop.domain }}");
-              console.log("{{shop.domain}}");
+  console.log("{{shop.domain}}");
   var orderExport = [];
   var printerExport = [];
 
-//   $(window).load(function(){
-//     setInterval(function(){ $('.per_page_wrapper').css('width', $('#td_select').width()+'px');}, 2000);
-//   });
+  // $(window).load(function(){
+  //   setInterval(function(){ $('.per_page_wrapper').css('width', $('#td_select').width()+'px');}, 2000);
+  // });
 
   $(document).ready(function(){
-  	$('#start_date').val('');
+    $('#start_date').val('');
     $('#pc1').attr('href', $('#link-sales').attr('href'));
-	$('#pc2').attr('href', $('#link-food-service').attr('href'));
-	$('#pc3').attr('href', $('#link-all-other').attr('href'));
+    $('#pc2').attr('href', $('#link-food-service').attr('href'));
+    $('#pc3').attr('href', $('#link-all-other').attr('href'));
 
     $("#reportDash a:not(a.aged)").on('click', function(e){
-    	e.preventDefault();
-      	exportPsudoLink($(this).attr("href"));
-      	return false;
+      e.preventDefault();
+        exportPsudoLink($(this).attr("href"));
+        return false;
     });
 
   });
 
   function exportPsudoLink(data){
     $.ajax({
-		type: 'HEAD',
-		url: data,
-      	crossDomain: true,
-      	dataType: 'jsonp',
-		error: function(xhr) {
+    type: 'HEAD',
+    url: data,
+        crossDomain: true,
+        dataType: 'jsonp',
+    error: function(xhr) {
           console.log(xhr);
           if(xhr.status == 404)
             show_message2('Error in exporting or no report available.',false);
-		},
-      	timeout: 5000
-	});
-  	$('#exportPsudoLink').attr('href', data)[0].click();
+    },
+        timeout: 5000
+  });
+    $('#exportPsudoLink').attr('href', data)[0].click();
   }
 
   // media query event handler
@@ -287,50 +299,52 @@
   }
 
   function toggleBDash(){
-    if($('#browserDash.flipInX').length != 0){
-      $('#browserDash').removeClass('flipInX').addClass('flipOutX').delay(1000).hide(0);
+    if($('#browserDash.slideInRight').length != 0){
+      $('#browserDash').removeClass('slideInRight').addClass('slideOutRight').delay(1000).hide(0);
     }else{
-      $('#browserDash').removeClass('flipOutX').addClass('flipInX').show(0);
+      $('#browserDash').removeClass('slideOutRight').addClass('slideInRight').show(0);
     }
   }
 
   function toggleRDash(){
-    if($('#reportDash.flipInX').length != 0){
-      $('#reportDash').removeClass('flipInX').addClass('flipOutX').delay(1000).hide(0);
+    if($('#reportDash.slideInRight').length != 0){
+      $('#reportDash').removeClass('slideInRight').addClass('slideOutRight').delay(1000).hide(0);
     }else{
-      $('#reportDash').removeClass('flipOutX').addClass('flipInX').show(0);
+      $('#printDash').removeClass('slideInRight').addClass('slideOutRight').hide(0);
+      $('#reportDash').removeClass('slideOutRight').addClass('slideInRight').show(0);
     }
   }
 
   function toggleDash(){
-    if($('#printDash.flipInX').length != 0){
-      $('#printDash').removeClass('flipInX').addClass('flipOutX').delay(1000).hide(0);
+    if($('#printDash.slideInRight').length != 0){
+      $('#printDash').removeClass('slideInRight').addClass('slideOutRight').delay(1000).hide(0);
     }else{
-      $('#printDash').removeClass('flipOutX').addClass('flipInX').show(0);
+      $('#reportDash').removeClass('slideInRight').addClass('slideOutRight').hide(0);
+      $('#printDash').removeClass('slideOutRight').addClass('slideInRight').show(0);
     }
   }
 
   function initExport(){
     var selected = $('[name = "exportType"]').filter(':checked').val();
-    var data = '/apps/pepsi-print/collection_response/print_orders.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}';
+    var data = '/apps/pepsi-print/fs_collection_response/print_orders.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}';
     var params = jQuery.extend({}, query); if(params.per_page != undefined) delete params.per_page;
 
     if((selected == 'filtered' || selected == 'all') && order_data.total_entries > 50){
       var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
       {% comment %}
-      {% if customer.tags contains Role_User  %}
+      {% if customer_role_tag == Role_User  %}
           data.customer_id = '{{ customer.id }}';
-      {% elsif customer.tags contains Role_Manager %}
-      	if(selected != 'all'){
+      {% elsif customer_role_tag == Role_Manager %}
+        if(selected != 'all'){
           data.customer_id = var4;
         }
-      {% elsif customer.tags contains Role_Admin %}
-      	if(var4.length > 0){
+      {% elsif customer_role_tag == Role_Admin %}
+        if(var4.length > 0){
           data.region_tag = var4;
         }
       {% endif %}
       if(var1.length > 0 && selected != 'all'){
-		data.start_date = var1;
+    data.start_date = var1;
         data.end_date = var2;
       }
       {% endcomment %}
@@ -354,18 +368,18 @@
     }
 
     {% assign Role_Manager = 'general.Role.Manager' | t %}
-	{% assign Role_Admin = 'general.Role.Admin' | t %}
+  {% assign Role_Admin = 'general.Role.Admin' | t %}
 
-    {% if customer.tags contains Role_Manager %}
+    {% if customer_role_tag == Role_Manager %}
       if(var4 != '' && selected != 'all'){
         data += '&customer_id='+var4;
       }
-    {% elsif customer.tags contains Role_Admin %}
+    {% elsif customer_role_tag == Role_Admin %}
       if(var4 != '' && selected != 'all'){
         data += '&region_tag='+var4;
       }
-    {% elsif customer.tags contains Role_User %}
-   		data += '&customer_id='+'{{ customer.id }}';
+    {% elsif customer_role_tag == Role_User %}
+      data += '&customer_id='+'{{ customer.id }}';
     {% endif %}
     {% endcomment %}
 
@@ -379,20 +393,20 @@
 
     exportPsudoLink(data);
 
-//     window.location.assign(data);
-//     var data = prepareData(orderExport, printerExport);
+    // window.location.assign(data);
+    // var data = prepareData(orderExport, printerExport);
 
     {%comment%}
-  	$.ajax({
+    $.ajax({
           url: 'http://54.71.28.218/pepsiprint/exportExcel.php',
           type: 'POST',
           crossDomain: true,
           data: JSON.stringify(data),
           dataType: 'json',
           success: function(data){
-            	console.log(JSON.stringify(data));
-    			$('#exportPsudoLink').attr('href', data).trigger('click');
-            	$.unblockUI();
+              console.log(JSON.stringify(data));
+          $('#exportPsudoLink').attr('href', data).trigger('click');
+              $.unblockUI();
 
           },
           error: function(){
@@ -404,7 +418,7 @@
   }
 
   function prepareData(data1,data2){
-  	var i;
+    var i;
     var x;
     var myArray1 = data1["orders"];
     var myArray2 = data2["results"];
@@ -412,7 +426,7 @@
       for (x = 0; x < myArray2.length; x++) {
         data1["orders"][i]["printer_company"] = '';
         if( myArray1[i]["printer_id"] == myArray2[x]["id"]){
-      		data1["orders"][i]["printer_company"] = myArray2[x]["company"];
+          data1["orders"][i]["printer_company"] = myArray2[x]["company"];
         }
       }
       data1["orders"][i]["payment_code"] = '';
@@ -423,12 +437,12 @@
   }
 
   function agedExport(){
-	freez();
+  freez();
     $.ajax({
-      url: '/apps/pepsi-print/collection_response/job_aged_reports.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}',
+      url: '/apps/pepsi-print/fs_collection_response/job_aged_reports.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}',
       type: 'GET',
-//       data: data,
-//       dataType: 'json',
+      // data: data,
+      // dataType: 'json',
       success: function(data){
         console.log(JSON.stringify(data));
         $.unblockUI(); show_message3('Report file will be mailed to {{ customer.email }}.',true);
@@ -442,9 +456,9 @@
   }
 
   function exportLarge(data){
-	freez();
+  freez();
     $.ajax({
-      url: '/apps/pepsi-print/collection_response/job_print_orders.json',
+      url: '/apps/pepsi-print/fs_collection_response/job_print_orders.json',
       type: 'GET',
       data: data,
       dataType: 'json',
@@ -462,29 +476,62 @@
 
   function windowPrint(){
     $.when(
-      $('{% unless customer.tags contains Role_Printer %}header .grid--full:not(:nth-of-type(1)),{% endunless %} .header-bar, .printModeExclude:visible, footer').hide().toggleClass('visible'),
+      {% capture beforePrint %}
+      $('{% unless customer_role_tag == Role_Printer %}header .grid--full:not(:nth-of-type(1)),{% endunless %} .header-bar, .printModeExclude:visible, footer').hide().toggleClass('visible'),
       $('.site-header__logo img').css('margin','0 0'),
 
       $('#address-hidden, #id01').css({ 'position':'relative', 'bottom':'80px'}),
       $('.printModeInclude').toggleClass('hide'),
-        $('.print-one-whole').toggleClass('one-whole {% if customer.tags contains Role_ASM %}three-quarters{% else %}two-thirds{% endif %}'),
+        $('.print-one-whole').toggleClass('one-whole {% if customer_role_tag == Role_ASM %}three-quarters{% else %}two-thirds{% endif %}'),
       $('.th-span').toggleClass('th-span th-spaned')
-
+      {% endcapture %}
     ).done(function(){
-    	setTimeout(window.print(), 10);
+      setTimeout(window.print(), 10);
     });
 
     {% comment %}{% endcomment %}
-    $('{% unless customer.tags contains Role_Printer %}header .grid--full:not(:nth-of-type(1)),{% endunless %} .header-bar, .printModeExclude.visible, footer').show().toggleClass('visible');
+    {% capture afterPrint %}
+    $('{% unless customer_role_tag == Role_Printer %}header .grid--full:not(:nth-of-type(1)),{% endunless %} .header-bar, .printModeExclude.visible, footer').show().toggleClass('visible');
     $('.site-header__logo img').css('margin','0 auto');
     $('.site-header__logo').toggleClass('w3-col s3');
 
     $('.printModeInclude').toggleClass('hide');
-      $('.print-one-whole').toggleClass('one-whole {% if customer.tags contains Role_ASM %}three-quarters{% else %}two-thirds{% endif %}');
-    $('.th-span').toggleClass('th-span th-spaned');
-
+      $('.print-one-whole').toggleClass('one-whole {% if customer_role_tag == Role_ASM %}three-quarters{% else %}two-thirds{% endif %}');
+    $('.th-spaned').toggleClass('th-span th-spaned');
+    {% endcapture %}
 
   }
+
+  bprint = aprint = false;
+
+  (function() {
+    var beforePrint = function() {
+      if(!bprint){ bprint = true; aprint = false;
+        console.log('Functionality to run before printing.');
+        {{ beforePrint }}
+      }
+    };
+    var afterPrint = function() {
+      if(!aprint){ aprint = true; bprint = false;
+        console.log('Functionality to run after printing');
+        {{ afterPrint }}
+      }
+    };
+
+    if (window.matchMedia) {
+        var mediaQueryList = window.matchMedia('print');
+        mediaQueryList.addListener(function(mql) {
+            if (mql.matches) {
+                beforePrint();
+            } else {
+                afterPrint();
+            }
+        });
+    }
+
+    window.onbeforeprint = beforePrint;
+    window.onafterprint = afterPrint;
+  }());
 </script>
 
 <style>
@@ -513,6 +560,14 @@
         content : "" ;
         height : 4px ;
         display : block ;
+    }
+
+    .assign-printer{
+      border: unset;
+      background-image: none;
+      background-color: transparent !important;
+      text-align: center;
+      text-align-last: center;
     }
 }
 

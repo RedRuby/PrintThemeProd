@@ -1,16 +1,21 @@
 {{ 'jquery.blockUI.js' | asset_url | script_tag }}
 
 <script type="text/javascript">
+    var loader_enable = false;
     function freez() {
         $.blockUI({ 
-            message: '<div id="freezTxt"></div>', 
-            overlayCSS: { backgroundColor: 'white' },
+            message: '<div id="freezTxt w3-transparent">'+((loader_enable) ? '<i class="fa fa-refresh fa-spin fa-2x w3-text-grey w3-margin w3-padding w3-opacity w3-transparent"></i>' : '')+'</div>', 
+            overlayCSS: { backgroundColor: 'white', cursor: 'wait' },
+            cursorReset: 'default', 
             css: { 
-                top:  ($(window).height() - 64) /2 + 'px', 
-                left: ($(window).width() - 64) /2 + 'px', 
+                top:  (window.innerHeight - 64) /2 + 'px', 
+                left: (window.innerWidth - 64) /2 + 'px', 
                 width: '64px',
                 border: 'none',
               	baseZ: 2043,
+                backgroundColor: 'transparent',
+                centerX: true,
+                centerY: true
             } 
         }); 
 
@@ -27,14 +32,14 @@
             css: { 
                 width: '350px',
                	height: '50px',
-                top: ($(window).height() - 60) + 'px', 
-                left: ($(window).width() - 350) /2 + 'px', 
+                top: (window.innerHeight - 60) + 'px', 
+                left: (window.innerWidth - 350) /2 + 'px', 
                 right: '', 
                 border: 'none', 
                 padding: '10px', 
                 backgroundColor: '{{ settings.color_topbar_bg }}', 
-                '-webkit-border-radius': '5px', 
-                '-moz-border-radius': '5px', 
+                '-webkit-border-radius': '2px', 
+                '-moz-border-radius': '2px', 
                 opacity: .9, 
                 color: '#fff',
               	baseZ: 2043,
@@ -42,30 +47,35 @@
         });
   }
   
-  function defreez(){$.unblockUI();} 
+  function defreez(){$.unblockUI(); $('.w3-loader').hide(); loader_enable = true;} 
   
   function show_message2(message,type,noreload){
   	$.blockUI({ 
-            message: '<div class="growlUI-added"><h3 class="flash-messg">'+message+'</h3></div>', 
-            fadeIn: 700, 
-            fadeOut: 700, 
-            timeout: 3000, 
+            message: '<div class="growlUI-added"><h3 class="flash-messg w3-margin-0">'+message+'</h3></div>', 
+            fadeIn: 0, 
+            fadeOut: 0, 
+            timeout: 5000, 
             showOverlay: false, 
+            blockMsgClass: 'animated bounceInUp fast notify-ui',
+            ignoreIfBlocked: false,
             css: { 
                 width: '350px',
                	minHeight: '50px',
-                top: ($(window).height() - 100) + 'px', 
-                left: ($(window).width() - 350) /2 + 'px', 
+                top: (window.innerHeight - 100) + 'px', 
+                left: (window.innerWidth - 350) /2 + 'px', 
                 right: '', 
                 border: 'none', 
                 padding: '10px', 
                 backgroundColor: (type)?'{{ settings.color_primary }}':'#e00513', 
-                '-webkit-border-radius': '5px', 
-                '-moz-border-radius': '5px', 
+                '-webkit-border-radius': '2px', 
+                '-moz-border-radius': '2px', 
                 
                 color: '#fff',
               	baseZ: 2043,
               	boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+            },
+            onBlock: function() {
+              setTimeout(function(){ $('.notify-ui').toggleClass('bounceInUp bounceOutDown'); }, 4500);
             },
            	onUnblock:	function(){
                        if(!type && !noreload){
@@ -85,14 +95,14 @@
             css: { 
                 width: '350px',
                	minHeight: '50px',
-                top: ($(window).height() - 100) + 'px', 
-                left: ($(window).width() - 350) /2 + 'px', 
+                top: (window.innerHeight - 100) + 'px', 
+                left: (window.innerWidth - 350) /2 + 'px', 
                 right: '', 
                 border: 'none', 
                 padding: '10px', 
                 backgroundColor: (type)?'{{ settings.color_primary }}':'{{ settings.color_primary }}', 
-                '-webkit-border-radius': '5px', 
-                '-moz-border-radius': '5px', 
+                '-webkit-border-radius': '2px', 
+                '-moz-border-radius': '2px', 
                 
                 color: '#fff',
               	baseZ: 2043,
@@ -106,7 +116,7 @@
         });
   }
   
-  function show_message4(message,type,mssg2){
+  function show_message41(message,type,mssg2){
   	$.blockUI({ 
       message: '<div class="growlUI-added" style="z-index:2043;"><h3 class="flash-messg w3-large">'+message+'</h3></div>', 
             fadeIn: 700, 
@@ -116,20 +126,56 @@
             css: { 
                 width: '350px',
                	minHeight: '50px',
-                top: ($(window).height() - 100) + 'px', 
-                left: ($(window).width() - 350) /2 + 'px', 
+                top: (window.innerHeight - 100) + 'px', 
+                left: (window.innerWidth - 350) /2 + 'px', 
                 right: '', 
                 border: 'none', 
                 padding: '10px', 
                 backgroundColor: (type)?'{{ settings.color_primary }}':'#e00513', 
-                '-webkit-border-radius': '5px', 
-                '-moz-border-radius': '5px', 
+                '-webkit-border-radius': '2px', 
+                '-moz-border-radius': '2px', 
                 
                 color: '#fff',
               	baseZ: 10045,
               	boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
             },
            	onUnblock:	function(){
+                       if(!type && mssg2){
+                          show_message4(mssg2, true);
+                       }
+            }
+        });
+  }
+
+  function show_message4(message,type,mssg2){
+    $.blockUI({ 
+            message: '<div class="growlUI-added"><h3 class="flash-messg w3-margin-0">'+message+'</h3></div>', 
+            fadeIn: 0, 
+            fadeOut: 0, 
+            timeout: 7000, 
+            showOverlay: false, 
+            blockMsgClass: 'animated bounceInUp fast notify-ui',
+            ignoreIfBlocked: false,
+            css: { 
+                width: '350px',
+                minHeight: '50px',
+                top: (window.innerHeight - 100) + 'px', 
+                left: (window.innerWidth - 350) /2 + 'px', 
+                right: '', 
+                border: 'none', 
+                padding: '10px', 
+                backgroundColor: (type)?'{{ settings.color_primary }}':'#e00513', 
+                '-webkit-border-radius': '2px', 
+                '-moz-border-radius': '2px', 
+                
+                color: '#fff',
+                baseZ: 2043,
+                boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+            },
+            onBlock: function() {
+              setTimeout(function(){ $('.notify-ui').toggleClass('bounceInUp bounceOutDown'); }, 6500);
+            },
+            onUnblock:  function(){
                        if(!type && mssg2){
                           show_message4(mssg2, true);
                        }

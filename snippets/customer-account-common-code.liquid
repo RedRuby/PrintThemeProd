@@ -1,4 +1,4 @@
-{% if customer  %}
+{% if customer %}
 
   {% assign Role_User = 'general.Role.User' | t %}
   {% assign Role_Printer = 'general.Role.Printer' | t %}
@@ -12,6 +12,10 @@
   {% assign Role_NSM = 'general.FSRole.NSM' | t %}
   {% assign Role_FSAdmin = 'general.FSRole.FSAdmin' | t %}
 
+{% else %}
+  {% unless customer-account-common-code == "shop-check" %}
+    {% include "customer-account-common-code" with "shop-check" %}
+  {% endunless %}
 {% endif %}
 
 
@@ -27,7 +31,7 @@
     {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
     {% assign region_External = "general.Region_Tags.External" | t %}
 
-    {% if customer.tags contains region_NorthEast or customer.tags contains region_SouthEast or customer.tags contains region_Mountain or customer.tags contains region_California or customer.tags contains region_South or customer.tags contains region_MidWest or customer.tags contains region_MidAtlantic or customer.tags contains region_GreatLakes %}
+    {% if customer.tags contains region_NorthEast or customer.tags contains region_SouthEast or customer.tags contains region_Mountain or customer.tags contains region_California or customer.tags contains region_South or customer.tags contains region_MidWest or customer.tags contains region_MidAtlantic or customer.tags contains region_GreatLakes or customer.tags contains region_External %}
       {% if customer.tags contains region_NorthEast %}
         {% assign customer_region_tag = region_NorthEast %}
       {% elsif customer.tags contains region_SouthEast %}
@@ -44,6 +48,8 @@
         {% assign customer_region_tag = region_MidWest %}
       {% elsif customer.tags contains region_GreatLakes %}
         {% assign customer_region_tag = region_GreatLakes %}
+      {% elsif customer.tags contains region_External %}
+        {% assign customer_region_tag = region_External %}
       {% endif %}
 
     {% else %}
@@ -67,38 +73,89 @@
     {% endunless %}
 
   {% endif %}
-
+  <script type="text/javascript">console.log('role:{{ customer_role_tag }}, region:{{ customer_region_tag }}');</script>
   {% if template contains 'collection' and collection.handle %}
     {% unless collection.title contains customer_region_tag %} {% assign no_access = true %} {% assign collec = true %} {% endunless %}
     {% if template contains 'my-products' %}
-      {% unless customer.tags contains Role_ASM %}{% assign no_access = true %} {% endunless %}
+      {% unless customer_role_tag == Role_ASM %}{% assign no_access = true %} {% endunless %}
     {% endif %}
   {% elsif template contains 'product' %}
-    {% unless customer.tags contains Role_ASM %}
+    {% unless customer_role_tag == Role_ASM %}
       {% unless product.tags contains customer_region_tag %} {% assign no_access = true %} {% assign prod = true %} {% endunless %}
+    {% endunless %}
+    {% unless fs_shop_active %}
+      {% if product.type == 'MOD' %}{% assign no_access = true %} {% assign prod = true %}{% endif %}
     {% endunless %}
   {% endif %}
 
-  {% if customer.tags contains Role_Printer %}
-    {% unless template contains 'customers/account' or template contains 'customers/addresses' or template contains 'page.order' or template contains 'page.error' or template contains 'page.welcome' or template contains 'page.contact-us' %}
-        {% assign no_access = false %}
+  {% if collec == true and fs_shop_active and collection.handle == 'mod' %}
+    {% assign no_access = false %} {% assign collec = false %}
+  {% elsif prod == true and fs_shop_active and collection.handle == 'mod' %}
+    {% assign no_access = false %} {% assign prod = false %}
+  {% endif %}
+
+  {% if customer_role_tag == Role_Printer or customer_role_tag == Role_Designer or customer_role_tag == Role_NSM or customer_role_tag == Role_ANSM or customer_role_tag == Role_FSManager %}
+    {% unless template contains 'customers/account' or template contains 'customers/addresses' or template contains 'page.order' or template contains 'page.error' or template contains 'page.welcome' or template contains 'page.contact-us' or template contains 'page.no-access' %}
+      {% assign no_access = false %}
+      {% assign no_region = false %}
     {% endunless %}
 
-    {% if customer.tags contains 'Region:External' %}
-    {% assign no_region = false %}
+    {% if customer_region_tag == region_External %}
+      {% assign no_region = false %}
     {% endif %}
   {% endif %}
 
-  {% if customer.tags contains Role_Admin or fs_shop_active %}
-      {% assign no_region = false %}
+  {% if customer_role_tag == Role_Admin or customer_role_tag == Role_FSAdmin or fs_shop_active1 or template contains 'page.no-access' %}
+    {% assign no_region = false %}
     {% assign no_access = false %}
   {% endif %}
 {% endif %}
 
 
 {% if customer-account-common-code == 'shop-check' %}
-  {% if customer_has_fs and cart.attributes["shop"] == "fs" or fs_shop_active %}
+
+  {% assign shop_url_retail = 'general.shop_url.retail' | t %}
+  {% assign shop_url_fs = 'general.shop_url.fs' | t %}
+
+  {%- capture CFH -%}{{ content_for_header }}{%- endcapture -%}
+  {%- assign pageUrl = CFH | split:'"pageurl":"' | last | split:'"' | first |
+   replace:'\/','/' | 
+   replace:'%20',' ' | 
+   replace:'\u0026','&'
+  -%}
+
+  {% unless customer %}
+    {% if pageUrl contains shop_url_fs %}
+      {% assign fs_shop_active = true %}
+    {% endif %}
+  {% endunless %}
+
+  {% if customer_has_fs and pageUrl contains shop_url_fs %}
     {% assign fs_shop_active = true %}
+  {% elsif customer_has_retail and pageUrl contains shop_url_retail and fs_shop_active != true %}
+    
+  {% elsif customer_has_fs and pageUrl contains shop_url_retail %}
+    {% assign cross_shop_req_url = shop_url_fs %}
+  {% elsif customer_has_retail and pageUrl contains shop_url_fs %}
+    {% assign cross_shop_req_url = shop_url_retail %}
+  {% endif %}
+
+  {% assign Admin_logged_in = false %}
+
+  {% if CFH contains 'admin_bar_iframe' 
+      or CFH contains 'shopify-previewed-theme' 
+      or CFH contains 'Shopify.designMode = true'%}
+    {% assign Admin_logged_in = true %}
+    {% if cart.attributes['shop'] == "FS" %}
+      {% assign fs_shop_active = true %}
+      {% assign cross_shop_req_url = false %}
+    {% endif %}
+  {% endif %}
+
+  {% if fs_shop_active %}
+    {% assign current_shop_url = shop_url_fs %}
+  {% else %}
+    {% assign current_shop_url = shop_url_retail %}
   {% endif %}
 {% endif %}
 
@@ -115,15 +172,17 @@
     {% assign customer_role_tag = Role_NSM %}
   {% elsif customer.tags contains Role_FSAdmin %}
     {% assign customer_role_tag = Role_FSAdmin %}
-    {% assign collection_handle = 'all' %}
+    {% comment %}{% assign collection_handle = 'all' %}{% endcomment %}
   {% endif %}
 
   {% if customer_role_tag %}
     {% assign customer_has_fs = true %}
     {% unless customer_has_retail %}
       {% assign fs_shop_active = true %}
+      {% comment %}{% assign collection_handle = "mod" %}{% endcomment %}
     {% endunless %} 
   {% endif %}
+  {% assign collection_handle = 'mod' %}
 {% endif %}
 
 
@@ -146,20 +205,91 @@
   {% endif %}
 
   {% if customer_role_tag %}
-    {% if customer.tags contains Role_ASM %}
+    {% if customer_role_tag == Role_ASM %}
       {% assign collection_handle = collection.handle %}
       {% unless collection %}
           {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-my-products' %}
       {% endunless %}
-    {% elsif customer.tags contains Role_Admin %}
+    {% elsif customer_role_tag == Role_Admin %}
       {% assign collection_handle = 'all' %}
-    {% elsif customer.tags contains Role_User or customer.tags contains Role_Manager %}
+    {% elsif customer_role_tag == Role_User or customer_role_tag == Role_Manager %}
       {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-products' %}
       {% assign non_asm = true %}
     {% endif %}
 
     {% assign customer_has_retail = true %}
   {% endif %}
+{% endif %}
+
+
+{% if customer-account-common-code == 'access-rights-fs' %}
+  {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_FSManager1 or customer_role_tag == Role_Designer or customer_role_tag == Role_FSAdmin %}
+    {% assign can_review = true %}
+  {% endif %}
+
+  {% if customer_role_tag == Role_NSM or customer_role_tag == Role_Designer or customer_role_tag == Role_ANSM %}
+    {% assign can_fulfill = true %}
+  {% endif %}
+
+  {% if customer_role_tag == Role_NSM or customer_role_tag == Role_Designer or customer_role_tag == Role_FSAdmin %}
+    {% assign can_edit = true %}
+  {% endif %}
+
+  {% if customer_role_tag == Role_NSM or customer_role_tag == Role_Designer or customer_role_tag == Role_FSAdmin or customer_role_tag == Role_FSManager %}
+    {% assign can_cancel = true %}
+  {% endif %}
+
+  {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_FSManager %}
+    {% assign can_reorder = true %}
+  {% endif %}
+  
+  {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_FSAdmin or customer_role_tag == Role_FSManager %}
+    {% assign can_order = true %}
+  {% endif %}
+{% endif %}
+
+
+{% if customer-account-common-code == 'order-search-bar' %}
+  <small class="nbsp-hide"><label for="">&nbsp;</label></small>
+  <form action="/" method="get" class="header-bar__search-form clearfix printModeExclude header-search-fs placeholdLoader" onsubmit="event.preventDefault(); updateState({ search: $('#search').val(), page: '1' });" role="search" style="margin: 0 10px 0 0; position: relative; z-index: 9">
+    <button type="submit" class="btn icon-fallback-text header-bar__search-submit1" style="position: absolute; right: 0; background: transparent; color: black !important;">
+      <i class="icon icon-search" aria-hidden="true" style="font-size: 16px; padding-top: 0px;"></i>
+    </button>
+    <input type="search" id="search" required="" aria-label="Search" class="header-bar__search-input" placeholder="Search Orders" onchange="$(this).parent().submit();" style="margin: 0; padding: 0 30px 0 15px; border: 1px solid #aaa; height: 37.5px">
+  </form>
+{% endif %}
+
+
+{% if customer-account-common-code == 'address-search-bar' %}
+  <form action="/" method="get" class="header-bar__search-form clearfix printModeExclude header-search-fs" onsubmit="event.preventDefault(); updateState({ search: $('#search').val(), page: '1' });" role="search" style="position: relative; z-index: 9">
+    <button type="submit" class="btn icon-fallback-text header-bar__search-submit1" style="position: absolute; right: 0; background: transparent; color: black !important; min-width: 0px !important; outline: none !important;">
+      <i class="icon icon-search" aria-hidden="true" style="font-size: 16px; padding-top: 0px;"></i>
+    </button>
+    <input type="search" id="search" required="" aria-label="Search" class="header-bar__search-input" placeholder="Search Customers" onchange="$(this).parent().submit();" style="margin: 0; padding: 0 30px 0 15px; border: 1px solid #aaa; height: 37.5px">
+  </form>
+  <p></p>
+{% endif %}
+
+
+
+{% if customer-account-common-code == 'order-status-option-code-fs' %}
+  {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_FSManager or customer_role_tag == Role_FSAdmin or customer_role_tag == Role_NSM %}
+    <option value="Order Not Assigned" filter_attr="order_status">{% if customer_role_tag == Role_NSM %}Needs Designer{% else %}Order Not Assigned{% endif %}</option>
+  {% endif %}
+  
+  {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_Designer %}
+    <option value="Order Assigned" filter_attr="order_status">{% if customer_role_tag == Role_FSUser %}Proofs Needed{% else %}Needs Proof{% endif %}</option>
+    <option value="Needs Proof Review" filter_attr="order_status">{% if customer_role_tag == Role_FSUser %}Needs Proof Review{% else %}Proofs in Review{% endif %}</option>
+    <option value="Proofs Being Revised" filter_attr="order_status">{% if customer_role_tag == Role_FSUser %}Proofs Being Revised{% else %}Edits Needed{% endif %}</option>
+  {% else %}
+    <option value="Order Assigned" filter_attr="order_status">Order Assigned</option>
+    <option value="Needs Approval" filter_attr="order_status">Needs Approval</option>
+  {% endif %}
+
+  <option value="In Production" filter_attr="order_status">In Production</option>
+  <option value="fulfilled" filter_attr="order_status">Fulfilled</option>
+  {% comment %}<option value="Unfulfilled">Unfulfilled</option>{% endcomment %}
+  <option value="Cancelled" filter_attr="order_status">Cancelled</option>
 {% endif %}
 
 
@@ -173,17 +303,51 @@
 
 
 
+
+{% if customer-account-common-code == 'table-header-code-fs' %}
+
+  <th class="text-center placeholdLoader"><span class="th-span">{{ 'customer.orders.order_number' | t }}</span><div class="btn-group printModeExclude"><button type="button" class="name_asc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_name: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="name_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_name: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div></th>
+  
+  {% unless customer_role_tag == Role_FSUser %}
+  <th class="text-center placeholdLoader"><span class="th-span">Order By</span><div class="btn-group printModeExclude"><button type="button" class="order_by_asc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_order_by: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="order_by_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_order_by: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div></th>
+  {% endunless %}
+
+
+  {% if customer_role_tag == Role_FSUser %}
+  <th class="text-center placeholdLoader"><span class="th-span1">{{ 'Customer Name' }}</span>{% comment %}<div class="btn-group printModeExclude"><button type="button" class="division_asc_btn" onclick1="updateState(Object.assign(order_by_params,{order_by_division: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="division_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_division: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div>{% endcomment %}</th> 
+
+  <th class="text-center placeholdLoader"><span class="th-span1">{{ 'Spend' }}</span>{% comment %}<div class="btn-group printModeExclude"><button type="button" class="division_asc_btn" onclick1="updateState(Object.assign(order_by_params,{order_by_division: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="division_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_division: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div>{% endcomment %}</th> 
+  {% endif %}
+
+
+  {% unless customer_role_tag == Role_Designer %}
+  <th class="text-center placeholdLoader"><span class="th-span">Payment Code</span><div class="btn-group printModeExclude"><button type="button" class="discount_codes_asc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_discount_codes: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="discount_codes_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_discount_codes: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div></th>
+  {% endunless %}
+
+  <th class="text-center placeholdLoader"><span class="th-span">{{ 'customer.orders.date' | t }}</span><div class="btn-group printModeExclude"><button type="button" class="date_asc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_date: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="date_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_date: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div></th>
+  
+  {% if customer_role_tag == Role_FSAdmin or customer_role_tag == Role_NSM %}
+  <th class="text-center placeholdLoader"><span class="th-span1">{{ 'Region' }}</span>{% comment %}<div class="btn-group printModeExclude"><button type="button" class="division_asc_btn" onclick1="updateState(Object.assign(order_by_params,{order_by_division: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="division_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_division: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div>{% endcomment %}</th>  
+
+  <th class="text-center placeholdLoader"><span class="th-span">{{ 'Division' }}</span><div class="btn-group printModeExclude"><button type="button" class="division_asc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_division: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="division_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_division: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div></th>
+
+  <th class="text-center placeholdLoader"><span class="th-span">{{ 'Channel' }}</span><div class="btn-group printModeExclude"><button type="button" class="channel_asc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_channel: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="channel_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_channel: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div></th>
+  {% endif %}
+  <th class="text-center placeholdLoader"><span class="th-span">{{ 'Status' }}</span><div class="btn-group printModeExclude"><button type="button" class="status_asc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_status: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="status_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_status: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div></th>
+{% endif %}
+
+
 {% if customer-account-common-code == 'pagination-code' %}
 
-  <div class="grid per_pageContainer">
+  <div class="grid per_pageContainer printModeExclude">
     <div class="grid__item two-thirds">
       <div id="paginationInit" class="w3-margin-top">
 
       </div>
     </div>
     <div class="grid__item one-third text-right">
-      <label for="per_page" style="display:inline-block;" class="w3-margin-top">Per Page: &nbsp;</label>
-      <select id="per_page" class="per_page" style="max-width:60px; display:inline-block;" onchange="updateState({page: '1',per_page: this.value});updatePerPage(this.value);">
+      <label for="per_page" style="display:inline-block;" class="w3-margin-top"><div class="placeholdLoader">Per Page: &nbsp;</div></label>
+      <select id="per_page" class="per_page placeholdLoader" style="max-width:60px; display:inline-block;" onchange="updateState({page: '1',per_page: this.value});updatePerPage(this.value);">
         <option selected value='10'>10</option>
         <option {% if customer_per_page == '20' %}selected{% endif %} value='20'>20</option>
         <option {% if customer_per_page == '30' %}selected{% endif %} value='30'>30</option>
@@ -197,7 +361,19 @@
 
 
 
+{% if customer-account-common-code == 'order-loader' %}
+  <div class="text-center  w3-margin w3-padding w3-loader">
+    <i class="fa fa-refresh fa-spin fa-2x w3-text-grey w3-margin w3-padding"></i>
+    <br><br><br>
+  </div>
+{% endif %}
+
+
+
 {% if customer-account-common-code == 'per-page-form' %}
+  {% if fs_shop_active and false %}
+    {% include 'customer-account-common-code' with 'order-loader' %}
+  {% endif %}
 
   <div class="hide">
     <form target="shop-frame" accept-charset="UTF-8" id="per-page" action="/contact" class="contact-form" method="post">
@@ -238,6 +414,8 @@
   var var_customer_id = '';
   var var_order_status = '';
 
+  var order_by_params = {order_by_name: '', order_by_order_by: '', order_by_discount_codes: '', order_by_date: '', order_by_division: '', order_by_channel: '', order_by_status: ''};
+
   var order_data = '';
 
   var query = '';
@@ -249,7 +427,39 @@
 {% endif %}
 
 
+{% if customer-account-common-code == 'init-variables-fs' %}
 
+  var var_start_date = '';
+  var var_end_date = '';
+  var var_page = '1';
+  var var_per_page = (localStorage.per_page_{{ customer.id }} == undefined) ? '10' : localStorage.per_page_{{ customer.id }};
+  var var_status = '';
+  var var_order_by_name = '';
+  var var_order_by_order_by = '';
+  var var_order_by_discount_codes = '';
+  var var_order_by_date = 'DESC';
+  var var_order_by_status = '';
+  var var_order_by_channel = '';
+  var var_order_by_division = '';
+  var var_assigned_designer = '';
+  var var_region_tag = '';
+  var var_customer_id = '';
+  var var_order_status = '';
+  var var_search = '';
+
+  var order_by_params = {order_by_name: '', order_by_order_by: '', order_by_discount_codes: '', order_by_date: '', order_by_division: '', order_by_channel: '', order_by_status: ''};
+
+  order_by_params_bkp = Object.assign({}, order_by_params);
+
+  var order_data = '';
+
+  var query = '';
+
+  var bemail = '';
+
+  var ctags = '{{ customer.tags |join:',' |remove:'PerPage:10' |remove:'PerPage:20' |remove:'PerPage:30' |remove:'PerPage:40' |remove:'PerPage:50' |replace:' ','~' |replace:',',' ' |strip |replace:' ',',' |replace:'~',' ' }}';
+
+{% endif %}
 
 
 {% if customer-account-common-code == 'doc-ready-code' %}
@@ -295,15 +505,30 @@
     var_page = (query.page != undefined) ? query.page : '1';
     var_per_page = (query.per_page != undefined) ? query.per_page : (localStorage.per_page_{{ customer.id }} == undefined) ? '10' : localStorage.per_page_{{ customer.id }};
     var_fulfillment_status = (query.fulfillment_status != undefined) ? query.fulfillment_status : '';
+
+    {% comment %}
     var_order_by_name = (query.order_by_name != undefined) ? query.order_by_name : '';
-	var_order_by_order_by = (query.order_by_order_by != undefined) ? query.order_by_order_by : '';
+    var_order_by_order_by = (query.order_by_order_by != undefined) ? query.order_by_order_by : '';
     var_order_by_discount_codes = (query.order_by_discount_codes != undefined) ? query.order_by_discount_codes : '';
     var_order_by_date = (query.order_by_date != undefined) ? query.order_by_date : '';
     var_order_by_fulfillment_status = (query.order_by_fulfillment_status != undefined) ? query.order_by_fulfillment_status : '';
-	var_assigned_printer = (query.assigned_printer != undefined) ? query.assigned_printer : '';
-	var_region_tag = (query.region_tag != undefined) ? query.region_tag : '';
-    var_customer_id = (query.customer_id != undefined) ? query.customer_id : {% if customer.tags contains Role_User %}'{{ customer.id }}'{% else %}''{% endif %};
-	var_order_status = (query.order_status != undefined) ? query.order_status : '';
+    {% endcomment %}
+
+    $.each("name,order_by,discount_codes,date,fulfillment_status".split(','), function(index, order_by){
+      window['var_order_by_'+order_by] = (query['order_by_'+order_by] != undefined) ? query['order_by_'+order_by] : '';
+    });
+
+  	var_assigned_printer = (query.assigned_printer != undefined) ? query.assigned_printer : '';
+    if(Boolean(var_fulfillment_status) || Boolean(var_assigned_printer)){
+      $("[name='exportType'][value='filtered']").removeAttr("disabled").parent().removeClass("w3-text-grey");
+    }else{
+      $("[name='exportType'][value='filtered']").prop("disabled","disabled").parent().addClass("w3-text-grey");
+      $("[name='exportType']").first().prop("checked","checked");
+    }
+  	var_region_tag = (query.region_tag != undefined) ? query.region_tag : '';
+      var_customer_id = (query.customer_id != undefined) ? query.customer_id : {% if customer_role_tag == Role_User %}'{{ customer.id }}'{% else %}''{% endif %};
+    var_order_status = (query.order_status != undefined) ? query.order_status : '';
+    var_search = (query.search != undefined) ? query.search : '';
 
     freez();
     var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
@@ -312,17 +537,94 @@
     if(var_page.length != 0){ data.page = var_page }
     if(var_per_page.length != 0){ data.per_page = var_per_page; $('.per_page option[value="'+var_per_page+'"]').prop('selected','selected'); }
     if(var_fulfillment_status.length != 0){ data.fulfillment_status = var_fulfillment_status; $('#select_tl option[value="'+var_fulfillment_status+'"]').prop('selected','selected'); }
+
+    {% comment %}
     if(var_order_by_name.length != 0){ data.order_by_name = var_order_by_name; toggleOrderBtns('name', data.order_by_name); }
-	if(var_order_by_order_by.length != 0){ data.order_by_order_by = var_order_by_order_by; toggleOrderBtns('order_by', data.order_by_order_by); }
+    if(var_order_by_order_by.length != 0){ data.order_by_order_by = var_order_by_order_by; toggleOrderBtns('order_by', data.order_by_order_by); }
     if(var_order_by_discount_codes.length != 0){ data.order_by_discount_codes = var_order_by_discount_codes; toggleOrderBtns('discount_codes', data.order_by_discount_codes); }
     if(var_order_by_date.length != 0){ data.order_by_date = var_order_by_date; toggleOrderBtns('date', data.order_by_date); }
     if(var_order_by_fulfillment_status.length != 0){ data.order_by_fulfillment_status = var_order_by_fulfillment_status; toggleOrderBtns('fulfillment_status', data.order_by_fulfillment_status); }
-	if(var_assigned_printer.length != 0){ data.assigned_printer = var_assigned_printer; $('#select_tl option[value="'+var_assigned_printer+'"]').prop('selected','selected'); }
-	if(var_region_tag.length != 0){ data.region_tag = var_region_tag; $('#select_rg option[value="'+var_region_tag+'"]').prop('selected','selected'); }
-	if(var_customer_id.length != 0){ data.customer_id = var_customer_id; $('#select_rg option[value="'+var_customer_id+'"]').prop('selected','selected'); }
-	if(var_order_status.length != 0){ data.order_status = var_order_status; $('#select_tl option[value="'+var_order_status+'"]').prop('selected','selected'); }
+    {% endcomment %}
 
-	console.log(JSON.stringify(data));
+    $.each("name,order_by,discount_codes,date,fulfillment_status".split(','), function(index, order_by){
+      if(window['var_order_by_'+order_by].length != 0){ data['order_by_'+order_by] = window['var_order_by_'+order_by]; toggleOrderBtns(order_by, data['order_by_'+order_by]); }
+    });
+
+  	if(var_assigned_printer.length != 0){ data.assigned_printer = var_assigned_printer; $('#select_tl option[value="'+var_assigned_printer+'"]').prop('selected','selected'); }
+  	if(var_region_tag.length != 0){ data.region_tag = var_region_tag; $('#select_rg option[value="'+var_region_tag+'"]').prop('selected','selected'); }
+  	if(var_customer_id.length != 0){ data.customer_id = var_customer_id; $('#select_rg option[value="'+var_customer_id+'"]').prop('selected','selected'); }
+  	if(var_order_status.length != 0){ data.order_status = var_order_status; $('#select_tl option[value="'+var_order_status+'"]').prop('selected','selected'); }
+    if(var_search.length != 0){ data.search = var_search; $('#search').val(var_search); }
+
+  	{% comment %}console.log(JSON.stringify(data));{% endcomment %}
+
+{% endif %}
+
+
+
+{% if customer-account-common-code == 'fetchOrders-code-fs' %}
+
+    var uri = new YouAreI(document.location.href);
+        query = uri.query_get();
+
+
+    var_start_date = (query.start_date != undefined) ? query.start_date : '';
+    var_end_date = (query.end_date != undefined) ? query.end_date : '';
+    var_page = (query.page != undefined) ? query.page : '1';
+    var_per_page = (query.per_page != undefined) ? query.per_page : (localStorage.per_page_{{ customer.id }} == undefined) ? '10' : localStorage.per_page_{{ customer.id }};
+    var_status = (query.status != undefined) ? query.status : '';
+
+    {% comment %}
+    var_order_by_name = (query.order_by_name != undefined) ? query.order_by_name : '';
+    var_order_by_order_by = (query.order_by_order_by != undefined) ? query.order_by_order_by : '';
+    var_order_by_discount_codes = (query.order_by_discount_codes != undefined) ? query.order_by_discount_codes : '';
+    var_order_by_date = (query.order_by_date != undefined) ? query.order_by_date : '';
+    var_order_by_status = (query.order_by_status != undefined) ? query.order_by_status : '';
+    {% endcomment %}
+
+    $.each("name,order_by,discount_codes,date,status,division,channel".split(','), function(index, order_by){
+      window['var_order_by_'+order_by] = (query['order_by_'+order_by] != undefined) ? query['order_by_'+order_by] : '';
+    });
+
+    var_assigned_designer = (query.assigned_designer != undefined) ? query.assigned_designer : '';
+    if(Boolean(var_status) || Boolean(var_assigned_designer)){
+      $("[name='exportType'][value='filtered']").removeAttr("disabled").parent().removeClass("w3-text-grey");
+    }else{
+      $("[name='exportType'][value='filtered']").prop("disabled","disabled").parent().addClass("w3-text-grey");
+      $("[name='exportType']").first().prop("checked","checked");
+    }
+    var_region_tag = (query.region_tag != undefined) ? query.region_tag : '';
+      var_customer_id = (query.customer_id != undefined) ? query.customer_id : {% if customer_role_tag == Role_User %}'{{ customer.id }}'{% else %}''{% endif %};
+    var_order_status = (query.order_status != undefined) ? query.order_status : '';
+    var_search = (query.search != undefined) ? query.search : '';
+
+    {% comment %}freez();{% endcomment %}
+    var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
+
+    if(var_start_date.length != 0 && var_end_date.length != 0){ data.start_date = var_start_date; data.end_date = var_end_date; setTimeout(function(){ $('#start_date').val(var_start_date); $('#end_date').val(var_end_date); $('.clear-filter').removeAttr('disabled').attr('title', 'Clear date filter.').show(); },500); $('#radio2').removeAttr('disabled').removeAttr('disabled').parent().removeClass('w3-text-grey'); }
+    if(var_page.length != 0){ data.page = var_page }
+    if(var_per_page.length != 0){ data.per_page = var_per_page; $('.per_page option[value="'+var_per_page+'"]').prop('selected','selected'); }
+    if(var_status.length != 0){ data.status = var_status; $('#select_tl option[value="'+var_status+'"]').prop('selected','selected'); }
+
+    {% comment %}
+    if(var_order_by_name.length != 0){ data.order_by_name = var_order_by_name; toggleOrderBtns('name', data.order_by_name); }
+    if(var_order_by_order_by.length != 0){ data.order_by_order_by = var_order_by_order_by; toggleOrderBtns('order_by', data.order_by_order_by); }
+    if(var_order_by_discount_codes.length != 0){ data.order_by_discount_codes = var_order_by_discount_codes; toggleOrderBtns('discount_codes', data.order_by_discount_codes); }
+    if(var_order_by_date.length != 0){ data.order_by_date = var_order_by_date; toggleOrderBtns('date', data.order_by_date); }
+    if(var_order_by_status.length != 0){ data.order_by_status = var_order_by_status; toggleOrderBtns('status', data.order_by_status); }
+    {% endcomment %}
+
+    $.each("name,order_by,discount_codes,date,status,channel,division".split(','), function(index, order_by){
+      if(window['var_order_by_'+order_by].length != 0){ data['order_by_'+order_by] = window['var_order_by_'+order_by]; toggleOrderBtns(order_by, data['order_by_'+order_by]); }
+    });
+
+    if(var_assigned_designer.length != 0){ data.assigned_designer = var_assigned_designer; $('#select_tl option[value="'+var_assigned_designer+'"]').prop('selected','selected'); }
+    if(var_region_tag.length != 0){ data.region_tag = var_region_tag; $('#select_rg option[value="'+var_region_tag+'"]').prop('selected','selected'); }
+    if(var_customer_id.length != 0){ data.customer_id = var_customer_id; $('#select_rg option[value="'+var_customer_id+'"]').prop('selected','selected'); }
+    if(var_order_status.length != 0){ data.order_status = var_order_status; $('#select_tl option[value="'+var_order_status+'"]').prop('selected','selected'); }
+    if(var_search.length != 0){ data.search = var_search; $('#search').val(var_search); }
+
+    console.log(JSON.stringify(data));
 
 {% endif %}
 
@@ -378,20 +680,30 @@
     if(param.page != undefined)data.page = param.page; else if(var_page.length != 0)data.page = var_page;
     if(param.per_page != undefined)data.per_page = param.per_page; else if(var_per_page.length != 0)data.per_page = var_per_page;
     if(param.fulfillment_status != undefined)data.fulfillment_status = param.fulfillment_status; else if(var_fulfillment_status.length != 0)data.fulfillment_status = var_fulfillment_status;
+
+
+    {% comment %}
     if(param.order_by_name != undefined)data.order_by_name = param.order_by_name; else if(var_order_by_name.length != 0)data.order_by_name = var_order_by_name;
     if(param.order_by_order_by != undefined)data.order_by_order_by = param.order_by_order_by; else if(var_order_by_order_by.length != 0)data.order_by_order_by = var_order_by_order_by;
     if(param.order_by_discount_codes != undefined)data.order_by_discount_codes = param.order_by_discount_codes; else if(var_order_by_discount_codes.length != 0)data.order_by_discount_codes = var_order_by_discount_codes;
     if(param.order_by_date != undefined)data.order_by_date = param.order_by_date; else if(var_order_by_date.length != 0)data.order_by_date = var_order_by_date;
     if(param.order_by_fulfillment_status != undefined)data.order_by_fulfillment_status = param.order_by_fulfillment_status; else if(var_order_by_fulfillment_status.length != 0)data.order_by_fulfillment_status = var_order_by_fulfillment_status;
+    {% endcomment %}
+
+
+    $.each("name,order_by,discount_codes,date,fulfillment_status".split(','), function(index, order_by){
+      if(param['order_by_'+order_by] != undefined)data['order_by_'+order_by] = param['order_by_'+order_by]; else if(var_order_by_name.length != 0)data['order_by_'+order_by] = window['var_order_by_'+order_by];
+    });    
+
     if(param.assigned_printer != undefined)data.assigned_printer = param.assigned_printer; else if(var_assigned_printer.length != 0)data.assigned_printer = var_assigned_printer;
     if(param.region_tag != undefined)data.region_tag = param.region_tag; else if(var_region_tag.length != 0)data.region_tag = var_region_tag;
     if(param.customer_id != undefined)data.customer_id = param.customer_id; else if(var_customer_id.length != 0)data.customer_id = var_customer_id;
     if(param.order_status != undefined)data.order_status = param.order_status; else if(var_order_status.length != 0)data.order_status = var_order_status;
+    if(param.search != undefined)data.search = param.search; else if(var_search.length != 0)data.search = var_search;
 
-
-//     console.log(JSON.stringify(data))
+    //     console.log(JSON.stringify(data))
     data = removeEmpty(data);
-//     console.log(JSON.stringify(data))
+    //     console.log(JSON.stringify(data))
 
     if(document.location.href == History.getState().url && false){
       History.replaceState({ url: document.location.href }, document.title, '?'+History.getState().url.split('?')[1]||'');
@@ -402,26 +714,29 @@
     fetch_Orders();
   }
 
-  function toggleOrderBtns(btn , data){ console.log('called-for:', data)
+  function toggleOrderBtns(btn , data){ console.log('called-for:', data); console.log('called-for:', btn);
     $('#table-style').html('');
-    switch(btn){
+
+    $('#table-style').append('<style>.'+btn+'_'+data.toLowerCase()+'_btn{ color: white !important; }</style>');
+
+    {% comment %}switch(btn){
       case 'name': if(data == 'ASC') $('#table-style').append('<style>.name_asc_btn{ color: white !important; }</style>'); else $('#table-style').append('<style>.name_desc_btn{ color: white !important; }</style>'); console.log('called-for:', btn); break;
       case 'order_by': if(data == 'ASC') $('#table-style').append('<style>.order_by_asc_btn{ color: white !important; }</style>'); else $('#table-style').append('<style>.order_by_desc_btn{ color: white !important; }</style>'); console.log('called-for:', btn); break;
       case 'discount_codes': if(data == 'ASC') $('#table-style').append('<style>.discount_codes_asc_btn{ color: white !important; }</style>'); else $('#table-style').append('<style>.discount_codes_desc_btn{ color: white !important; }</style>'); console.log('called-for:', btn); break;
       case 'date': if(data == 'ASC') $('#table-style').append('<style>.date_asc_btn{ color: white !important; }</style>'); else $('#table-style').append('<style>.date_desc_btn{ color: white !important; }</style>'); console.log('called-for:', btn); break;
       case 'fulfillment_status': if(data == 'ASC') $('#table-style').append('<style>.fulfillment_status_asc_btn{ color: white !important; }</style>'); else $('#table-style').append('<style>.fulfillment_status_desc_btn{ color: white !important; }</style>'); console.log('called-for:', btn); break;
-    }
+    }{% endcomment %}
   }
 
-{% comment %}
-  const removeEmpty = (obj) => {
-    Object.keys(obj).forEach(k =>
-      (obj[k] && typeof obj[k] === 'object') && removeEmpty(obj[k]) ||
-      (!obj[k] && obj[k] !== undefined) && delete obj[k]
-    );
-    return obj;
-  };
-{% endcomment %}
+  {% comment %}
+    const removeEmpty = (obj) => {
+      Object.keys(obj).forEach(k =>
+        (obj[k] && typeof obj[k] === 'object') && removeEmpty(obj[k]) ||
+        (!obj[k] && obj[k] !== undefined) && delete obj[k]
+      );
+      return obj;
+    };
+  {% endcomment %}
 
   function removeEmpty(obj) {
     Object.keys(obj).forEach(function(key) {
@@ -445,8 +760,8 @@
     {% if template == 'customers/account' %}
       for (i = 0; i < myArray.length; i++) {
           str = myArray[i]["total"];
-  //       	date = myArray[i]["date_unix"].split("T");
-  //       	myArray[i]["order_date"] = dateFormat(new Date(date[0]), "mmmm dd, yyyy");
+    //       	date = myArray[i]["date_unix"].split("T");
+    //       	myArray[i]["order_date"] = dateFormat(new Date(date[0]), "mmmm dd, yyyy");
           if(myArray[i]["fulfillment_status"] === "fulfilled"){data["orders"][i]["other_status"] = "unfulfilled";}
           else{data["orders"][i]["other_status"] = "fulfilled";}
 
@@ -472,7 +787,7 @@
         nextText:'<i class="fa fa-arrow-right"></i>',
       	listStyle: 'w3-pagination',
       	ellipsePageSet: false,
-//         cssStyle: 'light-theme'
+    //         cssStyle: 'light-theme'
     });
 
       $("#order-none").hide();
@@ -484,6 +799,176 @@
   }
 
 {% endif %}
+
+
+
+{% if customer-account-common-code == 'methods-fs' %}
+
+  function updatePerPage(val){
+      function addTags(){
+        if(val.length != 0)
+          $('#per-page #update-me').val(ctags+',PerPage:'+val);
+        else
+          $('#per-page #update-me').val(ctags);
+        localStorage.per_page_{{ customer.id }} = val;
+      }
+      $.when(
+      addTags()
+      ).done(function(){ /*$('#per-page').submit();*/ });
+  //     $.post('/contact', $('#per-page').serialize());
+  }
+
+  function addCommas(nStr){
+    nStr += '';
+    x = nStr.split('.');
+    x1 = x[0];
+    x2 = x.length > 1 ? '.' + x[1] : '';
+    var rgx = /(\d+)(\d{3})/;
+    while (rgx.test(x1)) {
+        x1 = x1.replace(rgx, '$1' + ',' + '$2');
+    }
+    return x1 + x2;
+  }
+
+
+  function updateState(param){ //console.log(JSON.stringify(param)); //start_date,end_date,page,per_page,status,order_name,order_by_discount_codes,order_by_date,order_by_status){
+
+    data = {};
+    order_by_params = Object.assign({}, order_by_params_bkp);
+
+    if(param.start_date != undefined)data.start_date = param.start_date; else if(var_start_date.length != 0)data.start_date = var_start_date;
+    if(param.end_date != undefined)data.end_date = param.end_date; else if(var_end_date.length != 0)data.end_date = var_end_date;
+    if(param.page != undefined)data.page = param.page; else if(var_page.length != 0)data.page = var_page;
+    if(param.per_page != undefined)data.per_page = param.per_page; else if(var_per_page.length != 0)data.per_page = var_per_page;
+    if(param.status != undefined)data.status = param.status; else if(var_status.length != 0)data.status = var_status;
+
+
+    {% comment %}
+    if(param.order_by_name != undefined)data.order_by_name = param.order_by_name; else if(var_order_by_name.length != 0)data.order_by_name = var_order_by_name;
+    if(param.order_by_order_by != undefined)data.order_by_order_by = param.order_by_order_by; else if(var_order_by_order_by.length != 0)data.order_by_order_by = var_order_by_order_by;
+    if(param.order_by_discount_codes != undefined)data.order_by_discount_codes = param.order_by_discount_codes; else if(var_order_by_discount_codes.length != 0)data.order_by_discount_codes = var_order_by_discount_codes;
+    if(param.order_by_date != undefined)data.order_by_date = param.order_by_date; else if(var_order_by_date.length != 0)data.order_by_date = var_order_by_date;
+    if(param.order_by_status != undefined)data.order_by_status = param.order_by_status; else if(var_order_by_status.length != 0)data.order_by_status = var_order_by_status;
+    {% endcomment %}
+
+
+    $.each("name,order_by,discount_codes,date,status,channel,division".split(','), function(index, order_by){
+      if(param['order_by_'+order_by] != undefined)data['order_by_'+order_by] = param['order_by_'+order_by]; else if(var_order_by_name.length != 0)data['order_by_'+order_by] = window['var_order_by_'+order_by];
+    }); 
+
+    if(param.assigned_designer != undefined)data.assigned_designer = param.assigned_designer; else if(var_assigned_designer.length != 0)data.assigned_designer = var_assigned_designer;
+    if(param.region_tag != undefined)data.region_tag = param.region_tag; else if(var_region_tag.length != 0)data.region_tag = var_region_tag;
+    if(param.customer_id != undefined)data.customer_id = param.customer_id; else if(var_customer_id.length != 0)data.customer_id = var_customer_id;
+    if(param.order_status != undefined)data.order_status = param.order_status; else if(var_order_status.length != 0)data.order_status = var_order_status;
+    if(param.search != undefined)data.search = param.search; else if(var_search.length != 0)data.search = var_search;
+
+    //     console.log(JSON.stringify(data))
+    data = removeEmpty(data);
+    //     console.log(JSON.stringify(data))
+
+    if(document.location.href == History.getState().url && false){
+      History.replaceState({ url: document.location.href }, document.title, '?'+History.getState().url.split('?')[1]||'');
+    }else{
+      summary_view_param = {% if template == 'customers/account.summary-list' %}'view=summary-list&'{% else %}''{% endif %};
+      History.pushState({ url: document.location.href }, document.title, ($.param(data).length != 0) ? '?' +summary_view_param +$.param(data) : '' +summary_view_param );
+    }
+    fetch_Orders();
+  }
+
+  function toggleOrderBtns(btn , data){ console.log('called-for:', data); console.log('called-for:', btn);
+    $('#table-style').html('');
+
+    $('#table-style').append('<style>.'+btn+'_'+data.toLowerCase()+'_btn{ color: white !important; }</style>');
+
+    {% comment %}switch(btn){
+      case 'name': if(data == 'ASC') $('#table-style').append('<style>.name_asc_btn{ color: white !important; }</style>'); else $('#table-style').append('<style>.name_desc_btn{ color: white !important; }</style>'); console.log('called-for:', btn); break;
+      case 'order_by': if(data == 'ASC') $('#table-style').append('<style>.order_by_asc_btn{ color: white !important; }</style>'); else $('#table-style').append('<style>.order_by_desc_btn{ color: white !important; }</style>'); console.log('called-for:', btn); break;
+      case 'discount_codes': if(data == 'ASC') $('#table-style').append('<style>.discount_codes_asc_btn{ color: white !important; }</style>'); else $('#table-style').append('<style>.discount_codes_desc_btn{ color: white !important; }</style>'); console.log('called-for:', btn); break;
+      case 'date': if(data == 'ASC') $('#table-style').append('<style>.date_asc_btn{ color: white !important; }</style>'); else $('#table-style').append('<style>.date_desc_btn{ color: white !important; }</style>'); console.log('called-for:', btn); break;
+      case 'status': if(data == 'ASC') $('#table-style').append('<style>.status_asc_btn{ color: white !important; }</style>'); else $('#table-style').append('<style>.status_desc_btn{ color: white !important; }</style>'); console.log('called-for:', btn); break;
+    }{% endcomment %}
+  }
+
+  {% comment %}
+    const removeEmpty = (obj) => {
+      Object.keys(obj).forEach(k =>
+        (obj[k] && typeof obj[k] === 'object') && removeEmpty(obj[k]) ||
+        (!obj[k] && obj[k] !== undefined) && delete obj[k]
+      );
+      return obj;
+    };
+  {% endcomment %}
+
+  function removeEmpty(obj) {
+    Object.keys(obj).forEach(function(key) {
+      if (obj[key] && typeof obj[key] === 'object') removeEmpty(obj[key])
+      else if (!obj[key] && obj[key] !== undefined) delete obj[key]
+    });
+    return obj;
+  };
+
+  function calcT(data) {
+    var i;
+    var x;
+    var str;
+    var res;
+    var date;
+    var total = 0;
+    var myArray = data["orders"];
+
+    order_data = data;
+
+    {% if template == 'customers/account' %}
+      for (i = 0; i < myArray.length; i++) {
+          str = myArray[i]["total"];
+          {% comment %}date = myArray[i]["date_unix"].split("T");
+          myArray[i]["order_date"] = dateFormat(new Date(date[0]), "mmmm dd, yyyy");{% endcomment %}
+          if(myArray[i]["status"] === "fulfilled"){data["orders"][i]["other_status"] = "unfulfilled";}
+          else{data["orders"][i]["other_status"] = "fulfilled";}
+
+          {% comment %}if(data["orders"][i]["cancel_status"].length > 0) data["orders"][i]["order_status"] = "cancelled";
+          else{% endcomment %} 
+          data["orders"][i]["order_status"] = data["orders"][i]["status"];
+
+          data["orders"][i]["line_count"] = (data["orders"][i]["line_items"].length == 1) ? "&line=0" : "" ;
+
+          res = (str.replace(/,/g, "")).replace(/\$/g, "");
+          total += Number(res);
+      }
+      data["grand_total"] = addCommas(total.toFixed(2));
+    {% endif %}
+
+    var ttl_itms = data["total_entries"];
+    if(ttl_itms > 0){
+      $('#paginationInit').pagination({
+          items: ttl_itms,
+          itemsOnPage: data["per_page"],
+          hrefTextPrefix: "javascript:updateState({ page: '",
+          hrefTextSuffix: "'});",
+          currentPage: var_page,
+          prevText:'<i class="fa fa-arrow-left"></i>',
+          nextText:'<i class="fa fa-arrow-right"></i>',
+          listStyle: 'w3-pagination placeholdLoader',
+          ellipsePageSet: false,
+          {% comment %}cssStyle: 'light-theme'{% endcomment %}
+      });
+
+      if(ttl_itms > 10) $('.per_page_wrapper').show();
+      else $('.per_page_wrapper').hide();
+
+      $("#order-none").hide();
+      $("#id02, .per_pageContainer, #order-list").show();
+
+      setTimeout(function(){ $("td div:contains('{% raw %}{{{% endraw %}'):contains('{% raw %}}}{% endraw %}')").text('--'); }, 100);
+    }else{
+      $("#id02, .per_pageContainer").hide();
+      $("#order-none").show();
+    }
+  }
+
+{% endif %}
+
+
 
 {% if customer-account-common-code == 'save_token' %}
   {% include 'base64' %}
@@ -526,7 +1011,7 @@
     if(['{{ shop.url }}/account/login', '{{ shop.url }}/account/activate', '{{ shop.url }}/account/reset', '{{ shop.url }}/pages/welcome'].join(',').indexOf(document.referrer) != -1 && document.referrer != "{{ shop.url }}/" && document.referrer != "" ){
       var $token = (navigator.cookieEnabled) ? geToken("secreToken") : localStorage.secreToken ;
       $.ajax({
-          url: '/apps/place_bulk_order/set_token?cid={{ customer.id }}',
+          url: '/apps/place_bulk_order?action_type=set_token&cid={{ customer.id }}',
           type: 'POST',
           data: { 'id': '{{ customer.id }}', 'token': $token },
           success: function(data){
@@ -564,6 +1049,172 @@
   {% endif %}
 {% endif %}
 
+
+
+{% if customer-account-common-code == 'header-script-code' %}
+
+<script type="text/javascript">
+  //console.log({{ shop.domain }});
+  function clogout(){
+    if(localStorage.customer_status == 'loggedin'){
+      localStorage.customer_status = 'loggedout';
+      console.log('sessionout-with-loggedout');
+     $.ajax({
+        url: "/apps/pepsi-print/product_configuration/set_logout",
+        data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
+        dataType: 'jsonp',
+        type: "GET",
+        complete:function(pdata) {
+            console.log(pdata);
+          location.href = "/account/logout";
+           }
+       }).done(function(pdata) {
+       console.log(pdata);
+     });
+    }
+    else{
+    console.log('direct-loggedout');
+    window.location.href = "/account/logout";
+    }
+
+  }
+
+  function changeShop(shop){
+    freez();
+    var parentURL = parent.window.document.location.pathname;
+    if( parentURL.indexOf("/admin/themes/{{ theme.id }}/editor") == -1 )
+      location.assign("http://" + shop + '/account'); //location.href.split('.com')[1]
+    {% if Admin_logged_in == true %}{% endif %}
+      if( parentURL.indexOf("/admin/themes/{{ theme.id }}/editor") != -1 ){ 
+        $.ajax({
+          url: "/cart.js",
+          data: { "attributes[shop]" : "{% if attribute['shop'] == 'FS' %}Retail{% else %}FS{% endif %}" },
+          type: "POST",
+          success:function(data) {
+            // location.href = "/account";
+            location.reload();
+          },
+          error:function(data) {
+            console.log(data);
+            show_message2('Some Error Occured.',false);
+          },
+        });
+      }
+    
+  }
+
+  {% if customer %}
+  window.__st = {};
+  __st['cid'] = {{ customer.id }};
+  {% endif %}
+
+  // if(__st['cid'] == undefined){
+  //   alert("hi");
+  //   $.ajax({
+  //     url: "/apps/pepsi-print/?action_type=set_logout",
+  //     dataType: 'jsonp',
+  //     type: "GET"
+  //   }).done(function(pdata) {
+  //     console.log(pdata)
+  //   });
+  // }
+
+  var customer_region = '{{ customer_region_tag |remove:'Region:' |replace:'0','o' }}';
+
+  $(document).ready(function(){
+    $('.main-content').css('min-height', "calc(99vh - "+($('#shopify-section-header{% if fs_shop_active %}-fs{% endif %}').height()+$('#shopify-section-footer').height())+"px - 8px)");
+  });
+
+  $(window).resize(function(){
+    $('.main-content').css('min-height', "calc(99vh - "+($('#shopify-section-header{% if fs_shop_active %}-fs{% endif %}').height()+$('#shopify-section-footer').height())+"px - 8px)");
+  });
+</script>
+
+{% endif %}
+
+
+
+
+{% if customer-account-common-code == 'reorder-method' %}
+{% if can_reorder or true %}
+  function orderCreate(order_id){
+    freez();
+    $.when(data = $.getJSON('/cart.json')).done(function(){ 
+        cart_json = data.responseJSON;
+        if(cart_json.items.length > 0){
+          showCartAlert(order_id);
+        }else{
+          buildOrderUrl(order_id);
+        }
+    });
+  }
+  
+  function showCartAlert(order_id){
+    if(confirm("Caution !! This will also clear your existing Cart Items...")){
+      $.when(data = $.getJSON('/cart/clear.json')).done(function(){
+        buildOrderUrl(order_id);
+      });
+    }else defreez(); 
+  }
+
+  function buildOrderUrl(order_id){
+    url="/cart?view=checkout-grid"; 
+    {% if template contains 'account' %}
+    order = order_data.orders.filter(function( obj ) {
+      if(obj.id != undefined) return obj.id == order_id;
+    })[0]; 
+    {% else %}
+    order = order_data.order;
+    {% endif %}
+
+    Shopify.queue = [];
+    reorder_prop ={};
+    console.log(order);
+
+    Shopify.moveAlong = function() {
+      // If we still have requests in the queue, let's process the next one.
+      if (Shopify.queue.length) { console.log("poping "+Shopify.queue.length);
+        var request = Shopify.queue.shift();
+        Shopify.addItem(request.variantId, request.quantity, request.properties);
+      }
+      // If the queue is empty, we will redirect to the cart page.
+      else {
+        document.location.assign(url);
+        // console.log("redirected");
+      }
+    };
+
+    Shopify.addItem = function(variantId, quantity, properties){
+      jQuery.ajax({
+        type: "POST",
+        url: "/cart/add.js", 
+        data: {
+                quantity: quantity,
+                id: variantId,
+                properties: properties
+              },
+        complete: function(data){ console.log(variantId+" xhr done"); Shopify.moveAlong(); }
+      });
+    };
+
+    $.each(order.line_items, function(index, item){ 
+      myArray2 = item.properties;
+      for (x = 0; x < myArray2.length; x++) { //console.log(JSON.stringify(myArray2[x]));
+        reorder_prop[myArray2[x]['property_name']] = myArray2[x]['property_value'];
+      }
+
+      Shopify.queue.push( {
+        variantId: item.variant_id,
+        quantity: parseInt(item.quantity, 10) || 0,
+        properties: reorder_prop
+      } );
+      console.log(index+" pushed");
+      if (index == (order.line_items.length - 1)) { console.log("calling Pop"); Shopify.moveAlong(); }
+    });
+
+  }
+  {% endif %}
+  {% endif %}
 
 
 {% comment %}</script>{% endcomment %}

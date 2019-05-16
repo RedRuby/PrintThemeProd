@@ -110,31 +110,46 @@
         {%- case option_type -%}
         {%- when 'select' -%}
           <span class="product-customizer-select-wrap">
-            <select id="{{ option_id }}" {% if option_name contains 'multiple' %}multiple class="multiselect"{% endif %} name="properties[{{ option_name }}]" {%- if option_required -%}required="required"{%- endif -%}>
+            <select id="{{ option_id }}" {% if option_description contains 'Multi' %}multiple  class="multiselect limit1 visually-hidden"{% endif %} name="properties[{{ option_name }}]" {%- if option_required -%}required="required"{%- endif -%}>
               {%- if option_placeholder -%}<option value="">{{ option_placeholder }}</option>{%- endif -%}
               {%- for option_value in option_values -%}
                 <option value="{{ option_value }}" data-index="{{ forloop.index0 }}">{{ option_value }}{%- if option_price != null and option_price[forloop.index0] != null and option_price[forloop.index0] != empty -%} (+{{ option_price[forloop.index0] | money }}){%- endif -%}</option>
               {%- endfor -%}
             </select>
           </span>
-          {% if option_name contains 'multiple' and assets_loaded != true %}
+          {% if option_description contains 'Multi' and assets_loaded != true %}
             <!-- <link rel="stylesheet" href="https://rawgit.com/dbrekalo/attire/master/dist/css/build.min.css"> -->
-            <script src="https://rawgit.com/dbrekalo/attire/master/dist/js/build.min.js"></script>
+            <!-- <script src="https://rawgit.com/dbrekalo/attire/master/dist/js/build.min.js"></script> -->
             {{ 'fastselect.css' | asset_url | stylesheet_tag }}
             {{ 'fastselect.js' | asset_url | script_tag }}
             <style>
 
-                .fstElement { font-size: 1.2em; }
-                .fstToggleBtn { min-width: 16.5em; }
+                .fstElement { font-size: 1.2em !important; border: none !important; }
+                .fstToggleBtn { min-width: 16.5em !important; }
 
-                .submitBtn { display: none; }
+                .submitBtn, .attireMainNav { display: none !important; }
 
-                .fstMultipleMode { display: block; }
-                .fstMultipleMode .fstControls { width: 100%; }
-
+                .fstMultipleMode { display: block !important; }
+                .fstMultipleMode .fstControls { width: 100% !important; padding: 3px !important; margin-bottom: 15px !important; border: 1px solid #aaa !important; border-radius: 2px !important; }
+                .fstMultipleMode .fstQueryInput{ margin: 0 !important; }
+                .fstChoiceItem{ margin: 3px !important; }
+                .fstElement > select, .fstElement > input {
+                    left: unset !important; 
+                    bottom: -11px !important;
+                }
             </style>
-            <script type="text/javascript">$('.multiselect').fastselect();</script>
             {% assign assets_loaded = true %}
+          {% endif %}
+
+          {% if option_description contains 'Multi' and template.suffix == blank  %}
+          <script type="text/javascript">
+            {% assign max_val = option_description | split: ":" | last | split: ")" | first | strip %}
+            options = { maxItems: {{ max_val }}, placeholder: "Select up to {{ max_val }}" };
+            setTimeout(function(){
+            if(document.referrer != document.URL && window.prefill_data != true)
+              $('.multiselect#{{ option_id }}').find('option[value=""]').remove().end().fastselect(options);
+            }, 500);
+          </script>
           {% endif %}
         {%- when 'text' -%}
           {% assign option_name_array = option_name | split:' ' %}

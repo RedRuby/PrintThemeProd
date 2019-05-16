@@ -1,4 +1,4 @@
-<footer class="site-footer small--text-center" role="contentinfo" style="padding-top:0px; padding-bottom:0px;">
+<footer class="site-footer small--text-center" role="contentinfo" style="padding-top:10px; padding-bottom:10px;">
 
 <div class="wrapper">
 
@@ -88,9 +88,10 @@
 	
   {% comment %}{%endcomment %}
   <div class="grid">
-    <div class="grid__item text-right">
-<!--       <p class="site-footer__links">{{ 'layout.footer.copyright' | t }} &copy; {{ 'now' | date: "%Y" }}, {{ shop.name | link_to: '/' }}. <a target="_blank" href="http://www.lapineinc.com">Powered by Lapine</a></p> -->
-      <a target1="_blank" hrefs="/"><img style="height:40px; position:relative; top:2px;opacity:0;" src="{{ 'Footer_logo.png'| asset_url }}"></a>
+    <div class="grid__item text-center">
+       {% comment %}<p class="site-footer__links">{{ 'layout.footer.copyright' | t }} &copy; {{ 'now' | date: "%Y" }}, {{ shop.name | link_to: '/' }}. <a target="_blank" href="http://www.lapineinc.com">Powered by Lapine</a></p>{% endcomment %}
+       &copy; {{ 'now' | date: "%Y" }}
+      {% comment %}<a target1="_blank" hrefs="/"><img style="height:40px; position:relative; top:2px;opacity:0;" src="{{ 'Footer_logo.png'| asset_url }}"></a>{% endcomment %}
     </div>
   </div>
   

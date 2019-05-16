@@ -51,14 +51,14 @@
         <div class="section-header section-header--large">
           <h1 class="section-header__title h2">{{ 'general.search.no_results_html' | t: terms: search.terms }}</h1>
         </div>
-        {% include 'search-bar' %}
+        {% include 'search-bar' with 'header-fs' %}
 
       {% else %}
 
         <div class="section-header section-header--large">
           <h1 class="section-header__title h2">{{ 'general.search.results_for_html' | t: terms: search.terms }}</h1>
         </div>
-        {% include 'search-bar' %}
+        {% include 'search-bar' with 'header-fs' %}
 
         {% comment %}
           Each result template, based on the grid_layout variable above

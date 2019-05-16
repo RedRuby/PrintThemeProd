@@ -1,6 +1,8 @@
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
+
 {% if section.blocks.size > 0 %}
   {% assign slider_enabled = true %}
-  <div class="index-section">
+  <div class="index-section"  class="section__{{ section.id }} {% if fs_shop_active %}hide{% else %}show{% endif %}">
     <div class="flexslider" id="flexslider--{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="slideshow-section" data-transition="{{ section.settings.slider_home_transition }}" data-autoplay="{{ section.settings.slider_home_auto }}" data-speed="{{ section.settings.slider_home_rate }}" data-show-dots="{{ section.settings.slider_home_show_dots }}">
       <ul class="slides">
         {% for block in section.blocks %}
@@ -23,6 +25,13 @@
     </div>
   </div>
 {% endif %}
+
+{% javascript %}
+if (Shopify.designMode) {
+  // This will only happen in the theme editor
+  $('.{{ section__{{ section.id }} }}').removeClass('hide');
+}
+{% endjavascript %}
 
 {% schema %}
   {

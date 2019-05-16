@@ -70,8 +70,13 @@
   </div>
   <div class="grid__item one-half medium-down--one-whole text-right">
     {% if template == 'product' %}
-      <button type="button" class="btn" onclick="window.location.assign('/pages/catalog');" >Continue Shopping</button>
-      <button type="button" class="btn" onclick="detectIE('/pages/locations');" >Start Checkout Process</button>
+      {% if fs_shop_active %}
+        {% comment %}<button type="button" class="btn" onclick="window.location.assign('/pages/catalog');" >Continue Shopping</button>{% endcomment %}
+        <button type="button" class="btn btn--secondry min-width-240" onclick="detectIE('/cart?view=checkout-grid');">Begin Checkout</button>
+      {% else %}
+        <button type="button" class="btn btn--secondry" onclick="window.location.assign('/pages/catalog');" >Continue Shopping</button>
+        <button type="button" class="btn btn--secondry" onclick="detectIE('/pages/locations');" >Start Checkout Process</button>
+      {% endif %}
     {% endif %}
   </div>
 </div>

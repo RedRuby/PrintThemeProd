@@ -28,13 +28,16 @@
             <h1 class="section-header__title">{{ 'cart.general.title' | t }}</h1>
           </div>
           <div class="grid__item one-half medium-down--one-whole1 text-right">
-            <button type="button" class="btn--secondary" onclick="detectIE('pages/locations');">{{ 'cart.general.checkout' | t }}</button>
-            <br><small class="note"><b>Note: </b>You will add quantities after you select locations during the checkout process.</small>
+            {% if fs_shop_active %}
+              <button type="button" class="btn btn-primary" onclick="detectIE('cart?view=checkout-grid');">{{ 'cart.general.checkout' | t }}</button>
+            {% else %}
+              <button type="button" class="btn btn-primary" onclick="detectIE('pages/locations');">{{ 'cart.general.checkout' | t }}</button>
+            {% endif %}
           </div>
         </div>
       </div>
 
-      <div class="cart__row medium-down--hide cart__header-labels">
+      <div class="cart__row medium-down--hide cart__header-labels" style="padding-top: 0">
         <div class="grid--full">
           <div class="grid__item post-large--one-half push--post-large--one-half">
             <div class="grid--full">
@@ -65,10 +68,10 @@
       {% assign total_calculated_price_difference = 0 %}
 
       {% for item in cart.items %}
-        <div class="cart__row">
+        <div class="cart__row" style="{% include 'product-customizer-helper' with 'hide-pricing-item-row' %}" {% include 'product-customizer-helper' with 'cart-row-data' %}>
           <div class="grid--full cart__row--table-large">
 
-            <div class="grid__item post-large--one-half">
+            <div class="grid__item post-large--four-fifths -two-thirds -one-half">
               <div class="grid">
 
                 <div class="grid__item one-third">
@@ -77,26 +80,31 @@
                     {% comment %}
                       More image size options at:
                         - http://docs.shopify.com/themes/filters/product-img-url
-                    {% endcomment %}
-                    <img src="{{ item | img_url: 'medium' }}" alt="{{ item.title | escape }}">
+                    {% endcomment %}  
+                    {% assign img_diff = 180 | minus: item.image.width %}
+                    <img src="{{ item | img_url: '180x' }}" style="max-width: 180px; width: 100%; margin-right: {% if img_diff > 0 %}{{ img_diff | plus: 20 }}{% else %}20{% endif %}px;" alt="{{ item.title | escape }}">
                   </a>
                 </div>
 
                 <div class="grid__item two-thirds">
-                  <a href="/collections/{{ collection_handle }}{{ item.url }}" class="h5">
+                  <a href="/collections/{{ collection_handle }}{{ item.url }}" class="h4">
                     {{ item.product.title }}
                   </a>
                   {% unless item.variant.title contains 'Default' %}{% endunless %}
                     <br>
                     <small>{{ item.variant.title |remove:' / Default' |remove:' / Region:NorthEast' |remove:' / Region:SouthEast' |remove:' / Region:Mountain' |remove:' / Region:California' |remove:' / Region:MiidAtlantic' |remove:' / Region:MidWest'  |remove:' / Region:GreatLakes' |remove:customer_region_tag }}</small>
 
+                    <small>{% include 'product-customizer-helper' %}</small>
 
                   {% comment %}
+                    <!-- removing for Product Customizer support -->
                     Optional, loop through custom product line items if available
 
                     For more info on line item properties, visit:
                       - http://docs.shopify.com/support/your-store/products/how-do-I-collect-additional-information-on-the-product-page-Like-for-a-monogram-engraving-or-customization
                   {% endcomment %}
+
+                  {% comment %}
                   {% assign propertySize = item.properties | size %}
                   {% if propertySize > 0 %}
                     {% for p in item.properties %}
@@ -112,9 +120,8 @@
                         <br>
                         {{ p.first }}:
 
-                        {% comment %}
-                          Check if there was an uploaded file associated
-                        {% endcomment %}
+                        <!--  Check if there was an uploaded file associated -->
+
                         {% if p.last contains '/uploads/' %}
                           <a href="{{ p.last }}">{{ p.last | split: '/' | last }}</a>
                         {% else %}
@@ -124,21 +131,23 @@
                       {% endunless %}
                     {% endfor %}
                   {% endif %}
-
-                  <a href="/cart/change?line={{ forloop.index }}&amp;quantity=0" class="cart__remove">
-                    <small>{{ 'cart.general.remove' | t }}</small>
+                  {% endcomment %}
+                  <br><br>
+                  <a href="{% include 'product-customizer-helper' with 'remove-from-cart-href' %}" class="cart__remove h4 w3-text-red {% include 'product-customizer-helper' with 'remove-from-cart-class' %}">
+                  {% comment %}<a href="/cart/change?line={{ forloop.index }}&amp;quantity=0" class="cart__remove ">{% endcomment %}
+                    {{ 'cart.general.remove' | t }}
                   </a>
                 </div>
 
               </div>
             </div>
 
-            <div class="grid__item post-large--one-half">
+            <div class="grid__item post-large--one-fifth -one-third -one-half">
               <div class="grid--full cart__row--table-large">
-				{% comment %}
+        				{% comment %}
                 <div class="grid__item one-third">
                   <span class="cart__mini-labels">{{ 'cart.label.price' | t }}</span>
-                  <span class="h5">{{ item.price | money }}</span>
+                  <span class="h5">{% include 'product-customizer-helper' with 'item-price', items: cart.items %}</span>
                 </div>
 
 
@@ -154,7 +163,7 @@
                     {% if item.original_line_price != item.line_price %}
                       <small class="cart-item__original-price"><s>{{ item.original_line_price | money }}</s></small>
                     {% endif %}
-                    {{ item.line_price | money }}
+                    {% include 'product-customizer-helper' with 'item-line-price', items: cart.items %}
                   </span>
                   {% if item.original_line_price != item.line_price %}
                     {% for discount in item.discounts %}
@@ -164,7 +173,7 @@
                     {% endfor %}
                   {% endif %}
                 </div>
-				{% endcomment %}
+        				{% endcomment %}
               </div>
             </div>
 
@@ -172,7 +181,7 @@
         </div>
       {% endfor %}
 
-      <div class="cart__row">
+      <div class="cart__row" style="padding-top: 5px;">
         <div class="grid">
           {% comment %}
             Optional, add a textarea for special notes
@@ -191,7 +200,12 @@
               </div>
             </div>
           {% endif %}
-          <div class="grid__item text-right{% if section.settings.cart_notes_enable %} post-large--seven-twelfths{% endif %}">
+          <div class="grid__item post-large--five-twelfths">
+            <p></p>
+            <small class="h6"><b>Note: </b><h3 style="font-weight:normal; display:inline-block;">You will add quantities after you select locations during the checkout process.</h3></small>
+          </div>
+          <div class="grid__item text-right{% if section.settings.cart_notes_enable or true %} post-large--seven-twelfths{% endif %}">
+            {% comment %}
             <p>
               <span class="cart__subtotal-title">{{ 'cart.general.subtotal' | t }}</span>
               <script>console.log('tcpd','{{ total_calculated_price_difference }}');</script>
@@ -212,22 +226,27 @@
                 <small class="cart-subtotal__savings">{{ 'cart.general.savings_html' | t: price: savings }}</small>
               {% endif %}
             </p>
+            {% endcomment %}
+
             <p><em>{{ 'cart.general.shipping_at_checkout' | t }}</em></p>
 
             {% comment %}
               Continue shopping button
             {% endcomment %}
-            <a class="btn--secondary" href="/pages/catalog">{{ 'cart.general.continue_shopping' | t }}</a>
-
-			{% comment %}
+            <a class="btn btn--secondary1" href="/pages/catalog">{{ 'cart.general.continue_shopping' | t }}</a>
+            &nbsp;&nbsp;
+      			{% comment %}
             <button type="submit" name="update" class="btn--secondary update-cart">{{ 'cart.general.update' | t }}</button>
             <button type="submit" name="checkout" class="btn">{{ 'cart.general.checkout' | t }}</button>
             {% endcomment %}
-            <button type="button" class="btn--secondary" onclick="detectIE('pages/locations');">{{ 'cart.general.checkout' | t }}</button>
+            {% if fs_shop_active %}
+              <button type="button" class="btn btn-primary" onclick="detectIE('cart?view=checkout-grid');">{{ 'cart.general.checkout' | t }}</button>
+            {% else %}
+              <button type="button" class="btn btn-primary" onclick="detectIE('pages/locations');">{{ 'cart.general.checkout' | t }}</button>
+            {% endif %}
             {% if additional_checkout_buttons %}
               <div class="cart__additional_checkout">{{ content_for_additional_checkout_buttons }}</div>
             {% endif %}
-            <br><small class="note"><b>Note: </b>You will add quantities after you select locations during the checkout process.</small>
           </div>
         </div>
 
@@ -244,6 +263,8 @@
     <p>{{ 'cart.general.continue_browsing_html' | t }}</p>
   {% endif %}
 </div>
+
+{% include 'product-customizer-helper' with 'product-customizer-script' %}
 
 {% schema %}
   {

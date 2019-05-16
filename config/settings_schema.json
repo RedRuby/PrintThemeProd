@@ -1027,6 +1027,17 @@
     ]
   },
   {
+    "name": "Favicon (MOD)",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "favicon_mod",
+        "label": "Favicon image",
+        "info": "Will be scaled down to 32 x 32px"
+      }
+    ]
+  },
+  {
     "name": "Social media",
     "settings": [
       {

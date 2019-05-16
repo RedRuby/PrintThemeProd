@@ -1,22 +1,25 @@
-<div id="order-list" style="display:none;">
+<div id="order-list" style1="display:none;">
   	<div class="w3-row printModeExclude">
-    	<div class="w3-col m2" style="position:relative;">
-          <small class="nbsp-hide"><label for="">Date Filter</label></small>
-    	  <input id="start_date" value="{{first_order}}" readonly class="datepicker" type="text" name="start_date" placeholder="Start Date" >
-          <button type="button" disabled class="btn btn--secondary w3-padding-01 w3-padding-top1 w3-padding-bottom1 w3-border-black w3-small clear-filter hide" disabled1 style="position:absolute; bottom: 22.75px; right:10px; z-index:; display:none; padding:0 5px; font-size:3px;">Clear Dates</button>
+    	<div class="w3-col m2">
+        <small class="nbsp-hide"><label for="" class=""><small class="nbsp-hide placeholdLoader">Date Filter</small></label></small>
+    	  <input id="start_date" value="{{first_order}}" readonly class="datepicker placeholdLoader" type="text" name="start_date" placeholder="Start Date">
     	</div>
-      	<div class="w3-col m2 w3-row-padding">
-          <small class="nbsp-hide"><label for="">&nbsp;</label></small>
-    	  <input id="end_date" value="{{'now' | date: '%m/%d/%Y'}}" readonly class="datepicker" type="text" name="end_date" placeholder="End Date" >
+    	<div class="w3-col m2 w3-row-padding" style="position:relative;">
+        <small class="nbsp-hide"><label for="">&nbsp;</label></small>
+    	  <input id="end_date" value="{{'now' | date: '%m/%d/%Y'}}" readonly class="datepicker placeholdLoader" type="text" name="end_date" placeholder="End Date" >
+        <button type="button" disabled class="btn btn--secondary w3-padding-01 w3-padding-top1 w3-padding-bottom1 w3-border-black w3-small clear-filter hide1 placeholdLoader" disabled1 style="position:absolute; bottom: 22.75px; right:15px; z-index:; display:none; padding:0 5px; font-size:3px;"><i class="fa fa-times"></i></button>
     	</div>
-      	<div class="w3-col m3">
-          <small class="nbsp-hide"><label for="">&nbsp;</label></small>
-          <button id="" class="btn btn--secondary btn--full1 clear-filter" type="button" style="display:none;" >Clear</button>
-    	  <button id="filter_order" class="btn btn--secondary btn--full1" type="button" >Filter Dates</button>
+    	<div class="w3-col m2">
+        <small class="nbsp-hide"><label for="">&nbsp;</label></small>
+        {% comment %}<button id="" class="btn--secondary btn--full1 clear-filter placeholdLoader" type="button" style="display:none;" >Clear</button>{% endcomment %}
+    	  <button id="filter_order" class="btn--secondary btn--full1 placeholdLoader" type="button" >Filter Dates</button>
     	</div>
-      	<div id="td_select" class="w3-col m2 w3-row-padding">
-          <small><label for="select_rg"><br class="br-hide">Select Region</label></small>
-    	  <select id="select_rg" onchange="changeRegion(this.value); this.title = this.options[this.selectedIndex].innerHTML;" title="" class="" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{fulfillment_status}}{% endraw %}">
+      <div class="w3-col m2">
+        {% include 'customer-account-common-code' with 'order-search-bar' %}
+      </div>
+    	<div id="td_select" class="w3-col m2 w3-row-padding">
+        <small class="nbsp-hide"><label for="select_rg"><small class="placeholdLoader"><br class="br-hide">Select Region</small></label></small>
+    	  <select id="select_rg" onchange="changeRegion(this.value); this.title = this.options[this.selectedIndex].innerHTML;" title="" class="placeholdLoader" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{fulfillment_status}}{% endraw %}">
             <option value="" selected>All</option>
             <option value='Region:NorthEast'>North East</option>
             <option value='Region:SouthEast'>South East</option>
@@ -28,42 +31,62 @@
             <option value='Region:GreatLakes'>Great Lakes</option>
           </select>
     	</div>
-      	<div id="td_select" class="w3-col m3">
-          <small><label for="select_tl"><br class="br-hide">Additional Filters</label></small>
-    	  <select id="select_tl" onchange="if(this.selectedIndex == 3)updateState({page: '1',fulfillment_status: '',order_status: this.value}); else updateState({page: '1',fulfillment_status: this.value,order_status: ''});" name="fulfillment_status">
-            <option value="" selected>Clear Additional Filters</option>
-            <option value="fulfilled">Fulfilled</option>
-            <option value="unfulfilled">Unfulfilled</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
+    	<div id="td_select" class="w3-col m2">
+        <small class="nbsp-hide"><label for="select_tl"><small class="placeholdLoader"><br class="br-hide">Additional Filters</small></label></small>
+        <select id="select_tl" onchange="params={page: '1', order_status: '', assigned_designer: ''}; params[$(this).find('option:selected').attr('filter_attr')]=this.value; updateState(params);" name="order_status" class="placeholdLoader">
+          <option value="" selected>Clear Additional Filters</option>
+          {% include 'customer-account-common-code' with 'order-status-option-code-fs' %}
+        </select>
     	</div>
     </div>
-  <table id="id02" class="responsive-table w3-table w3-bordered w3-striped">
-    <thead>
+  <table id="id02" class="responsive-table w3-table w3-bordered w3-striped1">
+    <div class="">
+    <thead class="">
       <tr class="w3-text-white" style="background-color: {{ settings.color_topbar_bg }}">
-        {% include 'customer-account-common-code' with 'table-header-code' %}
+        {% include 'customer-account-common-code' with 'table-header-code-fs' %}
+        <th class="text-center printModeExclude placeholdLoader">Action</th>
       </tr>
     </thead>
-    <tr w3-repeat="orders">
-      <th class="w3-text-orange1 orders text-center" id="{% raw %}{{id}}{% endraw %}"><a class="{% raw %}{{cancel_status}}{% endraw %}" href="/pages/order?id={% raw %}{{id}}{% endraw %}">{% raw %}{{order_name}}{% endraw %}</a></th>
-      <td class="text-center" title="{% raw %}{{customer_last_email}}{% endraw %}">{% raw %}{{customer_last_name}}{% endraw %}</td>
-      <td class="text-center">{% raw %}{{discount_codes}}{% endraw %}</td>
-      <td class="text-center">{% raw %}{{order_date}}{% endraw %}</td>
+    </div>
+    <tr class="w3-hover-light-grey" w3-repeat="orders">
+      <th class="w3-text-orange1 orders text-center" id="{% raw %}{{id}}{% endraw %}"><a class="{% raw %}{{cancel_status}}{% endraw %} placeholdLoader" href="/pages/order?id={% raw %}{{id}}{% endraw %}"><b>{% raw %}{{order_name}}{% endraw %}</b></a></th>
+      <td class="text-center" title="{% raw %}{{customer_last_email}}{% endraw %}"><div class="placeholdLoader">{% raw %}{{customer_first_name}} {{customer_last_name}}{% endraw %}</div></td>
+      <td class="text-center"><div class="placeholdLoader">{% raw %}{{discount_codes}}{% endraw %}</div></td>
+      <td class="text-center"><div class="placeholdLoader">{% raw %}{{order_date}}{% endraw %}</div></td>
       {% comment %}<td>{% raw %}{{payment_status}}{% endraw %}</td>{% endcomment %}
       {% comment %}<td class="text-right">${% raw %}{{total}}{% endraw %}</td>{% endcomment %}
-      <td class="text-center">{% raw %}{{order_status}}{% endraw %}</td>
+      <td class="text-center"><div class="placeholdLoader">{% raw %}{{region}}{% endraw %}</div></td>
+      <td class="text-center"><div class="placeholdLoader">{% raw %}{{division}}{% endraw %}</div></td>
+      <td class="text-center"><div class="placeholdLoader">{% raw %}{{channel}}{% endraw %}</div></td>
+      <td class="text-center" order_status="{% raw %}{{order_status}}{% endraw %}"><div class="placeholdLoader">{% raw %}{{order_status}}{% endraw %}</div></td>
+      <td class="text-center printModeExclude" style="width: 275px;">
+        <button class="js-toggle-update-modal1 editBtn btn--secondary placeholdLoader" style="" title="Edit this order" status="{% raw %}{{order_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" onclick="location.assign('/pages/order?id={% raw %}{{id}}{% endraw %}&action=edit');" onclick1="addToEditModal('{% raw %}{{id}}{% endraw %}');" order_id="{% raw %}{{id}}{% endraw %}">Edit</button>
+        <span>&nbsp</span>
+        <button class="js-toggle-update-modal1 cancelBtn btn--secondary placeholdLoader" style="" title="Cancel this order" status="{% raw %}{{order_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" onclick="showCancelModal({% raw %}{{id}}{% endraw %}, '{% raw %}{{ order_name }}{% endraw %}');" order_id="{% raw %}{{id}}{% endraw %}">Cancel</button>
+        <span>&nbsp</span>       
+        <button class="js-toggle-update-modal1 trackBtn btn--secondary placeholdLoader" style="" title="Track this order" status="{% raw %}{{order_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" onclick="if($(this).attr('tracking_url').indexOf('tracking_url') == -1) openInNewTab($(this).attr('tracking_url')); else window.location.assign('/pages/order?id={% raw %}{{id}}{% endraw %}');" order_id="{% raw %}{{id}}{% endraw %}" tracking_url="{% raw %}{{ tracking_url }}{% endraw %}">Track</button>
+      </td>
     </tr>
   </table>
     
-  {% include 'customer-account-common-code' with 'pagination-code' %}
+  {% include 'customer-account-common-code' with 'pagination-code' | replace_first: 'class="', 'class="placeholdLoader ' %}
     
 </div>
 
-{% include 'customer-account-common-code' with 'per-page-form' %}
+{% include 'customer-account-common-code' with 'per-page-form' | replace_first: 'class="', 'class="placeholdLoader ' %}
+
+<div id="mfp-order-edit" class="mfp-wrapper1">
+  {% include 'magnificPopup-orderEdit-NSM' %}
+</div>
+<div id="mfp-order-cancel">
+  {% include 'magnificPopup-orderFS-Cancel' %}
+</div>
+
+{{ 'flexboxgrid.css' | asset_url | stylesheet_tag }}
 
 <script>
   
-  {% include 'customer-account-common-code' with 'init-variables' %}
+  {% include 'customer-account-common-code' with 'init-variables-fs' %}
   
   $(document).ready(function() {
     
@@ -74,22 +97,24 @@
   });
   
 
-  {% include 'customer-account-common-code' with 'methods' %}
+  {% include 'customer-account-common-code' with 'methods-fs' %}
   
   
   function fetch_Orders(){
 
-     {% include 'customer-account-common-code' with 'fetchOrders-code'  %}
+     {% include 'customer-account-common-code' with 'fetchOrders-code-fs'  %}
+     defreez(); defreez(); $('.placeholdLoader1').addClass('placeholdLoader').removeClass('placeholdLoader1');
+     $('.table-wrapper').addClass('overflow-hidden');
   
      data.customer_id = "{{ customer.id }}";
                 
   	 $.ajax({
-          url: '/apps/pepsi-print/collection_response/get_orders_list.json',
+          url: '/apps/pepsi-print/fs_collection_response/get_orders_list.json',
           type: 'GET',
           data: data,
           dataType: 'json',
           success: function(data){
-//             	console.log(JSON.stringify(data));
+            	// console.log(JSON.stringify(data));
             	if(data["total_entries"] > 0){
                   calcT(data);
                   
@@ -102,21 +127,183 @@
                   });
                   
                   $("#print-btn").removeAttr('disabled').prop('title', '').css('cursor', 'default');
-				}else{
+                  $('.editBtn[status="Cancelled"], .editBtn[status="Fulfilled"], .cancelBtn[status="Cancelled"], .cancelBtn[status="Fulfilled"], .trackBtn:not([status="Fulfilled"])').prop({"disabled": "disabled", "title": ""}).css('cursor','not-allowed');
+      				}else{
                   $("#id02, .per_pageContainer").hide();
-                  $("#order-none").show();
+                  $("#order-none, #order-list").show();
                   $("#print-btn").prop('disabled','disabled').prop('title', 'No orders to print.').css('cursor', 'not-allowed');
                 }
-            	$.unblockUI();
+            	defreez();
+              $('.placeholdLoader').addClass('placeholdLoader1').removeClass('placeholdLoader');
+              $('.table-wrapper').removeClass('overflow-hidden');
                 
           },
           error: function(){
-            $.unblockUI; show_message2('Error in fetching Orders.',false);
+            defreez(); show_message2('Error in fetching Orders.',false);
           }
           
 	 	});
     
   }
+
+
+  var $oem = $('#OrderEditModal');
+  
+  function addToEditModal(obj){
+    order_id = obj;
+    // freez();
+    $('html').css('overflow','hidden');
+    $('#mfp-order-edit .mfp-preloader, #mfp-order-edit .mfp-preloader .w3-loader').show();
+    $('#mfp-order-edit .mfp-content').removeClass('bounceOutDown').addClass('slideInUp');
+    $('#mfp-order-edit .mfp-bg, #mfp-order-edit .mfp-wrap').show().removeClass('mfp-hide');
+    $('#OrderEditModal').show().removeClass('mfp-hide').css('visibility','hidden');
+    $('.mfp-preloader, .mfp-preloader .w3-loader').show();
+
+    setTimeout(function(){
+      $('.mfp-wrap').css('max-height', '100vh');
+    }, 800);
+
+    var data = {order_id: obj, cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
+                
+     $.ajax({
+          url: '/apps/pepsi-print/fs_collection_response/get_order_detail.json',
+          type: 'GET',
+          data: data,
+          dataType: 'json',
+          success: function(data){
+                // console.log(JSON.stringify(data));
+                data = dataHide(data);
+                w3DisplayData("lineItem2", data.order);
+                $('#OrderEditModal form').attr('order_id', data.order.id);
+                $('#OrderEditModal .orderName').text(data.order.order_name);
+                // $('#OrderEditModal .subTotal').text(data.order.sub_total);
+                $('#OrderEditModal .grandTotal').text(data.order.total);
+
+                data.order.line_items.forEach(showProperties);
+
+                function showProperties(item, index){ //console.log(item['product_id']);
+                  setTimeout( w3DisplayData("properties_"+item['line_item_No']+'_1', item), 900+100*index);
+                }
+
+                $('img[srcs]').each(function(index, item){
+                  $(item).attr('src', $(item).attr('srcs'));
+                });
+
+                
+                // $('#OrderEditModal .discountCode').val(data.order.discount_codes[0].code);
+                // switch(data.order.discount_codes[0].type){
+                //  case 'fixed_amount':
+                //  case 'percentage':
+                //  case 'shipping':
+                // }
+                // $('#OrderEditModal .discountType').text(data.order.sub_total);
+                // $('#OrderEditModal .discountAmount').val(data.order.discount_codes[0].amount);
+
+                // console.log('printer:', data.order.designer_id);
+                // console.log('line_items:', data.order.line_items.length);
+                if(data.order.designer_id != null || data.order.line_items.length == 0 || true ){
+                  $('.for-order-split').remove();
+                  $('td[colspan="3"]').attr('colspan', '2');
+                }
+                  
+                
+              defreez(); $('.mfp-preloader').hide(); 
+              $('#OrderEditModal').css('visibility','visible');
+                
+          },
+          error: function(){
+            defreez(); show_message2('Error in fetching Order.',false);
+          }
+          
+   });
+  
+  }
+
+
+  
+
+
+  function dataHide(data){
+    var i;
+    var x;
+    var str;
+    var total = 0;
+    var file_name = '';
+    var anchorPre = '';
+    var anchorPost = '';
+    var nullCount = 0;
+
+    var img_url;
+    var lastIndex;
+
+    var myArray = data.order.line_items;  //console.log(JSON.stringify(myArray));
+    data.order.notes = data.order.notes || '';
+    for (i = 0; i < myArray.length; i++) {
+
+      img_url = myArray[i]["product_image_url"];
+      if(img_url != null && img_url.indexOf('no-image') == -1){
+        lastIndex = img_url.lastIndexOf('.');
+        myArray[i]["product_thumb_url"] = img_url.substr(0, lastIndex)+'_150x'+img_url.substr(lastIndex);
+      }else{
+        // myArray[i]["product_thumb_url"] = 'https://via.placeholder.com/150x200/ddd/aaa.png?text=No%20Image';
+        myArray[i]["product_image_url"] = '{{ all_products.first.featured_image | img_url: "600x800" }}';
+        myArray[i]["product_thumb_url"] = '{{ all_products.first.featured_image | img_url: "150x200" }}';
+      }
+
+      str = myArray[i]["title"].replace().replace(' / Default','').replace(' / {{ customer_region_tag }}','');
+      myArray[i]["title"] = {% unless customer_role_tag ==  %}{% endunless %}'<a class="w3-text-blue" href="/collections/{{ collection_handle }}/products/'+myArray[i]["handle"]+"?variant?="+myArray[i]["variant_id"]+'"><b>' + str + {% unless customer_role_tag ==  %}'</b></a>'{% endunless %};
+      myArray[i]["line_item_No"] = i;
+      // data['order']['properties_'+myArray[i]['product_id']] = myArray[i]['properties'];
+      myArray2 = myArray[i]['properties']; nullCount = 0; //console.log(JSON.stringify(myArray2));
+      if((myArray[i]['properties'] || '').length == 0)
+         $('head').append('<style class="prop-hide-style">.properties_'+myArray[i]['line_item_No']+'{ display:none; }</style>');
+      else{
+        for (x = 0; x < myArray2.length; x++) { //console.log(JSON.stringify(myArray2[x]));
+          try{
+            myArray2[x]['property_value'] = myArray2[x]['property_value'].replace("'","\'");
+          }catch(e){ /*console.log(myArray2[x]['property_name']); console.log(e.message);*/ }
+          if((myArray2[x]['property_value'] || '').length == 0 || myArray2[x]['property_name'] == 'Parent ID'){
+              // delete myArray2[x];
+              $('head').append('<style class="prop-hide-style">.properties_'+myArray[i]['line_item_No']+' p:nth-of-type('+(x+1)+'){ display:none; }</style>');
+              nullCount++;
+          }
+          else if(myArray2[x]['property_name'].indexOf("__") != -1){
+              file_name = myArray2[x]['property_value'];
+              // delete myArray2[x];
+              $('head').append('<style class="prop-hide-style">.properties_'+myArray[i]['line_item_No'] +' p:nth-of-type('+(x+1)+'){ display:none; }</style>');
+              nullCount++;
+          }
+          else if(myArray2[x]['property_value'].indexOf("/uploads/") != -1 && myArray2[x]['property_value'].indexOf("&nbsp;") == -1){ //console.log(myArray2[x]['property_value']);
+            if(myArray2[x]['property_value'].toLowerCase().indexOf(".jpg") != -1 ||
+               myArray2[x]['property_value'].toLowerCase().indexOf(".jpeg") != -1 ||
+               myArray2[x]['property_value'].toLowerCase().indexOf(".png") != -1 ||
+               myArray2[x]['property_value'].toLowerCase().indexOf(".gif") != -1 ){
+              file_url = myArray2[x]["property_value"];
+              anchorPre = "<a class='js-toggle-previewImg-modal zoom-lightbox1' title='View' href='"+file_url+"' data-mfp-src='"+file_url+"'>"
+              anchorPost = "</a> &nbsp; <a target='_blank' title='Download' href='"+myArray2[x]["property_value"]+"'><i class='fa fa-download'></i></a>"
+              myArray2[x]['property_value'] = anchorPre + file_name + anchorPost;
+            }else{
+              anchorPre = "<a target='_blank' href='"+myArray2[x]["property_value"]+"'>"
+              anchorPost = "</a>"
+              myArray2[x]['property_value'] = anchorPre + file_name + anchorPost;
+            }
+          }
+        } if(myArray[i]['properties'].length == nullCount){ $('head').append('<style class="prop-hide-style">.properties_'+myArray[i]['line_item_No']+'{ display:none; }</style>'); }
+        //else{ $('head').append('<style>.properties_'+myArray[i]['line_item_No']+' p:nth-last-child(1){ display:none; }</style>'); }
+      }
+    }
+    
+    return(data);
+  }
+
+  function removeEmpty(obj) {
+    Object.keys(obj).forEach(function(key) {
+      if (obj[key] && typeof obj[key] === 'object') removeEmpty(obj[key])
+      else if (obj[key] == null) delete obj[key]
+    });
+    return obj;
+  };
+
   
   function changeRegion(val){
       $('#start_date').val('');
@@ -124,6 +311,18 @@
       $('#radio2').prop('disabled', 'disabled').parent().addClass('w3-text-grey');
       updateState({ page: '1',region_tag: val });
   }
+
   
-  
+  function openInNewTab(href) {
+    newwindow=window.open(href,'_blank'); //,'height=1000,width=1800'
+    newwindow.location;
+    if (window.focus) {newwindow.focus()}
+    else{
+      // Object.assign(document.createElement('a'), {
+      //   target: '_blank',
+      //   href,
+      // }).click();
+    }
+    return false;
+  }
 </script>

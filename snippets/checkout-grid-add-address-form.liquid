@@ -1,0 +1,203 @@
+<div class="mfp-bg mfp-fade mfp-ready w3-black" style="display:none; opacity:0.8;"></div>
+
+<div class="mfp-wrap mfp-auto-cursor mfp-fade mfp-ready mfp-hide" tabindex="-1" style="overflow-x: hidden; overflow-y: auto;" style="display:none;">
+  <div class="mfp-container mfp-s-ready mfp-inline-holder">
+   
+    <div class="mfp-content w3-padding-xlarge w3-card-2 w3-white w3-margin animated fast">
+
+      <div id="OrderAddressAdd" class="white-popup-block text-center" styles="display:none;">
+        {% form 'customer_address', customer.new_address, onsubmit: "addAddress(event, this);" %}
+          <br>
+          <h1>Add New Shipping Address<span class="orderName" style="font-size:inherit !important;"></span></h1>
+
+          {% if form.errors %}
+          {{ form.errors | default_errors }}
+          {% endif %}
+
+          <div class="text-left w3-margin w3-padding">
+            <input type="hidden" name="address[id]" disabled="" required="" value="{% raw %}{{id}}{% endraw %}">
+            <label for="store_name">Customer</label>
+            <input id="store_name" type="text" name="address[customer]" required="required" value="{% raw %}{{customer}}{% endraw %}">
+            <label for="first_name">First Name</label>
+            <input id="first_name" type="text" name="address[first_name]" required="required" value="{% raw %}{{first_name}}{% endraw %}">
+            <label for="last_name">Last Name</label>
+            <input id="last_name" type="text" name="address[last_name]" required="required" value="{% raw %}{{last_name}}{% endraw %}">
+            <label for="company_email">Company Email</label>
+            <input id="company_email" type="email" name="address[email]" required="required" value="{% raw %}{{email}}{% endraw %}">
+            <label for="phone_number">Phone Number</label>
+            <input id="phone_number" type="text" name="address[phone]" required="required" value="{% raw %}{{phone}}{% endraw %}">
+            <label for="address">Address</label>
+            <input id="address" type="text" name="address[address1]" required="required" value="{% raw %}{{address1}}{% endraw %}">
+            <label for="city">City</label>
+            <input id="city" type="text" name="address[city]" required="required" value="{% raw %}{{city}}{% endraw %}">
+            <label for="zip">Zip</label>
+            <input id="zip" type="text" name="address[zip]" required="required" value="{% raw %}{{zip}}{% endraw %}">
+
+            <div class="w3-block" id="AddressProvinceContainerNew" style="display:none">
+              <label for="state">State</label>
+              <select id="state" name="address[province]" required="required" data-default="{% raw %}{{province}}{% endraw %}"></select>
+            </div>
+
+            <label for="country">Country</label>
+            <select id="country" name="address[country]" required="required" data-default="{% raw %}{{country}}{% endraw %}">
+              {{ country_option_tags }}
+            </select>
+            <label for="budget_identifier">Budget Identifier</label>
+            <input id="budget_identifier" type="text" name="address[budget_identifier]" required="required" value="{% raw %}{{budget_identifier}}{% endraw %}">
+            <label for="channel_identifier">Channel Identifier</label>
+            <select id="channel_identifier" name="address[channel_identifier]" required="required" data-default="{% raw %}{{channel_identifier}}{% endraw %}">
+              <option value="">Select</option>
+              {% assign channels = "general.mod_channels" | t | split: "," %}
+              {% for channel in channels %}
+              <option value="{{ channel }}">{{ channel }}</option>
+              {% endfor %}
+            </select>
+            <label for="add_to_address_book" class="{% if template contains 'shipping' %}hide{% endif %}">
+              <input id="add_to_address_book" {% if template contains 'shipping' %}checked=""{% endif %} class="w3-check w3-white w3-margin-right" type="checkbox" name=""> Add To Address Book
+            </label>
+          </div>
+          
+          <div class="w3-block w3-margin-top">
+            <br>
+            <button type="submit" class="btn btn-primary" >Add Shipping Address</button>
+            <br>
+            <button type="button" class="btn--secondary w3-margin-top" onclick="updateModal();">Cancel</button>
+          </div>
+          <br>
+        {% endform %}
+      </div>
+      <button type="button" title="Close (Esc)" onclick="updateModal();" class="mfp-close">×</button>
+    </div>
+  </div>
+</div>
+
+{{ 'jQuery.serializeJSON.js' | asset_url | script_tag }}
+
+<script>
+  var mfpHTML = '';
+  var changed = false;
+  var new_address = {
+          "address1": "",
+          "city": "",
+          "province": "",
+          "phone": "",
+          "zip": "",
+          "last_name": "",
+          "first_name": "",
+          "country": "",
+          "state": "",
+          "customer": "",
+          "budget_identifier": "",
+          "channel_identifier": "",
+          "email": ""
+        };
+
+  new Shopify.CountryProvinceSelector('country', 'state', {
+    hideElement: 'AddressProvinceContainerNew'
+  });
+  
+  $(document).ready(function(){
+  	 mfpHTML = $('#OrderAddressAdd').html();
+
+     $('form[id^="address"] [required]').each(function(o, i){
+      $(this).prev().append(' <small class="w3-text-red">*</small>');
+    });
+  });
+  
+  function updateModal(){ //console.log('in'); 
+    $('#mfp-address-add .mfp-content').removeClass('slideInUp').addClass('bounceOutDown');
+    setTimeout(function(){
+      $('#mfp-address-add .mfp-bg, #mfp-address-add .mfp-wrap').delay(1000).hide().addClass('mfp-hide');
+      $('html, body').css('overflow','auto');
+      $('#OrderAddressAdd').html('').append(mfpHTML);
+    },800);
+    // $('.mfp-container').removeAttr('style');
+    // $('.mfp-preloader').show();
+    if( changed == true ){ changed = ''; }
+  }
+  
+
+  // function changedData(){ //console.log(obj); 
+  //   // $('#OrderAddressAdd button[type = "submit"]').removeAttr('disabled');
+    
+  // }
+  function validateEmail(email) {
+    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+  }
+  
+  function addAddress(e, obj){
+    freez();
+  	e.preventDefault();
+    e.stopPropagation();
+
+    if(!validateEmail($('#address_form_new [name="address[email]"]').val())){
+      show_message4("Invalid Email", false);
+      $('#address_form_new [name="address[email]"]').focus();
+      return false;
+    }
+    
+    var data = { address: $('#address_form_new [name^="address["]').serializeJSON().address };
+    if($('#add_to_address_book').is(":not(:checked)"))
+      data["save_anonymus"] = true;
+
+    console.log(data);
+    $.ajax({
+            url: '/apps/place_bulk_order?cid={{ customer.id }}&action_type=save_fs_address',
+            type: 'POST',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(data1){ console.log(data1);
+              {% if template contains 'checkout-grid' %}
+                if ( Boolean(data1.addres) && (!Boolean(data.address.id) || !$('#add_to_address_book').is(":checked")) ){ 
+                  data.address["id"] = data1.addres;
+                  data.address["state"] = data.address.province;
+                  updateGrid("address", [data.address]);
+                }else{
+                  data.address["state"] = data.address.province;
+                  w3DisplayData('address_template', data.address);
+                  Object.assign(grid_data.addresses.filter(function( obj ) { if(obj.id == data.address.id) return obj; })[0], data.address);
+                  $('#address_'+data.address.id).html($('#address_template').html());
+                  gridPush();
+                }
+              {% else %} 
+              if($('#add_to_address_book').is(":checked")){
+                fetchAddresses();
+              }
+              {% endif %} 
+              updateModal();
+              defreez(); 
+            },
+            error: function(data){ show_message2(data.responseJSON.message || 'Some Error Occured.',false); console.log(data);}
+    });     
+
+  }
+  
+  function showAddModal(id){
+      $('html, body').css('overflow','hidden');
+      $('#mfp-address-add .mfp-content').removeClass('bounceOutDown').addClass('slideInUp');
+      $('#mfp-address-add .mfp-bg, #mfp-address-add .mfp-wrap').show().removeClass('mfp-hide');
+
+      setTimeout(function(){
+        $('.mfp-wrap').css('max-height', $('.mfp-wrap').css('height'));
+      }, 800);
+
+      if(id){ 
+        this_address = grid_data.addresses.filter(function( obj ) { if(obj.id == id) return obj; })[0];
+        $.when(w3DisplayData("OrderAddressAdd", this_address))
+        .done(function(){ 
+          $('#OrderAddressAdd select[name^="address["]').each(function(index, id){
+            $(id).val(id.getAttribute("data-default"));
+          });
+          $('#OrderAddressAdd [name="address[id]"]').prop("disabled", false);
+          if(this_address.distributor_id)
+            $('#add_to_address_book').prop('checked', true);
+        });
+        $('#address_form_new > h1, #address_form_new > div.w3-block.w3-margin-top > button.btn.btn-primary').text("Update Shipping Address");
+
+      }else{
+        w3DisplayData("OrderAddressAdd", new_address);
+      }
+  }
+</script>

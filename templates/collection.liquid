@@ -1,3 +1,11 @@
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
+
+{% if collection.handle == 'all' and customer_role_tag != Role_Admin %}
+	{% layout none %}
+	<meta content="0; url=/pages/welcome" http-equiv="refresh" />
+	{% continue %}
+{% endif %}
+
 {% comment %}
   The contents of the collection.liquid template can be found in /sections/collection-template.liquid
 {% endcomment %}

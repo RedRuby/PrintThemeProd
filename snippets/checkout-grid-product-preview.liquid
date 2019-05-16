@@ -1,0 +1,111 @@
+<div class="mfp-bg mfp-fade mfp-ready w3-black" style="display:none; opacity:0.8;"></div>
+
+<div class="mfp-wrap mfp-auto-cursor mfp-fade mfp-ready mfp-hide" tabindex="-1" style="overflow-x: hidden; overflow-y: auto;">
+  <div class="mfp-container mfp-s-ready mfp-inline-holder">
+   
+    <div class="mfp-content w3-padding-xlarge w3-card-2 w3-white w3-margin animated fast">
+
+      <div id="ProductPreview" class="white-popup-block">
+        <br><br>
+        {% include 'customer-account-common-code' with 'order-loader' %}
+      </div>
+      <button type="button" title="Close (Esc)" onclick="updateModal3();" class="mfp-close">×</button>
+    </div>
+  </div>
+</div>
+
+{{ 'fastselect.css' | asset_url | stylesheet_tag }}
+{{ 'fastselect.js' | asset_url | script_tag }}
+
+<script>
+  var mfpHTML3 = '';
+  var changed3 = false;
+  var old_url = '';
+  
+  $(document).ready(function(){
+  	 mfpHTML3 = $('#ProductPreview').html();
+  });
+  
+  function updateModal3(){ //console.log('in'); 
+    $('#mfp-product-preview .mfp-content').removeClass('slideInUp').addClass('bounceOutDown');
+    setTimeout(function(){
+      $('#mfp-product-preview .mfp-bg, #mfp-product-preview .mfp-wrap').delay(1000).hide().addClass('mfp-hide');
+      $('html, body').css('overflow','auto');
+    },800);
+    // $('.mfp-container').removeAttr('style');
+    //$('.mfp-preloader').show();
+    if( changed3 == true ){ changed3 = ''; }
+  }
+  
+  function shorten(s, max) {
+    return s.length > max ? s.substring(0, (max / 2) - 1) + '...' + s.substring(s.length - (max / 2) + 2, s.length) : s
+  }
+  
+  function fillOptions(line){ 
+      item_prop = cart_items[line].properties;
+      $.each(item_prop, function(key,value) {
+          el = $('[name="properties['+key+']"]');
+          if( el.is('input[type="text"]') || el.is('textarea') ){ 
+            el.val(value).show();
+          }
+          else if( el.is('input[type="file"]') ){ 
+            el.attr({'type':'text', 'title':value}).val(shorten(value, el.width()/7)).show();
+          }
+          else if(  el.is('input[type="radio"]') ||  el.is('input[type="checkbox"]') ){
+            el.filter('[value="'+value+'"]').prop('checked', 'checked').show();
+          }
+          else if(  el.is('select') ){
+            // el.find('option[value="'+value+'"]').prop('selected', 'selected').trigger('change').show();
+            console.log(value);
+            value.split(", ").forEach(function(val) {
+              el.find('option[value="'+val+'"]').prop('selected', 'selected');
+            });
+            if($(el).hasClass('multiselect'))
+            el.trigger('change').show().filter('.multiselect').fastselect().parent().css({'pointer-events': 'none', 'cursor': 'not-allowed'}).addClass('w3-opacity');
+          }
+      });
+      $('#AddToCartForm [name^="properties["], .product-single__variants1, .single-option-selector').prop({'readonly':'readonly', 'disabled': 'disabled'});
+  }
+
+
+  
+  function showProductModal(url, line){ 
+      $('html, body').css('overflow','hidden');
+      $('#mfp-product-preview .mfp-content').removeClass('bounceOutDown').addClass('slideInUp');
+      $('#mfp-product-preview .mfp-bg, #mfp-product-preview .mfp-wrap').show().removeClass('mfp-hide');
+
+      setTimeout(function(){
+        $('.mfp-wrap').css('max-height', '100vh');
+      }, 800);
+
+      if(url == old_url)
+        return false;
+      else
+        $('#ProductPreview').html('').append(mfpHTML3);
+
+      $.ajax({
+        url: url,
+        type: 'GET',
+        dataType: 'html',
+        success: function(itemData) { 
+          const regex = /(?=\<\!-- psudoContent --\>)[\w\W]+(?=<\!-- psudoContent -->)/g;
+
+          let m;
+
+          m = regex.exec(itemData);
+          var res= m[0].replace('<!-- psudoContent -->', '');
+
+          $('#ProductPreview').html(res);
+          fillOptions(line);
+
+          if(cart_items[line].variant_title)
+          setTimeout(function(){
+            $('#productSelect').before($('.variant_title_line_'+line).html());
+          }, 100);
+
+        }
+      });
+
+      old_url = url;
+  }
+</script>

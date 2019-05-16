@@ -1,1 +1,29 @@
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
+
 {{ content_for_index }}
+
+<style>
+	main .shopify-section:nth-of-type({% if fs_shop_active %}2{% else %}1{% endif %}){
+		display: none !important;
+		margin-bottom: 40px;
+	}
+
+	main .shopify-section{
+		margin-bottom: 40px;
+	}
+
+	.flex-control-nav li{ margin: 0 13px !important; }
+
+	.flex-control-nav{ bottom: -40px !important; }
+
+	.flex-control-paging li a, .flex-control-paging li a:hover{ 
+		border-radius: 0 !important; 
+		border: 1px solid #cccccc !important; 
+		background-color: #cccccc !important; 
+	}
+
+	.flex-control-paging li a.flex-active{
+		background-color: {{ settings.color_primary }} !important;
+		border: 1px solid {{ settings.color_primary }} !important;
+	}
+</style>

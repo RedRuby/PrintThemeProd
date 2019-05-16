@@ -1,0 +1,981 @@
+{% if customer  %}
+
+  {% include 'customer-account-common-code' with 'theme-layout-code' %}
+
+{% endif %}
+
+
+
+{% assign cart_product_properties = cart.items | map:"properties" | map: 'Printing' | uniq | join:"," %}
+          
+{% if cart_product_properties contains "No" %}
+  {% assign has_digital_product = true %}
+{% endif %}          
+
+{% if cart.items.size == 1 and has_digital_product %}
+  {% assign only_digital_product = true %}
+{% endif %}
+
+
+
+<div id="checkout-grid">
+  {% if cart.item_count > 0 %}
+    {% assign loader = '<i class="fa fa-circle-o-notch fa-spin"></i>' %}
+
+    <form action="/cart" method="post" novalidate class="cart">
+
+      <div class="section-header wrapper">
+        <div class="grid">
+          <div class="grid__item one-half medium-down--one-whole1">
+            <h1 class="section-header__title">Checkout</h1>
+            <a href="/cart"><button type="button" class="btn">Return to Cart</button></a>
+          </div>
+          <div class="grid__item one-half medium-down--one-whole1 text-right">
+            <h1>&nbsp;</h1>
+            <button type="button" class="btn btn-primary" onclick="gridPush(null, true);">Continue</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="id02_wrapper is_fixed1">
+        <table id="id02" class="responsive-table w3-table w3-bordered w3-margin-0">
+          <tr>
+            <td class="text-center w3-padding-0" style1="position: relative; overflow: hidden;">
+              <table class="w3-margin-0 w3-border-0" style="height: inherit;">
+                <tr class="w3-border-0">
+                  <td class="w3-padding text-center w3-border-0">
+                    <a><button type="button" class="btn btn-primary min-width-270 addShipping" {% if only_digital_product %}disabled="disabled"{% endif %} onclick="showAddModal()">Add Shipping Address &nbsp;<i class="fa fa-plus"></i></button></a>
+                    <p></p>
+                    <a><button type="button" class="btn--secondary min-width-270 selectShipping" {% if only_digital_product %}disabled="disabled"{% endif %} style="width:240px;" onclick="showSelectModal()">Select From Address Book</button></a>
+                    <p></p>
+                    <a><button type="button" class="btn--secondary min-width-270 uploadRoster" onclick="$(this).parent().next().click();" {% if only_digital_product %}disabled="disabled"{% endif %}>Upload Bulk Order Ship List</button></a>
+                    <input type="file" class="visually-hidden" name="" id="" accept=".csv" onchange="if(this.value.length > 0)validateRoster(this);">
+
+                    <span style1="position: absolute; transform: translateX(-50%); -webkit-transform: translateX(-50%); bottom: 8px; white-space: nowrap;">
+                      <button type="button" class="no-btn w3-tiny w3-text-blue hide downloadShipList" onclick="openInNewTab(roster_url);" style1="position: absolute; transform: translateX(-50%); -webkit-transform: translateX(-50%);"><b>Download Ship List <i class="fa fa-download"></i>&nbsp;</b></button>
+
+                      <span class="downloadShipList hide">&nbsp;|&nbsp;</span>
+
+                      <button type="button" class="no-btn w3-tiny w3-text-red hide downloadShipList" onclick="roster_url = null; gridPush(null, null, 'remove'); rosterInit();" style1="position: absolute; transform: translateX(-50%); -webkit-transform: translateX(-50%);"><b>Remove Ship List <i class="fa fa-times"></i>&nbsp;</b></button>
+                    </span>
+
+                    <button type="button" class="no-btn w3-tiny w3-text-blue" onclick="exportRoster();" style1="position: absolute; transform: translateX(-50%); -webkit-transform: translateX(-50%); white-space: nowrap;"><b>Download Bulk Order Ship List Template <i class="fa fa-download"></i>&nbsp;</b></button>
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td class="budget_code_wrapper">
+              <style>.budget_code_wrapper > .table-wrapper{ height: 100%; }</style>
+              <table class="w3-margin-0 w3-border-0" style="height: inherit;">
+                <tr class="w3-border-0">
+                  <td class="w3-padding text-center1 w3-border-0">
+                    <label for="budget_code">Budget Type <span class="w3-text-red">*</span></label>
+                    <select name="" id="budget_code" required="" onchange="gridPush();">
+                      <option value="">Select</option>
+                      <option value="A&M">A&M</option>
+                      <option value="TPM">TPM</option>
+                      <option value="Trade">Trade</option>
+                    </select>
+                  </td>
+                </tr>
+              </table>
+            </td>
+            {% for item in cart.items %}
+            <td class="text-center w3-padding-0" style="position: relative; {% if cart.items.size < 6 or true %}width: {{ 100 | divided_by: cart.items.size }}%;{% endif %}">
+              <table class="w3-margin-0">
+                {% comment %}<button class="no-btn w3-tiny w3-red w3-circle w3-btn" type="button" title="Remove" style="position:absolute;top: 5px;right: 5px;width: 21px; height: 21px;" onclick="freez(); $.post('/cart/update.js', { updates: {'{{ item.key }}': 0} }).always(function(data){ console.log(data); location.reload(); });"><i class="fa fa-times fa-sm"></i></button>{% endcomment %}
+                <tr class="w3-border-0" style="height: 160px;">
+                  <td class="text-center w3-padding-0 w3-border-0">
+                    <a class="cart__image">
+                      <img src="{{ item | img_url: '125x125' }}" alt="{{ item.title | escape }}" class="w3-btn w3-padding-0 w3-transparent" onclick="showProductModal('/collections/{{ collection_handle }}{{ item.url }}&view=alternate', {{ forloop.index0 }});">
+                    </a>
+                  </td>
+                </tr>
+                <tr class="w3-border-0">
+                  <td class="text-center w3-padding-0 w3-border-0">
+                    {% comment %}<div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: auto; width: calc(100% - 150px);">{% endcomment %}
+                      <a onclick="showProductModal('/collections/{{ collection_handle }}{{ item.url }}&view=alternate', {{ forloop.index0 }});" class="h3 w3-margin-top" title="{{ item.product.title }}" style="cursor: pointer;">
+                        {% assign truncate_by = 100 | divided_by: cart.items.size | at_least: 22 %}
+                        {{ item.product.title | truncate: truncate_by }}
+                      </a>
+                    {% comment %}</div>{% endcomment %}
+                    <p class="w3-margin-0">Product Details</p>
+                    
+                    <p class="w3-margin-0"><b>Element:</b> <span>{{ item.variant.option1 | default: "Default" }}</span></p>
+
+                    {% unless item.variant.option1 contains "Default" %}
+                      <div class="variant_title_line_{{ forloop.index0 }} hide">
+                        <label>Element (required)</label>
+                        <select name="" id="" disabled="" readonly="">
+                          <option value="" selected>{{ item.variant.option1 }}</option>
+                        </select>
+                      </div>
+                    {% endunless %}
+
+                    <p class="w3-margin-0"><b>Customer Name:</b> {{ item.properties["Customer Name"] }}</p>
+
+                    {% assign propertySize = item.properties | size %}
+                    {% if propertySize > 0 %}
+                      {% for p in item.properties %}
+                        {% if p.first contains 'Unit Price' %}
+                        {% assign p_last = p.last | split:'$' | last | times: 100 %}
+                        {% comment %}<script>console.log('gotcha: {{ p_last }}, {{ item_price }}, {{ total_calculated_price_difference }}');</script>{% endcomment %}
+                        {% endif %}
+                      {% endfor %}
+                    {% endif %}
+                    <p class="product_price" product_id="{{ item.key | replace: ':', '_' }}" data-price="{{ p_last | default: item.price }}">{{ p_last | default: item.price | money }}</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+            {% endfor %}
+          </tr>
+
+          
+
+          {% if has_digital_product %}
+          <tr id="default_address">
+            <td>
+              <b>Digital Orders</b>
+              <p></p>
+              <p class="w3-margin-0">
+                <small>{{ customer.first_name }} {{ customer.last_name }}</small>
+                <br>
+                <small>{{ customer.email }}</small>
+              </p>
+            </td>
+            <td class="w3-black td-table-wrapper">
+              <table class="w3-margin-0">
+                <tr>
+                  <td><h4>Location Total Qty</h4></td>
+                  <td id="address_total_quantity_{% raw %}{{ id }}{% endraw %}" default_id="{% raw %}{{ id }}{% endraw %}" class="text-right"><h4>{{ loader }}</h4></td>
+                </tr>
+                <tr>
+                  <td><h4>Location Total Price</h4></td>
+                  <td id="address_total_price_{% raw %}{{ id }}{% endraw %}" class="text-right"><h4>{{ loader }}</h4></td>
+                </tr>
+              </table>
+            </td>
+            {% for item in cart.items %}
+            <td class="text-center">
+              <input type="number" name="order[address][{% raw %}{{ id }}{% endraw %}][product][{{ item.key | replace: ':', '_' }}]" {% if item.properties['Printing'] == 'No' %}value="1" class="text-center"{% else %}value="0" class="text-center w3-opacity"{% endif %}" readonly="" oninput="updateGrid('quantity', this);" />
+              <input type="hidden" name="order[address][{% raw %}{{ id }}{% endraw %}][shipping_amount]" value="0"/>
+            </td>
+            {% endfor %}
+          </tr>
+          {% endif %}
+
+
+          <tr w3-repeat="addresses" style="display: none;">
+            {% capture address_repeat %}
+            <td style="height: 293px;" id="address_{% raw %}{{ id }}{% endraw %}">
+              <b>{% raw %}{{ customer }}{% endraw %}</b>
+              <p></p>
+              <p class="w3-margin-0">
+                <small>{% raw %}{{ first_name }} {{ last_name }}{% endraw %}</small>
+                <br>
+                <small>{% raw %}{{ email }}{% endraw %}</small>
+                <br>
+                <small>{% raw %}{{ phone }}{% endraw %}</small>
+              </p>
+              <p></p>
+              <p class="w3-margin-0">
+                <small>{% raw %}{{ address1 }}{% endraw %}</small>
+                <br>
+                <small>{% raw %}{{ city }}{% endraw %}, {% raw %}{{ state }}{% endraw %} {% raw %}{{ zip }}{% endraw %}</small>
+                <br>
+                <small>{% raw %}{{ country }}{% endraw %}</small>
+              </p>
+              <p></p>
+              <p class="w3-margin-0">
+                <small>{% raw %}{{ budget_identifier }}{% endraw %}</small>
+                <br>
+                <small>{% raw %}{{ channel_identifier }}{% endraw %}</small>
+                <br>
+                <small><b>
+                  <button type="button" class="no-btn w3-text-blue" onclick="showAddModal({% raw %}{{ id }}{% endraw %});">Edit</button> &nbsp;
+                  <button type="button" class="no-btn w3-text-red" onclick="confirmRemove({% raw %}{{ id }}{% endraw %}, this);">Remove</button>
+                </b></small>
+              </p>
+            </td>
+            {% endcapture %}
+            {{ address_repeat }}
+            <td class="w3-black td-table-wrapper">
+              <table class="w3-margin-0">
+                <tr>
+                  <td><h4>Location Total Qty</h4></td>
+                  <td id="address_total_quantity_{% raw %}{{ id }}{% endraw %}" class="text-right"><h4>{{ loader }}</h4></td>
+                </tr>
+                <tr>
+                  <td><h4>Location Total Price</h4></td>
+                  <td id="address_total_price_{% raw %}{{ id }}{% endraw %}" class="text-right"><h4>{{ loader }}</h4></td>
+                </tr>
+              </table>
+            </td>
+            {% for item in cart.items) %}
+            <td class="text-center">
+              <input type="number" name="order[address][{% raw %}{{ id }}{% endraw %}][product][{{ item.key | replace: ':', '_' }}]" {% if item.properties['Printing'] == 'No' %} class="text-center w3-opacity" value="0" readonly="" oninput="updateGrid('quantity', this);" {% else %}class="text-center" value="{% raw %}{{{% endraw %}{{ item.key | replace: ':', '_' }}{% raw %}}}{% endraw %}" oninput="if (this.value.length > 4) {this.value = Number(this.value.slice(0,4)); } updateGrid('quantity', this);" onblur="if(this.getAttribute('changed') == '1') gridPush(); this.setAttribute('changed','0');" onchange="this.setAttribute('changed','1');" {% if forloop.first or forloop.last %}onkeydown="tabFunction(this, event);"{% endif %} changed="0" min="0" max="9999" pattern="[0-9]{4}" {% endif %} line_index="{{ forloop.index }}" />
+              <input type="hidden" name="order[address][{% raw %}{{ id }}{% endraw %}][shipping_amount]" value="0"/>
+            </td>
+            {% endfor %}
+          </tr>
+
+
+          {% comment %}Total Cost row{% endcomment %}
+          <tr class="w3-black" style="height: 130px;">
+            <td class="w3-black w3-padding-0 td-table-wrapper w3-border-0" style="height: 130px">
+              <table class="w3-margin-0 w3-border-0" style="height: inherit;">
+                <tr class="w3-border-0 w3-border-left">
+                  <td class="w3-padding text-left w3-border-0">
+                    <h2 class="w3-margin-0">Total Price</h2>
+                  </td>
+                  <td class="w3-padding text-right w3-border-0">
+                    <h2 id="total_grid_price" class="w3-margin-0">{{ loader }}</h2>
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td class="w3-black td-table-wrapper w3-border-0" style="height: 130px;">
+              <table class="w3-margin-0 w3-border-0 w3-border -left" style="height: inherit;">
+                <tr class="w3-border-0">
+                  <td class="w3-padding1 text-left w3-border-0 w3-small text-center" style="color: #aaa !important;">
+                    <b>Note</b>: Totals do not include shipping or design fee.
+                  </td>
+                </tr>
+              </table>
+            </td>
+            {% for item in cart.items %}
+            <td class="td-table-wrapper w3-border-0">
+              <table class="w3-black w3-margin-0">
+                <tr class="w3-border-0 w3-border-left w3-border-bottom">
+                  <td style="height: 65px;"><h4>Item Total Qty</h4></td>
+                  <td id="product_total_quantity_{{ item.key | replace: ':', '_' }}" class="text-right" style="height: 65px;"><h4>{{ loader }}</h4></td>
+                </tr>
+                <tr class="w3-border-0 w3-border-left">
+                  <td style="height: 65px;"><h4>Item Total Price</h4></td>
+                  <td id="product_total_price_{{ item.key | replace: ':', '_' }}" class="text-right" style="height: 65px;"><h4>{{ loader }}</h4></td>
+                </tr>
+              </table>
+            </td>
+            {% endfor %}
+          </tr>
+          
+        </table>
+      </div>
+      
+      <div class="section-header wrapper w3-margin-top">
+        <div class="grid">
+          <div class="grid__item one-half medium-down--one-whole1">
+            <a href="/cart"><button type="button" class="btn">Return to Cart</button></a>
+          </div>
+          <div class="grid__item one-half medium-down--one-whole1 text-right">
+            <button type="button" class="btn btn-primary" onclick="gridPush(null, true);">Continue</button>
+          </div>
+        </div>
+      </div>      
+
+      <div id="address_template" class="hide address_template">{{ address_repeat }}</div>
+
+    </form>
+
+    <div id="mfp-address-add">
+    {% include 'checkout-grid-add-address-form' %}
+    </div>
+
+    <div id="mfp-address-select">
+    {% include 'checkout-grid-select-address-form' %}
+    </div>
+
+    <div id="mfp-product-preview">
+    {% include 'checkout-grid-product-preview' %}
+    </div>
+
+    {% comment %}{{ 'papaparse.min.js' | asset_url | script_tag }}{% endcomment %}
+    {{ 'nanobar.min.js' | asset_url | script_tag }}
+
+
+    <script>
+      loader_enable = true;
+      var grid_data = { addresses: [] };
+      var address = { addresses: [] };
+      var default_id = budget_code = roster_url = arrayOfArrays = null;
+
+      var cart_items = {{ cart.items | json }};
+
+      // if (typeof(Storage) !== "undefined") {
+      //   localStorage.modCart__{{ customer.id }} = JSON.stringify({{ cart.items | json }});
+      // }
+
+      freez();
+
+      //     ...........................nano-bar...................................
+            
+      var options = {
+          classname: 'my-class',
+          id: 'my-id',
+          target: $('.header-bar').get(0)
+      };
+
+      var nanobar = new Nanobar( options );
+      
+      function nanobarLoad(data){ console.log(data.toString());
+        nanobar.go(parseInt(data));
+      }
+
+      function intersection(setA, setB) {
+          var _intersection = new Set();
+          for (var elem of setB) {
+              if (setA.has(elem)) {
+                  _intersection.add(elem);
+              }
+          }
+          return _intersection;
+      }
+
+      function fetchGrid(){
+        // freez();
+
+        $.ajax({
+                url: '/apps/place_bulk_order?cid={{ customer.id }}&action_type=list_fs_grid',
+                type: 'GET',
+                dataType: 'json',
+                contentType: 'application/json',
+                success: function(data){ 
+                  console.log(data);
+                  try{
+                    if(!Boolean(data)){
+                      updateGrid('quantity');
+                      nanobarLoad(0);
+                      return false;
+                    }
+
+                    grid_data["grid_id"] = data["grid_id"];
+
+                    budget_code = data["budget_code"];
+
+                    roster_url = data["roster_url"];    
+
+                    setTimeout(function(){
+                      setPresets();
+                    },100);             
+
+                    if(data["grid_info"] != undefined && data["grid_info"]["addresses"] != undefined && data["grid_info"]["addresses"].length > 0){
+                      cart_keys = new Set(('{{ cart.items | map: "key" | join: "," | replace: ":","_" }}').split(","));
+                      grid_address = [];
+                      grid_address_except_default = data["grid_info"]["addresses"].filter(function(a){ if(a.id != Number($('#default_address [default_id]').attr('default_id') || default_id)) return a; });
+                      $.each(grid_address_except_default, function(){
+                        grid_address = grid_address.concat(
+                          Object.keys(this).filter(function(a){ 
+                            if(a.indexOf('_') > -1 && a.length > 20) 
+                              return a; 
+                          })
+                        );
+                      });
+                      
+                      grid_keys = new Set(grid_address);
+
+                      //console.log(cart_keys);
+                      //console.log(grid_keys);
+
+                      if(intersection(cart_keys, grid_keys).size > 0){
+                        updateGrid("address", grid_address_except_default, true);
+                      }
+                      nanobarLoad(100);  
+                      defreez();
+                    }else{
+                      // updateGrid('quantity');
+                      setPresets();
+                      nanobarLoad(0);
+                      defreez();
+                    }
+                  }catch(e){
+                    nanobarLoad(0);
+                    show_message4(('Error in populating Grid Data.'),false, e.message); 
+                  }
+                },
+                error: function(data){ 
+                  show_message2('Some Error Occured.',false); 
+                  console.log(data);
+                  nanobarLoad(0);
+                },
+                complete: function(){
+                  {% if has_digital_product %}
+                    // $('#default_address > td > input[type="number"]').each(function(){
+                    //   updateGrid('quantity', this);
+                    // });
+                    setPresets();
+                  {% endif %}
+                  // defreez();
+                }
+        });
+      }
+
+      function set_row_height() {
+        var $tr = $('#id02 > tbody > tr:not(td tr)');
+        $tr.each(function(i, o) {
+          max_height = Math.max(...[Number($(o).find('td:not(td td)').first().css('height').replace('px','')), Number($(o).find('td:not(td td)').last().css('height').replace('px',''))]);
+          // $(o).find('td:not(td td)').height(max_height);
+          $(o).find('td:not(td td)').css('height', max_height+'px');
+          if(i < $tr.length-1)
+            $(o).find('td:not(td td):lt(2)').css('height', max_height+2+'px');
+          else
+            $(o).find('td:not(td td):lt(2)').css('height', max_height+1+'px');
+          // console.log(max_height);
+        });
+      }
+
+      $(document).ready(function(){
+        {% if cart.items.size > 6 or true %}
+          if($("#id02").width() > $("#id02").parent().width()){
+            set_row_height();
+            $('.id02_wrapper').addClass('is_fixed');
+          }else
+            $('.id02_wrapper').removeClass('is_fixed');
+        {% endif %}
+        {% if only_digital_product %}
+          setTimeout(function(){ 
+            $('#default_address > td > input[type="number"]').each(function(){
+              updateGrid('quantity', this);
+            });
+            defreez();
+          }, 1500);
+        {% else %}
+          nanobarLoad(30);
+          setTimeout(fetchGrid, 800);
+        {% endif %}
+
+      });
+
+      $(window).load(function(){
+        $('.id02_wrapper.is_fixed > .table-wrapper').scroll(function(){
+            var $width = $(this).outerWidth()
+            var $scrollWidth = $(this)[0].scrollWidth; 
+            var $scrollLeft = $(this).scrollLeft();
+
+            if ($scrollWidth - $width === $scrollLeft){
+                // alert('right end');
+            }
+            else if ($scrollLeft===0){
+                // alert('left end');
+                $('.id02_wrapper.is_fixed #id02 > tbody > tr > td:nth-child(2)').removeClass('shadow-right');
+            }else
+              $('.id02_wrapper.is_fixed #id02 > tbody > tr > td:nth-child(2)').addClass('shadow-right');
+        });
+      });
+
+      function setTabIndex(){
+        $('[name^="order[address]["][type="number"]:visible').not('[readonly]').each(function(i, o){ this.setAttribute("tabindex", i+1); });
+      }
+
+      function tabFunction(o, e) {
+          if (e.keyCode == 9) { e.preventDefault();
+              thisIndex = o.getAttribute('tabindex');
+              inputFields = $('[name^="order[address]["][type="number"]:visible').not('[readonly]');
+              if (e.shiftKey) { console.log("Tab+Shift");
+                  //Focus previous input
+                  if (thisIndex != "1") { 
+                      inputFields.filter('[tabindex="' + (Number(thisIndex)-1) + '"]').focus(); console.log('[tabindex="' + (Number(thisIndex)-1) + '"]');
+                      return false;
+                  }else
+                    inputFields.filter('[tabindex="' + lastIndex + '"]').focus(); console.log('[tabindex="' + (Number(thisIndex)-1) + '"]');
+              } else { console.log("Tab");
+                  lastIndex = $('[name^="order[address]["][type="number"]:visible').not('[readonly]').length.toString();
+                  if (o.getAttribute('tabindex') != lastIndex) { 
+                      inputFields.filter('[tabindex="' + (Number(thisIndex)+1) + '"]').focus(); console.log('[tabindex="' + (Number(thisIndex)+1) + '"]');
+                      return false;
+                  }else
+                    inputFields.filter('[tabindex="' + "1" + '"]').focus(); console.log('[tabindex="' + (Number(thisIndex)-1) + '"]');
+              }
+          }
+      }
+
+
+      function confirmRemove(id, obj){
+        //backup
+
+        target = $(obj).parents('[w3-repeat="addresses"]').addClass("slideOutRight animated fast");
+        setTimeout(function(){
+          target.remove();
+          
+          setPresets();
+
+          gridPush(null, null, 'remove');
+          setTabIndex();
+        },800);
+      }
+
+      function setPresets(){
+        qty_inputs = $('.id02_wrapper #id02 > tbody > tr > td:nth-child(3) [name^="order["]:visible, tr[w3-repeat="addresses"] [name^="order["]:visible');
+
+        if(qty_inputs.length > 0)
+          qty_inputs.trigger('input');
+        else
+          updateGrid('quantity');
+
+        rosterInit();
+      }
+
+      function rosterInit() {
+        $('#budget_code').val(budget_code);
+        if(Boolean(roster_url)){
+          $('.downloadShipList').removeClass('hide');
+          // $('.addShipping, .selectShipping').prop('disabled', true);
+        }else{
+          $('.downloadShipList').addClass('hide');
+          // $('.addShipping, .selectShipping').prop('disabled', false);
+        }
+        
+      }
+
+      function updateGrid(obj, data, no_push){ //console.log(data);
+        if(obj == "address"){
+          grid_data.addresses = grid_data.addresses.concat(data);
+          $.when(setTimeout(w3DisplayData("id02", grid_data),100))
+          .done(function(){ 
+            set_row_height();
+            $('[w3-repeat="addresses"]').show();
+            // $('.id02_wrapper #id02 > tbody > tr > td:nth-child(3) [name^="order["], tr[w3-repeat="addresses"] [name^="order["]').trigger('input');
+            setPresets();
+
+            if(!no_push)
+              gridPush(null, null, 'add');
+          });
+        }else if(obj == "quantity"){
+          //grid_data.order = $('#id02 [name^="order["]:not([name~="id"])').serializeJSON().order;
+          if(data){
+            $this = $(data).serializeJSON().order;
+
+            $this_address_id = Object.keys($this.address)[0];
+
+            $this_product_key = Object.keys($this.address[$this_address_id].product)[0];
+
+            $this_addresses = $('#id02 [name^="order[address]['+$this_address_id+']"][type="number"]');
+
+            $this_product_price = $('p.product_price[product_id="'+$this_product_key+'"]').attr('data-price');
+
+            $this_products = $('#id02 [name$="[product]['+$this_product_key+']"][type="number"]');
+
+            $product_prices = $('p.product_price[data-price]').map(function(){ return Number(this.getAttribute('data-price')) || 0 }).get();
+
+            $('#address_total_quantity_'+$this_address_id+' h4').text(
+              eval($this_addresses.map(function(){ return Number(this.value) || 0 }).get().join("+"))
+            );
+
+            $('#address_total_price_'+$this_address_id+' h4').text(
+              '$'+addCommas(addZeroes(parseFloat(eval($this_addresses.map(function(i, o){ return (Number(o.value) || 0)*$product_prices[i]/100 }).get().join("+")).toFixed(2))))
+            );
+
+            $('#product_total_quantity_'+$this_product_key+' h4').text(
+              eval($this_products.map(function(){ return Number(this.value) || 0 }).get().join("+"))
+            );
+
+            $('#product_total_price_'+$this_product_key+' h4').text(
+              '$'+addCommas(addZeroes(parseFloat(eval($this_products.map(function(i, o){ return (Number(o.value) || 0)*$this_product_price/100 }).get().join("+")).toFixed(2))))
+            );
+
+            $('#total_grid_price').text(
+              '$'+addCommas(addZeroes(parseFloat(eval($('#id02 [id^="address_total_price_"]:not([id~="id"]) h4').map(function(i, o){ return (Number(o.innerHTML.replace('$','').replace(',','')) || 0) }).get().join("+")).toFixed(2))))
+            );
+          }else{
+            $('#total_grid_price, [id^="product_total_price_"] h4').text('$0.00');
+            $('[id^="product_total_quantity_"] h4').text('0.00');
+          }
+
+          // if(parseFloat($('#total_grid_price').text().replace("$", "")) > 0)
+          //   $('.uploadRoster').prop('disabled', true);
+          // else
+          //   $('.uploadRoster').removeAttr('disabled');
+
+          setTabIndex();
+
+          //$.trim($('#product_total_quantity_'+$this_product_key+' h4').text())
+
+          //gridPush(grid_data.order);
+        }
+      }
+
+      function gridPush(data, final, remove){
+        if(final && !budget_code){
+          $('#budget_code').focus();
+          show_message2('Budget Type is required.', false); 
+          return false;
+        }
+
+        {% comment %}
+        // if(roster_url && {% if has_digital_product %}true{% else %}false{% endif %} && !remove){
+        //   nanobarLoad(0);
+        //   show_message4("Bulk Order Shiplist not acceptible with Digital Products.", false, "Please Remove Bulk Order Shiplist or Place another order for Digital Products.");
+        //   return false;
+        // } 
+        {% endcomment %}
+
+        nanobarLoad(30);
+        if(!data){
+          if(final)
+            $('[name^="order[address]"]').filter(function(){ return this.value == 0 }).val('0');
+          data = grid_data.order = Object.assign({}, $('#id02 [name^="order["]:not([name~="id"])').serializeJSON().order || { address: {} });
+        }
+
+        console.log("*******************************************");
+        console.log(Boolean(roster_url));
+        console.log(Object.keys(data.address).length);
+        console.log(!remove);
+        console.log("*******************************************");
+
+        if(roster_url && Object.keys(data.address).length < {% if has_digital_product %}2{% else %}1{% endif %} && !remove){
+          nanobarLoad(0);
+          show_message4("One Shipping Address with total Qty is required with Bulk Order Shiplist.", false, "Please add Shipping Addresses.");
+          return false;
+        }else if(roster_url && Object.keys(data.address).length > {% if has_digital_product %}2{% else %}1{% endif %} && !remove){
+          nanobarLoad(0);
+          show_message4("Only one Shipping Address with total Qty is allowed with Bulk Order Shiplist.", false);
+          return false;
+        }else if(!roster_url && data.address.length == 0 && !remove){
+          nanobarLoad(0);
+          show_message4("Atleast one Shipping Address required.", false, "Please add Shipping Addresses/Bulk Order Shiplist.");
+          return false;
+        }else if(!remove){
+          inputFields = $('{% if has_digital_product %}tr[w3-repeat="addresses"] {% endif %}[name^="order["]:visible').map(function(i, o){ return (Number(o.value) || 0) }).get();
+          if(inputFields.length > 0 && inputFields.reduce(function(t,n){ return t+n; }) < 1 ){
+            nanobarLoad(0);
+            show_message4("Atleast one Quantity is required.", false);
+            return false;
+          }
+        }
+
+        {% comment %}
+        // if(roster_url && data.address.length > 0 && !remove){
+        //   nanobarLoad(0);
+        //   show_message4("Bulk Order Shiplist not acceptible with Selected Address.", false, "Please Remove Addresses.");
+        //   return false;
+        // }
+        {% endcomment %}
+        
+        data1 = { cart_info: cart_items, grid_info: data, grid_id: grid_data.grid_id };
+
+        if($('#budget_code').val().length > 0){
+          data1["budget_code"] = budget_code = $('#budget_code').val();
+        }
+
+        data1["roster_url"] = roster_url;
+
+        if(final){
+          data1["order_save"] = true;
+          data1["shipping_method"] = "UPS Ground";
+          freez();
+        }
+        console.log(data1);
+        $.ajax({
+                url: '/apps/place_bulk_order?cid={{ customer.id }}&action_type=save_fs_grid',
+                type: 'POST',
+                data: JSON.stringify(data1),
+                dataType: 'json',
+                contentType: 'application/json',
+                success: function(data){ 
+                  console.log(data); 
+                  try{
+                    grid_data.grid_id = data.grid_id;
+                    grid_address_except_default = data["grid_info"]["addresses"].filter(function(a){ if(a.id != Number($('#default_address [default_id]').attr('default_id'))) return a; });
+                    grid_data.addresses = grid_address_except_default;
+                    rosterInit();
+                    if(final && data.order_id){
+                      nanobarLoad(60);
+                      gridCheckout(data.order_id);
+                    }
+                    else{
+                      nanobarLoad(100);
+                      defreez();
+                    }
+                  }catch(e){
+                    nanobarLoad(0);
+                    show_message4(('Error in populating Grid Data.'),false, e.message); 
+                  }
+                },
+                error: function(data){ 
+                  console.log(data);
+                  show_message2(((data.message != undefined) ? data.message : 'Some Error Occured.'),false); 
+                  nanobarLoad(0);
+                }
+        });
+      }
+
+      function gridCheckout(order_id){
+        product_totals = $('#id02 [id^="product_total_quantity_"]:not([id~="id"]) h4').map(function(i, o){ return (Number(o.innerHTML) || 0) }).get();
+        jQuery.ajax({
+          url: "/cart.json",
+            type: "get"
+        })
+        .always(function(xhr, status){
+          console.log(xhr);
+          if(xhr.items == undefined){
+            cart_info = JSON.parse(xhr.responseText).items
+            console.log("&&&&&&&&&&&&&&&&&&")
+            console.log(cart_info)
+            console.log("&&&&&&&&&&&&&&&&&&")
+          }else{
+            cart_info = xhr.items
+            console.log("&&&&&&&&&&&&&&&&&&")
+            console.log(cart_info)
+            console.log("&&&&&&&&&&&&&&&&&&")
+          }
+
+          if(!isEqualObject(cart_items, cart_info)){
+            show_message2("Cart got updated. Reloading!", false, true);
+            location.reload();
+            return false;
+          }
+
+          data = {updates: {}, attributes: {"Parent ID": order_id, "Budget Code": $('#budget_code').val() }};
+
+          if(Boolean(roster_url))
+            data.attributes['Roster'] = roster_url;
+
+          jQuery.each(cart_info, function(index, line_item){
+            data.updates[line_item.key] = product_totals[index];
+          });
+
+          console.log(data);
+          jQuery.post('/cart/update.js',
+            data
+          )
+          .always(function(data) {
+            console.log(data);
+            nanobarLoad(99);
+            window.parent.location.href = "/checkout"
+          })
+          .error(function(jqXHR, exception){
+            console.log(exception)
+          });
+        });
+      }
+
+      function sortObject(o) {
+        return Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {});
+      }
+
+      function isEqualObject(a,b){
+        return JSON.stringify(sortObject(a)) == JSON.stringify(sortObject(b));
+      }
+
+      function exportRoster() {
+        var data = [Object.keys($('#address_form_new [name^="address["]').serializeJSON().address).concat(cart_items.map(function(x) { return x["title"]+"_"+x["key"]; }))].map(function(d){
+           return JSON.stringify(d);
+        })
+        .join('\n') 
+        .replace(/(^\[)|(\]$)/mg, '');
+        
+        var filename = 'bulk_order_shiplist_template_'+(new Date()).getTime()+'.csv';
+        var charset = "utf-8";
+        var blob = new Blob([data], {
+             type: "text/csv;charset="+ charset + ";"
+        });
+        if (window.navigator.msSaveOrOpenBlob) {
+             window.navigator.msSaveBlob(blob, filename);
+        } else {
+            var downloadLink = document.createElement('a');
+            downloadLink.setAttribute('href', window.URL.createObjectURL(blob));
+            downloadLink.setAttribute('download', filename);
+            downloadLink.setAttribute('target', '_blank');  
+            document.body.append(downloadLink); 
+            downloadLink.click(); 
+        }
+      }
+
+      function transpose(array) {
+        return array.reduce((prev, next) => next.map((item, i) =>
+          (prev[i] || []).concat(next[i])
+        ), []);
+      }
+
+      {% comment %}
+      // function readCSV(element){
+      //   if(element.value.length > 0){
+      //     var reader = new FileReader();
+      //     reader.onload = function () {
+      //         obj = {};
+      //         arrayOfArrays = transpose(Papa.parse(reader.result,{ skipEmptyLines: true }).data).reverse();
+      //         arrayOfArrays.forEach(function(elem, index){
+      //           if(elem[0].indexOf(':') > -1)
+      //             obj[elem[0].split('_')[1].replace('"','')] = elem.reduce(function(t, n){ return Number(t)||0+Number(n)||0; })||0;
+      //           else
+      //             return false;
+      //         });
+      //         arrayOfArrays = obj;
+      //         console.log(arrayOfArrays.length);
+      //     };
+      //     // start reading the file. When it is done, calls the onload event defined above.
+      //     reader.readAsBinaryString(element.files[0]);
+      //   }else
+      //     arrayOfArrays = null;
+      // }
+      {% endcomment %}
+
+      function validateRoster(element){
+          {% comment %}
+          // if({% if has_digital_product %}true{% else %}false{% endif %}){
+          //   nanobarLoad(0);
+          //   show_message4("Bulk Order Shiplist not acceptible with Digital Products.", false);
+          //   return false;
+          // }
+          {% endcomment %}
+
+          var file = element.files[0];
+          var reader = new FileReader();
+          var imgCheck = true;
+                                                        
+          reader.onloadend = function() {
+            attachment = reader.result.split(',')[1];
+            attachment = attachment.replace(' ', '');
+            filename = file.name;
+            extension = filename.toLowerCase().match(/\.([^\.]+)$/)[1];
+            switch(extension)
+            {
+                case 'csv':
+
+                  break;
+                default:
+                  show_message4('Unsupported file type...',false,'Supported file type ".csv"');
+                  imgCheck = false;
+            }
+            if(file.size/1024/1024 > 2 ){
+              show_message4('Invalid image file size...',false,'Try adding file of size < 2 MB');
+                imgCheck = false;
+            }
+            
+            if(imgCheck){
+              // readCSV(element);
+              uploadRoster(file);
+            }
+            element.value='';
+          }
+                  
+          reader.readAsDataURL(file);
+      }
+
+      function uploadRoster(file){
+        txtbkp = $('.uploadRoster').html();
+        $('.uploadRoster').html('{{ loader }}');
+
+        {% comment %}
+        // file = element.files[0];
+
+        // alert(file.name+" | "+file.size+" | "+file.type);
+        {% endcomment %}
+
+        var formData = new FormData();
+
+        formData.append("roster", file);
+        formData.append("grid_id", grid_data.grid_id);
+
+        {% comment %}
+        // Loop through each of the selected files.
+        // for (var i = 0; i < files.length; i++) {
+        //   var file = files[i];
+
+        //   // Check the file type.
+        //   // if (!file.type.match('image.*')) {
+        //   //   continue;
+        //   // }
+
+        //   // Add the file to the request.
+        //   formData.append('roster[]', file, file.name);
+        // }
+        {% endcomment %}
+
+        var xhr = new XMLHttpRequest();
+        xhr.upload.addEventListener("progress", rstrUpldProgressHandler, false);
+        xhr.addEventListener("load", rstrUpldCompleteHandler, false);
+        xhr.addEventListener("error", rstrUpldErrorHandler, false);
+        xhr.addEventListener("abort", rstrUpldAbortHandler, false);
+        xhr.open('POST', '/apps/place_bulk_order?cid={{ customer.id }}&action_type=upload_roaster', true);
+        xhr.responseType = "json";
+        xhr.onload = function () {
+          // console.log(xhr);
+          if (xhr.status === 200) {
+            // File(s) uploaded.
+            $('.uploadRoster').html(txtbkp.replace('Upload', 'Uploaded'));
+            show_message2('Uploaded.',true);
+          } else {
+            $('.uploadRoster').html(txtbkp);
+            show_message2('Upload Failed.',false);
+          }
+        };
+        function rstrUpldProgressHandler(event){
+          var percent = (event.loaded / event.total) * 100;
+          nanobarLoad(Math.round(percent));
+        }
+        function rstrUpldCompleteHandler(event){
+          // nanobarLoad(100);
+          console.log(event.target.response);
+          roster_url = event.target.response.url;
+          // selectAddress(default_id);
+          if(Boolean(roster_url))
+            rosterInit();
+        }
+        function rstrUpldErrorHandler(event){
+          // _("status").innerHTML = "Upload Failed";
+          show_message2('Upload Failed.',false);
+        }
+        function rstrUpldAbortHandler(event){
+          // _("status").innerHTML = "Upload Aborted";
+          show_message2('Upload Aborted.',false);
+        }
+        console.log(formData);
+        xhr.send(formData);
+      }
+
+      function openInNewTab(href) {
+        newwindow=window.open(href,'_blank'); //,'height=1000,width=1800'
+        newwindow.location;
+        if (window.focus) {newwindow.focus()}
+        {% comment %}
+        else{
+          // Object.assign(document.createElement('a'), {
+          //   target: '_blank',
+          //   href,
+          // }).click();
+        }
+        {% endcomment %}
+        return false;
+      }
+
+      function addZeroes(num) {
+         return num.toFixed(Math.max(((num+'').split(".")[1]||"").length, 2));
+      }
+
+      function addCommas(nStr){
+        nStr += '';
+        x = nStr.split('.');
+        x1 = x[0];
+        x2 = x.length > 1 ? '.' + x[1] : '';
+        var rgx = /(\d+)(\d{3})/;
+        while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        }
+        return x1 + x2;
+      }
+
+      if (typeof(Storage) !== "undefined") {
+        var cartCheck = setInterval(function() {
+          if(!isEqualObject(cart_items, JSON.parse(localStorage.modCart_{{ customer.id }}) )) {
+            show_message2("Cart got updated. Reloading!", false, true);
+            location.reload();
+            clearInterval(cartCheck);
+            return false;
+          }
+        }, 1000);
+      }
+
+    </script>
+
+  {% else %}
+    {% comment %}
+      The cart is empty
+    {% endcomment %}
+    <div class="wrapper">
+      <h2>{{ 'cart.general.title' | t }}</h2>
+      <p>{{ 'cart.general.empty' | t }}</p>
+      <p>{{ 'cart.general.continue_browsing_html' | t }}</p>
+    </div>
+  {% endif %}
+</div>

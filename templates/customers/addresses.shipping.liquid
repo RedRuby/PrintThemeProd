@@ -1,0 +1,277 @@
+<h1 class="w3-margin-0">{{ 'customer.addresses.title' | t | replace: "Addresses", "Shipping Addresses" }}</h1>
+<hr>
+<div class="section-header section-header--large">
+  <div class="section-header__link--left">
+    <a class="btn" href="/account">{{ 'customer.account.return' | t }}</a>
+  </div>
+  <div class="section-header__link--right">
+    <a class="btn btn-primary" onclick="Shopify.CustomerAddress.toggleNewForm(); return false;">{{ 'customer.addresses.add_new' | t }}</a>
+  </div>
+</div>
+
+<div id="mfp-address-add">
+  {% include 'checkout-grid-add-address-form' %}
+</div>
+
+{% comment %}
+  List all customer addresses with a unique edit form.
+  Also add pagination in case they have a large number of address (unlikely)
+{% endcomment %}
+<div class="grid">
+  <div class="grid__item four-fifths1 one-whole">
+    {% comment %}<small class="nbsp-hide"><label for="">&nbsp;</label></small>{% endcomment %}
+    {% include 'customer-account-common-code' with 'address-search-bar' %}
+  </div>
+  <div class="grid__item one-fifth text-right small--text-left hide">
+    <lable class="w3-left">Sort</lable>
+    <select name="" id="">
+      <option value="created_desc">New to Old</option>
+      <option value="created_asc">Old to New</option>
+      <option value="customer_asc">A to Z</option>
+      <option value="customer_desc">Z to A</option>
+    </select>
+  </div>
+</div>
+
+{% include 'customer-account-common-code' with 'order-loader' %}
+
+<div id="no_address" style="display:none;">
+  <h3>No Shipping Address</h3>
+</div>
+
+<table id="shipAddress" class="responsive-table w3-table w3-bordered w3-margin-0" style="display: none;">
+  <tr class="row1">
+    <td w3-repeat="addresses">
+    <div class="w3-padding">
+      <h3 class="w3-margin-0">
+        {% raw %}{{ customer }}{% endraw %}
+      </h3>
+
+      <p></p>
+      <p class="w3-margin-0">
+        {% raw %}{{ first_name }} {{ last_name }}{% endraw %}
+        <br>
+        {% raw %}{{ email }}{% endraw %}
+        <br>
+        {% raw %}{{ phone }}{% endraw %}
+      </p>
+      <p></p>
+      <p class="w3-margin-0">
+        {% raw %}{{ address1 }}{% endraw %}
+        <br>
+        {% raw %}{{ city }}{% endraw %}, {% raw %}{{ state }}{% endraw %} {% raw %}{{ zip }}{% endraw %}
+        <br>
+        {% raw %}{{ country }}{% endraw %}
+      </p>
+      <p></p>
+      <p class="w3-margin-0">
+        {% raw %}{{ budget_identifier }}{% endraw %}
+        <br>
+        {% raw %}{{ channel_identifier }}{% endraw %}
+        <br>
+        <b>
+          <button type="button" class="no-btn w3-text-blue" onclick="Shopify.CustomerAddress.toggleForm({% raw %}{{ id }}{% endraw %});">Edit</button> &nbsp;
+          <button type="button" class="no-btn w3-text-red" onclick="Shopify.CustomerAddress.destroy({% raw %}{{ id }}{% endraw %});">Remove</button>
+        </b>
+      </p>
+    </div>
+  </td>
+  </tr>
+</table>
+<br>
+
+<div class="grid per_pageContainer printModeExclude">
+  <div class="grid__item two-thirds">
+    <div id="paginationInit" class="w3-margin-top">
+
+    </div>
+  </div>
+  <div class="grid__item one-third text-right">
+    <label for="per_page" style="display:inline-block;" class="w3-margin-top">Per Page: &nbsp;</label>
+    <select id="per_page" class="per_page" style="max-width:60px; display:inline-block;" onchange="updateState({page: '1',per_page: this.value});updatePerPage(this.value);">
+      <option value='12'>12</option>
+      <option value='20'>20</option>
+      <option value='28'>28</option>
+      <option value='40'>40</option>
+      <option value='48'>48</option>
+    </select>
+  </div>
+</div>
+
+<style type="text/css">
+  td{ vertical-align: middle; width: {{ 100 | divided_by: cols }}%; }
+</style>
+
+<script>
+  var mfpHTML2 = '';
+  var page = 1;
+  var per_page = 48;
+  var search = sort = "";
+
+  var grid_data = { addresses: [] };
+
+  // Modified contents of customer_area.js (global asset)
+  Shopify.CustomerAddress = {
+    toggleForm: function(id) {
+      showAddModal(id);
+    },
+
+    toggleNewForm: function() {
+      showAddModal();
+      return false;
+    },
+
+    destroy: function(id, confirm_msg) {
+      freez();
+      if (confirm({{ 'customer.addresses.delete_confirm' | t | json }})) {
+        destroyAddress(id);
+      }else
+        defreez();
+    }
+  }
+
+  var Strings = {
+    create : (function() {
+      var regexp = /{([^{]+)}/g;
+
+      return function(str, o) {
+        return str.replace(regexp, function(ignore, key){
+          return (key = o[key]) == null ? '' : key;
+        });
+      }
+    })()
+  };
+
+  String.prototype.create = function(o) {
+    return Strings.create(this, o);
+  }
+
+  function setAddTable(){
+    length = $("table#shipAddress tr > td").length;
+    $("table#shipAddress tr > td").unwrap('<tr class="row1"></tr>');
+
+    for (var i = 4; i <= length; i+=4) {
+      $("table#shipAddress td:lt({i}){j}".create({i:i, j:((i>4) ? ':gt('+(i-4-1).toString()+')' : '')})).wrapAll('<tr class="row{i}"></tr>'.create({i:i-4+1}));
+    }
+    $('td[w3-repeat="addresses"]').css("width", "25%");
+  }
+
+  function updateState(param = {}){
+    var data = {};
+    if(param.page != undefined)data.page = param.page; else if(page.length != 0)data.page = page;
+    if(param.per_page != undefined)data.per_page = param.per_page; else if(per_page.length != 0)data.per_page = per_page;
+    if(param.search != undefined)data.search = param.search; else if(search.length != 0)data.search = search;
+    if(param.sort != undefined)data.sort = param.sort; else if(sort.length != 0)data.sort = search;
+
+    data = removeEmpty(data);
+
+    if(document.location.href == History.getState().url && false){
+      History.replaceState({ url: document.location.href }, document.title, '?'+History.getState().url.split('?')[1]||'');
+    }else{
+      summary_view_param = {% if template == 'customers/addresses.shipping' %}'view=shipping&'{% else %}''{% endif %};
+      History.pushState({ url: document.location.href }, document.title, ($.param(data).length != 0) ? '?' +summary_view_param +$.param(data) : '' +summary_view_param );
+    }
+    fetchAddresses();
+  }
+
+  function fetchAddresses(){
+
+    var uri = new YouAreI(document.location.href);
+        query = uri.query_get();
+
+    page = (query.page != undefined) ? query.page : '1';
+    per_page = (query.per_page != undefined) ? query.per_page : (localStorage.per_page_{{ customer.id }}_address == undefined) ? '48' : localStorage.per_page_{{ customer.id }}_address;
+    updatePerPage(per_page);
+    search = (query.search != undefined) ? query.search : '';
+    sort = (query.sort != undefined) ? query.sort : '';
+
+    freez();
+    var data = { cid: "{{ customer.id }}", action_type: "list_fs_address" };
+
+    if(page.length != 0){ data.page = page }
+    if(per_page.length != 0){ data.per_page = per_page; $('.per_page').val(per_page.toString()); }
+    if(search.length != 0){ data.search = search; $('#search').val(search); }
+    if(sort.length != 0){ data.sort = sort; $('#sort').val(sort); }
+
+    $.ajax({
+            url: '/apps/place_bulk_order',
+            type: 'GET',
+            data: data,
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(data){ 
+              console.log(data);  
+              if(data["total_addresses"] > 0){
+                  grid_data.addresses = data.addresses;
+                  $('#shipAddress').html('').append(mfpHTML2);
+                  $.when(setTimeout(w3DisplayData("shipAddress", data),100))
+                  .done(function(){ 
+                    setAddTable();
+                    $(".w3-loader").hide();
+
+                    $('#paginationInit').pagination({
+                        items: data["total_addresses"],
+                        itemsOnPage: data["per_page"],
+                        hrefTextPrefix: "javascript:updateState({ page: '",
+                        hrefTextSuffix: "'});",
+                        currentPage: page,
+                        prevText:'<i class="fa fa-arrow-left"></i>',
+                        nextText:'<i class="fa fa-arrow-right"></i>',
+                        listStyle: 'w3-pagination',
+                        ellipsePageSet: false,
+                    });
+
+                    $("#shipAddress, .per_pageContainer").show();
+
+                    if(page.length != 0){ data.page = page }
+                    if(per_page.length != 0){ data.per_page = per_page; $('.per_page').val(per_page.toString()); }
+                    if(search.length != 0){ data.search = search; $('#search').val(search); }
+                    if(sort.length != 0){ data.sort = sort; $('#sort').val(sort); }
+                  });
+                  
+                }else{
+                    $(".w3-loader").hide();
+                    $("#no_address").show();
+                }
+                defreez();
+            },
+            error: function(data){ 
+              show_message2(data.responseJSON.message||'Some Error Occured.',false); 
+              console.log(data);
+            }
+    });
+  }
+
+  $(document).ready(function(){
+    mfpHTML2 = $('#shipAddress').html();
+    updateState();
+  });
+
+  function destroyAddress(id){
+    $.ajax({
+            url: '/apps/place_bulk_order?cid={{ customer.id }}&action_type=delete_fs_address&id='+id,
+            type: 'GET',
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(data){ defreez(); show_message2(data.message,true); fetchAddresses(); console.log(data); },
+            error: function(data){ show_message2(data.message||'Some Error Occured.',false); console.log(data);}
+    });  
+  }
+
+  function removeEmpty(obj) {
+    Object.keys(obj).forEach(function(key) {
+      if (obj[key] && typeof obj[key] === 'object') removeEmpty(obj[key])
+      else if (!obj[key] && obj[key] !== undefined) delete obj[key]
+    });
+    return obj;
+  };
+
+  function updatePerPage(val){
+      function addTags(){
+        localStorage.per_page_{{ customer.id }}_address = val;
+      }
+      $.when(
+        addTags()
+      ).done(function(){  });
+  }
+</script>

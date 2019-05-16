@@ -1,11 +1,7 @@
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
+{% include 'customer-account-common-code' with 'access-rights-fs' %}
 
-{% if customer  %}
-
-  {% include 'customer-account-common-code' with 'theme-layout-code' %}
-
-{% endif %}
-
-{% if customer.tags contains Role_ASM %}
+{% if customer.tags contains Role_NSM %}
   {% if product.tags contains customer_region_tag %}
 	<style>#nav-2 li:nth-of-type(1) button{background-color: {{ settings.color_primary }};}</style>
   {% else %}
@@ -30,7 +26,7 @@
 
   <div class="product-single">
     <div class="grid product-single__hero">
-      <div class="grid__item post-large--one-half">
+      <div class="grid__item post-large--seven-twelfths">
 
         {% if section.settings.product_thumbnails_position == 'below' or product.images.size < 2 %}
 
@@ -89,7 +85,7 @@
         {% endif %}
 
       </div>
-      <div class="grid__item post-large--one-half">
+      <div class="grid__item post-large--five-twelfths">
         {% if section.settings.product_vendor_enable %}
           <span class="h3" itemprop="brand">{{ product.vendor }}</span>
         {% endif %}
@@ -126,7 +122,7 @@
           {% endfor %}
 
           <div class="product-description rte" itemprop="description">
-            {{ product.description | remove: "An Image of the space you are covering is required" | replace: "//cdn.shopify.com/s/files/1/0415/9233/files/Screen_shot_2014-06-17_at_1.27.15_PM_large.png?10392", '" class="hide' | replace: "<img","<img class='hide'" | remove: "åÊ" }}
+            <p>{{ product.description }}</p>
             {% if has_post_descipt_note %}
             <p><i>All requests are subject to approval.</i></p>
             {% endif %}
@@ -137,16 +133,16 @@
                 {% assign wallpaper = true %}
 
               {% elsif variant.option1 == 'Fountain Backsplash' %}
-            	{% if variant.option2 == blank or variant.option2 == 'Default' %}
-                  {% assign fountain_backsplash = true %}
-                  <p>Your measurements must be of the space from top to bottom and between the screws NOT the full width. This will give the graphic better durability and quality upon installation.</p>
-				{% endif %}
+              	{% if variant.option2 == blank or variant.option2 == 'Default' %}
+                    {% assign fountain_backsplash = true %}
+                    <p>Your measurements must be of the space from top to bottom and between the screws NOT the full width. This will give the graphic better durability and quality upon installation.</p>
+        				{% endif %}
 
               {% elsif variant.option1 == 'Fountain Back' %}
-            	{% if variant.option2 == blank or variant.option2 == 'Default' %}
-                  {% assign fountain_back = true %}
-                  <p>Please select the appropriate version you are looking for in the lower dropdown. Partnership layouts can either include the third party logo or just the wording as requested.</p>
-				{% endif %}
+              	{% if variant.option2 == blank or variant.option2 == 'Default' %}
+                    {% assign fountain_back = true %}
+                    <p>Please select the appropriate version you are looking for in the lower dropdown. Partnership layouts can either include the third party logo or just the wording as requested.</p>
+        				{% endif %}
 
               {% elsif variant.option1 == 'Cooler Vault Wrap' %}
                 {% assign cooler_vault_wrap = true %}
@@ -158,24 +154,24 @@
                 {% assign cooler_header = true %}
 
               {% elsif variant.option1 == '2 x 3 Window Mesh Poster' %}
-            	{% if variant.option2 == blank or variant.option2 == 'Default' %}
-                  {% assign store_banner = true %}
-                  <p>2 x 3 Window Mesh Posters under Paint the Town are printed on view-through window mesh and are the only available option for pricing on windows.</p>
-				{% endif %}
+              	{% if variant.option2 == blank or variant.option2 == 'Default' %}
+                    {% assign store_banner = true %}
+                    <p>2 x 3 Window Mesh Posters under Paint the Town are printed on view-through window mesh and are the only available option for pricing on windows.</p>
+        				{% endif %}
 
               {% elsif variant.option1 == 'Window Mesh' %}
-            	{% if variant.option2 == blank or variant.option2 == 'Default' %}
-                  {% assign window_mesh = true %}
-                  <div align="center"><span color="#444444"><i><img src="https://cdn.shopify.com/s/files/1/0415/9233/files/Screen_shot_2014-06-17_at_1.27.15_PM_large.png?10392" data-mfp-src="https://cdn.shopify.com/s/files/1/0415/9233/files/Screen_shot_2014-06-17_at_1.27.15_PM.png?10392" class="zoom-lightbox-modal zoom-lightbox" /></i></span></div>
-                  <p>An Image of the space you are covering is required
-  (hint: order via your iPad and upload right from your gallery!)
-  Not required but really helpful is an Excel Map of the space you are covering if the space is more than 6 windows ...<br>Above is a sample of what these maps could look like.</p>
-				{% endif %}
+              	{% if variant.option2 == blank or variant.option2 == 'Default' %}
+                    {% assign window_mesh = true %}
+                    <div align="center"><span color="#444444"><i><img src="https://cdn.shopify.com/s/files/1/0415/9233/files/Screen_shot_2014-06-17_at_1.27.15_PM_large.png?10392" data-mfp-src="https://cdn.shopify.com/s/files/1/0415/9233/files/Screen_shot_2014-06-17_at_1.27.15_PM.png?10392" class="zoom-lightbox-modal zoom-lightbox" /></i></span></div>
+                    <p>An Image of the space you are covering is required
+    (hint: order via your iPad and upload right from your gallery!)
+    Not required but really helpful is an Excel Map of the space you are covering if the space is more than 6 windows ...<br>Above is a sample of what these maps could look like.</p>
+        				{% endif %}
               {% elsif variant.option1 == 'Frosted Decals' %}
-            	{% if variant.option2 == blank or variant.option2 == 'Default' %}
-                  {% assign window_mesh = true %}
-                  <p>Quantity 1-10: $20.82 each<br /><br />Quantity: 10-50: $14.75 each<br /><br />Quantity 50-100: $10.24 each<br /><br />Quantity 100+: $8.87 each</p>
-				{% endif %}
+              	{% if variant.option2 == blank or variant.option2 == 'Default' %}
+                    {% assign window_mesh = true %}
+                    <p>Quantity 1-10: $20.82 each<br /><br />Quantity: 10-50: $14.75 each<br /><br />Quantity 50-100: $10.24 each<br /><br />Quantity 100+: $8.87 each</p>
+        				{% endif %}
 
               {% endif %}
             {% endfor %}
@@ -196,7 +192,7 @@
               {% endfor %} <script> console.log('ca = {{select_index}}'); </script>
 
               {% if custom_available == false %}
-            	{% for variant in product.variants %}
+                {% for variant in product.variants %}
                   {% if variant.available %}
                     {% if variant.title contains 'Default' %} {% assign custom_available = false %} {% assign select_index = forloop.index0 %} {% break %} {% endif %}
 
@@ -221,14 +217,14 @@
                   {% endfor %}
                 </select>
               {% else %}
-<!--             	<input type="hidden" name="id" value="{{ variant.id }}" /> -->
-            	<select name="id" id="productSelect" class="product-single__variants hiden">
+                {% comment %}<input type="hidden" name="id" value="{{ variant.id }}" />{% endcomment %}
+                <select name="id" id="productSelect" class="product-single__variants hiden">
                   <option {% if variant == product.selected_or_first_available_variant or pass == true %} {% if  variant_price_value != '0.00' %} selected="selected" {% assign pass = false %} {% else %} {% assign pass = true %} {% endif %} {% endif %} data-sku="{{ variant.sku }}" value="{{ variant.id }}">{{ variant.title }} - {% if window_mesh %}${{ product_actual_price }} {{ shop.currency }}{% else %}{{ variant.price | money_with_currency }}{% endif %}</option>
                 </select>
               {% endif %}
 
 
-<!--               -------------- -->
+              {% comment %}{% endcomment %}
               {% if product.variants.size > 1 and custom_available == true %}
                <select id="productSelect-1" class="product-single__variants1" onchange="try{elemntSelect(this.options[this.selectedIndex].getAttribute('index'));} catch(e){console.log('js error');}">
                  {% assign pass = false %}
@@ -268,7 +264,7 @@
                   {% endfor %}
                 </select>
               {% endif %}
-<!--             ---------------- -->
+              {% comment %}{% endcomment %}
 
             {% endif %}
 
@@ -309,23 +305,26 @@
               <input type="number" id="Quantity" name="quantity" value="1" min="1" class="quantity-selector">
             </div>
 
-            <div class="note" style="border:1px {{ settings.color_primary }} solid;">
-              <label><small><b>Note:</b> Quantity will be entered during checkout.</small></label>
-            </div>
+            <input type="hidden" name="properties[__product_type]" value="FS">
 
             <button type="submit" disabled name="add" id="AddToCart" class="btn hide">
               <span id="AddToCartText">{{ 'products.product.add_to_cart' | t }}</span>
             </button>
-            <button type="button" disabled id="AddToCart2" class="btn" {% if product.tags contains customer_region_tag %}onclick="logSession(this);{% endif %}">
+            <button type="button" disabled id="AddToCart2" class="btn--secondary" {% if product.tags contains customer_region_tag %}onclick="logSession(this);{% endif %}">
               <span id="AddToCartText2">{{ 'products.product.add_to_cart' | t }}</span>
             </button>
+
+            <div class="w3-margin-top">
+              <p></p>
+              <small class="h6"><b>Note: </b><h3 style="font-weight:normal; display:inline-block;">Quantity will be entered during checkout.</h3></small>
+            </div>
             {% comment %}
             <br><br>
             <button type="button" class="btn" onclick="window.location.assign('/pages/catalog');" >Continue Shopping</button>
             <br><br>
             <button type="button" class="btn" onclick="detectIE('/pages/locations');" >Start Checkout Process</button>
-			{% endcomment %}
-            <input id="return_to" name="return_to" value="{{ product.url }}" type="hidden">
+      			{% endcomment %}
+            <input id="return_to" name="return_to" value="{{ product.url | split: '.com' | last }}" type="hidden">
 
             {% comment %}
             <br><br>
@@ -352,11 +351,11 @@
       </div>
     </div>
   </div>
-{% comment %}
-  {% if section.settings.product_related_enable %}
-    {% include 'related-products' %}
-  {% endif %}
-{% endcomment %}
+  {% comment %}
+    {% if section.settings.product_related_enable %}
+      {% include 'related-products' %}
+    {% endif %}
+  {% endcomment %}
 </div>
 
 {% unless product.empty? %}
@@ -454,6 +453,7 @@
 {% endschema %}
 
 <script>
+    window.prefill_data = false;
 
   	$.fn.extend({
         animateCss: function (animationName) {
@@ -465,23 +465,33 @@
     });
 
     $(window).load(function(){
-     {% if product.options.size == 2 %} mimic();console.log('region selected');{% endif %}
+      {% if product.options.size == 2 %} mimic();console.log('region selected');{% endif %}
       $('#productSelect-1').change();
-      $('#ProductPrice').show('slow');
-      {% if product.tags contains customer_region_tag %}
+      {% if product.selected_variant.id == blank and product.variants.size > 1 %}
+        $('#productSelect-option-0').prop('required', true).prepend('<option value="" selected disabled>Select One</option>').val('');
+        // $('[for="productSelect-option-0"]').append(" (required)");
+      {% else %}
+        $('#ProductPrice').show('slow'); //product.tags contains customer_region_tag and 
+      {% endif %}
+      
+      {% if can_order %} 
       	if($('#AddToCart').is(':enabled') || $('[name = "id"]').length > 0)
           $('#AddToCart2, #AddToCart').removeAttr('disabled');
       {% endif %}
       $('#productSelect-option-0').bind('change', function(e) {
-       	var url = document.URL.replace("{{ shop.url }}", '');
-   		$('#return_to').val(url);
+        $('#ProductPrice').show('slow'); //product.tags contains customer_region_tag and
+       	var url = document.URL.split(location.host)[1]; //.split('?')[0]
+        // console.log(url);
+      	$('#return_to').val(url);
         if($(this).text().indexOf('Banner') !== -1){
           setBSO($(this).find('option:selected').text());
         }
-     });
+      });
 
-     $('input[type="file"]').before("<div class='product-customizer-option-description'>Supported file types: '*.jpg', '*.png' and '*.pdf' with maximum file size 1MB </div>").bind('change', function(){
-            var file = this.files[0];
+      {% assign file_types = 'general.Role.User' | t %}
+
+      $('input[type="file"]').before("<div class='product-customizer-option-description'>Supported file types: '*.eps', '*.psd', '*.ai' with maximum file size 20MB ( high res only).<br>If file size > 20MB, please email <a href='mailto:lauren@nsmprojects.com'>lauren@nsmprojects.com</a> </div>").bind('change', function(){
+          var file = this.files[0];
         	var ext = this.value.match(/\.([^\.]+)$/)[1].toLowerCase();
             switch(ext)
             {
@@ -489,9 +499,11 @@
                 case 'jpeg':
                 case 'png':
                 case 'pdf':
+                case 'eps':
+                case 'pst':
                     // alert('allowed');
-                	if(file.size/1024/1024 > 1 ){
-                    	show_message4('Invalid file size...',false,'Try adding file of size < 1 MB');
+                	if(file.size/1024/1024 > 20 ){
+                    	show_message4('Invalid file size...',false,'Try adding file of size < 20 MB');
 						this.value='';
                     }
                     break;
@@ -502,28 +514,71 @@
 
       });
 
-     {% unless product.tags contains customer_region_tag %}
+      {% unless product.tags contains customer_region_tag %}
+      console.log('not of this region: {{ customer_region_tag }}');
       setInterval( function(){ $('#AddToCartForm').bind('submit', function(e){ e.preventDefault(); }); }, 1000);
-     {% endunless %}
+      {% endunless %}
 
-     if($("#productSelect-option-0").text().indexOf('Banner') !== -1){
-//        $("[name='properties[Price Point Needed]'][value='No']").prop('checked', 'checked').change();
-//        setPP($("[name='properties[Price Point]']"));
+      if($("#productSelect-option-0").text().indexOf('Banner') !== -1){
+       // $("[name='properties[Price Point Needed]'][value='No']").prop('checked', 'checked').change();
+       // setPP($("[name='properties[Price Point]']"));
        setBSO($("#productSelect-option-0").find('option:selected').text());
-     }else{
+      }else{
        setBSO("");
-     }
+      }
 
-//      setUpElements();
+      {% capture this_variant %}localStorage.modProd_{{ product.id }}_{{ product.selected_or_first_available_variant.id }}{% endcapture %}
+      if(document.referrer == document.URL && window.prefill_data == true && typeof(Storage) !== "undefined" && {{ this_variant }}){
+        // console.log({{ this_variant }});   
+        fillOptions();
+        // $.each({{ this_variant }}.split('&'), function (index, elem) {
+        //    var vals = elem.split('=');
+        //    if(vals[0] != "id")
+        //      $("[name='" + vals[0] + "']").val(decodeURIComponent(vals[1].replace(/\+/g, ' '))).prop('disabled', false).show();
+        // });
+      }
+      // setUpElements();
     });
 
+
+  function fillOptions(){ 
+      item_prop = {{ cart.items.first | json }}.properties;
+      $.each(item_prop, function(key,value) {
+          el = $('[name="properties['+key+']"]');
+          if( el.is('input[type="text"]') || el.is('textarea') ){ 
+            el.val(value).show();
+          }
+          else if( el.is('input[type="file"]') ){ 
+            el.attr({'type':'text', 'title':value}).val(shorten(value, el.width()/7)).show();
+          }
+          else if(  el.is('input[type="radio"]') ||  el.is('input[type="checkbox"]') ){
+            el.filter('[value="'+value+'"]').prop('checked', 'checked').show();
+          }
+          else if(  el.is('select') ){
+            // el.find('option[value="'+value+'"]').prop('selected', 'selected').trigger('change').show();
+            // console.log(value);
+            value.split(", ").forEach(function(val) {
+              el.find('option[value="'+val+'"]').prop('selected', 'selected');
+            });
+            if($(el).hasClass('multiselect'))
+              el.trigger('change').show().filter('.multiselect').find('option[value=""]').remove().end().fastselect();
+          }
+      });
+  }
+
+
+  function shorten(s, max) {
+    return s.length > max ? s.substring(0, (max / 2) - 1) + '...' + s.substring(s.length - (max / 2) + 2, s.length) : s
+  }
+
+
   function mimic(){
-//     $index = $('#productSelect-psudo option:selected').attr('index'); console.log($index+" < index");
-//     document.getElementById('productSelect-option-0').selectedIndex = $index;
-//     $('#productSelect-option-0 option:eq('+$index+')').prop('selected', true)
-//     $('#productSelect-option-0').change();
-//     $('#productSelect-option-1 option:eq('+'{{ select_index }}'+')').prop('selected', 'selected').change();
-	$('#productSelect-option-1 option[value="{{ customer_region_tag }}"]').prop('selected', 'selected').change();
+    // $index = $('#productSelect-psudo option:selected').attr('index'); console.log($index+" < index");
+    // document.getElementById('productSelect-option-0').selectedIndex = $index;
+    // $('#productSelect-option-0 option:eq('+$index+')').prop('selected', true)
+    // $('#productSelect-option-0').change();
+    // $('#productSelect-option-1 option:eq('+'{{ select_index }}'+')').prop('selected', 'selected').change();
+  	$('#productSelect-option-1 option[value="{{ customer_region_tag }}"]').prop('selected', 'selected').change();
 
   }
 
@@ -532,19 +587,109 @@
   }
 
   $(document).ready(function(){
-    var url = document.URL.replace("{{ shop.url }}", '');
+    var url = document.URL.split(location.host)[1];
     $('#return_to').val(url);
 
-    if (typeof(Storage) !== "undefined" && sessionStorage.PrintATC) {
-      var PrintATC = sessionStorage.PrintATC; //console.log(PrintATC);
-      if ( 1 == PrintATC ) {
-        sessionStorage.PrintATC = 0; //console.log(PrintATC);
-        show_message2('Added to Cart.',true);
-        $('.cart-page-link').animateCss('wobble');
-      }
+    {% comment %}
+    // // 
+
+    // {% assign option_list = "Bubly Packaging, PL Herbals Food, Pepsi Ad Packaging, Program Ad " | split: ", " %}
+
+    // {% for option in option_list %}
+    // $('[data-option-name="{{ option | handle }}"]').hide().find('[name^=properties]').prop('disabled', true);
+    // {% endfor %}
+
+    // $('select[name^=properties]').on('change', function(obj){
+    //   var $this = $(this) || $(obj);
+    //   element = $('[name="properties['+$this.val()+']"]');
+    //   if(element.length > 0){
+    //     // element.prop('disabled', false).parents('div[data-option-name]').show();
+    //     $('div[data-option-name="'+ $this.val().toLowerCase().replace(/ /g, '-') +'"]').show().find('[name^=properties]').prop('disabled', false);
+    //   }else{
+    //     opt_list = $this.find('option').map(function() { if(this.getAttribute('value') != $this.val()) return this.getAttribute('value'); }).get();
+    //     console.log(opt_list);
+    //     opt_list.forEach(function(opt, index){
+    //       // $('[name="properties['+opt+']"]').prop('disabled', true).parents('div[data-option-name]').hide();
+    //       $('div[data-option-name="'+ opt.toLowerCase().replace(/ /g, '-') +'"]').hide().find('[name^=properties]').prop('disabled', true);
+    //     });
+    //   }
+    // });
+
+    // $('select[name^=properties]').trigger('change');
+
+    // // 
+    {% endcomment %}
+
+    var $ad_specs = $('[name="properties[POS Specs]"]');
+    if($ad_specs.length > 0){
+      $('[data-option-name^="pos-specs"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Enter Ad Specs (required)</label>');
+      $('[data-option-name^="pos-specs"] label').hide();
+      $('[name^="properties[POS Specs"]').attr('style', 'width:100% !important;')
     }
 
-//     $("input[name = 'properties[Price Point]']").attr('pattern','[\\d]+([.][\\d]{1,2})?').attr('title','Enter only Integer or upto 2 place decimal value.');
+
+    var $generic_logo = $('select[name="properties[Generic Logo]"]');
+    if($generic_logo.length > 0){
+      $generic_logo.on('change', function(obj){
+        if(this.value.toLowerCase() == 'yes')
+          $('[data-option-name="add-customer-logo"]').show().find('[name^=properties]').prop('disabled', false);
+        else
+          $('[data-option-name="add-customer-logo"]').hide().find('[name^=properties]').prop('disabled', true);
+      }).trigger('change');
+    }
+
+    $generic_logo = $('select[name="properties[Add a Beverage]"]');
+    if($generic_logo.length > 0){
+      $generic_logo.on('change', function(obj){
+        if(this.value.toLowerCase() == 'yes')
+          $('[data-option-name="choose-beverage"]').show().find('[name^=properties]').prop('disabled', false);
+        else
+          $('[data-option-name="choose-beverage"]').hide().find('[name^=properties]').prop('disabled', true);
+      }).trigger('change');
+    }
+
+    $generic_logo = $('select[name="properties[Add Bev]"]');
+    if($generic_logo.length > 0){
+      $generic_logo.on('change', function(obj){
+        if(this.value.toLowerCase() == 'yes')
+          $('[data-option-name="add-a-beverage"]').show().find('[name^=properties]').prop('disabled', false);
+        else
+          $('[data-option-name="add-a-beverage"]').hide().find('[name^=properties]').prop('disabled', true);
+      }).trigger('change');
+    }
+
+
+    $generic_logo = $('select[name="properties[Add Instructions ?]"]');
+    if($generic_logo.length > 0){
+      $generic_logo.on('change', function(obj){
+        if(this.value.toLowerCase() == 'yes')
+          $('[data-option-name="spire-instructions"]').show().find('[name^=properties]').prop('disabled', false);
+        else
+          $('[data-option-name="spire-instructions"]').hide().find('[name^=properties]').prop('disabled', true);
+      }).trigger('change');
+    }
+
+    $('select.limit').on('change', function() {
+        if ($(this).val().length > $(this).data('limit')) {
+            $(this).val($(this).data('value'));
+            $('select').material_select();
+        } else {
+            $(this).data('value', $(this).val());
+        }
+    });
+
+    if (typeof(Storage) !== "undefined" && sessionStorage.PrintATC_{{ customer.id }}) {
+      var PrintATC = sessionStorage.PrintATC_{{ customer.id }}; //console.log(PrintATC);
+      if ( 1 == PrintATC && document.URL == document.referrer) {
+        window["prefill_data"] = true;
+        sessionStorage.PrintATC_{{ customer.id }} = 0; //console.log(PrintATC);
+        show_message2('Added to Cart.',true);
+        $('.cart-page-link').animateCss('wobble');
+      }else
+        sessionStorage.PrintATC_{{ customer.id }} = 1;
+    }
+
+    // $("input[name = 'properties[Price Point]']").attr('pattern','[\\d]+([.][\\d]{1,2})?').attr('title','Enter only Integer or upto 2 place decimal value.');
 
     $('div[data-option-name = "logo-upload"]').remove();
 
@@ -558,10 +703,10 @@
     {% endif %}
 
     $('#pc1').attr('href', $('#link-sales').attr('href'));
-	$('#pc2').attr('href', $('#link-food-service').attr('href'));
-	$('#pc3').attr('href', $('#link-all-other').attr('href'));
+  	$('#pc2').attr('href', $('#link-food-service').attr('href'));
+  	$('#pc3').attr('href', $('#link-all-other').attr('href'));
 
-    setUpElements();
+    {% comment %}setUpElements();{% endcomment %}
 
     $('.zoom-lightbox-modal').magnificPopup({
         type: 'image',
@@ -585,14 +730,15 @@
     });
 
   });
-
+  
+  {% comment %}
   function setUpElements(){
   	if($('[name="id"]').text().toLowerCase().indexOf('window mesh') != -1){
 
     for(i=1; i<=$("select[name = 'properties[# of Consecutive Windows]'] option").length; i++){
     	$("[data-option-name = 'window-"+i+"-width'], [data-option-name = 'window-"+i+"-height']").addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend((i == 1) ? '<label>Window Size(s) (required)</label>' : '');
-//       $("[name = 'properties[Window "+i+" Width in feet]'], [name = 'properties[Window "+i+" Width in inches]']").wrapAll('<div class="w3-row"></div>').wrap('<div class="w3-col s6"></div>');
-//       $("[name = 'properties[Window "+i+" Height in feet]'], [name = 'properties[Window "+i+" Height in inches]']").wrapAll('<div class="w3-row"></div>').wrap('<div class="w3-col s6"></div>');
+      // $("[name = 'properties[Window "+i+" Width in feet]'], [name = 'properties[Window "+i+" Width in inches]']").wrapAll('<div class="w3-row"></div>').wrap('<div class="w3-col s6"></div>');
+      // $("[name = 'properties[Window "+i+" Height in feet]'], [name = 'properties[Window "+i+" Height in inches]']").wrapAll('<div class="w3-row"></div>').wrap('<div class="w3-col s6"></div>');
       	$('[data-option-name^="window-"] label').hide();
         $('[name^="properties[Window "]').attr('style', 'width:100% !important;');
     }
@@ -650,10 +796,10 @@
       	cal_prod_price = 0.00;
         cal_win_area = 0.00;
 
-//         cal_win_area += parseFloat($('[name^="properties[Fountain "]').first().val()) * parseFloat($('[name^="properties[Fountain "]').last().val());
+        // cal_win_area += parseFloat($('[name^="properties[Fountain "]').first().val()) * parseFloat($('[name^="properties[Fountain "]').last().val());
         cal_win_area += parseFloat($('[name^="properties[Decal Size "]').first().val()) * parseFloat($('[name^="properties[Decal Size "]').last().val());
 
-//         cal_prod_price += parseFloat($('[name^="properties[Fountain "]').first().val()) * parseFloat($('[name^="properties[Fountain "]').last().val()) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
+        // cal_prod_price += parseFloat($('[name^="properties[Fountain "]').first().val()) * parseFloat($('[name^="properties[Fountain "]').last().val()) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
         cal_prod_price += parseFloat($('[name^="properties[Decal Size "]').first().val()) * parseFloat($('[name^="properties[Decal Size "]').last().val()) * {{ product.selected_or_first_available_variant.price | money_with_currency | remove:'$' | remove:' USD' }};
 
         unit_price = ( addCommas((cal_prod_price).toFixed(2)) ).replace('NaN','{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}');
@@ -665,7 +811,7 @@
     }
 
     else if($('[name="id"]').text().toLowerCase().indexOf('cooler vault wrap') != -1){
-//       $('input[name^="properties[Size "]')
+      // $('input[name^="properties[Size "]')
       $('[data-option-name^="size-above-vault-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size ABOVE Vault (required)</label>');
       $('[data-option-name^="size-left-of-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size LEFT of Vault (required)</label>');
       $('[data-option-name^="size-right-of-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size RIGHT of Vault (required)</label>');
@@ -753,7 +899,7 @@
         }
         if(!valid && msg.length > 0){
           alert(msg);
-//           $('#AddToCart2').prop('disabled', 'disabled');
+          // $('#AddToCart2').prop('disabled', 'disabled');
         }
 
         if(valid){
@@ -792,6 +938,7 @@
     }
 
   }
+  {% endcomment %}
 
   function addCommas(nStr){
     if(isNaN(nStr)) return 'NaN';
@@ -850,7 +997,8 @@
 
   function addCartClass(){
     if (typeof(Storage) !== "undefined") {
-      sessionStorage.PrintATC = 1; //console.log(sessionStorage.PrintATC);
+      sessionStorage.PrintATC_{{ customer.id }} = 1; //console.log(sessionStorage.PrintATC);
+      localStorage["{{ this_variant | remove: 'localStorage.' | remove: product.selected_or_first_available_variant.id }}" + $('#AddToCartForm [name="id"]').val()] = $('#AddToCartForm').serialize();
     }
   	$('#AddToCart2').addClass('btn--ajax-disabled disabled');
     return true;
@@ -867,6 +1015,10 @@
 <style>
   #productSelect-option-0{display:none;}
 
+  {% if product.selected_variant.id == blank and product.variants.size > 1 %}
+    [for="productSelect-option-0"]:after{ content: " (required)"; }
+  {% endif %}
+
   {% if custom_available == false %}
   	#productSelect-option-0,label[for = "productSelect-option-0"]{display:block;}
   {% endif %}
@@ -874,12 +1026,21 @@
   [data-option-name = 'window-2-width'], [data-option-name = 'window-3-width'], [data-option-name = 'window-4-width'], [data-option-name = 'window-5-width'], [data-option-name = 'window-6-width'],
   [data-option-name = 'window-2-height'], [data-option-name = 'window-3-height'], [data-option-name = 'window-4-height'], [data-option-name = 'window-5-height'], [data-option-name = 'window-6-height'], [data-option-name^= 'window-'][data-option-name$= '-width']:not([data-option-name = 'window-1-width']), [data-option-name^= 'window-'][data-option-name$= '-height']:not([data-option-name = 'window-1-height']), [data-option-name = "logo-upload"]{
    		display: none;
-/*    		max-width: 50% !important; */
+  		/*max-width: 50% !important; */
    }
 
   .product-customizer-option-description{
     font-size: 11px;
     font-weight: bold;
+  }
+
+  @media (min-width: 936px){
+  
+    #AddToCartForm button:not(.fstChoiceRemove), #AddToCartForm select, #AddToCartForm input:not(.fstQueryInput), #AddToCartForm textarea, #AddToCartForm .note, #AddToCartForm .w3-row, .fstElement.fstMultipleMode{
+          width:85% !important;
+    }
+
+    .product-single .grid__item.post-large--seven-twelfths{ padding-right: 50px; }
   }
 </style>
 

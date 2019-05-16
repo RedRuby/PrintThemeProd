@@ -1,11 +1,13 @@
+{% include 'customer-account-common-code' with 'shop-check' %}
+
 <div class="grid text-center">
   
   <div class="grid__item wide--one-half text-center">
-    <h2>Welcome to the new Pepsi Print Studios!</h2>
+    <h1>Welcome to the new {% if fs_shop_active %}Marketing on Demand{% else %}Pepsi Print Studios{% endif %}!</h1>
     <br>
-    <p class="h3" style="margin:0px 10%;">We have created a fantastic updated online print shop experience for you.
+    <p class="p" style="margin:0px 8%; font-size: 15px !important;">We have created a fantastic updated online print shop experience for you.
        <br><br>
-       If you are a first time visitor to this new site, please register by selecting the âREGISTER FOR AN ACCOUNTâ box on this page. 
+       If you are a first time visitor to this new site, please register by selecting the "REGISTER FOR AN ACCOUNT" box on this page. 
      <br><br>
        If you have already registered, just sign in with your email and password to start your customized experience.
     <p>
@@ -45,13 +47,13 @@
           <input type="password" value="" name="customer[password]" id="CustomerPassword" placeholder="{{ 'customer.login.password' | t }}" {% if form.errors contains "password" %} class="error"{% endif %}>
 
           <p>
-            <a href="#" onclick="showRecoverPasswordForm();return false;">{{ 'customer.login.forgot_password' | t }}</a>
+            <u><a href="#" class="w3-text-blue" onclick="showRecoverPasswordForm();return false;">{{ 'customer.login.forgot_password' | t }}</a></u>
           </p>
 
         {% endif %}
 
         <p>
-          <input type="submit" class="btn" value="{{ 'customer.login.sign_in' | t }}">
+          <input type="submit" class="btn btn-primary" value="{{ 'customer.login.sign_in' | t }}">
         </p>
         <p>OR</p>
         <p>

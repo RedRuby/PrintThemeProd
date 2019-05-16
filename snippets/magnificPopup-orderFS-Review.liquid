@@ -1,0 +1,347 @@
+<div class="mfp-bg mfp-fade mfp-ready w3-black" style="display:none; opacity:0.8;"></div>
+
+<div class="mfp-wrap mfp-auto-cursor mfp-fade mfp-ready mfp-hide" tabindex="-1" style="overflow-x: hidden; overflow-y: auto;" style="display:none;">
+  <div class="mfp-container mfp-s-ready mfp-inline-holder">
+   
+    <div class="mfp-content w3-padding-xlarge w3-card-2 w3-white animated fast">
+
+      <div id="OrderReviewModal" class="white-popup-block text-center" styles="display:none;">
+        <form action="" method="post" onsubmit="updateLineState(event, this);" order_id="" line_id="" line_index=""> 
+          <br>
+          <h2>{% if customer_role_tag == Role_FSUser %}Review {% endif %}Proof</h2>
+          <br><br>
+          <div class="grid text-left">
+            <div class="grid__item one-half small--one-whole w3-padding-right">
+              <img src="{% raw %}{{ product_thumb_url }}{% endraw %}" alt="" class="line_img" style="width: 100%;">
+            </div>
+            <div class="grid__item one-half small--one-whole">
+              <h3>{% raw %}{{ title }}{% endraw %}</h3>
+              <div id="properties_{% raw %}{{ line_item_No }}{% endraw %}" class="properties-wrapper properties_{% raw %}{{ line_item_No }}{% endraw %}">
+                <b>Product Detail:</b>
+                <div class="note w3-border-0 w3-padding-0">
+                  <p w3-repeat="properties">{% raw %}{{ property_name }}{% endraw %} : {% raw %}{{ property_value }}{% endraw %}</p>
+                </div>
+              </div>
+              <br>
+              
+              <button type="button" class="btn min-width-240 line_status w3-text-black review_status  w3-margin-bottom" style="display:none; pointer-events: none;" status="{% raw %}{{ status }}{% endraw %}" order_id="" line_id="">{% raw %}{{ status }}{% endraw %}</button>
+              <br>
+
+              {% if customer_role_tag == Role_Designer %}
+                <button type="button" id="upload_proof" class="uploadBtn btn btn-primary min-width-240" style1="display:none;" status="" order_id="" line_id="" onclick="$(this).next().toggle();">Upload Proof</button>
+                <div class="w3-margin-top" style="display: none;">
+                  <label>Proof URL <span class="w3-text-red">*</span></label>
+                  <textarea name="proof_upload" id="" cols="30" rows="1" style="min-height: 70px;"></textarea>
+                </div>
+              {% elsif customer_role_tag == Role_FSUser %}
+                <div class="review_section">
+                  <br>
+                  <h3>Is this proof approved? <span class="w3-text-red">*</span></h3>
+                  <label for="approved" class="min-width-150" style="display: inline-block;"><input type="radio" name="approved" checked1="checked" id="approved" value="true" class="w3-radio w3-check">&nbsp;&nbsp; Approved</label>
+                  <label for="edits_required" class="min-width-150" style="display: inline-block;"><input type="radio" name="approved" id="edits_required" value="false" class="w3-radio w3-check">&nbsp;&nbsp; Edits Required</label>
+                  <br>
+                </div>
+              {% endif %}
+              <br><br>
+              <h3 class="w3-margin-0">Notes</h3>
+              <div id="notes_wrapper" class="notes_wrapper" style="max-height: 400px; overflow-y: auto; display: none;">
+                <div class="w3-row" w3-repeat="notes">
+                  <hr style="margin: 10px 0;">
+                  <div class="w3-col s3 {% raw %}{{ class }}{% endraw %}">
+                    <p class="w3-margin-0 w3-small"><b>{% raw %}{{ from }}{% endraw %}</b></p>
+                    <p class="w3-margin-0 w3-small">{% raw %}{{ created_at }}{% endraw %}</p>
+                  </div>
+                  <div class="w3-col s9 {% raw %}{{ class }}{% endraw %}">
+                    <p class="w3-margin-0" style="word-break: break-word;">{% raw %}{{ message }}{% endraw %}</p>
+                  </div>
+                </div>
+                <br>
+              </div>
+              <textarea name="line_notes" class="w3-medium w3-margin-top" id="" cols="30" rows="5" onchange="$(this).next().prop('disabled', false);"></textarea>
+              <button class="btn btn--secondary" type="submit" disabled="">Add Note</button>
+            </div>
+          </div>
+
+          <div class="w3-block w3-margin-top">
+            <br>
+            <button type="submit" class="btn btn-primary min-width-200" >Submit</button>
+            <br>
+            <p></p>
+            <a>
+              <button type="button" class="btn" onclick="updateReviewModal();">Cancel</button>
+            </a>
+          </div>
+          <br>
+        </form>
+      </div>
+
+      <button title="Close (Esc)" onclick="updateReviewModal();" type="button" class="mfp-close">×</button>
+    </div>
+    {% comment %}<div class="mfp-preloader w3-center center-block" style="display:initial;"><i class="fa fa-refresh w3-spin"></i></div>{% endcomment %}
+  </div>
+
+  {% comment %}<button title="Close (Esc)" onclick="updateReviewModal();" type="button" class="mfp-close">×</button>{% endcomment %}
+
+</div>
+
+
+
+<script>
+  var mfpHTML_Review = '';
+  var changed_Review = "";
+  $(document).ready(function(){
+  	 mfpHTML_Review = $('#OrderReviewModal').html();
+  });
+  
+  function updateReviewModal(){
+    $('#mfp-order-review .mfp-content').removeClass('slideInUp').addClass('bounceOutDown');
+    setTimeout(function(){
+      $('#mfp-order-review .mfp-bg, #mfp-order-review .mfp-wrap').delay(1000).hide().addClass('mfp-hide');
+      $('html').css('overflow','auto');
+    	$('#OrderReviewModal *, .mfp-note').remove();
+      $('#OrderReviewModal').html('').append(mfpHTML_Review);
+    }, 800);
+    // $('.mfp-container').removeAttr('style');
+    // $('.mfp-preloader').show();
+    if( changed_Review == true ){ changed_Review = ''; fetch_Orders(); }
+  }
+  
+  function changed_ReviewData(){ //console.log(obj); 
+    // $('#OrderReviewModal button[type = "submit"]').removeAttr('disabled');
+    doc = $('[name="cancel-reason-other"]')[0];
+    
+    if($('[name="cancel-reason"]:checked')[0].outerHTML == $('[name="cancel-reason"]').last()[0].outerHTML)
+      doc.disabled = false; 
+    else
+      doc.innerHTML = '', doc.disabled = true;
+  }
+  
+  
+  function saveOrderNote(e, obj){
+    freez();
+  	e.preventDefault();
+    e.stopPropagation();
+    
+    order_id = $(obj).attr('order_id');
+    var data = {cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: order_id };
+           
+     
+    
+    console.log(JSON.stringify(data));
+                
+    {% comment %}
+    $.ajax({
+      url: '/apps/pepsi-print/fs_order_configuration/cancel_order.json',
+          type: 'POST',
+          data: JSON.stringify(data),
+          dataType: 'json',
+          contentType: "application/json;",
+          statusCode: {
+            401:function() { console.log("401") },
+            404:function() { console.log("404"); },
+            200:function() { console.log("200"); },
+            201:function() { console.log("201"); },
+            202:function() { console.log("202"); }
+          },
+          success: function(data){
+            	console.log(JSON.stringify(data));
+            	
+                if(200 === Number(data.status)){
+                  	$('#OrderReviewModal button[type = "submit"]').prop('disabled', 'disabled');
+                  	freez();
+                  	show_message2('Updated Successfully.',true);
+                   	setTimeout( function (){ 
+                      location.reload();
+                      changed_Review = true;
+                    	// $.unblockUI; 
+                      
+                    }, 1500);
+                }else if(401 === Number(data.status)){
+                  	$.unblockUI; show_message2(data.message,false);
+                }else{
+                	$.unblockUI; show_message2(data.message,false); console.log('else');
+                }
+           
+            
+            	
+          },
+          error: function(data){
+            $.unblockUI; show_message2('Some Error Occured.',false);
+          }
+          
+	 });
+   {% endcomment %} 
+    
+  }
+
+  function prepareMsg(data, callback){
+    for (index = 0; index < data.notes.length; index++) {
+      if("{{ customer.id }}" == data.notes[index].sender_id){
+        data.notes[index]["from"] = "You";
+      }else if("{{ Role_FSUser }}".indexOf(data.notes[index].role) > -1){
+        data.notes[index]["from"] = "Client";
+        data.notes[index]["class"] = "w3-text-blue";
+      }else if("{{ Role_Designer }}".indexOf(data.notes[index].role) > -1){
+        data.notes[index]["from"] = "Designer";
+        data.notes[index]["class"] = "w3-text-blue";
+      }else if("{{ Role_FSManager }}".indexOf(data.notes[index].role) > -1){
+        data.notes[index]["from"] = "Channel Manager";
+      }else if("{{ Role_NSM }}".indexOf(data.notes[index].role) > -1){
+        data.notes[index]["from"] = "NSM";
+      }else if("{{ Role_FSAdmin }}".indexOf(data.notes[index].role) > -1){
+        data.notes[index]["from"] = "Master Admin";
+      }
+
+
+      urls = data.notes[index].message.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+      // console.log(urls);
+      if((urls||'').length > 0)
+        jQuery.unique(urls).forEach(function(item, index1){
+          item_u = item.match(/^https?:/) ? item : (item.match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/) ? 'mailto:' : '//') + item;
+          target = item_u.match(/^mailto/) ? '' : "target='_blank'" ;
+          data.notes[index].message = data.notes[index].message.replace(item, "<a "+ target +" href='"+ item_u + "'><u>"+item+"</u></a><br>" );
+        });
+
+
+    }
+    callback(data);
+  }
+
+  function updateLineState(e, obj) {
+    e.preventDefault();
+    freez();
+    data = {  cid: "{{ customer.id }}", cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", crole: "{{ Role_FSUser | remove: 'Role:' }}", order_id: order_id, order_name: order_name, line_item_id: $(obj).attr('line_id'), line_item_index: $(obj).attr('line_index')
+            };
+
+    {% if customer_role_tag == Role_Designer %}
+    proof_upload = $('[name="proof_upload"]').val().trim();
+    message = $('[name="proof_upload"]').val().trim() +"\n\n"+ $('[name="line_notes"]').val().trim();
+    if(Boolean(proof_upload)){
+      data["proof_upload"] = proof_upload;
+      var expression = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+      var regex = new RegExp(expression);
+
+      if (!proof_upload.match(regex)) {
+        show_message2('Enter a Valid Proof URL.', false);
+        return false;
+      }
+    }
+    {% elsif customer_role_tag == Role_FSUser %}
+    approved = $('[name="approved"]:checked').val();
+    message = $('[name="line_notes"]').val().trim() || $('[name="approved"]:checked').parent().text().trim();
+    if(Boolean(approved))
+      data["approved"] = approved;
+    {% endif %}  
+
+    if(Boolean(message))
+      data["message"] = message;
+    else{
+      show_message2('Nothing to update', true);
+      return false;
+    }
+
+
+    console.log(JSON.stringify(data));
+
+    $.ajax({
+            url: '/apps/pepsi-print/fs_order_configuration/create_order_note.json',
+            type: 'POST',
+            data: JSON.stringify(data),
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function(){ 
+              show_message2('Updated Successfully.', true); 
+              if(data.approved != undefined || data.proof_upload != undefined){
+                window['line_id'] = data.line_item_id;
+                window['line_index'] = data.line_item_index;
+                setTimeout(function(){
+                  fetch_Order(order_id, null, null, null, "withARM");
+                }, 800);
+              }else
+                listLineNotes(data.line_item_id);
+              $('[name="proof_upload"], [name="line_notes"]').val('');
+            },
+            error: function(){$.unblockUI; show_message2('Some Error Occured.',false);}
+    });
+  }
+
+
+  function listLineNotes(line_id){
+    data = { cid: "{{ customer.id }}", cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", line_item_id: line_id, order_id: order_id, order_name: order_name, page: 1, per_page: 100};
+    
+    console.log(JSON.stringify(data));
+
+    $.ajax({
+      url: '/apps/pepsi-print/fs_order_configuration/list_notes.json',
+      type: 'GET',
+      data: data,
+      dataType: 'json',
+      contentType: "application/json;",
+      success: function(data){
+        console.log(data);
+        if(Boolean(data.notes) && data.notes.length > 0){
+          $.when(prepareMsg(data, function(data){
+            w3DisplayData('notes_wrapper', data);
+          })).done(function(){ 
+            $('#notes_wrapper').show(0); 
+            $('#notes_wrapper').delay(100).animate({scrollTop: $('#notes_wrapper [w3-repeat="notes"]').offset().top}); 
+          });
+        }
+      },
+      error: function(){
+        show_message2('Server Error.',false);
+      }
+
+    });
+  }
+
+
+  function setStatus(){
+    $('.review_status.line_status').show();
+    $('.review_status[status="Proofs Needed"]').hide();
+    $('.review_status[status="Approved"]').text('Proof is Approved');
+    {% if customer_role_tag == Role_Designer %}
+    $('.review_status[status="Needs Edit"]').text('Proof Needs Edits - See Notes');
+    $('.uploadBtn').css('width', $('.review_status[status="Needs Edit"]').css('width'));
+    if($('.review_status[status="Needs Edit"]').length > 0)
+      $('.uploadBtn').text('Upload Revised Proof');
+    else
+      $('.uploadBtn').text('Upload Proof');
+
+    if($('.review_status[status="Approved"], .review_status[status="Needs Review"]').length > 0)
+      $('.uploadBtn').hide();
+    else
+      $('.uploadBtn').show();
+    {% elsif customer_role_tag == Role_FSUser %}
+    $('.review_status[status="Needs Edit"]').text('Proof is being edited by the Designer');
+    if($('.review_status[status="Approved"]').length > 0 || $('.review_status[status="Needs Edit"]').length > 0)
+      $('.review_section').hide();
+    else
+      $('.review_section').show();
+    {% endif %}
+  }
+  
+  function showReviewModal(line_item_No, line_item_id){
+      console.log("index: "+line_item_No);
+      line_index = line_item_No;
+      $('html').css('overflow','hidden');
+      $('#mfp-order-review .mfp-content').removeClass('bounceOutDown').addClass('slideInUp');
+      $('#mfp-order-review .mfp-bg, #mfp-order-review .mfp-wrap').show().removeClass('mfp-hide');
+
+      setTimeout(function(){
+        $('#OrderReviewModal form').attr({ 'order_id': order_data.order.id.toString(), 'line_id': line_item_id.toString(), 'line_index': line_index.toString() });
+        $('.mfp-wrap').css('max-height', '100vh');
+      }, 800);
+
+      w3DisplayData("OrderReviewModal", order_data.order.line_items[line_item_No]);
+
+      listLineNotes(line_item_id);
+
+      setStatus();
+
+      if(order_data.order.line_items[line_item_No].product_image_url)
+        $('.line_img').attr('src', order_data.order.line_items[line_item_No].product_image_url);
+      else
+        $('.line_img').attr('src', order_data.order.line_items[line_item_No].product_thumb_url.replace('150','600').replace('200','800'));
+  }
+</script>

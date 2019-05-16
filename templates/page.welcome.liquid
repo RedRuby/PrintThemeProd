@@ -1,28 +1,25 @@
 {% layout none %}
 {% if customer  %}
-
-  {% assign Role_User = 'general.Role.User' | t %}
-  {% assign Role_Printer = 'general.Role.Printer' | t %}
-  {% assign Role_Manager = 'general.Role.Manager' | t %}
-  {% assign Role_ASM = 'general.Role.ASM' | t %}
-  {% assign Role_Admin = 'general.Role.Admin' | t %}
-
-  {% if customer.tags contains Role_User %}
+  {% include 'customer-account-common-code' with 'theme-layout-code' %}
+  
+  {% if customer_role_tag == Role_User or customer_role_tag == Role_FSUser %}
   	{% assign routTo = "" %}
-  {% elsif customer.tags contains Role_Manager %}
+  {% elsif customer_role_tag == Role_Manager %}
   	{% assign routTo = "account" %}
-  {% elsif customer.tags contains Role_Printer %}
+  {% elsif customer_role_tag == Role_Printer %}
   	{% assign routTo = "account" %}
-  {% elsif customer.tags contains Role_ASM %}
+  {% elsif customer_role_tag == Role_ASM %}
   	{% assign routTo = "account" %}
-  {% elsif customer.tags contains Role_Admin %}
+  {% elsif customer_role_tag == Role_Admin %}
   	{% assign routTo = "account" %}
+  {% elsif fs_shop_active %}
+    {% assign routTo = "account" %}
   {% endif %}
   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
   <html>
       <head>
           <title>Catalog</title>
-          <meta content="0; url={{shop.secure_url}}/{{ routTo }}" http-equiv="refresh" />
+          <meta content="0; url=/{{ routTo }}" http-equiv="refresh" />
       </head>
       <body>
 

@@ -104,7 +104,7 @@
   <div class="mfp-preloader w3-center center-block" style="display:initial;"><i class="fa fa-refresh w3-spin"></i></div>
 </div>
 
-<button title="Close (Esc)" onclick="updateModal();" type="button" class="mfp-close">&times;</button>
+<button title="Close (Esc)" onclick="updateModal();" type="button" class="mfp-close">×</button>
 <br>
 </div>
 
@@ -265,14 +265,14 @@
                       $goTo.show();
                       $('#OrderEditModal .goTos').prop('href', '/pages/order?id='+data.result.result_true).show();
                       {% if template contains 'page.order' %}
-//                           fetch_Order(data.result.result_false, null, false);
+                          // fetch_Order(data.result.result_false, null, false);
                           location.replace('/pages/order?id='+data.result.result_false);
                       {% endif %}
                       changed = true;
-  //                   	$.unblockUI; 
+                    	// $.unblockUI; 
                       show_message2('Updated Successfully.',true);
                       $('#select_vendor_edit option:first').prop('selected','selected');
-                    }, 1500);
+                    }, 500);
                 }else if(401 === Number(data.status)){
                   	$.unblockUI; show_message2(data.message,false);
                 }else{
@@ -287,19 +287,19 @@
           }
           
 	 });
-//   $.unblockUI();
+  // $.unblockUI();
   }
   
   function editOrder(e, obj){
     freez();
   	e.preventDefault();
     e.stopPropagation();
-//     data = $(obj).serializeArray(); //console.log(JSON.parse(JSON.stringify(data)));
+    // data = $(obj).serializeArray(); //console.log(JSON.parse(JSON.stringify(data)));
     
     order_id = $(obj).attr('order_id');
     var data = {cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: order_id, order_price: {}, order_qty: {} };
    
-//     var data = { order_price: {}, order_qty: {} };
+    // var data = { order_price: {}, order_qty: {} };
                 
     $('#OrderEditModal .order_price').each(function(index, id){
         var $id = $(id);

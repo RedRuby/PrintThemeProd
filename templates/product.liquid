@@ -9,13 +9,15 @@
   The contents of the product.liquid template can be found in /sections/product-template.liquid
 {% endcomment %}
 
+<!-- psudoContent -->
 {% if fs_shop_active %}
   {% section 'product-template-fs' %}
 {% else %}
   {% section 'product-template' %}
 {% endif %}
+<!-- psudoContent -->
 
-{% if customer and customer.tags contains Role_ASM %}
+{% if customer_role_tag == Role_ASM %}
 <!-- modalContent {% include 'edit-variant-template' %} modalContent -->
 {% endif %}
 

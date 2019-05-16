@@ -1,0 +1,276 @@
+<div class="mfp-bg mfp-fade mfp-ready w3-black" style="display:none; opacity:0.8;"></div>
+
+<div class="mfp-wrap mfp-auto-cursor mfp-fade mfp-ready mfp-hide" tabindex="-1" style="overflow-x: hidden; overflow-y: auto;" style="display:none;">
+  <div class="mfp-container mfp-s-ready mfp-inline-holder">
+   
+    <div class="mfp-content w3-padding-xlarge w3-card-2 w3-white animated fast">
+      <div id="OrderEditModal" class="white-popup-block text-center wrapper" styles="display:none;">
+        <br><br>
+        <h1 class="">Edit Order #<span class="orderName" style="font-size:inherit !important;"></span></h1>
+        <br>
+        <form action="" method="post" onsubmit="if($('.order_qty').map(function(){ return this.value; }).get().indexOf('0') != -1 ){ if(confirm('This will remove all \'0\' quantity line-items from order.\n Click \'OK\' to Confirm')){ editOrder(event, this); }else{ event.preventDefault(); }}else{editOrder(event, this);}" order_id=""> 
+          <br>
+          <div class="grid">
+            <div class="grid__item small--one-whole one-half">
+              
+            </div>
+            <div id="" class="grid__item small--one-whole one-quarter text-right for-order-split">
+              <select id="select_designer_edit" disabled title="Select a Designer to Assign" class="assign-printer" onchange="this.title = this.options[this.selectedIndex].innerHTML; document.getElementById('assign_designer_btn').disabled = false;"><option selected disabled title="Select a Designer to Assign">Select Designer</option></select>
+            </div>
+            <div class="grid__item small--one-whole one-quarter text-right for-order-split">
+              <button id="assign_designer_btn" type="button" disabled class="btn w3-right" onclick="assignDesigner();">Assign Designer</button>
+            </div>
+          </div>
+         <table id="lineItem2" class="responsive-table">
+          <thead>
+            <tr class="w3-text-white w3-black">
+              <th class="text-center for-order-split">Select to split the order</th>
+              <th class="text-center">Product</th>
+              <th class="text-center" style="width:150px;">SKU</th>
+              <th class="text-center">Price</th>
+              <th class="text-center">Quantity</th>
+              <th class="text-center" style="width:150px;">Total</th>
+            </tr>
+          </thead>
+          <tr class="w3-hover-light-grey" w3-repeat="line_items">
+            <td class="text-center for-order-split"><input id="item_{% raw %}{{ id }}{% endraw %}" type="checkbox" name="order" value="{% raw %}{{ id }}{% endraw %}" class="checkbox-custom1 w3-checkbox w3-check" onchange="itemCheckFunc();" /><label for="item_{% raw %}{{ id }}{% endraw %}" class="checkbox-custom-label"></label></td>
+            <td class="">
+              <div class="row middle-xs">
+                <div class="col-xs-4">
+                  <div class="box">
+                    <img src="{{ 'ajax-loader.gif' |asset_url }}" srcs="{% raw %}{{ product_thumb_url }}{% endraw %}" style="max-width:120px; cursor:default;" class="js-toggle-previewImg-modal zoom-lightbox1" data-mfp-src="{% raw %}{{ product_image_url }}{% endraw %}">
+                  </div>
+                </div>
+                <div class="col-xs-8">
+                  <div class="box">
+                    {% raw %}{{ title }}{% endraw %}
+                    <div id="properties_{% raw %}{{ line_item_No }}{% endraw %}_1" class="properties-wrapper properties_{% raw %}{{ line_item_No }}{% endraw %}">
+                      <b>Product Detail:</b>
+                      <div class="note w3-border-0 w3-padding-0">
+                        <p w3-repeat="properties">{% raw %}{{ property_name }}{% endraw %} : {% raw %}{{ property_value }}{% endraw %}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td class="text-center">{% raw %}{{ sku }}{% endraw %}</td>
+            <td  class="text-center">
+              <input class="text-right order_price w3-margin-0" required type="text" pattern="^\d+((\.)\d{1,2})?$" name="order_price[{% raw %}{{ id }}{% endraw %}]" value="{% raw %}{{ price }}{% endraw %}" item_id="{% raw %}{{ id }}{% endraw %}" placeholder="0.00" title="upto two decimal places" onchange="calcTotal(this.getAttribute('item_id'));" style="max-width: 100px; display: inline;" />
+              {% comment %}<div class="w3-col m2 w3-row-padding"><h3 class="w3-margin-0 w3-xlarge" style1="line-height: 1.8;"> &times; </h3></div>{% endcomment %}
+            </td>
+            <td  class="text-center" style="position: relative;">
+              <input class="text-right order_qty w3-margin-0" required type="text" pattern="^\d+$" name="order_qty[{% raw %}{{ id }}{% endraw %}]" value="{% raw %}{{ quantity }}{% endraw %}" item_id="{% raw %}{{ id }}{% endraw %}" onchange="calcTotal(this.getAttribute('item_id'));" style="max-width: 100px; display: inline;" />
+              <button class="no-btn w3-text-red min-width-100" type="button" style="position: absolute; top: calc(50% + 30px); -webkit-transform: translateX(-50%); transform: translateX(-50%); left: 50%;" onclick="cancelItem('{% raw %}{{ id }}{% endraw %}');">Cancel Item</button>
+            </td>
+            <td class="order_total text-right" item_id="{% raw %}{{ id }}{% endraw %}">${% raw %}{{total}}{% endraw %}</td>
+          </tr>
+         
+         	<tr class="hide">
+            <td colspan="3"><b>Total:</b></td>
+            <td class="text-right"><b>$<span class="grandTotal"></span></b></td>
+          </tr>
+        </table>
+
+          <br>
+          <div class="">
+            <button type="submit" disabled class="btn btn-primary min-width-200" >Update Order</button><br>
+            <button type="button" class="btn w3-margin-top min-width-100" onclick="updateEditModal();">Back</button><br>
+            <a class="goTo" style="display:none;" href="/pages/order?id="><button type="button" class="btn w3-margin-top w3-right" style="width:250px;">Current order detail</button></a><br>
+            <a class="goTos" style="display:none;" href="/pages/order?id="><button type="button" class="btn w3-margin-top w3-right" style="width:250px;">Split order detail</button></a>
+          </div>
+        </form>
+      </div>
+      <button title="Close (Esc)" onclick="updateEditModal();" type="button" class="mfp-close">&times;</button>
+    </div>
+    <div class="mfp-preloader w3-center center-block" style="display:initial;">
+      {% include 'customer-account-common-code' with 'order-loader' %}
+    </div>
+  </div>
+
+  <br>
+</div>
+<script>
+  var order_id = '';
+  var changed_Edit = '';
+  var mfpHTML_Edit = '';
+  
+  $(document).ready(function(){
+  	 mfpHTML_Edit = $('#OrderEditModal').html();
+  });
+  
+  function updateEditModal(){
+    $('#mfp-order-edit .mfp-content').removeClass('slideInUp').addClass('bounceOutDown');
+    setTimeout(function(){
+    $('html').css('overflow','auto');
+    $('#mfp-order-edit .mfp-bg, #mfp-order-edit .mfp-wrap, #OrderEditModal, .mfp-note').delay(1000).hide().addClass('mfp-hide');
+    $('.mfp-container').removeAttr('style');
+    $('.mfp-preloader').show();
+    $('#OrderEditModal *, .mfp-note:parent').remove();
+    $('#OrderEditModal').html('').append(mfpHTML_Edit); //console.log(mfpHTML_Edit);
+    }, 800);
+    if( changed_Edit == true ){ changed_Edit = ''; {% if template contains 'page.order' %}{% else %}fetch_Orders();{% endif %} }
+  }
+
+  function cancelItem(item_id) {
+    $('[name="order_qty['+item_id+']"]').val('0').change();
+  }
+  
+  function calcTotal(obj){ //console.log(obj); 
+    $('#OrderEditModal button[type = "submit"]').removeAttr('disabled');
+  	var val1 = parseFloat($('#OrderEditModal .order_price[item_id='+obj+']').val());
+    var val2 = parseFloat($('#OrderEditModal .order_qty[item_id='+obj+']').val()); console.log(val1+', '+val2);
+    $('#OrderEditModal .order_total[item_id='+obj+']').text('$'+(val1*val2).toFixed(2).toString());
+  }
+  
+  function itemCheckFunc(){
+    if($('.checkbox-custom:checked').length > 0){
+      $('#select_designer_edit')[0].disabled = false;
+      if($('#select_designer_edit option:selected').is(':enabled'))
+        $('#assign_designer_btn')[0].disabled = false;
+    }
+    else
+      $('#select_designer_edit, #assign_designer_btn').prop('disabled', 'disabled');
+  }
+  
+  function assignDesigner(){
+    if($('.checkbox-custom:checked').length == $('.checkbox-custom').length)
+      changePrintShop($('#select_designer_edit')[0], order_id);
+  	else if(confirm('This action will create a new order for the assigned designer.\n\nClick \'OK\' to confirm.') == true)
+      splitOrder();
+  }
+  
+  function splitOrder(){
+  	freez();    
+    var data = {cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: order_id, line_items: $('.checkbox-custom:checked').map( function() { return this.value; }).get(), printer_id: $('#select_designer_edit').val(), cregion: customer_region };
+                
+    console.log(JSON.stringify(data));
+    {% comment %}{% endcomment %}         
+    $.ajax({
+      url: '/apps/pepsi-print/order_configuration/split_order.json',
+          type: 'POST',
+          data: JSON.stringify(data),
+          dataType: 'json',
+          contentType: "application/json;",
+          statusCode: {
+            401:function() { console.log("401") },
+            404:function() { console.log("404"); },
+            200:function() { console.log("200"); },
+            201:function() { console.log("201"); },
+            202:function() { console.log("202"); }
+          },
+          success: function(data){
+            	console.log(JSON.stringify(data));
+            	
+                if(200 === Number(data.status)){
+                  	$('#OrderEditModal button[type = "submit"]').prop('disabled', 'disabled');
+                  	freez();
+                   	setTimeout( function (){ 
+                      addToModal(data.result.result_false); 
+                      order_id = data.result.result_false;
+                      var $goTo = $('#OrderEditModal .goTo');
+                      $goTo.prop('href', '/pages/order?id='+data.result.result_false);
+                      $goTo.show();
+                      $('#OrderEditModal .goTos').prop('href', '/pages/order?id='+data.result.result_true).show();
+                      {% if template contains 'page.order' %}
+//                           fetch_Order(data.result.result_false, null, false);
+                          location.replace('/pages/order?id='+data.result.result_false);
+                      {% endif %}
+                      changed_Edit = true;
+  //                   	$.unblockUI; 
+                      show_message2('Updated Successfully.',true);
+                      $('#select_designer_edit option:first').prop('selected','selected');
+                    }, 1500);
+                }else if(401 === Number(data.status)){
+                  	$.unblockUI; show_message2(data.message,false);
+                }else{
+                	$.unblockUI; show_message2(data.message,false); console.log('else');
+                }
+           
+            
+            	
+          },
+          error: function(data){
+            $.unblockUI; show_message2('Some Error Occured.',false);
+          }
+          
+	 });
+//   $.unblockUI();
+  }
+  
+  function editOrder(e, obj){
+    freez();
+  	e.preventDefault();
+    e.stopPropagation();
+//     data = $(obj).serializeArray(); //console.log(JSON.parse(JSON.stringify(data)));
+    
+    order_id = $(obj).attr('order_id');
+    var data = {cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: order_id, order_price: {}, order_qty: {} };
+   
+//     var data = { order_price: {}, order_qty: {} };
+                
+    $('#OrderEditModal .order_price').each(function(index, id){
+        var $id = $(id);
+		data.order_price[$id.attr('item_id')] = $id.val();
+     });
+    
+    $('#OrderEditModal .order_qty').each(function(index, id){
+      	var $id = $(id);
+		data.order_qty[$id.attr('item_id')] = $id.val();
+     });
+    
+//     console.log(JSON.stringify(data));
+    
+//     data = {"cemail":"southeast.user@email.com","ctoken":"53f32c706be6bf09cd08a082dc2e6a8b2c0dd8ed","order_id":"4685227729",{"order_price":{"8336181329":"0.11","8436425553":"0.45","8436372177":"1.75"},"order_qty":{"8336181329":"2","8436425553":"2","8436372177":"2"}}};
+//		?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}&order_id='+order_id            
+    $.ajax({
+      url: '/apps/pepsi-print/fs_order_configuration/edit_order.json',
+          type: 'POST',
+          data: JSON.stringify(data),
+          dataType: 'json',
+          contentType: "application/json;",
+          statusCode: {
+            401:function() { console.log("401") },
+            404:function() { console.log("404"); },
+            200:function() { console.log("200"); },
+            201:function() { console.log("201"); },
+            202:function() { console.log("202"); }
+          },
+          success: function(data){
+            	console.log(JSON.stringify(data));
+            	
+                if(200 === Number(data.status)){
+                  	$('#OrderEditModal button[type = "submit"]').prop('disabled', 'disabled');
+                  	freez();
+                   	setTimeout( function (){ 
+                      addToEditModal(data.result); 
+                      var $goTo = $('#OrderEditModal .goTo');
+                      $goTo.prop('href', '/pages/order?id='+data.result);
+                      $goTo.show();
+                      {% if template contains 'page.order' %}
+  //                   		fetch_Order(data.result);
+                          location.replace('/pages/order?id='+data.result+prev_page_params);
+                      {% endif %}
+                      changed_Edit = true;
+  //                   	$.unblockUI; 
+                      show_message2('Updated Successfully.',true);
+                    }, 1500);
+                }else if(401 === Number(data.status)){
+                	show_message2(data.message,false);
+                }else{
+                	show_message2(data.message,false); console.log('else');
+                }
+           
+            
+            	
+          },
+          error: function(data){
+            show_message2('Some Error Occured.',false);
+          }
+          
+	 });
+    
+    //return false;
+//     console.log(order_id);
+  }
+</script>

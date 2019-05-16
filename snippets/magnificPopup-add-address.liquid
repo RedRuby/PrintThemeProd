@@ -1,0 +1,92 @@
+{% form 'customer_address', customer.new_address %}
+<div id="AddAddress" {% unless form.errors %}style="display:none;"{% endunless %}>
+
+<div class="mfp-bg mfp-fade mfp-ready" style="opacity:0.8; background-color:black;"></div>
+
+<div class="mfp-wrap mfp-auto-cursor mfp-fade mfp-ready text-center" tabindex="-1" style="overflow-x: hidden; overflow-y: auto;">
+  <div class="mfp-container mfp-s-ready mfp-inline-holder">
+    <div class="mfp-content w3-white w3-padding {% if form.errors %}bounceIn animated{% endif %} w3-card-2 w3-margin-top w3-margin-bottom" style="max-width: 750px;">
+
+      <div id="AddressEditModal" class="white-popup-block w3-margin w3-padding">
+        
+        <h1 class="text-center w3-margin-top">{{ 'customer.addresses.edit_address' | t }}</h1>
+        <br>
+        
+        {{ form.errors | default_errors }}  
+        
+        <div class="grid">
+
+          <div class="grid__item one-whole small--one-whole">
+            <label for="AddressFirstNameNew">{{ 'customer.addresses.first_name' | t }}</label>
+            <input type="text" id="AddressFirstNameNew" class="address_form" name="address[first_name]" value="{{form.first_name}}" autocapitalize="words">
+          </div>
+
+          <div class="grid__item one-whole small--one-whole">
+            <label for="AddressLastNameNew">{{ 'customer.addresses.last_name' | t }}</label>
+            <input type="text" id="AddressLastNameNew" class="address_form" name="address[last_name]" value="{{form.last_name}}" autocapitalize="words">
+          </div>
+          
+          <div class="grid__item one-whole small--one-whole">
+            <label for="AddressCompanyNew">{{ 'customer.addresses.company' | t }}</label>
+            <input type="text" id="AddressCompanyNew" required="required" class="address_form" name="address[company]" value="{{form.company | default: customer.default_address.company}}" autocapitalize="words">
+          </div>
+          
+          <div class="grid__item one-whole small--one-whole">
+            <label for="AddressPhoneNew">{{ 'customer.addresses.phone' | t }}</label>
+            <input type="tel" id="AddressPhoneNew" class="address_form" name="address[phone]" value="{{ form.phone }}" onkeyup="this.value = this.value.match(/[\d]+/);" placeholder="555-555-1234">
+          </div>
+          
+          <div class="grid__item one-whole small--one-whole">
+            <label for="AddressAddress1New">{{ 'customer.addresses.address1' | t }}</label>
+            <input type="text" id="AddressAddress1New" class="address_form" name="address[address1]" value="{{form.address1}}" autocapitalize="words">
+          </div>
+          
+          <div class="grid__item one-whole small--one-whole">
+            <label for="AddressAddress2New">{{ 'customer.addresses.address2' | t }}</label>
+            <input type="text" id="AddressAddress2New" class="address_form" name="address[address2]" value="{{form.address2}}" autocapitalize="words">
+          </div>
+          
+          <div class="grid__item one-whole small--one-whole">
+            <label for="AddressCityNew">{{ 'customer.addresses.city' | t }}</label>
+            <input type="text" id="AddressCityNew" class="address_form" name="address[city]" value="{{form.city}}" autocapitalize="words">
+          </div>
+          
+          <div class="grid__item one-whole small--one-whole">
+            <label for="AddressZipNew">{{ 'customer.addresses.zip' | t }}</label>
+            <input type="text" id="AddressZipNew" class="address_form" name="address[zip]" required="required" value="{{ form.zip }}" onkeyup="this.value = this.value.match(/[\d]+/);" autocapitalize="characters">
+          </div>
+          
+          <div class="grid__item one-whole small--one-whole" style="position:relative;">
+            <label for="AddressCountryNew">{{ 'customer.addresses.country' | t }}</label>
+            <select id="AddressCountryNew" name="address[country]" data-default="{{form.country}}">{{ country_option_tags }}</select>
+            <div style="position:absolute; top:0; bottom:0; left:0; right:0; z-index:100; cursor:not-allowed;"></div>
+          </div>
+          
+          <div class="grid__item one-whole small--one-whole" id="AddressProvinceContainerNew" style="display:none">
+            <label for="AddressProvinceNew">{{ 'customer.addresses.province' | t }}</label>
+            <select id="AddressProvinceNew" class="address_form" name="address[province]" data-default="{{form.province}}"></select>
+          </div>
+
+          <div class="grid__item">
+            {{ form.set_as_default_checkbox | replace: "type", 'class="w3-check" type' }}
+            <label for="address_default_address_new" class="inline"> &nbsp;{{ 'customer.addresses.set_default' | t }}</label>
+          </div>
+        </div>
+        
+    		<div class="text-center">
+          <br><br>
+          <input type="submit" class="btn btn-primary" value="{{ 'customer.addresses.add' | t }}"><br><br>
+          <a href="#" class="btn btn--secondary" onclick="Shopify.CustomerAddress.toggleNewForm(); return false;">{{ 'customer.addresses.cancel' | t }}</a>
+        </div>
+          
+      </div>
+      <button title="Close (Esc)" onclick="Shopify.CustomerAddress.toggleNewForm(); return false;" type="button" class="mfp-close">×</button>
+
+    </div>
+<!--     <div class="mfp-preloader w3-center center-block" style="display:initial; z-index:2000 !important;"><i class="fa fa-refresh fa-2x text-lite-blue w3-spin "></i></div> -->
+  </div>
+
+</div>
+  
+</div>
+{% endform %}

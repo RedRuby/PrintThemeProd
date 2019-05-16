@@ -10,7 +10,7 @@
   <h2 class="text-left">Edit tracking for Order #<span style="font-size:inherit !important;" class="orderName"></span></h2>
 <!--    <hr/> -->
   <label class="text-left" for="" >Shipping Cost</label>
-  <input type="text" pattern="^\d+((\.)\d{1,2})?$" maxlength="7" required class="shipping_price" name="shipping_price" value="" placeholder="Enter Shipping Cost" onchange="contentChanged();" />
+  <input type="text" pattern="^\d+((\.)\d{1,2})?$" maxlength="5" onchange="if(parseFloat(this.value) > 99999){ this.value = 99999; alert('Maximum value for Shipping Cost is 99999');}" required class="shipping_price" name="shipping_price" value="" placeholder="Enter Shipping Cost" onchange="contentChanged();" />
   {% comment %}
   <label class="text-left" for="" >Shipping Code</label>
   <input type="text" patterns="" required class="shipping_code" name="shipping_code" value="" placeholder="Enter Shipping Code" onchange="contentChanged();" />

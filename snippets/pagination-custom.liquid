@@ -20,9 +20,9 @@
 
 {% endcomment %}
 
-<ul class="pagination-custom">
+{% comment %}<ul class="pagination-custom">
   {% if paginate.previous %}
-    <li><a href="{{ paginate.previous.url }}" title="{{ paginate.previous.title }}">&larr;</a></li>
+    <li><a href="{{ paginate.previous.url }}" title="{{ paginate.previous.title }}"><i class="fa fa-arrow-left"></i></a></li>
   {% else %}
     <li class="disabled"><span>&larr;</span></li>
   {% endif %}
@@ -42,8 +42,36 @@
   {% endfor %}
 
   {% if paginate.next and new-region-collection-limit == blank %}
-    <li><a href="{{ paginate.next.url }}" title="{{ paginate.next.title }}">&rarr;</a></li>
+    <li><a href="{{ paginate.next.url }}" title="{{ paginate.next.title }}"><i class="fa fa-arrow-right"></i></a></li>
   {% else %}
     <li class="disabled"><span>&rarr;</span></li>
+  {% endif %}
+</ul>{% endcomment %}
+
+<ul class="pagination-custom1 w3-pagination pagination1">
+  {% if paginate.previous %}
+  <li><a href="{{ paginate.previous.url }}{% if per_page %}&per_page={{ per_page }}{% endif %}" title="{{ paginate.previous.title }}"><i class="fa fa-arrow-left"></i></a></li>
+  {% else %}
+    <li class="disabled"><a class="current prev"><i class="fa fa-arrow-left"></i></a></li>
+  {% endif %}
+
+  {% for part in paginate.parts limit: new-region-collection-limit %}
+    {% if part.is_link %}
+      <li>
+        <a href="{{ part.url }}{% if per_page %}&per_page={{ per_page }}{% endif %}" title="">{{ part.title }}</a>
+      </li>
+    {% else %}
+      {% if part.title == paginate.current_page %}
+        <li class="active"><a class="current">{{ part.title }}</a></li>
+      {% else %}
+        <li><a>{{ part.title }}</a></li>
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+
+  {% if paginate.next and new-region-collection-limit == blank %}
+    <li><a href="{{ paginate.next.url }}{% if per_page %}&per_page={{ per_page }}{% endif %}" title="{{ paginate.next.title }}"><i class="fa fa-arrow-right"></i></a></li>
+  {% else %}
+    <li class="disabled"><a class="current next"><i class="fa fa-arrow-right"></i></a></li>
   {% endif %}
 </ul>

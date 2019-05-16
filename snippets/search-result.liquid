@@ -45,7 +45,7 @@
   {% endcomment %}
   <div class="grid__item four-fifths {% unless has_image %}push--one-fifth{% endunless %}">
     {% if product_in_region %}
-      <h2 class="h3">{{ item.title | link_to: item_url }}</h2>
+      <h2 class="h3">{{ item.title | link_to: item.url }}</h2>
     {% else %}
       <small>(Not available for your Region.)</small>
       <h2 clas="h3">{{ item.title }}</h2>

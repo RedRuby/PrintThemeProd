@@ -1,37 +1,48 @@
 
 {% include 'customer-account-common-code' with 'theme-layout-code' %}
 
-{% if section.settings.show_popup == true %}
+{% if section.settings.show_popup == true or section.settings.preview_popup %}
   {% if section.blocks.size > 0 %}
 	<div class="index-section-popUp">
       <div class="popUp" id="popUp--{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="popup-section" style="display:none !important;">
         {% for block in section.blocks %}
+          {% if block.settings.hide %}{% continue %}{% endif %}
+
           {% assign blockImage_width = block.settings.image_width |append:'x' %}
           {% comment %} if block.settings.image != blank {% endcomment %}
+          {% if block.type == 'image-block'  %}
+          <div id="image-block--{{ block.id }}" class="white-popup mfp-hide" style="max-width: {{ block.settings.popup_width | default: 750 }}px;">
+            <img src="{{ block.settings.image | img_url: blockImage_width }}" style="width: 100%" />
+          </div>
+          {% elsif block.type == 'text-block' %}
+          <div id="text-block--{{ block.id }}" class="white-popup mfp-hide" style="max-width: {{ block.settings.popup_width | default: 750 }}px; background-color: {{ block.settings.bg_color }}; color: {{ block.settings.text_color }};">
+            {{ block.settings.popup_text }}
+          </div>
+          {% endif %}
         	{% if block.settings.whom_to_show == 'All' %}
-              <a id="popUp--{{ block.id }}" class="js-toggle-popup-modal" data-popUp-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}
+              <a id="popUp--{{ block.id }}" data-popUp-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}
                  {% if block.type == 'image-block' %}
-                 	href="{{ block.settings.image | img_url: blockImage_width }}"
+                 	href="#image-block--{{ block.id }}" class="js-toggle-popup-modal image"
                  {% elsif block.type == 'text-block' %}
-                	href="https://placeholdit.imgix.net/~text?txtsize=35&amp;bg={{ block.settings.bg_color |remove:'#' }}&amp;txtclr={{ block.settings.text_color |remove:'#' }}&amp;txt={{ block.settings.popup_text |replace:' ','+' }}&amp;w={{ block.settings.popup_width }}&amp;h={{ block.settings.popup_height }}&amp;txttrack=0"
+                  href="#text-block--{{ block.id }}" class="js-toggle-popup-modal text"
                  {% endif %}>
               </a>
         	{% elsif block.settings.whom_to_show == customer_region_tag %}
-              <a id="popUp--{{ block.id }}" class="js-toggle-popup-modal" data-popUp-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}
+              <a id="popUp--{{ block.id }}" data-popUp-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}
                  {% if block.type == 'image-block' %}
-                 	href="{{ block.settings.image | img_url: blockImage_width }}"
+                 	href="#image-block--{{ block.id }}" class="js-toggle-popup-modal image"
                  {% elsif block.type == 'text-block' %}
-                    href="https://placeholdit.imgix.net/~text?txtsize=35&amp;bg={{ block.settings.bg_color |remove:'#' }}&amp;txtclr={{ block.settings.text_color |remove:'#' }}&amp;txt={{ block.settings.popup_text |replace:' ','+' }}&amp;w={{ block.settings.popup_width }}&amp;h={{ block.settings.popup_height }}&amp;txttrack=0"
+                    href="#text-block--{{ block.id }}" class="js-toggle-popup-modal text"
                  {% endif %}>
               </a>
         	{% comment %} endif {% endcomment %}
           {% else %}
-<!--             <li id="slide--{{ block.id }}" data-flexslider-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
+            {% comment %}<li id="slide--{{ block.id }}" data-flexslider-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
               <span class="slide-link slide-link--{{ block.id }}">
                 {% capture current %}{% cycle 1, 2 %}{% endcapture %}
                 {{ 'lifestyle-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}
               </span>
-            </li> -->
+            </li>{% endcomment %}
           {% endif %}
         {% endfor %}
       </div>
@@ -39,7 +50,8 @@
 
     <style>
       .mfp-figure::after{ background: transparent !important; }
-      .mfp-bg-dark{ background-color: rgba(255,255,255,0.4) !important; }
+      .mfp-bg-dark{ background-color: rgba(0,0,0,0.4) !important; }
+      .mfp-bg-dark button.mfp-close{ margin: 0 !important; }
       img.mfp-img{ padding: 0px !important; box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19) !important;; }
       .mfp-image-holder .mfp-close, .mfp-iframe-holder .mfp-close{
         margin: -25px;
@@ -48,27 +60,44 @@
         filter: alpha(opacity=100);
         color: #333;
       }
+      .white-popup {
+        position: relative;
+        background: #FFF;
+        padding: 45px;
+        width: fit-content;
+        max-width: 750px;
+        min-width: 600px;
+        margin: 20px auto;
+      }
+      @media (max-width: 768px) {
+        .white-popup {
+            max-width: 100% !important;
+            min-width: 0 !important;
+        }
+      }
     </style>
 
     <script>
       var stopOpen = false;
       $(document).ready(function(){
           $('.js-toggle-popup-modal').magnificPopup({
-            type: 'image',
+            type: 'inline',
             mainClass: 'mfp-fade',
             closeOnBgClick: false,
+            showCloseBtn: true,
             closeBtnInside: true,
+            fixedContentPos: true,
             closeOnContentClick: false,
-    //         tClose: password.strings.pageClose,
+            // tClose: password.strings.pageClose,
             removalDelay: 500,
             tLoading: '',
             callbacks: {
-              beforeOpen: function() {
+              beforeOpen: function(index) {
                 this.st.image.markup = this.st.image.markup.replace('mfp-figure', 'mfp-figure mfp-with-anim');
                 this.st.mainClass = 'mfp-zoom-out mfp-bg-dark'; //this.st.el.attr('data-effect');
               },
-              close: function(){
-                if(!stopOpen && $('.js-toggle-popup-modal').length > 1){ console.log('getting in');
+              close: function(index){
+                if(!stopOpen && $('.js-toggle-popup-modal').length > 1){ console.log('getting in'+ index);
                   setTimeout( function(){ $('.js-toggle-popup-modal').magnificPopup('open', 1); }, 500 );
                   stopOpen = true;
                 }
@@ -81,7 +110,7 @@
 
         var parentURL = parent.window.document.location.pathname;
         console.log(parentURL);
-        if( (typeof(Storage) !== "undefined" && sessionStorage.ShowPopup == 1 ) || (parentURL.indexOf("/admin/themes/169781713/editor") != -1 && {{ section.settings.preview_popup}}) ){
+        if( (typeof(Storage) !== "undefined" && sessionStorage.ShowPopup == 1 ) || (parentURL.indexOf("/admin/themes/{{ theme.id }}/editor") != -1 && {{ section.settings.preview_popup }}) ){
           setTimeout( function(){ $('.js-toggle-popup-modal').magnificPopup('open', 0); }, 2500 );
         }
 
@@ -105,7 +134,7 @@
         "type": "checkbox",
         "id": "preview_popup",
         "label": "Preview PopUp",
-		"info": "popup will be visible on every save button clicking. ( Uncheck before leaving this section )"
+    		"info": "popup will be visible on every save button clicking. ( Uncheck before leaving this section )"
       }
     ],
     "blocks": [
@@ -166,7 +195,12 @@
             "id": "image_width",
             "label": "PopUp Width [ in pixels (px) ]",
             "info": "( Best viewed image size is 640x320px or in the same ratio. )",
-			"default": "640"
+      			"default": "640"
+          },
+          {
+            "type": "checkbox",
+            "id": "hide",
+            "label": "Hide"
           }
         ]
       },
@@ -180,30 +214,30 @@
             "label": "Text"
           },
           {
-			"type": "color",
-			"id": "text_color",
-			"label": "Text Color",
-			"default": "#000000"
+      			"type": "color",
+      			"id": "text_color",
+      			"label": "Text Color",
+      			"default": "#000000"
           },
           {
-			"type": "color",
-			"id": "bg_color",
-			"label": "Background Color",
-			"default": "#ffffff"
+      			"type": "color",
+      			"id": "bg_color",
+      			"label": "Background Color",
+      			"default": "#ffffff"
           },
           {
             "type": "text",
             "id": "popup_width",
             "label": "PopUp Width",
             "info": "in pixels (px)",
-			"default": "640"
+      			"default": "640"
           },
           {
             "type": "text",
             "id": "popup_height",
             "label": "PopUp Height",
             "info": "in pixels (px)",
-			"default": "320"
+      			"default": "320"
           },
           {
             "type": "select",
@@ -247,6 +281,11 @@
                 "label": "Mid West Region Users"
               }
             ]
+          },
+          {
+            "type": "checkbox",
+            "id": "hide",
+            "label": "Hide"
           }
         ]
       }

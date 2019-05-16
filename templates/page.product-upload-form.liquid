@@ -2006,7 +2006,11 @@
 				}
 
 				var mystring = "83a1c6f7bc3251fbfb79fa42f16bb953:c2ac9a66d730d561e136beafd7588abc";
-          		var $theme_id = "183558353";
+          		{% if shop.permanent_domain contains "beta" %}
+          		 	var $theme_id = "185411285";
+      		 	{% else %}
+      		 		var $theme_id = "183558353";
+				{% endif %}
 				var encodedString = "";
 				var myblob = new Blob([mystring], {
 				    type: 'text/plain'
@@ -2331,6 +2335,7 @@
                    var data = { action_type: "product-import-encoded" }, app_url;
                    data.cemail = "{{ customer.email }}";
                    data.cid = "{{ customer.id }}";
+                   data.crole = {% if customer.tags contains Role_Admin %}"Admin"{% elsif customer.tags contains Role_ASM %}"ASM"{% endif %};
                    
                    if(!processed)
                      prepareHot2(true, env);
@@ -2476,7 +2481,9 @@
 //           });
 		</script>
       
-      	
+      	<script>
+	      (pushalertbyiw = window.pushalertbyiw || []).push(['disableAutoInit', true]);
+	    </script>
       
 	</body>
 </html>

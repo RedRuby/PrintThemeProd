@@ -1,45 +1,44 @@
 <div class="mfp-bg mfp-fade mfp-ready w3-grey" style="display:none; opacity:0.6;"></div>
 
 <div class="mfp-wrap mfp-auto-cursor mfp-fade mfp-ready mfp-hide" tabindex="-1" style="overflow-x: hidden; overflow-y: auto;" style="display:none;">
-<div class="mfp-container mfp-s-ready mfp-inline-holder">
- 
-<div class="mfp-content w3-padding-xlarge w3-card-2 w3-white">
+  <div class="mfp-container mfp-s-ready mfp-inline-holder">
+   
+    <div class="mfp-content w3-padding-xlarge w3-card-2 w3-white">
 
+      <div id="OrderCancelModal" class="white-popup-block text-center" styles="display:none;">
+        <form action="" method="post" onsubmit="if(confirm('Click \'OK\' to confirm for '+order_data.order.order_name+' order rejection.') == true)cancelOrder(event, this); else false" order_id=""> 
+          <br>
+          <h2 class="text-left">Cancel Order #<span class="orderName" style="font-size:inherit !important;"></span></h2>
+          <div class="text-left">
+            <label><input type="radio" name="cancel-reason" checked value="Program Cancelled Locally" onchange="changedData();" /> Program Cancelled Locally</label>
+            <label><input type="radio" name="cancel-reason" value="Ordered too much" onchange="changedData();" /> Ordered too much</label>
+            <label><input type="radio" name="cancel-reason" value="Budget Limitation" onchange="changedData();" /> Budget Limitation</label>
+            <label><input type="radio" name="cancel-reason" value="Ordered Incorrectly" onchange="changedData();" /> Ordered Incorrectly</label>
+            <label><input type="radio" name="cancel-reason" value="No longer wants" onchange="changedData();" /> No longer wants</label>
+            <label><input type="radio" name="cancel-reason" value="Other- Fill in" onchange="changedData();" /> Other- Fill in</label>
+          </div>
+          
+          <textarea disabled required name="cancel-reason-other" class="" placeholder="Cancel Reason for Other (Maximum 200 Characters)" onchange="changedData();" maxlength="200"></textarea>
+          <div class="textarea_feedback w3-right"></div>
+          <br>
+        	<div class="w3-onethird">
+            &nbsp;
+            
+          </div>
+          <div class="w3-rest">
+            <button type="submit" class="btn w3-right w3-margin-left" >Update</button>
+            <button type="button" class="btn w3-right" onclick="updateModal2();">Return to order Detail</button>
+          </div>
+          <br>
+        </form>
+      </div>
 
-<div id="OrderCancelModal" class="white-popup-block text-center" styles="display:none;">
-  <form action="" method="post" onsubmit="if(confirm('Click \'OK\' to confirm for '+order_data.order.order_name+' order rejection.') == true)cancelOrder(event, this); else false" order_id=""> 
-    <br>
-    <h2 class="text-left">Cancel Order #<span class="orderName" style="font-size:inherit !important;"></span></h2>
-    <div class="text-left">
-      <label><input type="radio" name="cancel-reason" checked value="Program Cancelled Locally" onchange="changedData();" /> Program Cancelled Locally</label>
-      <label><input type="radio" name="cancel-reason" value="Ordered too much" onchange="changedData();" /> Ordered too much</label>
-      <label><input type="radio" name="cancel-reason" value="Budget Limitation" onchange="changedData();" /> Budget Limitation</label>
-      <label><input type="radio" name="cancel-reason" value="Ordered Incorrectly" onchange="changedData();" /> Ordered Incorrectly</label>
-      <label><input type="radio" name="cancel-reason" value="No longer wants" onchange="changedData();" /> No longer wants</label>
-      <label><input type="radio" name="cancel-reason" value="Other- Fill in" onchange="changedData();" /> Other- Fill in</label>
+      <button title="Close (Esc)" onclick="updateModal2();" type="button" class="mfp-close">×</button>
     </div>
-    
-    <textarea disabled required name="cancel-reason-other" class="" placeholder="Cancel Reason for Other (Maximum 200 Characters)" onchange="changedData();" maxlength="200"></textarea>
-    <div class="textarea_feedback w3-right"></div>
-    <br>
-  	<div class="w3-onethird">
-      &nbsp;
-      
-    </div>
-    <div class="w3-rest">
-      <button type="submit" class="btn w3-right w3-margin-left" >Update</button>
-      <button type="button" class="btn w3-right" onclick="updateModal2();">Return to order Detail</button>
-    </div>
-    <br>
-  </form>
-</div>
+    {% comment %}<div class="mfp-preloader w3-center center-block" style="display:initial;"><i class="fa fa-refresh w3-spin"></i></div>{% endcomment %}
+  </div>
 
-
-</div>
-<!--   <div class="mfp-preloader w3-center center-block" style="display:initial;"><i class="fa fa-refresh w3-spin"></i></div> -->
-</div>
-
-<button title="Close (Esc)" onclick="updateModal2();" type="button" class="mfp-close">×</button>
+  {% comment %}<button title="Close (Esc)" onclick="updateModal2();" type="button" class="mfp-close">×</button>{% endcomment %}
 
 </div>
 
@@ -63,7 +62,7 @@
   }
   
   function changedData(){ //console.log(obj); 
-//     $('#OrderCancelModal button[type = "submit"]').removeAttr('disabled');
+    // $('#OrderCancelModal button[type = "submit"]').removeAttr('disabled');
     doc = $('[name="cancel-reason-other"]')[0];
     
     if($('[name="cancel-reason"]:checked')[0].outerHTML == $('[name="cancel-reason"]').last()[0].outerHTML)
@@ -89,7 +88,7 @@
                 
     {% comment %}{% endcomment %}
     $.ajax({
-      url: '/apps/pepsi-print/order_configuration/cancel_order.json',
+      url: '/apps/pepsi-print/fs_order_configuration/cancel_order.json',
           type: 'POST',
           data: JSON.stringify(data),
           dataType: 'json',
@@ -111,7 +110,7 @@
                    	setTimeout( function (){ 
                       location.reload();
                       changed = true;
-  //                   	$.unblockUI; 
+                    	// $.unblockUI; 
                       
                     }, 1500);
                 }else if(401 === Number(data.status)){

@@ -244,7 +244,7 @@
               n_pair.shift();//remove first
               for (var i = 0; i < n_pair.length; i++) {
                 var p = n_pair[i];
-                struct[i].push(decodeURIComponent(p.replace('+', ' ', 'g')));
+                struct[i].push(decodeURIComponent(p.replace(/\+/g, ' ')));
               }
             }
           }

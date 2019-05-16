@@ -26,7 +26,7 @@
       </select>
     </div>
 
-    <button id="printOrder" styles="margin: 0 20px;" type="button" class="btn btn--secondary btn--primary1 printModeExclude w3-right" onclick="windowPrint();" title="Print this order"><i class="fa fa-print"></i> Print Order History</button>
+    <button id="printOrder" styles="margin: 0 20px;" type="button" class="btn btn--secondary btn--primary1 printModeExclude w3-right" onclick="window.print(); /*windowPrint();*/" title="Print this order"><i class="fa fa-print"></i> Print Order History</button>
 
 	<br><br>
 
@@ -114,22 +114,34 @@
     <button class="btn" style="min-width:350px;" type="button" onclick="toggleRDash();">My Reports</button>
     <br>
     <div id="reportDash" class="border w3-padding animated  w3-white" style="max-width:350px; display:none;">
-      - <a href="javascript:agedExport();" class="aged" hrefs="/apps/pepsi-print/collection_response/aged_reports.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Open Order Report</a><br>
+      {% assign region_name = customer_region_tag |remove:'Region:' |replace:'0','o' | replace: "SouthEast", "Sunbelt" | replace: "MidAtlantic", "Metro Atlantic" %}
+      {% assign region_name_standard = customer_region_tag |replace:'Region:', 'Standard_' |replace:'0','o' %}
+      {% assign region_name_dashboard = customer_region_tag |replace:'Region:', 'Dashboard_' |replace:'0','o' %}
+      
+      - <a href="javascript:agedExport();" class="aged" hrefs="/apps/pepsi-print/collection_response/aged_reports.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}">{{ region_name }} Open Order Report</a><br>
       {% unless customer.tags contains Role_Admin %}
-      {% if customer_region_tag contains region_NorthEast %}
-       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Standard_' }}_2017.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Standard Report (2017)</a><br>
-       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Dashboard_' }}_2017.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Dynamic Report (2017)</a><br>
+      {% if customer_region_tag contains region_NorthEast %} | replace: 
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ region_name_standard }}_2017.xlsm">{{ region_name }} Standard Report (2017)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ region_name_dashboard }}_2017.xlsm">{{ region_name }} Dynamic Report (2017)</a><br>
       {% endif %}
-       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Standard_' |replace:'0','o' }}.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Standard Report (2018)</a><br>
-       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Dashboard_' |replace:'0','o' }}.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Dynamic Report (2018)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ region_name_standard }}_2018.xlsm">{{ region_name }} Standard Report (2018)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ region_name_dashboard }}_2018.xlsm">{{ region_name }} Dynamic Report (2018)</a><br>
+      
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ region_name_standard }}.xlsx">{{ region_name }} Standard Report (2019)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ region_name_dashboard }}.xlsm">{{ region_name }} Dynamic Report (2019)</a><br>
       {% endunless %}
       {% if customer.tags contains Role_Admin %}
        - <a href="https://print-reports.s3.amazonaws.com/PPS_Standard_All_2017.xlsm">Standard Report (2017)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All_2017.xlsm">Dynamic Report (2017)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5_2017.xlsm">ASM KPI Summary Report (2017)</a><br>
-       - <a href="https://print-reports.s3.amazonaws.com/PPS_Standard_All.xlsm">Standard Report (2018)</a><br>
-       - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All.xlsm">Dynamic Report (2018)</a><br>
-       - <a href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5.xlsm">ASM KPI Summary Report (2018)</a><br>
+      
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_Standard_All_2018.xlsm">Standard Report (2018)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All_2018.xlsm">Dynamic Report (2018)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5_2018.xlsm">ASM KPI Summary Report (2018)</a><br>
+      
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_Standard_All.xlsb">Standard Report (2019)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All.xlsm">Dynamic Report (2019)</a><br>
+       - <a {% comment %}style="pointer-events: none;" class="w3-text-grey"{% endcomment %} href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5.xlsm">ASM KPI Summary Report (2019)</a><br>
       {% endif %}
     </div>
     <br>
@@ -460,6 +472,7 @@
 
   function windowPrint(){
     $.when(
+      {% capture beforePrint %}
       $('{% unless customer.tags contains Role_Printer %}header .grid--full:not(:nth-of-type(1)),{% endunless %} .header-bar, .printModeExclude:visible, footer').hide().toggleClass('visible'),
       $('.site-header__logo img').css('margin','0 0'),
 
@@ -467,22 +480,54 @@
       $('.printModeInclude').toggleClass('hide'),
         $('.print-one-whole').toggleClass('one-whole {% if customer.tags contains Role_ASM %}three-quarters{% else %}two-thirds{% endif %}'),
       $('.th-span').toggleClass('th-span th-spaned')
-
+      {% endcapture %}
     ).done(function(){
     	setTimeout(window.print(), 10);
     });
 
     {% comment %}{% endcomment %}
+    {% capture afterPrint %}
     $('{% unless customer.tags contains Role_Printer %}header .grid--full:not(:nth-of-type(1)),{% endunless %} .header-bar, .printModeExclude.visible, footer').show().toggleClass('visible');
     $('.site-header__logo img').css('margin','0 auto');
     $('.site-header__logo').toggleClass('w3-col s3');
 
     $('.printModeInclude').toggleClass('hide');
       $('.print-one-whole').toggleClass('one-whole {% if customer.tags contains Role_ASM %}three-quarters{% else %}two-thirds{% endif %}');
-    $('.th-span').toggleClass('th-span th-spaned');
-
+    $('.th-spaned').toggleClass('th-span th-spaned');
+    {% endcapture %}
 
   }
+
+  bprint = aprint = false;
+
+  (function() {
+    var beforePrint = function() {
+      if(!bprint){ bprint = true; aprint = false;
+        console.log('Functionality to run before printing.');
+        {{ beforePrint }}
+      }
+    };
+    var afterPrint = function() {
+      if(!aprint){ aprint = true; bprint = false;
+        console.log('Functionality to run after printing');
+        {{ afterPrint }}
+      }
+    };
+
+    if (window.matchMedia) {
+        var mediaQueryList = window.matchMedia('print');
+        mediaQueryList.addListener(function(mql) {
+            if (mql.matches) {
+                beforePrint();
+            } else {
+                afterPrint();
+            }
+        });
+    }
+
+    window.onbeforeprint = beforePrint;
+    window.onafterprint = afterPrint;
+  }());
 </script>
 
 <style>

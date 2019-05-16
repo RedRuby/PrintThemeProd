@@ -1,0 +1,379 @@
+<div class="mfp-bg mfp-fade mfp-ready w3-black" style="display:none; opacity:0.8;"></div>
+
+<div class="mfp-wrap mfp-auto-cursor mfp-fade mfp-ready mfp-hide" tabindex="-1" style="overflow-x: hidden; overflow-y: auto;" style="display:none;">
+  <div class="mfp-container mfp-s-ready mfp-inline-holder">
+   
+    <div class="mfp-content w3-padding-xlarge w3-card-2 w3-white w3-margin animated fast">
+
+      <div class="w3-loader w3-margin-top"><br>{% include 'customer-account-common-code' with 'order-loader' %}</div>
+
+      <div class="text-center w3-margin w3-padding no_addresses" style="display:none;">
+        <br>
+        <h3>No Address in your shipping Address Book</h3>
+        <a>
+          <button type="button" class="btn btn-primary" onclick="updateModal2(true);">Add Shipping Address &nbsp;<i class="fa fa-plus"></i></button>
+        </a>
+        <br>
+      </div>
+
+      <div id="OrderAddressSelect" class="white-popup-block text-center" style="display:none;">
+        <br><br>
+        <h1 class="w3-margin-0">Select Addresses From Address Book<span class="orderName" style="font-size:inherit !important;"></span></h1>
+        <br>
+        <div class="grid w3-margin-top">
+          <div class="grid__item one-fifth medium-down--hide" style="position: relative; padding-right: 27px;">
+            &nbsp;
+          </div>
+          <div class="grid__item two-fifths medium-down--three-fifths" style="position: relative; padding-right1: 27px;">
+            {% include 'customer-account-common-code' with 'address-search-bar' %}
+          </div>
+          <div class="grid__item one-fifth medium-down--two-fifths">
+            <div class="text-left w3-padding-left1" style1="margin-left: 12px;">
+              <a>
+                <label class="btn btn-primary min-width-200" onmousedown="$(this).toggleClass('btn--secondary btn-primary btn');" style="font-size: 14px !important;"><input name="selectAllAddress" style="position: absolute !important;" class="w3-check1 w3-white1 w3-margin-right1 visually-hidden" type="checkbox">Select All</label>
+              </a>
+            </div>
+          </div>
+          <div class="grid__item one-fifth medium-down--hide" style="position: relative; padding-right: 27px;">
+            &nbsp;
+          </div>
+          <div class="grid__item one-fifth text-right small--text-left hide">
+            {% comment %}<lable class="w3-left">Sort</lable>{% endcomment %}
+            <select  name="" id="">
+              <option value="created_desc">New to Old</option>
+              <option value="created_asc">Old to New</option>
+              <option value="customer_asc">A to Z</option>
+              <option value="customer_desc">Z to A</option>
+            </select>
+          </div>
+          <div class="grid__item one-fifth hide">
+            <div class="grid per_pageContainer printModeExclude">
+              <div class="grid__item one-third text-right">
+                {% comment %}<label for="per_page" style="display:inline-block;" class="w3-margin-top">Per Page: &nbsp;</label>{% endcomment %}
+                <select id="per_page" class="per_page" style="max-width:60px; display:inline-block;" onchange="updateState({page: '1',per_page: this.value});updatePerPage(this.value);">
+                  <option value='12'>12</option>
+                  <option value='20'>20</option>
+                  <option value='28'>28</option>
+                  <option value='40'>40</option>
+                  <option value='48'>48</option>
+                </select>
+              </div>
+              <div class="grid__item two-thirds">
+                <div id="paginationInit" class="w3-margin-top1">
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <form onsubmit="selectAddress(event, this);">
+          <div class="w3-block w3-margin-top">
+
+            <table class="responsive-table w3-table w3-bordered w3-margin-0">
+              <tr class="row1">
+                <td w3-repeat="addresses">
+                <label class="select_label">
+                  <div class="w3-row">
+                    <div class="w3-col s2 text-right">
+                      <input name="selectAddress[{% raw %}{{ id }}{% endraw %}]" class="w3-check w3-white w3-margin-right" type="checkbox">
+                    </div>
+                    <div class="w3-col s10">
+                      <b>{% raw %}{{ customer }}{% endraw %}</b>
+                      <p></p>
+                      <p class="w3-margin-0">
+                        <small>{% raw %}{{ first_name }} {{ last_name }}{% endraw %}</small>
+                        <br>
+                        <small>{% raw %}{{ email }}{% endraw %}</small>
+                        <br>
+                        <small>{% raw %}{{ phone }}{% endraw %}</small>
+                      </p>
+                      <p></p>
+                      <p class="w3-margin-0">
+                        <small>{% raw %}{{ address1 }}{% endraw %}</small>
+                        <br>
+                        <small>{% raw %}{{ city }}{% endraw %}, {% raw %}{{ state }}{% endraw %} {% raw %}{{ zip }}{% endraw %}</small>
+                        <br>
+                        <small>{% raw %}{{ country }}{% endraw %}</small>
+                      </p>
+                      <p></p>
+                      <p class="w3-margin-0">
+                        <small>{% raw %}{{ budget_identifier }}{% endraw %}</small>
+                        <br>
+                        <small>{% raw %}{{ channel_identifier }}{% endraw %}</small>
+                      </p>
+                    </div>
+                  </div>
+                </label>
+                </td>
+              </tr>
+            </table>
+            <br><br>
+            <button type="submit" class="btn btn-primary">Add Addresses</button>
+            <br>
+            <button type="button" class="btn--secondary w3-margin-top" onclick="updateModal2();">Cancel</button>
+          </div>
+          <br>
+        </form>
+      </div>
+      <button type="button" title="Close (Esc)" onclick="updateModal2();" class="mfp-close">×</button>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+  var mfpHTML2 = '';
+  var changed2 = false;
+
+  var page = "";
+  var per_page = "";
+  var search = sort = "";
+
+  new Shopify.CountryProvinceSelector('country', 'state', {
+    hideElement: 'AddressProvinceContainerNew'
+  });
+
+  var Strings = {
+    create : (function() {
+      var regexp = /{([^{]+)}/g;
+
+      return function(str, o) {
+        return str.replace(regexp, function(ignore, key){
+          return (key = o[key]) == null ? '' : key;
+        });
+      }
+    })()
+  };
+
+  String.prototype.create = function(o) {
+    return Strings.create(this, o);
+  }
+
+  function setAddTable(){
+    length = $("#OrderAddressSelect table tr > td").length;
+    // console.log(length);
+    $("#OrderAddressSelect table tr > td").unwrap('<tr class="row1"></tr>');
+
+    for (var i = 4; i <= length; i+=4) {
+      $("#OrderAddressSelect table td:lt({i}){j}".create({i:i, j:((i>4) ? ':gt('+(i-4-1).toString()+')' : '')})).wrapAll('<tr class="row{i}"></tr>'.create({i:i-4+1}));
+    }
+  }
+
+  function enableGroupSelection( selector ) {
+    let lastChecked = null;
+    const checkboxes = Array.from( document.querySelectorAll( selector ) );
+
+    checkboxes.forEach( checkbox => checkbox.addEventListener( 'click', event => {
+      if ( !lastChecked ) {
+        lastChecked = checkbox;
+
+        return;
+      }
+
+      if ( event.shiftKey ) {
+        const start = checkboxes.indexOf( checkbox );
+        const end   = checkboxes.indexOf( lastChecked );
+
+        checkboxes
+          .slice( Math.min( start, end ), Math.max( start, end ) + 1 )
+          .forEach( checkbox => checkbox.checked = lastChecked.checked );
+      }
+
+      lastChecked = checkbox;
+    } ) );
+  }
+
+  function updateState(param = {}, setDefault){
+    var data = {};
+    // if(param.page != undefined)data.page = param.page; else if(page.length != 0)data.page = page;
+    // if(param.per_page != undefined)data.per_page = param.per_page; else if(per_page.length != 0)data.per_page = per_page;
+    if(param.search != undefined)data.search = param.search; else if(search.length != 0)data.search = search;
+    // if(param.sort != undefined)data.sort = param.sort; else if(sort.length != 0)data.sort = search;
+
+    data = removeEmpty(data);
+
+    if(document.location.href == History.getState().url && false){
+      History.replaceState({ url: document.location.href }, document.title, '?'+History.getState().url.split('?')[1]||'');
+    }else{
+      summary_view_param = {% if template == 'cart.checkout-grid' %}'?view=checkout-grid'{% else %}''{% endif %};
+      History.pushState({ url: document.location.href }, document.title, ($.param(data).length != 0) ? summary_view_param+ "&" +$.param(data) : '' +summary_view_param );
+    }
+    fetchAddresses(setDefault);
+  }
+
+  function fetchAddresses(setDefault){
+    var uri = new YouAreI(document.location.href);
+        query = uri.query_get();
+
+    // page = (query.page != undefined) ? query.page : '1';
+    // per_page = (query.per_page != undefined) ? query.per_page : (localStorage.per_page_{{ customer.id }}_address == undefined) ? '48' : localStorage.per_page_{{ customer.id }}_address;
+    // updatePerPage(per_page);
+    search = (query.search != undefined) ? query.search : '';
+    // sort = (query.sort != undefined) ? query.sort : '';
+
+    // freez();
+    var data = { cid: "{{ customer.id }}", action_type: "list_fs_address" };
+
+    // if(page.length != 0){ data.page = page }
+    // if(per_page.length != 0){ data.per_page = per_page; $('.per_page').val(per_page.toString()); }
+    if(search.length != 0){ data.search = search; $('#search').val(search); }
+    // if(sort.length != 0){ data.sort = sort; $('#sort').val(sort); }
+
+    data.per_page = 5000;
+
+    $.ajax({
+            url: '/apps/place_bulk_order',
+            type: 'GET',
+            dataType: 'json',
+            data: data,
+            contentType: 'application/json',
+            success: function(data){ 
+              console.log(data);  
+              default_id = data.default_address.id;
+              {% if has_digital_product %}
+              if($('#default_address')  && setDefault && Boolean(data.default_address) && data["total_addresses"] == 0)
+                  w3DisplayData("default_address", data.default_address);
+              {% endif %}
+              if(data["total_addresses"] > 0){
+                  address.addresses = data.addresses;
+                  $('#OrderAddressSelect').html('').append(mfpHTML2);
+                  $.when(setTimeout(w3DisplayData("OrderAddressSelect", data),100))
+                  .done(function(){ 
+                    setAddTable();
+
+                    {% if has_digital_product %}
+                    if($('#default_address') && setDefault && Boolean(data.default_address))
+                      w3DisplayData("default_address", data.default_address);
+                    {% endif %}
+                    enableGroupSelection('[name^="selectAddress["]');
+
+                    $.each(grid_data.addresses.map(function(x){ return x.id }), function(){
+                      $('[name^="selectAddress['+this+']"').prop('disabled', true).parents('label').addClass('w3-text-grey').css('cursor', 'not-allowed');
+                    });
+
+                    $('[name="selectAllAddress"]').off('click').on('click', function() {
+                        if (this.checked == true)
+                            $('#OrderAddressSelect').find('input[name^="selectAddress["]').prop('checked', true);
+                        else
+                            $('#OrderAddressSelect').find('input[name^="selectAddress["]').prop('checked', false);
+                        $('#OrderAddressSelect').find('[type="submit"]').focus();
+                    });
+
+                    $('input[name^="selectAddress["], [name="selectAllAddress"]').on('click', function(){
+                      $('input[name^="selectAddress["][disabled]:checked').prop('checked', false);
+                    });
+
+                    $('#paginationInit').pagination({
+                        items: data["total_addresses"],
+                        itemsOnPage: data["per_page"],
+                        hrefTextPrefix: "javascript:updateState({ page: '",
+                        hrefTextSuffix: "'});",
+                        currentPage: page,
+                        prevText:'<i class="fa fa-arrow-left"></i>',
+                        nextText:'<i class="fa fa-arrow-right"></i>',
+                        listStyle: 'w3-pagination',
+                        ellipsePageSet: false,
+                        displayedPages: 0,
+                        edges: 0,
+                    });
+
+                    $('#OrderAddressSelect, .per_pageContainer').show();
+                    $('.no_addresses').hide();
+
+                    if(page.length != 0){ data.page = page }
+                    if(per_page.length != 0){ data.per_page = per_page; $('.per_page').val(per_page.toString()); }
+                    if(search.length != 0){ data.search = search; $('#search').val(search); }
+                    if(sort.length != 0){ data.sort = sort; $('#sort').val(sort); }
+
+                  });
+                  
+                }else{
+                  $('.no_addresses').show();
+                }
+                $(".w3-loader").hide();
+            },
+            error: function(data){ 
+              show_message2(data.responseJSON.message||'Some Error Occured.',false); 
+              console.log(data);
+            }
+    });
+  }
+  
+  $(document).ready(function(){
+    mfpHTML2 = $('#OrderAddressSelect').html();
+    updateState({}, true);
+  });
+  
+  function updateModal2(openAdd){ //console.log('in'); 
+    $('#mfp-address-select .mfp-content').removeClass('slideInUp').addClass('bounceOutDown');
+    setTimeout(function(){
+      $('#mfp-address-select .mfp-bg, #mfp-address-select .mfp-wrap').delay(1000).hide().addClass('mfp-hide');
+      $('html, body').css('overflow','auto');
+      $('#OrderAddressSelect, .no_addresses').hide();
+      $('.w3-loader').show();
+      if(openAdd)
+        showAddModal();
+    },800);
+    // $('.mfp-container').removeAttr('style');
+    // $('#OrderAddressSelect').html('').append(mfpHTML2);
+    if( changed2 == true ){ changed2 = ''; }
+  }
+  
+
+  // function changedData(){ //console.log(obj); 
+  //   // $('#OrderAddressSelect button[type = "submit"]').removeAttr('disabled');
+    
+  // }
+
+  
+  function selectAddress(e, obj, id){
+    freez();
+    e.preventDefault();
+    e.stopPropagation();
+    
+    selected_checkboxes = $('#OrderAddressSelect [name^="selectAddress["]:checked');     
+
+    if(selected_checkboxes.length > 0){
+      selected_ids = Object.keys(selected_checkboxes.serializeJSON().selectAddress);
+      updateGrid("address", address.addresses.filter(function( obj ) { if(selected_ids.indexOf(obj.id.toString()) > -1) return obj; }));
+      updateModal2();
+    // else if(id){
+    //   updateGrid("address", address.addresses.filter(function( obj ) { if(id == obj.id) return obj; }));
+    //   updateModal2();
+    }else
+      show_message2("Please Select at leat one address.", false, true);
+
+    defreez();
+  }
+  
+  function showSelectModal(){
+      $('html, body').css('overflow','hidden');
+      $('#mfp-address-select .mfp-preloader, #mfp-order-fulfill .mfp-preloader .w3-loader').show();
+      $('#mfp-address-select .mfp-content').removeClass('bounceOutDown').addClass('slideInUp');
+      $('#mfp-address-select .mfp-bg, #mfp-address-select .mfp-wrap').show().removeClass('mfp-hide');
+
+      fetchAddresses(); 
+
+      setTimeout(function(){
+        $('.mfp-wrap').css('max-height', $('.mfp-wrap').css('height'));
+      }, 800);
+  }
+
+  function removeEmpty(obj) {
+    Object.keys(obj).forEach(function(key) {
+      if (obj[key] && typeof obj[key] === 'object') removeEmpty(obj[key])
+      else if (!obj[key] && obj[key] !== undefined) delete obj[key]
+    });
+    return obj;
+  };
+
+  function updatePerPage(val){
+      function addTags(){
+        localStorage.per_page_{{ customer.id }}_address = val;
+      }
+      $.when(
+        addTags()
+      ).done(function(){  });
+  }
+</script>
