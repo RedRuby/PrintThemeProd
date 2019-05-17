@@ -387,7 +387,7 @@
         $('.reviewBtn[onclick^="showReviewModal('+url.split('&line=')[1].split('&')[0]+', "]').click();
       }, 1500);
   }
-  else window.location.assign('{{ shop.url }}/account');
+  else window.location.assign('/account');
   // });
 
 
@@ -447,6 +447,11 @@
     if(no_fulfillment && data.fulfillment_status != undefined) prev_page_params = prev_page_params.replace('fulfillment_status=fulfilled','');
 
     data.order_id = order_ids;
+
+    if(query.name != undefined)
+      data["order_name"] = query.name;
+
+    // console.log(JSON.stringify(data));
 
      $.ajax({
           url: '/apps/pepsi-print/fs_collection_response/get_order_detail.json',
@@ -514,7 +519,7 @@
                   // data = createThumbImg(data);
                 }else{
                   show_message4(data.message,false);
-                  setTimeout(function(){ window.location.assign('{{ shop.url }}/account'); }, 800);
+                  setTimeout(function(){ window.location.assign('/account'); }, 800);
                 }
 
 

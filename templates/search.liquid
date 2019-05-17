@@ -49,14 +49,14 @@
       {% if search.results_count == 0 %}
 
         <div class="section-header section-header--large">
-          <h1 class="section-header__title h2">{{ 'general.search.no_results_html' | t: terms: search.terms }}</h1>
+          <h1 class="section-header__title h2">{{ 'general.search.no_results_html' | t: terms: search.terms | remove: ' product_type:mod' }}</h1>
         </div>
         {% include 'search-bar' with 'header-fs' %}
 
       {% else %}
 
         <div class="section-header section-header--large">
-          <h1 class="section-header__title h2">{{ 'general.search.results_for_html' | t: terms: search.terms }}</h1>
+          <h1 class="section-header__title h2">{{ 'general.search.results_for_html' | t: terms: search.terms | remove: ' product_type:mod' }}</h1>
         </div>
         {% include 'search-bar' with 'header-fs' %}
 

@@ -366,6 +366,7 @@
             data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order: order_id, designer_id: $this.val(), cregion: customer_region },
             dataType: 'json',
             success: function(data){
+              // console.log(data);
               defreez(); 
               show_message2('Assigned Successfully.',true); 
               $this.prop({'disabled':'disabled', 'title': 'Reassign Designer from Order detail page.'}).css('cursor', 'not-allowed').parent().prev().find('div').text(data.order_status||$this.parent().prev().find('div').text()).attr("order_status", (data.order_status||$this.parent().prev().text()));

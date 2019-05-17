@@ -73,7 +73,7 @@
     {% endunless %}
 
   {% endif %}
-  <script type="text/javascript">console.log('role:{{ customer_role_tag }}, region:{{ customer_region_tag }}');</script>
+  
   {% if template contains 'collection' and collection.handle %}
     {% unless collection.title contains customer_region_tag %} {% assign no_access = true %} {% assign collec = true %} {% endunless %}
     {% if template contains 'my-products' %}
@@ -113,9 +113,13 @@
 
 
 {% if customer-account-common-code == 'shop-check' %}
-
-  {% assign shop_url_retail = 'general.shop_url.retail' | t %}
-  {% assign shop_url_fs = 'general.shop_url.fs' | t %}
+  {% if shop.permanent_domain contains "beta" %}
+    {% assign general_shop_url = 'general.shop_url_beta.' %}
+  {% else %}
+    {% assign general_shop_url = 'general.shop_url.' %}
+  {% endif %}
+  {% assign shop_url_retail = general_shop_url | append: 'retail' | t %}
+  {% assign shop_url_fs = general_shop_url | append: 'fs' | t %}
 
   {%- capture CFH -%}{{ content_for_header }}{%- endcapture -%}
   {%- assign pageUrl = CFH | split:'"pageurl":"' | last | split:'"' | first |

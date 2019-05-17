@@ -8,10 +8,10 @@ development:
   timeout: 600s
 production:
   password: c2ac9a66d730d561e136beafd7588abc
-  theme_id: "47785082934"
+  theme_id: "184081169"
   store: pepsiprint.myshopify.com
   timeout: 600s
-  readonly: false
+  readonly: true
   ignore_files:
     - config/settings_data.json
   timeout: 600s

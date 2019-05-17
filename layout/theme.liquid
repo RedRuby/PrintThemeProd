@@ -66,6 +66,20 @@
 
 {% include 'customer-account-common-code' with 'theme-layout-code' %}
 
+{% assign pageHost = pageUrl | split:"/" | first %}
+
+{% if pageHost == 'pepsicomod.com' %}
+  {% layout 'none' %}
+  <meta content="0; url=https://{{ shop_url_fs }}{{ pageUrl | split:'.com' | last }}" http-equiv="refresh" />
+  {% break %}
+  {% continue %}
+{% elsif pageHost == shop.permanent_domain and shop.domain != shop.permanent_domain %}
+  {% layout 'none' %}
+  <meta content="0; url=https://{{ shop_url_retail }}{{ pageUrl | split:'.com' | last }}" http-equiv="refresh" />
+  {% break %}
+  {% continue %}
+{% endif %}
+
 {% if no_region == true or no_access == true or cross_shop_req_url %}
 	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html>

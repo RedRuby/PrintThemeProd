@@ -6,7 +6,7 @@
       "Mountain": "Spanish,Model Store,Alaska,Arizona,Colorado,Hawaii,Idaho,New Mexico West Texas,Oregon,Utah,Washington",
       "California": "Spanish,Model Store",
       "South": "Spanish,Model Store,Texas,GM POS,Medals (Outside Texas),Medals (Texas)",
-      "MidAtlantic": "Spanish,Model Store",
+      "MidAtlantic": "Spanish,Model Store,DMV,Virginia,Tennessee-WKY,WV-EKY",
       "MidWest": "Spanish,Model Store,Chicago,Dakotas,Minnesota,Wisconsin",
       "GreatLakes": "Spanish,Model Store"
     },
@@ -35,9 +35,13 @@
       "Designer": "Role:Designer",
       "FSAdmin": "Role:FSAdmin"
     },
-    "shop_url": {
+    "shop_url_beta": {
       "retail": "pepsi-print-beta.myshopify.com",
       "fs": "www.pepsicomod.com"
+    },
+    "shop_url": {
+      "retail": "pepsiprintstudios.com",
+      "fs": "www.time2glow.in"
     },
     "product_template_file_upload_details": {
       "Retail": {
