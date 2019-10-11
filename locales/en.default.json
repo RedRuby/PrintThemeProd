@@ -37,11 +37,11 @@
     },
     "shop_url_beta": {
       "retail": "pepsi-print-beta.myshopify.com",
-      "fs": "www.pepsicomod.com"
+      "fs": "time2glow.in"
     },
     "shop_url": {
       "retail": "pepsiprintstudios.com",
-      "fs": "www.time2glow.in"
+      "fs": "pepsicomod.com"
     },
     "product_template_file_upload_details": {
       "Retail": {
@@ -53,7 +53,7 @@
         "file_types": "eps,psd,ai"
       }
     },
-    "mod_channels": "Restaurent,Rec & Retail,Workplace,C&U,Distributor,Franchise,National Customer",
+    "mod_channels": "C&U,Distributor,Franchise Bottler,Restaurant,Rec & Retail,Workplace,National Customer",
     "Unsupported_Browser_Msg": "You are using an unsupported browser and may have difficulty with your site experience. Please switch to Chrome.",
     "Main-Menu": {
       "Brands": "amp,\nany-brand,\naquafina,\nbig-red,\nbrisk,\nbundeburg,\n1893,\ncalebs-kola,\ncrush,\ndiet-pepsi,\ndr-pepper,\nfruit-shoot,\ngatorade,\nkickstart,\nlemon-lemon\nlipton,\nmanzanita-sol,\nmetahune-water,\nmist-twst,\nmountain-dew,\nmuscle-milk,\nno-fear-energy,\no-n-e,\npact,\npaso-de-los-toro,\npepsi,\nportfolio,\npropel,\npure-leaf,\nlifewtr,\nrockstar,\nschweppes,\nsobe,\nstarbucks,\nstubborn-soda,\ntampico,\nxyience,\nwater+\n",
@@ -389,7 +389,8 @@
         },
         "free_order_notice_html": "Your order (including shipping, if applicable) will be charged to the Payment Code entered",
         "title": "Payment Code",
-        "apply_gift_card_button_label": "APPLY"
+        "apply_gift_card_button_label": "APPLY",
+        "different_billing_address_label": "Send invoice to budget approver"
       },
       "field_errors": {
         "reduction_code_code_not_found": "This code did not match any active gift card or discount. Was it entered correctly? ( You can find your paymenty code on the homepage, in the dropdown list beneath \"Other\" )"

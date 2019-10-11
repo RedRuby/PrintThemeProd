@@ -1,4 +1,15 @@
 <script>
+
+  function simulateMouseClick(targetNode) {
+    function triggerMouseEvent(targetNode, eventType) {
+        var clickEvent = document.createEvent('MouseEvents');
+        clickEvent.initEvent(eventType, true, true);
+        targetNode.dispatchEvent(clickEvent);
+    }
+    ["mouseover", "mousedown", "mouseup", "click"].forEach(function(eventType) { 
+        triggerMouseEvent(targetNode, eventType);
+    });
+  }
   
   function editPrice(instance, row, col, optBkpData, selectedOptions){
   	var selectedPrices = instance.getDataAtCell(row, col+1);
@@ -23,13 +34,21 @@
 
     $('#optionPriceModal tbody').html('');
     selectedOptions.forEach(function(option, index){
-        try{ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0 || this.value == 0) this.value = \'0.01\'; else this.value = (parseFloat(this.value)||0.01).toFixed(2); " value="'+ ((price[option] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? price[option] : "0.01") +'"></td></tr>'); }
-        catch(e){ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0 || this.value == 0) this.value = \'0.01\'; else this.value = (parseFloat(this.value)||0.01).toFixed(2); " value="'+ ((selectedPrices[index] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? selectedPrices[index] : "0.01") +'"></td></tr>'); }
+        is_readonly = ((option == "Window Mesh") ? ' min="0.01" max="1" ' : '');
+        try{ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(parseFloat(this.value) > 1)show_message4(\'Price too high per square inch please keep it <b>$1 or below</b>. Call Lapine for a manual override\', false); this.value = Math.min(1.00,Math.max(...[0.01,(parseFloat(this.value)||0.01)])).toFixed(2)" '+ is_readonly +' value="'+ ((price[option] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? Math.min(1,Math.max(...[0.01,price[option]])).toFixed(2) : "0.01") +'"></td></tr>'); }
+        catch(e){ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(parseFloat(this.value) > 1)show_message4(\'Price too high per square inch please keep it <b>$1 or below</b>. Call Lapine for a manual override\', false); this.value = Math.min(1.00,Math.max(...[0.01,(parseFloat(this.value)||0.01)])).toFixed(2)" '+ is_readonly +' value="'+ ((selectedPrices[index] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? Math.min(1,Math.max(...[0.01,selectedPrices[index]])).toFixed(2) : "0.01") +'"></td></tr>'); }
     });
 
 //     $("#priceSave").prop('disabled', 'disabled');
     $("#priceSave").removeAttr('disabled');
     $('#optionPriceModal').one('show.bs.modal', function(){ $(this).animateCss('animated slideInRight'); }).modal({backdrop:"static", show:true, keyboard:false});
+
+    $("#goBackToElements").off("click").on("click", function() {
+      $.when(instance.selectCell(row, 'add_options')).done(
+        simulateMouseClick($('.current.highlight a')[0])
+      );
+      $("#goBackToElements").off("click");
+    });
 
     $("#optionPriceModal").off('hide.bs.modal').on('hide.bs.modal', function () {
 

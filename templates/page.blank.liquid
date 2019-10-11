@@ -1,9 +1,15 @@
 {% include 'customer-account-common-code' with 'theme-layout-code' %}
 
+{% if cart.items.size > max_allowed_item_count %}
+  {% layout 'none' %}
+  <meta content="0; url=/cart" http-equiv="refresh" />
+  {% continue %}
+{% endif %}
+
 <!-- <script
-			  src="https://code.jquery.com/jquery-3.1.0.slim.min.js"
-			  integrity="sha256-cRpWjoSOw5KcyIOaZNo4i6fZ9tKPhYYb6i5T9RSVJG8="
-			  crossorigin="anonymous">
+        src="https://code.jquery.com/jquery-3.1.0.slim.min.js"
+        integrity="sha256-cRpWjoSOw5KcyIOaZNo4i6fZ9tKPhYYb6i5T9RSVJG8="
+        crossorigin="anonymous">
 </script> -->
 
 <!-- {{ '//ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js' | script_tag }} -->
@@ -18,7 +24,7 @@
 {{ 'jquery.fancybox.pack.js' | asset_url | script_tag }} -->
 
 <style>
-  body{overflow-Y:scroll;}
+  body{overflow-Y:auto;}
   .page-width{max-width:auto;}
   .main-content{margin-top:0px;margin-bottom:10px;}
   .mfp-wrap {overflow: hidden !important;}
@@ -45,6 +51,10 @@
 
   iframeObj = document.getElementById('my_iframe');
 
+  iframeWin = getIframeWindow(iframeObj);
+
+  iframeWinDoc = iframeWin.document;
+
   var _config = {
 
       // What you might want to change
@@ -65,23 +75,107 @@
       addToCartFormSelector:         'form[action="/cart/add"]',
       shopifyAjaxAddURL:             '/cart/add.js',
       shopifyAjaxCartURL:            '/cart.js'
-  	};
+    };
+
+  $(window).scroll(function() {
+    appFrameHeight = iframeWinDoc.body.scrollHeight+170+ 'px';
+    iframeObj.style.height = appFrameHeight;
+  });
+
+  $(window).resize(function() {
+    grid = $(iframeWinDoc).find('.row-height');
+    if(grid.length)
+      if(hasScroll($(iframeWinDoc).find('#price-list')[0], 'horizontal'))
+        $(iframeWinDoc).find('#datatable-wrapper').css('margin-bottom', (getScrollbarWidth()+15)+'px');
+  });
+
+  function getIframeWindow(iframe_object) {
+    var doc;
+
+    if (iframe_object.contentWindow) {
+      return iframe_object.contentWindow;
+    }
+
+    if (iframe_object.window) {
+      return iframe_object.window;
+    } 
+
+    if (!doc && iframe_object.contentDocument) {
+      doc = iframe_object.contentDocument;
+    } 
+
+    if (!doc && iframe_object.document) {
+      doc = iframe_object.document;
+    }
+
+    if (doc && doc.defaultView) {
+     return doc.defaultView;
+    }
+
+    if (doc && doc.parentWindow) {
+      return doc.parentWindow;
+    }
+
+    return undefined;
+  }
+
+  function hasScroll(el, direction) {
+    direction = (direction === 'vertical') ? 'scrollTop' : 'scrollLeft';
+    var result = !! el[direction];
+
+    if (!result) {
+        el[direction] = 1;
+        result = !!el[direction];
+        el[direction] = 0;
+    }
+    return result;
+  }
+  
+  function getScrollbarWidth() { 
+    var div = $('<div style="width:50px;height:50px;overflow:hidden;position:absolute;top:-200px;left:-200px;"><div style="height:100px;"></div>'); 
+    $(iframeWinDoc).find('body').append(div); 
+    var w1 = $('div', div).innerWidth(); 
+    div.css('overflow-y', 'scroll'); 
+    var w2 = $('div', div).innerWidth(); 
+    $(div).remove(); 
+    return (w1 - w2); 
+  }
 
   function resizeIframe(objr) {
+    iframeWinDoc = getIframeWindow(objr).document;
     $(window).scrollTop(0);
-    if(objr.contentWindow.document.getElementsByClassName('blockUI').length > 0){
+    if(iframeWinDoc.getElementsByClassName('blockUI').length > 0){
       $("#loader").removeClass('hide');console.log('yes');
       objr.style.height = '0px';
     }else{
     $("#loader").addClass('hide');
-    appFrameHeight = objr.contentWindow.document.body.scrollHeight+170+ 'px';
+    appFrameHeight = iframeWinDoc.body.scrollHeight+170+ 'px';
     objr.style.height = appFrameHeight;
     }
     updateCart();
-//     fobj = objr.contentWindow.document.getElementById('fancybox-wrap');
+    
+    $(iframeWinDoc).find('[action="/apps/place_bulk_order?cid={{ customer.id }}"]').off('submit').on('submit', function(e){
+      if($(iframeWinDoc).find('.distributor.checkbox:checked').length == 0){
+        e.preventDefault();
+        show_message2('Atleast one location required.',false, true);
+        return false;
+      }
+    }).end().find('[href="/apps/place_bulk_order?action_type=list-location&cid={{ customer.id }}"]').attr('href',"/apps/place_bulk_order?action_type=list-location&cid={{ customer.id }}&cregion={{ customer_region_tag }}");
+
+    grid = $(iframeWinDoc).find('.row-height').css('position', 'relative').find('.col-height').first().css({'position': 'absolute', 'width': '50%'}).end().find('.table-responsive').css('border', 'none').find('tr.fixed-td td.ellipses').removeClass('ellipses');
+  
+    if(grid.length)
+      if(hasScroll($(iframeWinDoc).find('#price-list')[0], 'horizontal'))
+        $(iframeWinDoc).find('#datatable-wrapper').css('margin-bottom', (getScrollbarWidth()+15)+'px');
+                                            
+//     fobj = iframeWinDoc.getElementById('fancybox-wrap');
 //     alert(fobj.innerHTML);
 //     setTimeout(function(){ resizeIframe(obj); }, 3000);
+    iframeWin.onbeforeunload = function() {
+      freez();
+    };
   }
+                                            
 
 
 //   setInterval(function(){
@@ -93,7 +187,7 @@
 //   }, 3000);
 
   $(document).ready(function(){
-  	$('#MainContent .page-width').removeClass('page-width');
+    $('#MainContent .page-width').removeClass('page-width');
 //     $('.grid div').last().prop('id','vertical-ali');
 
     $('.js-toggle-preview-modal').magnificPopup({
@@ -104,7 +198,7 @@
         closeOnContentClick: false,
 //         tClose: password.strings.pageClose,
         removalDelay: 500,
-       	tLoading: '<i style="color: white;" class="fa fa-hourglass"></i>',
+        tLoading: '<i style="color: white;" class="fa fa-hourglass"></i>',
         callbacks: {
           open: function() {
 //             window.setTimeout( function() { document.getElementById('password').focus(); }, 50 );
@@ -127,7 +221,7 @@
 
   function compress(objc){
     objc.style.height = '800px';
-  	objc.contentWindow.document.getElementById('fancybox-content').style.height = '600px';
+    objc.contentWindow.document.getElementById('fancybox-content').style.height = '600px';
   }
 
   function readyFancy(){
@@ -137,15 +231,15 @@
 //       $("#sample").fancybox({
 //           'margin'             : 10,
 //           'padding'            : 10,
-//           'width'				: '90%',
-//           'height'			: '90%',
-//           'transitionIn'		: 'none',
-//           'transitionOut'		: 'none',
-//           'type'				: 'iframe',
-//           'href'				: '{{shop.secure_url}}'+site+'',
-//           'autoScale'			 : true,
-//           'onStart'			: function(){$("body").css({'overflow':'hidden'});},
-//           'onClosed'			: function(){$("body").css({"overflow":"visible"});},
+//           'width'        : '90%',
+//           'height'     : '90%',
+//           'transitionIn'   : 'none',
+//           'transitionOut'    : 'none',
+//           'type'       : 'iframe',
+//           'href'       : '{{shop.secure_url}}'+site+'',
+//           'autoScale'       : true,
+//           'onStart'      : function(){$("body").css({'overflow':'hidden'});},
+//           'onClosed'     : function(){$("body").css({"overflow":"visible"});},
 //           'onComplete' : function(){
 //                                         jQuery.fancybox.showActivity();
 //                                         jQuery('#fancybox-frame').load(function(){
@@ -155,17 +249,17 @@
 //                                   }
 //       });
   $("#sample").prop('href', '{{shop.secure_url}}'+site+'');
-  	readyFancy();
+    readyFancy();
   }
 
   function fancyOn(){
      scrollTop = $(window).scrollTop();
-     document.getElementById('my_iframe').style.height = window.innerHeight+"px";
+     iframeWin.style.height = window.innerHeight+"px";
      $(window).scrollTop(135);
   }
 
   function fancyOff(){
-     document.getElementById('my_iframe').style.height = appFrameHeight;
+     iframeWin.style.height = appFrameHeight;
      $(window).scrollTop(scrollTop);
   }
 
@@ -175,21 +269,21 @@
       $id = document.getElementById('link-sales');
       $id.setAttribute("target", "_blank");
       $id.click();
-  	}
-  	else if(page == 2){
+    }
+    else if(page == 2){
       $id = document.getElementById('link-food-service');
       $id.setAttribute("target", "_blank");
       $id.click();
-  	}
+    }
     else if(page == 3){
       $id = document.getElementById('link-all-other');
       $id.setAttribute("target", "_blank");
       $id.click();
-  	}
+    }
   }
 
   function getValue(){
-    iframeObj.contentWindow.postMessage({call:'sendValue', value: '{{ settings.color_secondary }}' }, '*');
+    iframeWin.postMessage({call:'sendValue', value: '{{ settings.color_secondary }}' }, '*');
   }
 
   console.log('{{customer.id}}');

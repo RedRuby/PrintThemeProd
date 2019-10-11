@@ -1,43 +1,51 @@
 <div id="order-list" style1="display:none;">
-  	<div class="w3-row printModeExclude">
-    	<div class="w3-col m2">
+    <div class="w3-row printModeExclude">
+      <div class="w3-col m2">
         <small class="nbsp-hide"><label for="" class=""><small class="nbsp-hide placeholdLoader">Date Filter</small></label></small>
-    	  <input id="start_date" value="{{first_order}}" readonly class="datepicker placeholdLoader" type="text" name="start_date" placeholder="Start Date">
-    	</div>
-    	<div class="w3-col m2 w3-row-padding" style="position:relative;">
+        <input id="start_date" value="{{first_order}}" readonly class="datepicker placeholdLoader" type="text" name="start_date" placeholder="Start Date">
+      </div>
+      <div class="w3-col m2 w3-row-padding" style="position:relative;">
         <small class="nbsp-hide"><label for="">&nbsp;</label></small>
-    	  <input id="end_date" value="{{'now' | date: '%m/%d/%Y'}}" readonly class="datepicker placeholdLoader" type="text" name="end_date" placeholder="End Date" >
+        <input id="end_date" value="{{'now' | date: '%m/%d/%Y'}}" readonly class="datepicker placeholdLoader" type="text" name="end_date" placeholder="End Date" >
         <button type="button" disabled class="btn btn--secondary w3-padding-01 w3-padding-top1 w3-padding-bottom1 w3-border-black w3-small clear-filter hide1 placeholdLoader" disabled1 style="position:absolute; bottom: 22.75px; right:15px; z-index:; display:none; padding:0 5px; font-size:3px;"><i class="fa fa-times"></i></button>
-    	</div>
-    	<div class="w3-col m2">
+      </div>
+      <div class="w3-col m2">
         <small class="nbsp-hide"><label for="">&nbsp;</label></small>
         {% comment %}<button id="" class="btn--secondary btn--full1 clear-filter placeholdLoader" type="button" style="display:none;" >Clear</button>{% endcomment %}
-    	  <button id="filter_order" class="btn--secondary btn--full1 placeholdLoader" type="button" >Filter Dates</button>
-    	</div>
+        <button id="filter_order" class="btn--secondary btn--full1 placeholdLoader" type="button" >Filter Dates</button>
+      </div>
       <div class="w3-col m2">
         {% include 'customer-account-common-code' with 'order-search-bar' %}
       </div>
-    	<div id="td_select" class="w3-col m2 w3-row-padding">
+      <div id="td_select" class="w3-col m2 w3-row-padding">
         <small class="nbsp-hide"><label for="select_rg"><small class="placeholdLoader"><br class="br-hide">Select Region</small></label></small>
-    	  <select id="select_rg" onchange="changeRegion(this.value); this.title = this.options[this.selectedIndex].innerHTML;" title="" class="placeholdLoader" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{fulfillment_status}}{% endraw %}">
+        <select id="select_rg" onchange="changeRegion(this.value); this.title = this.options[this.selectedIndex].innerHTML;" title="" class="placeholdLoader" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{fulfillment_status}}{% endraw %}">
             <option value="" selected>All</option>
-            <option value='Region:NorthEast'>North East</option>
-            <option value='Region:SouthEast'>South East</option>
-            <option value='Region:California'>California</option>
-            <option value='Region:MidAtlantic'>Mid Atlantic</option>
-            <option value='Region:Mountain'>Mountain</option>
-            <option value='Region:MidWest'>Mid West</option>
-            <option value='Region:S0uth'>South</option>
-            <option value='Region:GreatLakes'>Great Lakes</option>
+            {% assign customer_tags = customer.tags | join: "," %}
+            {% if customer_tags contains "RegionMOD:" %}
+              {% assign region_prefix = "RegionMOD" %}
+            {% else %}
+              {% assign region_prefix = "Region" %}
+            {% endif %}
+            <option value='{{ region_prefix }}:California'>California</option>
+            <option value='{{ region_prefix }}:FranchiseBottler'>Franchise Bottler</option>
+            <option value='{{ region_prefix }}:GreatLakes'>Great Lakes</option>
+            <option value='{{ region_prefix }}:MidAtlantic'>Mid-Atlantic</option>
+            <option value='{{ region_prefix }}:Mountain'>Mountain</option>
+            <option value='{{ region_prefix }}:MidWest'>Mid West</option>
+            <option value='{{ region_prefix }}:NationalCustomer'>National Customer</option>
+            <option value='{{ region_prefix }}:NorthEast'>NorthEast</option>
+            <option value='{{ region_prefix }}:S0uth'>South</option>
+            <option value='{{ region_prefix }}:SouthEast'>SouthEast</option>
           </select>
-    	</div>
-    	<div id="td_select" class="w3-col m2">
+      </div>
+      <div id="td_select" class="w3-col m2">
         <small class="nbsp-hide"><label for="select_tl"><small class="placeholdLoader"><br class="br-hide">Additional Filters</small></label></small>
         <select id="select_tl" onchange="params={page: '1', order_status: '', assigned_designer: ''}; params[$(this).find('option:selected').attr('filter_attr')]=this.value; updateState(params);" name="order_status" class="placeholdLoader">
           <option value="" selected>Clear Additional Filters</option>
           {% include 'customer-account-common-code' with 'order-status-option-code-fs' %}
         </select>
-    	</div>
+      </div>
     </div>
   <table id="id02" class="responsive-table w3-table w3-bordered w3-striped1">
     <div class="">
@@ -108,14 +116,14 @@
   
      data.customer_id = "{{ customer.id }}";
                 
-  	 $.ajax({
+     $.ajax({
           url: '/apps/pepsi-print/fs_collection_response/get_orders_list.json',
           type: 'GET',
           data: data,
           dataType: 'json',
           success: function(data){
-            	// console.log(JSON.stringify(data));
-            	if(data["total_entries"] > 0){
+              // console.log(JSON.stringify(data));
+              if(data["total_entries"] > 0){
                   calcT(data);
                   
                   $.when(setTimeout(w3DisplayData("id02", data),100))
@@ -128,12 +136,12 @@
                   
                   $("#print-btn").removeAttr('disabled').prop('title', '').css('cursor', 'default');
                   $('.editBtn[status="Cancelled"], .editBtn[status="Fulfilled"], .cancelBtn[status="Cancelled"], .cancelBtn[status="Fulfilled"], .trackBtn:not([status="Fulfilled"])').prop({"disabled": "disabled", "title": ""}).css('cursor','not-allowed');
-      				}else{
+              }else{
                   $("#id02, .per_pageContainer").hide();
                   $("#order-none, #order-list").show();
                   $("#print-btn").prop('disabled','disabled').prop('title', 'No orders to print.').css('cursor', 'not-allowed');
                 }
-            	defreez();
+              defreez();
               $('.placeholdLoader').addClass('placeholdLoader1').removeClass('placeholdLoader');
               $('.table-wrapper').removeClass('overflow-hidden');
                 
@@ -142,7 +150,7 @@
             defreez(); show_message2('Error in fetching Orders.',false);
           }
           
-	 	});
+    });
     
   }
 
@@ -296,13 +304,13 @@
     return(data);
   }
 
-  function removeEmpty(obj) {
-    Object.keys(obj).forEach(function(key) {
-      if (obj[key] && typeof obj[key] === 'object') removeEmpty(obj[key])
-      else if (obj[key] == null) delete obj[key]
-    });
-    return obj;
-  };
+  // function removeEmpty(obj) {
+  //   Object.keys(obj).forEach(function(key) {
+  //     if (obj[key] && typeof obj[key] === 'object') removeEmpty(obj[key])
+  //     else if (obj[key] == null) delete obj[key]
+  //   });
+  //   return obj;
+  // };
 
   
   function changeRegion(val){

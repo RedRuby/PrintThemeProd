@@ -34,8 +34,8 @@
     </thead>
     <tr class="w3-hover-light-grey" w3-repeat="orders">
       <th class="w3-text-orange1 orders text-center" id="{% raw %}{{id}}{% endraw %}"><a class="{% raw %}{{cancel_status}}{% endraw %} placeholdLoader" href="/pages/order?id={% raw %}{{id}}{% endraw %}"><b>{% raw %}{{order_name}}{% endraw %}</b></a></th>
-      {% comment %}<td class="text-center" title="{% raw %}{{customer_last_email}}{% endraw %}"><div class="placeholdLoader">{% raw %}{{customer_first_name}} {{customer_last_name}}{% endraw %}</div></td>{% endcomment %}
       <td class="text-center"><div class="placeholdLoader">{% raw %}{{company}}{% endraw %}</div></td>
+      {% comment %}<td class="text-center" title="{% raw %}{{customer_last_email}}{% endraw %}"><div class="placeholdLoader">{% raw %}{{customer_first_name}} {{customer_last_name}}{% endraw %}</div></td>{% endcomment %}
       <td class="text-center"><div class="placeholdLoader">${% raw %}{{spend}}{% endraw %}</div></td>
       <td class="text-center"><div class="placeholdLoader">{% raw %}{{discount_codes}}{% endraw %}</div></td>
       <td class="text-center"><div class="placeholdLoader">{% raw %}{{order_date}}{% endraw %}</div></td>
@@ -44,9 +44,9 @@
       <td class="text-center" order_status="{% raw %}{{order_status}}{% endraw %}"><div class="placeholdLoader">{% raw %}{{order_status}}{% endraw %}</div></td>
       <td class="text-center printModeExclude" style="width: 340px;">
         <button class="js-toggle-edit-modal1 btn--secondary reviewBtn min-width-150 placeholdLoader" style="" title="Review this order" onclick="location.assign('/pages/order?id={% raw %}{{id}}{% endraw %}{% raw %}{{line_count}}{% endraw %}');" status="{% raw %}{{order_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" order_id="{% raw %}{{id}}{% endraw %}" >Review Proofs</button>
-        <span class="">&nbsp;
-          <button class="btn btn-primary reorderBtn min-width-150 placeholdLoader" style="" title="Re-order" status="{% raw %}{{order_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" order_id="{% raw %}{{id}}{% endraw %}" onclick="orderCreate({% raw %}{{id}}{% endraw %});">Re-Order</button>
-        </span>
+<!--         <span class="">&nbsp;
+          <button class="btn btn-primary reorderBtn1 min-width-150 placeholdLoader" style="" disabled title="Re-order" status="{% raw %}{{order_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" order_id="{% raw %}{{id}}{% endraw %}" onclick="orderCreate({% raw %}{{id}}{% endraw %});">Re-Order</button>
+        </span> -->
       </td>
     </tr>
   </table>
@@ -79,15 +79,15 @@
     {% include 'customer-account-common-code' with 'fetchOrders-code-fs' %}
     defreez(); defreez(); $('.placeholdLoader1').addClass('placeholdLoader').removeClass('placeholdLoader1');
     $('.table-wrapper').addClass('overflow-hidden');
-                
-  	 $.ajax({
+    
+     $.ajax({
           url: '/apps/pepsi-print/fs_collection_response/get_orders_list.json',
           type: 'GET',
           data: data,
           dataType: 'json',
           success: function(data){
-            	// console.log(JSON.stringify(data));
-            	if(data["total_entries"] > 0){
+              // console.log(JSON.stringify(data));
+              if(data["total_entries"] > 0){
                   calcT(data);
                   
                   $.when(setTimeout(w3DisplayData("id02", data),100))
@@ -101,17 +101,17 @@
                   // setTimeout(w3DisplayData("id02", data),100);
                   $("#print-btn").removeAttr('disabled').prop('title', '').css('cursor', 'default');
 
-                  $('.reviewBtn[status2 = "cancelled"], .reviewBtn[status="Order Not Assigned"]').prop("disabled", "disabled").prop('title', '').css('cursor', 'not-allowed');
+                  $('.reviewBtn[status2 = "cancelled"], .reviewBtn[status="Order Not Assigned"], .reviewBtn[status="Order Assigned"], .reviewBtn[status="Proofs Needed"], .reviewBtn[status="Needs Proof"], .reviewBtn[status="Fulfilled"], .reviewBtn:not([status="Needs Proof Review"])').prop("disabled", "disabled").prop('title', '').css('cursor', 'not-allowed');
 
                   $('.reviewBtn[status = "Fulfilled"], .reviewBtn[status="In Production"]').prop('title', 'View Proofs').text('View Proofs');
 
-                  $('.reorderBtn[status2 = "cancelled"], .reorderBtn:not([status="Fulfilled"]):not([status="In Production"])').prop("disabled", "disabled").prop('title', '').css('cursor', 'not-allowed');
-      				}else{
+                  $('.reorderBtn[status2 = "cancelled"], .reorderBtn:not([status="In Production"]):not([status="Fulfilled"])').prop("disabled", "disabled").prop('title', '').css('cursor', 'not-allowed');
+              }else{
                   $("#id02, .per_pageContainer").hide();
                   $("#order-none, #order-list").show();
                   $("#print-btn").prop('disabled','disabled').prop('title', 'No orders to print.').css('cursor', 'not-allowed');
                 }
-            	defreez();
+              defreez();
               $('.placeholdLoader').addClass('placeholdLoader1').removeClass('placeholdLoader');
               $('.table-wrapper').removeClass('overflow-hidden');
                 
@@ -120,7 +120,7 @@
             defreez(); show_message2('Error in fetching Orders.',false);
           }
           
-	 	});
+    });
     
   }
 

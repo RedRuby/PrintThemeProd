@@ -3,7 +3,7 @@
   {% include 'customer-account-common-code' with 'theme-layout-code' %}
 
 {% else %}
-	{% assign site_logo_url = section.settings.logo %}
+  {% assign site_logo_url = section.settings.logo %}
 {% endif %}
 
 
@@ -74,9 +74,9 @@
                   {% endif %}
                 {% else %}
                   {% if customer_has_retail %}
-                    Pepsi Print Studios
+                    <button type="button" class="btn btn--secondary" style="padding: 4px 8px; pointer-events: none;"><small>Pepsi Print Studios</small></button>
                   {% elsif customer_has_fs %}
-                    MOD
+                    <button type="button" class="btn btn--secondary" style="padding: 4px 8px; pointer-events:none;"><small>MOD</small></button>
                   {% endif %}
                 {% endif %}
 
@@ -95,8 +95,8 @@
           {% if shop.customer_accounts_enabled %}
             <ul class="header-bar__module header-bar__module--list">
               {% if customer %}
-              	<li>
-                  <span>Logged in as: {{ customer.name }}( {{ customer_region_tag | remove:'Region:' | replace:'0','o' | replace:"SouthEast", "Sunbelt" | replace:"MidAtlantic", "Metro Atlantic" }}{% unless customer.tags contains Role_Admin %} / {% endunless %}{{ customer_role_tag | remove:'Role:' | replace:'Printer','Vendor' | replace:'SiteUser','User' | replace:'UserManager','Manager' }} )&nbsp; | </span>
+                <li>
+                  <span>Logged in as: {{ customer.name }}( {{ customer_region_tag | remove:'Region:' | replace:'0','o'  | replace: "GreatLakes", "North" }}{% unless customer.tags contains Role_Admin %} / {% endunless %}{{ customer_role_tag | remove:'Role:' | replace:'Printer','Vendor' | replace:'SiteUser','User' | replace:'UserManager','Manager' }} )&nbsp; | </span>
                 </li>
                 <li>
                   <u><a href="/account">{{ 'layout.customer.account' | t }}</a></u>&nbsp; |
@@ -188,6 +188,11 @@
             <p class="header-message post-large--hide">
               <small>{{ section.settings.header_text }}</small>
             </p>
+          {% endif %}
+          {% if customer and customer_region_tag and customer_role_tag == Role_ASM %}
+          <div class="post-large--right">
+            {% include 'search-bar' with 'header-retail' %}
+          </div>
           {% endif %}
         </div>
       </div>

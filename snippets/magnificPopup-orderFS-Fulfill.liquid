@@ -76,7 +76,7 @@
   var noTracking = false;
   
   $(document).ready(function(){
-  	 mfpHTML_Fulfillment = $('#OrderFulfillmentModal').html();
+     mfpHTML_Fulfillment = $('#OrderFulfillmentModal').html();
   });
   
   function updateFulfillmentModal(){
@@ -85,7 +85,7 @@
     $('.mfp-bg, .mfp-wrap, #OrderFulfillmentModal').delay(1000).hide().addClass('mfp-hide');
     $('html').css('overflow','auto');
     $('.mfp-preloader').show();
-  	$('#OrderFulfillmentModal *').remove();
+    $('#OrderFulfillmentModal *').remove();
     $('#OrderFulfillmentModal').html(mfpHTML_Fulfillment); 
     }, 800);
     if( changed_Fulfillment == true ){ changed_Fulfillment = ''; fetch_Orders(); }
@@ -98,7 +98,7 @@
   }
   
   function removeTracking(obj){
-  	$(obj).parent().remove();
+    $(obj).parent().remove();
   }
   
   function changeTracking(state){
@@ -107,8 +107,8 @@
       $('.tracking_num_title').html('(Tracking Number not required)');
       $('#OrderFulfillmentModal .tracking_number, #OrderFulfillmentModal .add_tno').prop({'disabled':'disabled', 'value':''}).css('cursor', 'not-allowed');
     }else
-      	$('#OrderFulfillmentModal .tracking_number, #OrderFulfillmentModal .add_tno').removeAttr('disabled').css('cursor', '');
-    	$tracking_company = $('[name="tracking_company"] option').filter(':selected').attr('value');
+        $('#OrderFulfillmentModal .tracking_number, #OrderFulfillmentModal .add_tno').removeAttr('disabled').css('cursor', '');
+      $tracking_company = $('[name="tracking_company"] option').filter(':selected').attr('value');
         switch($tracking_company){
           case 'UPS': $('#OrderFulfillmentModal .tracking_number').prop({'pattern1':'[A-za-z0-9]{10,18}','maxlength':'18','titles':'Enter an alphanumeric Tracking Number of upto 18 Characters.'}); break;
           case 'USPS': $('#OrderFulfillmentModal .tracking_number').prop({'pattern1':'[0-9]{10,22}','maxlength':'22','titles':'Enter a numeric Tracking Number of upto 22 Characters.'}); break;
@@ -116,7 +116,7 @@
           case 'FedEx (Third party account)': $('#OrderFulfillmentModal .tracking_number').prop({'pattern1':'[0-9]{10,15}','maxlength':'15','titles':'Enter a numeric Tracking Number of upto 15 Characters.'}); break;
           case 'Other': $('#OrderFulfillmentModal .tracking_number').removeAttr('pattern maxlength'); break;
         }
-    	
+      
         if($('#OrderFulfillmentModal .tracking_number').is(':disabled')){
           noTracking = true;
           $('.tracking_num_title').html('(Tracking Number not required)');
@@ -154,7 +154,7 @@
   
   function updateOrder(e, obj){
     freez();
-  	e.preventDefault();
+    e.preventDefault();
     e.stopPropagation();
     
     if($('#OrderFulfillmentModal .shipping_price').val() == ""){      
@@ -173,10 +173,10 @@
       var abort = false;
       $('#OrderFulfillmentModal .tracking_number:visible').each(function(index, item){
         if($(item).val() == ""){
-        	abort = true;
-        	$(item).focus();
-        	show_message2("Tracking information can't be empty.",false,true);
-        	return false;
+          abort = true;
+          $(item).focus();
+          show_message2("Tracking information can't be empty.",false,true);
+          return false;
         }
       });
       if(abort) return false;
@@ -209,38 +209,38 @@
             202:function() { console.log("202"); }
           },
           success: function(data){
-            	console.log(JSON.stringify(data));
-            	
+              console.log(JSON.stringify(data));
+              
                 if(200 === Number(data.status)){
-                  	freez();
+                    freez();
                     setTimeout( function (){ 
                       //addToModal(data.result); 
                       var $goTo = $('#OrderFulfillmentModal .goTo');
                       $goTo.prop('href', '/pages/order?id='+data.result);
                       $goTo.show();
                       {% if template contains 'page.order' %}
-  //                   		fetch_Order(data.result);
+  //                      fetch_Order(data.result);
                           location.replace('/pages/order?id='+data.result+prev_page_params);
                       {% endif %}
                       $('#OrderFulfillmentModal').find('button[type = "submit"], input, select').prop('disabled','disabled').end().find('button[type = "submit"]').hide();
                       changed_Fulfillment = true;
-  //                   	$.unblockUI; 
+  //                    $.unblockUI; 
                       show_message2('Updated Successfully.',true);
-                    }, 1500);
+                    }, 2500);
                 }else if(401 === Number(data.status)){
-                	show_message2(data.message,false);
+                  show_message2(data.message,false);
                 }else{
-                	show_message2(data.message,false); console.log('else');
+                  show_message2(data.message,false); console.log('else');
                 }
            
             
-            	
+              
           },
           error: function(data){
             show_message2('Some Error Occured.',false);
           }
           
-	 });
+   });
     
     //return false;
     console.log(order_id);

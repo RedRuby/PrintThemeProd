@@ -124,7 +124,7 @@
   }
   
   function itemCheckFunc(){
-    if($('.checkbox-custom:checked').length > 0){
+    if($('.checkbox-custom1:checked').length > 0){
       $('#select_designer_edit')[0].disabled = false;
       if($('#select_designer_edit option:selected').is(':enabled'))
         $('#assign_designer_btn')[0].disabled = false;
@@ -134,7 +134,7 @@
   }
   
   function assignDesigner(){
-    if($('.checkbox-custom:checked').length == $('.checkbox-custom').length)
+    if($('.checkbox-custom1:checked').length == $('.checkbox-custom1').length)
       changePrintShop($('#select_designer_edit')[0], order_id);
   	else if(confirm('This action will create a new order for the assigned designer.\n\nClick \'OK\' to confirm.') == true)
       splitOrder();
@@ -142,12 +142,12 @@
   
   function splitOrder(){
   	freez();    
-    var data = {cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: order_id, line_items: $('.checkbox-custom:checked').map( function() { return this.value; }).get(), printer_id: $('#select_designer_edit').val(), cregion: customer_region };
+    var data = {cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: order_id, line_items: $('.checkbox-custom1:checked').map( function() { return this.value; }).get(), printer_id: $('#select_designer_edit').val(), cregion: customer_region };
                 
     console.log(JSON.stringify(data));
     {% comment %}{% endcomment %}         
     $.ajax({
-      url: '/apps/pepsi-print/order_configuration/split_order.json',
+      url: '/apps/pepsi-print/fs_order_configuration/split_order.json',
           type: 'POST',
           data: JSON.stringify(data),
           dataType: 'json',
@@ -166,7 +166,7 @@
                   	$('#OrderEditModal button[type = "submit"]').prop('disabled', 'disabled');
                   	freez();
                    	setTimeout( function (){ 
-                      addToModal(data.result.result_false); 
+                      addToEditModal(data.result.result_false); 
                       order_id = data.result.result_false;
                       var $goTo = $('#OrderEditModal .goTo');
                       $goTo.prop('href', '/pages/order?id='+data.result.result_false);

@@ -1,42 +1,45 @@
 <div id="order-list" style="display:none;">
-  	<div class="w3-row printModeExclude">
-    	<div class="w3-col m2" style="position:relative;">
+    <div class="w3-row printModeExclude">
+      <div class="w3-col m12">
+        {% include 'customer-account-common-code' with 'address-search-bar' %}
+      </div>
+      <div class="w3-col m2" style="position:relative; padding-left: 0;">
           <small class="nbsp-hide"><label for="">Date Filter</label></small>
-    	  <input id="start_date" value="{{first_order}}" readonly class="datepicker" type="text" name="start_date" placeholder="Start Date" >
+        <input id="start_date" value="{{first_order}}" readonly class="datepicker" type="text" name="start_date" placeholder="Start Date" >
           <button type="button" disabled class="btn btn--secondary w3-padding-01 w3-padding-top1 w3-padding-bottom1 w3-border-black w3-small clear-filter hide" disabled1 style="position:absolute; bottom: 22.75px; right:10px; z-index:; display:none; padding:0 5px; font-size:3px;">Clear Dates</button>
-    	</div>
-      	<div class="w3-col m2 w3-row-padding">
+      </div>
+        <div class="w3-col m2 w3-row-padding">
           <small class="nbsp-hide"><label for="">&nbsp;</label></small>
-    	  <input id="end_date" value="{{'now' | date: '%m/%d/%Y'}}" readonly class="datepicker" type="text" name="end_date" placeholder="End Date" >
-    	</div>
-      	<div class="w3-col m3">
+        <input id="end_date" value="{{'now' | date: '%m/%d/%Y'}}" readonly class="datepicker" type="text" name="end_date" placeholder="End Date" >
+      </div>
+        <div class="w3-col m3">
           <small class="nbsp-hide"><label for="">&nbsp;</label></small>
           <button id="" class="btn btn--secondary btn--full1 clear-filter" type="button" style="display:none;" >Clear</button>
-    	  <button id="filter_order" class="btn btn--secondary btn--full1" type="button" >Filter Dates</button>
-    	</div>
-      	<div id="td_select" class="w3-col m2 w3-row-padding">
+        <button id="filter_order" class="btn btn--secondary btn--full1" type="button" >Filter Dates</button>
+      </div>
+        <div id="td_select" class="w3-col m2 w3-row-padding">
           <small><label for="select_rg"><br class="br-hide">Select Region</label></small>
-    	  <select id="select_rg" onchange="changeRegion(this.value); this.title = this.options[this.selectedIndex].innerHTML;" title="" class="" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{fulfillment_status}}{% endraw %}">
+        <select id="select_rg" onchange="changeRegion(this.value); this.title = this.options[this.selectedIndex].innerHTML;" title="" class="" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{fulfillment_status}}{% endraw %}">
             <option value="" selected>All</option>
-            <option value='Region:NorthEast'>North East</option>
-            <option value='Region:SouthEast'>Sunbelt</option>
             <option value='Region:California'>California</option>
-            <option value='Region:MidAtlantic'>Metro Atlantic</option>
+            <option value='Region:GreatLakes'>Great Lakes</option>
+            <option value='Region:MidAtlantic'>Mid-Atlantic</option>
             <option value='Region:Mountain'>Mountain</option>
             <option value='Region:MidWest'>Mid West</option>
+            <option value='Region:NorthEast'>NorthEast</option>
             <option value='Region:S0uth'>South</option>
-            <option value='Region:GreatLakes'>Great Lakes</option>
+            <option value='Region:SouthEast'>SouthEast</option>
           </select>
-    	</div>
-      	<div id="td_select" class="w3-col m3">
+      </div>
+        <div id="td_select" class="w3-col m3">
           <small><label for="select_tl"><br class="br-hide">Additional Filters</label></small>
-    	  <select id="select_tl" onchange="if(this.selectedIndex == 3)updateState({page: '1',fulfillment_status: '',order_status: this.value}); else updateState({page: '1',fulfillment_status: this.value,order_status: ''});" name="fulfillment_status">
+        <select id="select_tl" onchange="if(this.selectedIndex == 3)updateState({page: '1',fulfillment_status: '',order_status: this.value}); else updateState({page: '1',fulfillment_status: this.value,order_status: ''});" name="fulfillment_status">
             <option value="" selected>Clear Additional Filters</option>
+            <option value="cancelled">Cancelled</option>
             <option value="fulfilled">Fulfilled</option>
             <option value="unfulfilled">Unfulfilled</option>
-            <option value="cancelled">Cancelled</option>
           </select>
-    	</div>
+      </div>
     </div>
   <table id="id02" class="responsive-table w3-table w3-bordered w3-striped">
     <thead>
@@ -83,14 +86,14 @@
   
      data.customer_id = "{{ customer.id }}";
                 
-  	 $.ajax({
+     $.ajax({
           url: '/apps/pepsi-print/collection_response/get_orders_list.json',
           type: 'GET',
           data: data,
           dataType: 'json',
           success: function(data){
-//             	console.log(JSON.stringify(data));
-            	if(data["total_entries"] > 0){
+//              console.log(JSON.stringify(data));
+              if(data["total_entries"] > 0){
                   calcT(data);
                   
                   $.when(setTimeout(w3DisplayData("id02", data),100))
@@ -102,19 +105,19 @@
                   });
                   
                   $("#print-btn").removeAttr('disabled').prop('title', '').css('cursor', 'default');
-				}else{
+        }else{
                   $("#id02, .per_pageContainer").hide();
                   $("#order-none").show();
                   $("#print-btn").prop('disabled','disabled').prop('title', 'No orders to print.').css('cursor', 'not-allowed');
                 }
-            	$.unblockUI();
+              $.unblockUI();
                 
           },
           error: function(){
             $.unblockUI; show_message2('Error in fetching Orders.',false);
           }
           
-	 	});
+    });
     
   }
   

@@ -5,7 +5,7 @@
   {% continue %}
 {% endif %}
 
-{% if checkout.attributes["Budget Code"] != blank %}
+{% if checkout.attributes["Budget Code"] != blank or request.host == shop_url_fs %}
   {% assign fs_shop_active = true %}
 {% endif %}
 
@@ -28,6 +28,12 @@
         <style> *{ font-family: "Ubuntu","HelveticaNeue","Helvetica Neue",sans-serif !important; } </style>
         <style type="text/css">
           *{ border-radius: 2px !important; }
+          body > div.content > div > div.main > div.main__content > div.step[data-step="payment_method"] > div.step__sections > div:nth-child(1) > div > div > div:nth-child(2),
+          body > div.content > div > div.main > div.main__content > div.step[data-step="shipping_method"] > form > div.step__sections > div:nth-child(1) > div > div > div:nth-child(2),
+          body > div.content > div > div.main > div.main__content > div > form > div.step__sections > div.section.section--shipping-method > div.section__content > fieldset > div:nth-child(3),
+          body > div.content > div > div.main > div.main__content > div > div > div:nth-child(1) > div > div > div:nth-child(3) > div.review-block__inner > div.review-block__content > strong,
+          body > div.content > div > div.main > div.main__content > div > form > div.step__sections > div:nth-child(1) > div > div > div:nth-child(3) > div.review-block__inner > div.review-block__content > strong,
+          [data-same-billing-address]{ display: none !important; }
         </style>
       {% else %}
         {% assign settings_favicon = settings.favicon %}
@@ -35,7 +41,23 @@
       <link rel="shortcut icon" href="{{ settings_favicon | img_url: '32x32' }}" type="image/png" />
     {% endif %}
 
-    <script type="text/javascript">console.log('{{ checkout. }}');</script>
+    <style type="text/css">
+      .payment_codes{
+        font-weight:bold !important; 
+        color:#000 !important;
+      }
+
+      .address_overlay{
+        z-index: 999;
+        position: absolute;
+        background: white;
+        opacity: 0.5;
+        top: 0; right: 0; bottom: 0; left: 0;
+      }
+      body > div.content > div > div.main > div.main__content > div > form > div.step__sections > div.section.section--shipping-address > div.section__content > div[data-address-fields]{
+        position: relative !important;
+      }
+    </style>
 
     <script type="text/javascript">
       // if(document.referrer.indexOf() == -1){
@@ -53,8 +75,7 @@
       .total-recap__final-price{ visibility: hidden !important; }
     </style>
 
-    <!-- BeginConsistentCartAddon -->  <script>  {% if customer %}  Shopify.merge_cart_text = '{{ "consistent_cart_addon.merge_cart_text" | t }}' ;  Shopify.customer_logged_in = true ;  Shopify.customer_email = "{{ customer.email }}" ;  Shopify.log_uuids = true;  {% else %}  Shopify.customer_logged_in = false ;  Shopify.customer_email = "" ;  Shopify.log_uuids = true;  {% endif %}  </script>  
-    <!-- EndConsistentCartAddon -->
+    <!-- BeginConsistentCartAddon -->  <script>  {% if customer %}  Shopify.merge_cart_text = '{{ "consistent_cart_addon.merge_cart_text" | t }}' ;  Shopify.customer_logged_in = true ;  Shopify.customer_email = "{% capture atr %}{% if fs_shop_active %}1{% endif %}@{% endcapture %}{{ customer.email | replace: '@', atr }}" ;  Shopify.log_uuids = true;  {% else %}  Shopify.customer_logged_in = false ;  Shopify.customer_email = "" ;  Shopify.log_uuids = true;  {% endif %}  </script>  <!-- EndConsistentCartAddon -->
 
     <!--BeginCFFPersistentCartCart-->
     {% if customer %}
@@ -80,7 +101,8 @@
     <div class="banner" data-header>
       <div class="wrap">
         {% if fs_shop_active %}
-          {{ content_for_logo | replace: "//cdn.shopify.com/s/files/1/2142/6089/files/HOR_LOGO1.png", "//cdn.shopify.com/s/files/1/2142/6089/files/2347F4DE-5297-4B7A-89E2-76796C8A62C2__png.jpg" }}
+          {% capture cflo %}{{ content_for_logo | replace: "src", 'src="//cdn.shopify.com/s/files/1/2142/6089/files/2347F4DE-5297-4B7A-89E2-76796C8A62C2__png.jpg" old' | replace: shop_url_retail, shop_url_fs }}{% endcapture %}
+          {{ cflo }}
         {% else %}
           {{ content_for_logo }}
         {% endif %}
@@ -94,16 +116,34 @@
         <div class="main" role="main">
           <div class="main__header">
             {% if fs_shop_active %}
-              {{ content_for_logo | replace: "//cdn.shopify.com/s/files/1/2142/6089/files/HOR_LOGO1.png", "//cdn.shopify.com/s/files/1/2142/6089/files/2347F4DE-5297-4B7A-89E2-76796C8A62C2__png.jpg" }}
+              {{ cflo }}
+              {{ breadcrumb | replace: shop_url_retail, shop_url_fs }}
             {% else %}
               {{ content_for_logo }}
+              {{ breadcrumb }}
             {% endif %}
         
-            {{ breadcrumb }}
             {{ alternative_payment_methods }}
           </div>
           <div class="main__content">
-            {{ content_for_layout }}
+            {% capture cfl %}{{ content_for_layout }}{% endcapture %}
+            {% if fs_shop_active %}
+              {{ cfl | replace: shop_url_retail, shop_url_fs }}
+            {% else %}
+              {{ cfl }}
+            {% endif %}
+            {% if cfl contains '<div class="step" data-step="contact_information">' %}
+              <script>
+                {% assign da = customer.default_address %}
+                var serialized="checkout%5Bshipping_address%5D%5Baddress1%5D={{ da.address1 | url_encode }}&checkout%5Bshipping_address%5D%5Baddress2%5D={{ da.address2 | url_encode }}&checkout%5Bshipping_address%5D%5Bcity%5D={{ da.city | url_encode }}&checkout%5Bshipping_address%5D%5Bcountry%5D={{ da.country | url_encode }}&checkout%5Bshipping_address%5D%5Bfirst_name%5D={{ da.first_name | url_encode }}&checkout%5Bshipping_address%5D%5Blast_name%5D={{ da.last_name | url_encode }}&checkout%5Bshipping_address%5D%5Bprovince%5D={{ da.province | url_encode }}&checkout%5Bshipping_address%5D%5Bzip%5D={{ da.zip | url_encode }}";
+
+                $.each(serialized.split('&'), function (index, elem) {
+                   var vals = elem.split('=');
+                   $('[data-step="contact_information"] form.edit_checkout [name="' + decodeURIComponent(vals[0]) + '"]').val(decodeURIComponent(vals[1].replace(/\+/g, ' ')));
+                });
+                $('body > div.content > div > div.main > div.main__content > div > form > div.step__sections > div.section.section--shipping-address > div.section__content > div[data-address-fields]').css('position','relative').append('<div class="address_overlay"></div>');
+              </script>
+            {% endif %}
           </div>
           <div class="main__footer">
             {{ content_for_footer }}
@@ -111,10 +151,24 @@
         </div>
         <div class="sidebar" role="complementary">
           <div class="sidebar__header">
-            {{ content_for_logo }}
+            {% if fs_shop_active %}
+              {{ cflo }}
+            {% else %}
+              {{ content_for_logo }}
+            {% endif %}
           </div>
           <div class="sidebar__content">
-            {{ content_for_order_summary }}
+            {% if fs_shop_active %}
+              {% assign replace_from = 'data-reduction-form="update">' %}
+              {% assign replace_to = 'data-reduction-form="update"><a class="payment_codes" href="/pages/mod-payment-codes" target="_blank">Click here to see Payment Codes</a><br><br>' %}
+              {{ content_for_order_summary | replace: replace_from, replace_to }}
+            {% else %}
+              {% assign region_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase %}
+              {% assign replace_from = 'data-reduction-form="update">' %}
+            {% capture html_code %}<span class="payment_codes">Payment Codes: </span><a class="payment_codes" target="_blank" href="/pages/{{ region_handle }}-payment-codes-sales"><u>Sales</u></a>, <a class="payment_codes" target="_blank" href="/pages/payment-codes-{{ region_handle }}-food-service"><u>Food Service</u></a>, <a class="payment_codes" target="_blank" href="/pages/payment-codes-{{ region_handle }}-trade-expense"><u>Trade Expense</u></a><br><br>{% endcapture %}
+              {% assign replace_to = 'data-reduction-form="update">' | append: html_code %}
+              {{ content_for_order_summary | replace: replace_from, replace_to }}
+            {% endif %}
           </div>
         </div>
       </div>
@@ -122,9 +176,10 @@
 
     {{ tracking_code }}
 
-    {% if customer.tags contains region_NorthEast %}
-  	<style>
-        .content-box__row:nth-of-type(2){ display:none; }
+    {% if customer_region_tag == region_NorthEast %}
+      <style>
+/*         .content-box__row:nth-of-type(2), */
+        body > div.content > div > div.main > div.main__content > div.step[data-step="shipping_method"] > form > div.step__sections > div:nth-child(1) > div > div > div:nth-child(2){ display:none; }
       </style>
     {% endif %}
 
@@ -138,14 +193,14 @@
 
         function startPCC(){
           if($('button[type="submit"] span.btn__content:contains("COMPLETE ORDER")').parent().length > 0)
-          	payment_cc = setInterval(function(){ //console.log('running')
+            payment_cc = setInterval(function(){ //console.log('running')
 
               total_due = $('div[data-order-summary-section="payment-lines"]').first().find('span[data-checkout-payment-due-target]').attr('data-checkout-payment-due-target');
 
               if( ($('form[data-reduction-form="true"]').length > 0) || (total_due == '0') )
-              	releaseBtn();
+                releaseBtn();
               else
-              	siezeBtn();
+                siezeBtn();
             },100);
         }
 

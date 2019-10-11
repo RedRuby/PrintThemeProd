@@ -316,7 +316,7 @@
             <button type="submit" disabled name="add" id="AddToCart" class="btn hide">
               <span id="AddToCartText">{{ 'products.product.add_to_cart' | t }}</span>
             </button>
-            <button type="button" disabled id="AddToCart2" class="btn" {% if product.tags contains customer_region_tag %}onclick="logSession(this);{% endif %}">
+            <button type="button" disabled id="AddToCart2" class="btn" {% if product.tags contains customer_region_tag and cart.items.size <= max_allowed_item_count %}onclick="logSession(this);"{% else %}title="{{ max_cart_count_message }}"{% endif %}>
               <span id="AddToCartText2">{{ 'products.product.add_to_cart' | t }}</span>
             </button>
             {% comment %}
@@ -468,7 +468,7 @@
      {% if product.options.size == 2 %} mimic();console.log('region selected');{% endif %}
       $('#productSelect-1').change();
       $('#ProductPrice').show('slow');
-      {% if product.tags contains customer_region_tag %}
+      {% if product.tags contains customer_region_tag and cart.items.size <= max_allowed_item_count %}
       	if($('#AddToCart').is(':enabled') || $('[name = "id"]').length > 0)
           $('#AddToCart2, #AddToCart').removeAttr('disabled');
       {% endif %}
@@ -857,9 +857,17 @@
   }
 
   function logSession(obj){
-    if($('#AddToCart').is(':enabled')){
-      obj.previousElementSibling.click();
-    }
+    freez();
+    $.when(data = $.getJSON('/cart.js')).done(function(){ 
+      if(data.responseJSON.items.length < {{ max_allowed_item_count }}){
+        if($('#AddToCart').is(':enabled')){
+          obj.previousElementSibling.click();
+          defreez();
+        }
+      }else{
+        show_message4('{{ max_cart_count_message }}', false, false);
+      }
+    });
   }
 
 </script>

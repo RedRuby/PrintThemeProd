@@ -23,9 +23,9 @@
             <label for="last_name">Last Name</label>
             <input id="last_name" type="text" name="address[last_name]" required="required" value="{% raw %}{{last_name}}{% endraw %}">
             <label for="company_email">Company Email</label>
-            <input id="company_email" type="email" name="address[email]" required="required" value="{% raw %}{{email}}{% endraw %}">
+            <input id="company_email" type="email" name="address[email]" onchange="this.value = this.value.trim();" required="required" value="{% raw %}{{email}}{% endraw %}">
             <label for="phone_number">Phone Number</label>
-            <input id="phone_number" type="text" name="address[phone]" required="required" value="{% raw %}{{phone}}{% endraw %}">
+            <input id="phone_number" type="text" name="address[phone]" placeholder="eg: (123) 123-1234" required="required" value="{% raw %}{{phone}}{% endraw %}">
             <label for="address">Address</label>
             <input id="address" type="text" name="address[address1]" required="required" value="{% raw %}{{address1}}{% endraw %}">
             <label for="city">City</label>
@@ -42,12 +42,28 @@
             <select id="country" name="address[country]" required="required" data-default="{% raw %}{{country}}{% endraw %}">
               {{ country_option_tags }}
             </select>
-            <label for="budget_identifier">Budget Identifier</label>
-            <input id="budget_identifier" type="text" name="address[budget_identifier]" required="required" value="{% raw %}{{budget_identifier}}{% endraw %}">
-            <label for="channel_identifier">Channel Identifier</label>
+            
+            <label for="address_type1">Adress Type</label>
+            <select id="country" name="address[address_type]" required="required" data-default="{% raw %}{{address_type}}{% endraw %}">
+              <option value="" selected="" disabled="">Select</option>
+              <option value="business">Business</option>
+              <option value="residential">Residential</option>
+            </select>
+
+            {% comment %}
+            <label for="address_type1" style="display: inline;"><input type="radio" id="address_type1" class="w3-radio w3-check" name="address[address_type]" required1="required" checked="checked" value="business" data-default="{% raw %}{{address_type}}{% endraw %}">&nbsp;&nbsp; Business</label>
+            &emsp;&emsp;
+            <label for="address_type2" style="display: inline;"><input type="radio" id="address_type2" class="w3-radio w3-check" name="address[address_type]" value="residential" data-default="{% raw %}{{address_type}}{% endraw %}">&nbsp;&nbsp; Residential</label>
+            {% endcomment %}
+
+            <label for="budget_identifier" style="display: none;">Budget Identifier</label>
+            <input id="budget_identifier" type="hidden" name="address[budget_identifier]" required="required" value="Default" value1="{% raw %}{{budget_identifier}}{% endraw %}">
+            
+
+            <label for="channel_identifier" class="w3-margin-top">Channel Identifier</label>
             <select id="channel_identifier" name="address[channel_identifier]" required="required" data-default="{% raw %}{{channel_identifier}}{% endraw %}">
               <option value="">Select</option>
-              {% assign channels = "general.mod_channels" | t | split: "," %}
+              {% assign channels = "general.mod_channels" | t | split: "," | sort %}
               {% for channel in channels %}
               <option value="{{ channel }}">{{ channel }}</option>
               {% endfor %}
@@ -73,6 +89,8 @@
 
 {{ 'jQuery.serializeJSON.js' | asset_url | script_tag }}
 
+{{ '/services/javascripts/countries.js' | prepend: shop.permanent_domain | prepend: "https://" | script_tag }}
+
 <script>
   var mfpHTML = '';
   var changed = false;
@@ -97,7 +115,7 @@
   });
   
   $(document).ready(function(){
-  	 mfpHTML = $('#OrderAddressAdd').html();
+     mfpHTML = $('#OrderAddressAdd').html();
 
      $('form[id^="address"] [required]').each(function(o, i){
       $(this).prev().append(' <small class="w3-text-red">*</small>');
@@ -121,23 +139,44 @@
   //   // $('#OrderAddressAdd button[type = "submit"]').removeAttr('disabled');
     
   // }
-  function validateEmail(email) {
+  function IsValidateEmail(email) {
+    if(email.split('@')[0].length < 2 || email.split('@')[1].split('.')[0].length < 2)
+      return false;
     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
   }
   
+  function IsValidPhone(phone) {
+    var isValid = /^(1\s?)?((\([0-9]{3}\))|[0-9]{3})[\s\-]?[\0-9]{3}[\s\-]?[0-9]{4}$/g.test(phone);
+    return isValid;
+  }
+  
+  function IsValidZipCode(zip) {
+    var isValid = /^[0-9]{5}(?:-[0-9]{4})?$/.test(zip);
+    return isValid;
+  }
+  
   function addAddress(e, obj){
     freez();
-  	e.preventDefault();
+    e.preventDefault();
     e.stopPropagation();
 
-    if(!validateEmail($('#address_form_new [name="address[email]"]').val())){
+    if(!IsValidateEmail($('#address_form_new [name="address[email]"]').val())){
       show_message4("Invalid Email", false);
-      $('#address_form_new [name="address[email]"]').focus();
+      $('#address_form_new [name="address[email]"]').focus().addClass('w3-pale-red');
+      return false;
+    }else if(!IsValidPhone($('#address_form_new [name="address[phone]"]').val())){
+      show_message4("Invalid Phone Number", false);
+      $('#address_form_new [name="address[phone]"]').focus().addClass('w3-pale-red');
+      return false;
+    }else if(!IsValidZipCode($('#address_form_new [name="address[zip]"]').val())){
+      show_message4("Invalid Zip Code", false);
+      $('#address_form_new [name="address[zip]"]').focus().addClass('w3-pale-red');
       return false;
     }
     
-    var data = { address: $('#address_form_new [name^="address["]').serializeJSON().address };
+    var data = { address: $('#address_form_new [name^="address["]').removeClass('w3-pale-red').serializeJSON().address };
+    data.address["province_code"] = Countries[data.address.country].province_codes[data.address.province] || "";
     if($('#add_to_address_book').is(":not(:checked)"))
       data["save_anonymus"] = true;
 
@@ -187,9 +226,12 @@
         this_address = grid_data.addresses.filter(function( obj ) { if(obj.id == id) return obj; })[0];
         $.when(w3DisplayData("OrderAddressAdd", this_address))
         .done(function(){ 
-          $('#OrderAddressAdd select[name^="address["]').each(function(index, id){
+          $('#OrderAddressAdd select[name^="address["][data-default]').each(function(index, id){
             $(id).val(id.getAttribute("data-default"));
           });
+
+          // $('#OrderAddressAdd [name^="address[address_type"][value="'+this_address.address_type+'"]').prop("checked", "checked");
+            
           $('#OrderAddressAdd [name="address[id]"]').prop("disabled", false);
           if(this_address.distributor_id)
             $('#add_to_address_book').prop('checked', true);
@@ -197,7 +239,10 @@
         $('#address_form_new > h1, #address_form_new > div.w3-block.w3-margin-top > button.btn.btn-primary').text("Update Shipping Address");
 
       }else{
-        w3DisplayData("OrderAddressAdd", new_address);
+        $.when(w3DisplayData("OrderAddressAdd", new_address))
+        .done(function(){ 
+          $('#OrderAddressAdd select[name="address[province]"]').prepend('<option value="" selected="" disabled="">Select</option>');
+        });
       }
   }
 </script>

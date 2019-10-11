@@ -2,9 +2,10 @@
 
 <script type="text/javascript">
     var loader_enable = false;
-    function freez() {
+    function freez() { 
+      {% if customer.id == 39738540049 %}return false;{% endif %}
         $.blockUI({ 
-            message: '<div id="freezTxt w3-transparent">'+((loader_enable) ? '<i class="fa fa-refresh fa-spin fa-2x w3-text-grey w3-margin w3-padding w3-opacity w3-transparent"></i>' : '')+'</div>', 
+            message: '<div id="freezTxt w3-transparent">'+((loader_enable) ? '<i class="fa fa-refresh fa-spin fa-2x w3-text-grey w3-margin w3-padding1 w3-opacity w3-transparent"></i>' : '')+'</div>', 
             overlayCSS: { backgroundColor: 'white', cursor: 'wait' },
             cursorReset: 'default', 
             css: { 
@@ -12,7 +13,7 @@
                 left: (window.innerWidth - 64) /2 + 'px', 
                 width: '64px',
                 border: 'none',
-              	baseZ: 2043,
+                baseZ: 2043,
                 backgroundColor: 'transparent',
                 centerX: true,
                 centerY: true
@@ -21,9 +22,9 @@
 
 //         setTimeout($.unblockUI, 2000); <img src="https://cdn.shopify.com/s/files/1/1634/5803/files/3.gif?1846620989793874192">
     }
-  	
+    
   function show_message(message){
-  	$.blockUI({ 
+    $.blockUI({ 
             message: $(message), 
             fadeIn: 700, 
             fadeOut: 700, 
@@ -31,7 +32,7 @@
             showOverlay: false, 
             css: { 
                 width: '350px',
-               	height: '50px',
+                height: '50px',
                 top: (window.innerHeight - 60) + 'px', 
                 left: (window.innerWidth - 350) /2 + 'px', 
                 right: '', 
@@ -42,117 +43,23 @@
                 '-moz-border-radius': '2px', 
                 opacity: .9, 
                 color: '#fff',
-              	baseZ: 2043,
+                baseZ: 2043,
             } 
         });
   }
   
-  function defreez(){$.unblockUI(); $('.w3-loader').hide(); loader_enable = true;} 
+  function defreez(){
+    $.unblockUI(); $('.w3-loader').hide(); loader_enable = true; 
+    // $('span[order_status="In Production"], [value="In Production"]').text('Proof Approved');
+    // $('td[order_status="In Production"]').html('<div class="placeholdLoader1">Proof Approved</div>');
+  } 
   
   function show_message2(message,type,noreload){
-  	$.blockUI({ 
-            message: '<div class="growlUI-added"><h3 class="flash-messg w3-margin-0">'+message+'</h3></div>', 
-            fadeIn: 0, 
-            fadeOut: 0, 
-            timeout: 5000, 
-            showOverlay: false, 
-            blockMsgClass: 'animated bounceInUp fast notify-ui',
-            ignoreIfBlocked: false,
-            css: { 
-                width: '350px',
-               	minHeight: '50px',
-                top: (window.innerHeight - 100) + 'px', 
-                left: (window.innerWidth - 350) /2 + 'px', 
-                right: '', 
-                border: 'none', 
-                padding: '10px', 
-                backgroundColor: (type)?'{{ settings.color_primary }}':'#e00513', 
-                '-webkit-border-radius': '2px', 
-                '-moz-border-radius': '2px', 
-                
-                color: '#fff',
-              	baseZ: 2043,
-              	boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
-            },
-            onBlock: function() {
-              setTimeout(function(){ $('.notify-ui').toggleClass('bounceInUp bounceOutDown'); }, 4500);
-            },
-           	onUnblock:	function(){
-                       if(!type && !noreload){
-                          show_message2('Try again or Reload', true);
-                       }
-            }
-        });
-  }
-  
-  function show_message3(message,type){
-  	$.blockUI({ 
-            message: '<div class="growlUI-added"><h3 class="flash-messg">'+message+'</h3></div>', 
-            fadeIn: 700, 
-            fadeOut: 700, 
-            timeout: 4000, 
-            showOverlay: false, 
-            css: { 
-                width: '350px',
-               	minHeight: '50px',
-                top: (window.innerHeight - 100) + 'px', 
-                left: (window.innerWidth - 350) /2 + 'px', 
-                right: '', 
-                border: 'none', 
-                padding: '10px', 
-                backgroundColor: (type)?'{{ settings.color_primary }}':'{{ settings.color_primary }}', 
-                '-webkit-border-radius': '2px', 
-                '-moz-border-radius': '2px', 
-                
-                color: '#fff',
-              	baseZ: 2043,
-              	boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
-            },
-           	onUnblock:	function(){
-                       if(type ){
-                          show_message3('Your export will be emailed to you. Please check your inbox for your report.', false);
-                       }
-            }
-        });
-  }
-  
-  function show_message41(message,type,mssg2){
-  	$.blockUI({ 
-      message: '<div class="growlUI-added" style="z-index:2043;"><h3 class="flash-messg w3-large">'+message+'</h3></div>', 
-            fadeIn: 700, 
-            fadeOut: 700, 
-            timeout: 4000, 
-            showOverlay: false, 
-            css: { 
-                width: '350px',
-               	minHeight: '50px',
-                top: (window.innerHeight - 100) + 'px', 
-                left: (window.innerWidth - 350) /2 + 'px', 
-                right: '', 
-                border: 'none', 
-                padding: '10px', 
-                backgroundColor: (type)?'{{ settings.color_primary }}':'#e00513', 
-                '-webkit-border-radius': '2px', 
-                '-moz-border-radius': '2px', 
-                
-                color: '#fff',
-              	baseZ: 10045,
-              	boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
-            },
-           	onUnblock:	function(){
-                       if(!type && mssg2){
-                          show_message4(mssg2, true);
-                       }
-            }
-        });
-  }
-
-  function show_message4(message,type,mssg2){
     $.blockUI({ 
             message: '<div class="growlUI-added"><h3 class="flash-messg w3-margin-0">'+message+'</h3></div>', 
             fadeIn: 0, 
             fadeOut: 0, 
-            timeout: 7000, 
+            timeout: 5000, 
             showOverlay: false, 
             blockMsgClass: 'animated bounceInUp fast notify-ui',
             ignoreIfBlocked: false,
@@ -173,11 +80,158 @@
                 boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
             },
             onBlock: function() {
-              setTimeout(function(){ $('.notify-ui').toggleClass('bounceInUp bounceOutDown'); }, 6500);
+              setTimeout(function(){ $('.notify-ui').toggleClass('bounceInUp bounceOutDown'); }, 4500);
+            },
+            onUnblock:  function(){
+                       if(!type && !noreload){
+                          show_message2('Please Refresh or Try again after 5 min.', true);
+                       }
+            }
+        });
+  }
+  
+  function show_message3(message,type){
+    $.blockUI({ 
+            message: '<div class="growlUI-added"><h3 class="flash-messg">'+message+'</h3></div>', 
+            fadeIn: 700, 
+            fadeOut: 700, 
+            timeout: 4000, 
+            showOverlay: false, 
+            css: { 
+                width: '350px',
+                minHeight: '50px',
+                top: (window.innerHeight - 100) + 'px', 
+                left: (window.innerWidth - 350) /2 + 'px', 
+                right: '', 
+                border: 'none', 
+                padding: '10px', 
+                backgroundColor: (type)?'{{ settings.color_primary }}':'{{ settings.color_primary }}', 
+                '-webkit-border-radius': '2px', 
+                '-moz-border-radius': '2px', 
+                
+                color: '#fff',
+                baseZ: 2043,
+                boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+            },
+            onUnblock:  function(){
+                       if(type ){
+                          show_message3('Your export will be emailed to you. Please check your inbox for your report.', false);
+                       }
+            }
+        });
+  }
+  
+  function show_message41(message,type,mssg2){
+    $.blockUI({ 
+      message: '<div class="growlUI-added" style="z-index:2043;"><h3 class="flash-messg w3-large">'+message+'</h3></div>', 
+            fadeIn: 700, 
+            fadeOut: 700, 
+            timeout: 4000, 
+            showOverlay: false, 
+            css: { 
+                width: '350px',
+                minHeight: '50px',
+                top: (window.innerHeight - 100) + 'px', 
+                left: (window.innerWidth - 350) /2 + 'px', 
+                right: '', 
+                border: 'none', 
+                padding: '10px', 
+                backgroundColor: (type)?'{{ settings.color_primary }}':'#e00513', 
+                '-webkit-border-radius': '2px', 
+                '-moz-border-radius': '2px', 
+                
+                color: '#fff',
+                baseZ: 10045,
+                boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
             },
             onUnblock:  function(){
                        if(!type && mssg2){
                           show_message4(mssg2, true);
+                       }
+            }
+        });
+  }
+
+  function show_message4(message,type,mssg2,timeout){ 
+    bottom_margin = ((message.length >= 100) ? ((Math.round(message.length/30)-1)*10) : 0);
+    if(message.indexOf('Please allow order to update and reflect in some time') != -1)
+        bottom_margin = 40;
+    $.blockUI({ 
+            message: '<div class="growlUI-added"><h3 class="flash-messg w3-margin-0">'+message+'</h3></div>', 
+            fadeIn: 0, 
+            fadeOut: 0, 
+            timeout: timeout||7000, 
+            showOverlay: false, 
+            blockMsgClass: 'animated bounceInUp fast notify-ui',
+            ignoreIfBlocked: false,
+            css: { 
+                width: '350px',
+                minHeight: '50px',
+                top: (window.innerHeight - 100 - bottom_margin) + 'px', 
+                left: (window.innerWidth - 350) /2 + 'px', 
+                right: '', 
+                border: 'none', 
+                padding: '10px', 
+                backgroundColor: (type)?'{{ settings.color_primary }}':'#e00513', 
+                '-webkit-border-radius': '2px', 
+                '-moz-border-radius': '2px', 
+                
+                color: '#fff',
+                baseZ: 2043,
+                boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+            },
+            onBlock: function() {
+              setTimeout(function(){ $('.notify-ui').toggleClass('bounceInUp bounceOutDown'); }, ((timeout||7000)-500));
+            },
+            onUnblock:  function(){
+                       if(!type && mssg2){
+                          if(mssg2.indexOf('Please allow order to update and reflect in some time') != -1)
+                            timeout = 30000;
+                          else
+                            timeout = null;
+                          show_message4(mssg2, true, null, timeout);
+                       }
+            }
+        });
+  }
+
+  function show_message5(message,type,mssg2,timeout){ 
+    bottom_margin = ((message.length >= 100) ? ((Math.round(message.length/30)-1)*10) : 0);
+    if(message.indexOf('Please allow order to update and reflect in some time') != -1)
+        bottom_margin = 40;
+    $.blockUI({ 
+            message: '<div class="growlUI-added"><h3 class="flash-messg w3-margin-0">'+message+'</h3></div>', 
+            fadeIn: 0, 
+            fadeOut: 0, 
+            showOverlay: true, 
+            blockMsgClass: 'animated bounceInUp fast notify-ui',
+            ignoreIfBlocked: false,
+            css: { 
+                width: '350px',
+                minHeight: '50px',
+                top: (window.innerHeight - 100 - bottom_margin) + 'px', 
+                left: (window.innerWidth - 350) /2 + 'px', 
+                right: '', 
+                border: 'none', 
+                padding: '10px', 
+                backgroundColor: (type)?'{{ settings.color_primary }}':'#e00513', 
+                '-webkit-border-radius': '2px', 
+                '-moz-border-radius': '2px', 
+                
+                color: '#fff',
+                baseZ: 2043,
+                boxShadow: '0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+            },
+            onBlock: function() {
+              setTimeout(function(){ $('.notify-ui').toggleClass('bounceInUp bounceOutDown'); }, ((timeout||7000)-500));
+            },
+            onUnblock:  function(){
+                       if(!type && mssg2){
+                          if(mssg2.indexOf('Please allow order to update and reflect in some time') != -1)
+                            timeout = 30000;
+                          else
+                            timeout = null;
+                          show_message4(mssg2, true, null, timeout);
                        }
             }
         });
@@ -189,19 +243,19 @@
       <h3 class="flash-messg">Added Successfully</h3> 
     </div>
   
-  	<div class="growlUI-removed"> 
+    <div class="growlUI-removed"> 
       <h3 class="flash-messg">Removed Successfully</h3> 
     </div>
   
-  	<div class="growlUI-error"> 
+    <div class="growlUI-error"> 
       <h3 class="flash-messg">Opps!! Something Went Wrong</h3> 
     </div>
   
-  	<div class="growlUI-saved"> 
+    <div class="growlUI-saved"> 
       <h3 class="flash-messg">Saved Successfully</h3> 
     </div>
   
-  	<div class="growlUI-SavingError"> 
+    <div class="growlUI-SavingError"> 
       <h3 class="flash-messg">Error occured while saving</h3> 
     </div>
 </div> 

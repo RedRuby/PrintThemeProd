@@ -28,19 +28,19 @@
 
     <button id="printOrder" styles="margin: 0 20px;" type="button" class="btn btn--secondary btn--primary1 printModeExclude w3-right" onclick="window.print(); /*windowPrint();*/" title="Print this order"><i class="fa fa-print"></i> Print Order History</button>
 
-	<br><br>
+  <br><br>
 
     {% comment %}
       If we have past orders, loop through each one
     {% endcomment %}
       {% if customer.tags |join:',' contains 'PerPage:' %}
-    	{% for tag in customer.tags %}
+      {% for tag in customer.tags %}
           {% if tag contains 'PerPage' %}
-    		{% assign customer_per_page = tag |split:':' |last %}{% break %}
+        {% assign customer_per_page = tag |split:':' |last %}{% break %}
           {% endif %}
-    	{% endfor %}
+      {% endfor %}
       {% else %}
-    	{% assign customer_per_page = '' %}
+      {% assign customer_per_page = '' %}
       {% endif %}
 
       {% if customer.tags contains Role_ASM %}
@@ -111,51 +111,62 @@
     <iframe name="stealthFrame" style="display:none;"></iframe>
 
     {% if customer.tags contains Role_ASM or customer.tags contains Role_Admin %}
-    <button class="btn" style="min-width:350px;" type="button" onclick="toggleRDash();">My Reports</button>
+    <button class="btn" style="min-width:350px;" type="button" onclick="toggleRDash();">Current Year Reports</button>
     <br>
     <div id="reportDash" class="border w3-padding animated  w3-white" style="max-width:350px; display:none;">
-      {% assign region_name = customer_region_tag |remove:'Region:' |replace:'0','o' | replace: "SouthEast", "Sunbelt" | replace: "MidAtlantic", "Metro Atlantic" %}
+      {% assign region_name = customer_region_tag |remove:'Region:' |replace:'0','o' %}
       {% assign region_name_standard = customer_region_tag |replace:'Region:', 'Standard_' |replace:'0','o' %}
       {% assign region_name_dashboard = customer_region_tag |replace:'Region:', 'Dashboard_' |replace:'0','o' %}
       
-      - <a href="javascript:agedExport();" class="aged" hrefs="/apps/pepsi-print/collection_response/aged_reports.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}">{{ region_name }} Open Order Report</a><br>
       {% unless customer.tags contains Role_Admin %}
-      {% if customer_region_tag contains region_NorthEast %} | replace: 
+       - <a hrefs="javascript:agedExportNew();" class1="aged" href="https://print--export-reports.s3.amazonaws.com/Open_Order_Report_{{ region_name }}_{{ 'now' | date: '%m-%d-%Y' }}.csv">{{ region_name }} Open Order Report</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ region_name_standard }}.xlsb">{{ region_name }} Standard Report (2019)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ region_name_dashboard }}.xlsm">{{ region_name }} Dynamic Report (2019)</a><br>
+      {% endunless %}
+      {% if customer.tags contains Role_Admin %}
+       - <a hrefs="javascript:agedExportNew();" class1="aged" href="https://print--export-reports.s3.amazonaws.com/Open_Order_Report_All_Region_{{ 'now' | date: '%m-%d-%Y' }}.csv">Open Order Report</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_Standard_All.xlsb">Standard Report (2019)</a><br>
+       - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All.xlsm">Dynamic Report (2019)</a><br>
+       <!--        - <a {% comment %}style="pointer-events: none;" class="w3-text-grey"{% endcomment %} href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5.xlsm">ASM KPI Summary Report (2019)</a><br> -->
+       - <a href="https://print-reports.s3.amazonaws.com/Quarterly Division Reports_V2.xlsx">Quarterly Division Reports</a><br>
+      {% endif %}
+    </div>
+    <br>
+    {% comment %}{% endcomment %}
+    <button class="btn" style="min-width:350px;" type="button" onclick="toggleRHDash();">Historical Reports</button>
+    <br>
+    <div id="reportDashH" class="border w3-padding animated  w3-white" style="max-width:350px; display:none;">    
+      {% unless customer.tags contains Role_Admin %}
+      {% if customer_region_tag contains region_NorthEast %}
        - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ region_name_standard }}_2017.xlsm">{{ region_name }} Standard Report (2017)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ region_name_dashboard }}_2017.xlsm">{{ region_name }} Dynamic Report (2017)</a><br>
       {% endif %}
        - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ region_name_standard }}_2018.xlsm">{{ region_name }} Standard Report (2018)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ region_name_dashboard }}_2018.xlsm">{{ region_name }} Dynamic Report (2018)</a><br>
-      
-       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ region_name_standard }}.xlsx">{{ region_name }} Standard Report (2019)</a><br>
-       - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ region_name_dashboard }}.xlsm">{{ region_name }} Dynamic Report (2019)</a><br>
       {% endunless %}
       {% if customer.tags contains Role_Admin %}
        - <a href="https://print-reports.s3.amazonaws.com/PPS_Standard_All_2017.xlsm">Standard Report (2017)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All_2017.xlsm">Dynamic Report (2017)</a><br>
-       - <a href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5_2017.xlsm">ASM KPI Summary Report (2017)</a><br>
-      
+       <!--        - <a href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5_2017.xlsm">ASM KPI Summary Report (2017)</a><br> -->
        - <a href="https://print-reports.s3.amazonaws.com/PPS_Standard_All_2018.xlsm">Standard Report (2018)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All_2018.xlsm">Dynamic Report (2018)</a><br>
-       - <a href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5_2018.xlsm">ASM KPI Summary Report (2018)</a><br>
-      
-       - <a href="https://print-reports.s3.amazonaws.com/PPS_Standard_All.xlsb">Standard Report (2019)</a><br>
-       - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All.xlsm">Dynamic Report (2019)</a><br>
-       - <a {% comment %}style="pointer-events: none;" class="w3-text-grey"{% endcomment %} href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5.xlsm">ASM KPI Summary Report (2019)</a><br>
+       <!--        - <a href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5_2018.xlsm">ASM KPI Summary Report (2018)</a><br> -->
       {% endif %}
     </div>
     <br>
+    {% comment %}{% endcomment %}
     {% if customer.tags contains Role_ASM or customer.tags contains Role_Admin %}
     <a target="_blank" href="/pages/product-upload-form" onclicks="window.open('');" onc="('https://s3.amazonaws.com/printreports/PepsiPrintProductUploadForm_v7.xlsm');" ><button class="btn" style="min-width:350px;" type="button">Upload Products</button></a><br><br>
     {% endif %}
-<!--     <a href="/pages/locations"><button class="btn" style="min-width:350px;" type="button">Add Location for Regional List</button></a> -->
+    <!-- <a href="/pages/locations"><button class="btn" style="min-width:350px;" type="button">Add Location for Regional List</button></a> -->
     {% elsif customer.tags contains Role_Manager %}
-    <div id="select_team" class="">
+    <div id="select_team" class="" style="position: relative;">
       <label>View Regional Staff List</label>
-      <select id="select_{% raw %}{{id}}{% endraw %}" onchange="editTeam(this, true); this.title = this.options[this.selectedIndex].innerHTML;" title="" class="assign-printer" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{fulfillment_status}}{% endraw %}">
-        <option selected disabled>Click to Select your team members</option>
-        <option w3-repeat="customers" value="{% raw %}{{id}}{% endraw %}" title="{% raw %}{{first_name}} {{last_name}}{% endraw %}" select="{% raw %}{{selected}}{% endraw %}">{% raw %}{{email}}{% endraw %}</option>
+      <select id="select_{% raw %}{{id}}{% endraw %}" onmousedown="if(!Boolean(all_customer)){ $('.fau-refresh').show(); fetch_AllUsers(); }" onchange="editTeam(this, true); this.title = this.options[this.selectedIndex].innerHTML;" title="" class="assign-printer" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{fulfillment_status}}{% endraw %}">
+        <option value="" selected disabled>Click to Select your team members</option>
+        <option w3-repeat="customers" value="{% raw %}{{id}}{% endraw %}" title="{% raw %}{{first_name}} {{last_name}}{% endraw %}" select="{% raw %}{{selected}}{% endraw %}" style="color: transparent !important;">{% raw %}{{email}}{% endraw %}</option>
       </select>
+      <span class="fau-refresh" style="display: none; position: absolute; right: 11px; bottom: 8px; background: white;"><i class="fa fa-refresh fa-spin fa-lg"></i></span>
     </div>
 
     <div id="selected_team" class="" style="border:1px solid #aaa; border-radius:5px; display:none;">
@@ -184,7 +195,7 @@
       <a target="_blank" href="https://www.microsoft.com/en-in/download/internet-explorer.aspx"><i class="fa fa-internet-explorer"></i> Internet Explorer</a> -->
     </div>
 
-    {% if customer.tags contains 'SuperUser'  %}
+    {% if customer.tags contains 'SuperUser1'  %}
       <br>
       <label>Role / Region Switch</label>
       <select onchange="updateCustomer(this.value);">
@@ -244,33 +255,144 @@
 //   });
 
   $(document).ready(function(){
-  	$('#start_date').val('');
+    $('#start_date').val('');
     $('#pc1').attr('href', $('#link-sales').attr('href'));
-	$('#pc2').attr('href', $('#link-food-service').attr('href'));
-	$('#pc3').attr('href', $('#link-all-other').attr('href'));
+  $('#pc2').attr('href', $('#link-food-service').attr('href'));
+  $('#pc3').attr('href', $('#link-all-other').attr('href'));
 
     $("#reportDash a:not(a.aged)").on('click', function(e){
-    	e.preventDefault();
-      	exportPsudoLink($(this).attr("href"));
-      	return false;
+      e.preventDefault();
+        exportPsudoLink($(this).attr("href"));
+        return false;
     });
 
   });
 
   function exportPsudoLink(data){
     $.ajax({
-		type: 'HEAD',
-		url: data,
-      	crossDomain: true,
-      	dataType: 'jsonp',
-		error: function(xhr) {
-          console.log(xhr);
-          if(xhr.status == 404)
-            show_message2('Error in exporting or no report available.',false);
-		},
-      	timeout: 5000
-	});
-  	$('#exportPsudoLink').attr('href', data)[0].click();
+      type: 'HEAD',
+      url: data,
+          crossDomain: true,
+          dataType: 'jsonp',
+      error: function(xhr) {
+            console.log(xhr);
+            if(xhr.status == 404)
+              show_message2('Error in exporting or no report available.',false);
+      },
+          timeout: 5000
+    });
+    $('#exportPsudoLink').attr('href', data)[0].click();
+  }
+  
+  function dataURLtoBlob(dataurl) {
+      var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+          bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+      while(n--){
+          u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new Blob([u8arr], {type:mime});
+  }
+  
+  function exportPsudoLink2Browser(url, fileName){
+    freez();
+    {% comment %}
+    //setup ajax
+    $.ajaxSetup({
+      beforeSend:function(jqXHR,settings){
+        if (settings.dataType === 'binary'){
+          settings.xhr().responseType='arraybuffer';
+          settings.processData=false;
+        }
+      }
+    });
+
+    //use ajax now
+    $.ajax({
+      type: "GET",
+      url: url,
+      dataType: "binary",
+      crossDomain: true,
+      timeout: 80000,
+      complete:function(data){ 
+        fileName = fileName || "test_order_report_"+ new Date().getTime().toString() +".xlsx";
+        console.log(data); //ArrayBuffer
+        //console.log(new Blob([data])) // Blob
+        if(data.status == 200){                      
+          downloadFile(fileName, data);
+        }else if(data.status == 404)
+          show_message2('Error in exporting or no report available.', false);
+      },
+      error: function(xhr) {
+        console.log(xhr);
+      }
+    });
+    
+    
+    fileName = fileName || "order_report_"+ new Date().getTime().toString() +".xlsx";
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      var reader = new FileReader();
+      reader.onloadend = function() {
+//         callback(reader.result);
+        downloadFile(xhr.response.name||fileName, reader.result.split(',')[1]);
+        
+      }
+      reader.readAsDataURL(xhr.response);
+    };
+    xhr.open('GET', url);
+    xhr.responseType = 'blob';
+    xhr.send();
+    {% endcomment %}
+
+    fileName = fileName || "order_report_"+ new Date().getTime().toString() +".xlsx";
+    console.log(fileName);
+    var req = new XMLHttpRequest();
+    req.open("GET", url, true);
+    req.responseType = "blob";
+    req.onload = function (event) {
+      if(req.status === 200){
+        var blob = req.response; 
+        console.log(blob);
+        disposition = req.getResponseHeader("content-disposition");
+        var matches = /"([^"]*)"/.exec(disposition);
+        fileName = (matches != null && matches[1] ? matches[1] : fileName);
+        console.log(fileName);
+        var link=document.createElement('a');
+        link.href=window.URL.createObjectURL(blob);
+        link.download=fileName;
+        document.body.appendChild(link);
+        link.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+        defreez();
+      }else if(req.status == 404)
+        show_message2('Error in exporting or no report available.', false);
+
+    };
+
+    req.send();
+  }
+  
+  function downloadFile(fileName, data, type){
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    // blobURL = dataURLtoBlob(data);
+    blob = new Blob([data], {encoding: "UTF-8", type: type||"application/xlsx"}),
+    url = window.URL.createObjectURL(blob);
+    a.href = url;
+    a.target = "_blank";
+    a.download = fileName;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    defreez();
+  }
+  
+  function agedExportNew(){
+    url = '/apps/pepsi-print/collection_response/open_orders.csv?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}&cid={{ customer.id }}';
+    exportPsudoLink2Browser(url, "open_order_report_{{ customer.id }}_"+ new Date().getTime().toString() +".csv", "text/csv; charset=utf-8; header=present");
+    // exportPsudoLink(url);
   }
 
   // media query event handler
@@ -312,6 +434,14 @@
     }
   }
 
+  function toggleRHDash(){
+    if($('#reportDashH.flipInX').length != 0){
+      $('#reportDashH').removeClass('flipInX').addClass('flipOutX').delay(1000).hide(0);
+    }else{
+      $('#reportDashH').removeClass('flipOutX').addClass('flipInX').show(0);
+    }
+  }
+
   function toggleDash(){
     if($('#printDash.flipInX').length != 0){
       $('#printDash').removeClass('flipInX').addClass('flipOutX').delay(1000).hide(0);
@@ -323,24 +453,27 @@
   function initExport(){
     var selected = $('[name = "exportType"]').filter(':checked').val();
     var data = '/apps/pepsi-print/collection_response/print_orders.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}';
-    var params = jQuery.extend({}, query); if(params.per_page != undefined) delete params.per_page;
+    var params = jQuery.extend({}, query); 
+    if(params.per_page != undefined) delete params.per_page;
+    if(params.page != undefined)delete params.page;
 
-    if((selected == 'filtered' || selected == 'all') && order_data.total_entries > 50){
+    if((selected == 'filtered' || selected == 'all') && order_data.total_entries > 2500){
       var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
+                  
       {% comment %}
       {% if customer.tags contains Role_User  %}
           data.customer_id = '{{ customer.id }}';
       {% elsif customer.tags contains Role_Manager %}
-      	if(selected != 'all'){
+        if(selected != 'all'){
           data.customer_id = var4;
         }
       {% elsif customer.tags contains Role_Admin %}
-      	if(var4.length > 0){
+        if(var4.length > 0){
           data.region_tag = var4;
         }
       {% endif %}
       if(var1.length > 0 && selected != 'all'){
-		data.start_date = var1;
+    data.start_date = var1;
         data.end_date = var2;
       }
       {% endcomment %}
@@ -364,7 +497,7 @@
     }
 
     {% assign Role_Manager = 'general.Role.Manager' | t %}
-	{% assign Role_Admin = 'general.Role.Admin' | t %}
+  {% assign Role_Admin = 'general.Role.Admin' | t %}
 
     {% if customer.tags contains Role_Manager %}
       if(var4 != '' && selected != 'all'){
@@ -375,34 +508,37 @@
         data += '&region_tag='+var4;
       }
     {% elsif customer.tags contains Role_User %}
-   		data += '&customer_id='+'{{ customer.id }}';
+      data += '&customer_id='+'{{ customer.id }}';
     {% endif %}
     {% endcomment %}
 
-    params.page = var_page;
-    if(selected == 'filtered' || selected == 'all')
+    if(selected == 'filtered' || selected == 'all'){
       params.per_page = order_data.total_entries;
-    else
+    }else{
       params.per_page = var_per_page;
+      params.page = var_page;
+    }
+    
     data += ($.param(params).length != 0) ? '&'+$.param(params) : '';
     console.log('export url = '+data);
 
-    exportPsudoLink(data);
+    // exportPsudoLink(data);
+    exportPsudoLink2Browser(data);
 
 //     window.location.assign(data);
 //     var data = prepareData(orderExport, printerExport);
 
     {%comment%}
-  	$.ajax({
+    $.ajax({
           url: 'http://54.71.28.218/pepsiprint/exportExcel.php',
           type: 'POST',
           crossDomain: true,
           data: JSON.stringify(data),
           dataType: 'json',
           success: function(data){
-            	console.log(JSON.stringify(data));
-    			$('#exportPsudoLink').attr('href', data).trigger('click');
-            	$.unblockUI();
+              console.log(JSON.stringify(data));
+          $('#exportPsudoLink').attr('href', data).trigger('click');
+              $.unblockUI();
 
           },
           error: function(){
@@ -414,7 +550,7 @@
   }
 
   function prepareData(data1,data2){
-  	var i;
+    var i;
     var x;
     var myArray1 = data1["orders"];
     var myArray2 = data2["results"];
@@ -422,7 +558,7 @@
       for (x = 0; x < myArray2.length; x++) {
         data1["orders"][i]["printer_company"] = '';
         if( myArray1[i]["printer_id"] == myArray2[x]["id"]){
-      		data1["orders"][i]["printer_company"] = myArray2[x]["company"];
+          data1["orders"][i]["printer_company"] = myArray2[x]["company"];
         }
       }
       data1["orders"][i]["payment_code"] = '';
@@ -433,7 +569,7 @@
   }
 
   function agedExport(){
-	freez();
+  freez();
     $.ajax({
       url: '/apps/pepsi-print/collection_response/job_aged_reports.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}',
       type: 'GET',
@@ -452,7 +588,7 @@
   }
 
   function exportLarge(data){
-	freez();
+  freez();
     $.ajax({
       url: '/apps/pepsi-print/collection_response/job_print_orders.json',
       type: 'GET',
@@ -482,7 +618,7 @@
       $('.th-span').toggleClass('th-span th-spaned')
       {% endcapture %}
     ).done(function(){
-    	setTimeout(window.print(), 10);
+      setTimeout(window.print(), 10);
     });
 
     {% comment %}{% endcomment %}

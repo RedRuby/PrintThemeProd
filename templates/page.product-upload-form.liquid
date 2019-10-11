@@ -1,6 +1,11 @@
 
 {% layout none %}
 
+{% unless customer %}
+  <meta content="0; url=/account/login" http-equiv="refresh" />
+  {% continue %}
+{% endunless %}
+
 {% assign Role_Admin = 'general.Role.Admin' | t %}
 {% assign Role_ASM = 'general.Role.ASM' | t %}
 
@@ -31,6 +36,7 @@
 <!-- 		{{ 'custom-style.css' | asset_url | stylesheet_tag }} -->
       	{{ 'handsontable.full.css' | asset_url | stylesheet_tag }}
         {{ 'custom-style2.css' | asset_url | stylesheet_tag }}
+        {{ 'datepicker-UI.css' | asset_url | stylesheet_tag }}
       	{{ 'https://fonts.googleapis.com/css?family=Montserrat:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900italic,900' | stylesheet_tag }}
 		<style type="text/css">
 			.affix{
@@ -56,9 +62,65 @@
             .htCenter, td{ vertical-align:middle !important; }
             button:disabled{ pointer-events: all !important; }
             button{ text-transform:uppercase; }
-            .blockUI.blockOverlay{ z-index:99999 !important; }
+            .blockUI.blockOverlay, .blockUI{ z-index:99999 !important; }
+            .slideOutLeft.animated{ overflow: hidden; }
           
             body > div:nth-child(6){ min-height: calc(100% - 162px); }
+            #chatra, #hot-display-license-info{ display: none !important; }
+            #datasheet{ width: 100% !important; }
+
+            .placeholdLoader{
+            /*background-color: #cccccc !important;*/
+            outline: none !important;
+            border: none !important;
+            pointer-events: none !important;
+            cursor: pointer !important;
+            color: transparent !important;
+            opacity: 0.4 !important;
+            animation-duration: 1s;
+            animation-fill-mode: forwards;
+            animation-iteration-count: infinite;
+            animation-name: placeHolderShimmer;
+            animation-timing-function: linear;
+            background: #cccccc;
+            background: linear-gradient(to right, #cccccc 8%, #dddddd 33%, #cccccc 18%);
+            /*background: linear-gradient(to right, #d0d0d0 8%, #dddddd 18%, #d0d0d0 33%);*/
+            /*background-size: 800px 104px;
+            height: 96px;
+            position: relative;*/
+          }
+
+          .placeholdLoader *{
+            visibility: hidden !important;
+            overflow: hidden !important;
+          }
+
+          .handsontable table.htCore {
+          	border-collapse: collapse !important;
+          }
+
+          @-webkit-keyframes placeHolderShimmer{
+              0%{
+                background-position: -500px 0
+              }
+              100%{
+                background-position: 500px 0
+              }
+          }
+
+		  .growlUI-added h3, .growlUI-added .h3 {
+			   font-size: 1.125em;
+			   line-height: 1.4;
+			   margin: 0;
+		  }
+          @keyframes placeHolderShimmer{
+              0%{
+                background-position: -500px 0
+              }
+              100%{
+                background-position: 500px 0
+              }
+          }
 		</style>
       	{% include 'modal-css' %}
         {% include 'js-error-handler' %}
@@ -91,7 +153,7 @@
                 <div class="container-fluid">
                 	<div class="row">
                       <div class="col-xs-5">
-                        <select name="from[]" id="multiselectTag" class="form-control" size="12" multiple="multiple">
+                        <select name="from[]" id="multiselectTag" class="form-control" size="13" multiple="multiple">
                           
                         </select>
                       </div>
@@ -105,8 +167,15 @@
                         <button type="button" id="multiselectTag_redo" class="btn btn-primary btn-block" title="Redo last move">redo</button>
                       </div>
                       <div class="col-xs-5">
-                        <select name="to[]" id="multiselectTag_to" class="form-control" size="12" multiple="multiple">
+                        <select name="to[]" id="multiselectTag_to" class="form-control" size="13" multiple="multiple">
                         </select>
+
+                        <div class="row w3-margin-top w3-row-padding">
+							<div class="w3-half">
+								<label for="">Expiration Date</label>
+		                        <input type="text" class="form-control datepicker" placeholder="Select Expiration Date" name="" required="" id="expired_date" onchange="$('#tagSave').prop('disabled', !Boolean($(this).val())); $(this).css('outline','none');" />
+							</div>
+						</div>
                       </div>
                     </div>
                 </div>
@@ -132,7 +201,7 @@
                 <div class="container-fluid">
                 	<div class="row">
                       <div class="col-xs-5">
-                        <select name="from[]" id="multiselectOption" class="form-control" size="12" multiple="multiple">
+                        <select name="from[]" id="multiselectOption" class="form-control" size="13" multiple="multiple">
                           
                         </select>
                       </div>
@@ -146,7 +215,7 @@
                         <button type="button" id="multiselectOption_redo" class="btn btn-primary btn-block" title="Redo last move">redo</button>
                       </div>
                       <div class="col-xs-5">
-                        <select name="to[]" id="multiselectOption_to" class="form-control" size="12" multiple="multiple">
+                        <select name="to[]" id="multiselectOption_to" class="form-control" size="13" multiple="multiple">
                         </select>
                       </div>
                     </div>
@@ -251,19 +320,19 @@
 			</div>	
 		</div> -->
 		<div id="nav-wrapper" data-spy="affix1" data-offset-top="0">
-		<div class="container-fluid w3-black w3-card-4" style="height:42px;">
-          <a href="/" class="w3-text-white w3-xlarge" id="fix" style="display:inline;"><img src="{{ settings.favicon | img_url:"48x48" }}" width="32" height="32"/>&nbsp;{{ page.title }}</a>{% comment %}<img onclick="window.open(window.location.href);" src="https://cdn.shopify.com/s/files/1/1953/3447/files/Footer_logo.png?10858290572512973125" class="pull-right img-responsive" style="height:42px; width:auto;"/>{% endcomment %}{% if customer.tags contains Role_Admin %}<a class="pull-right w3-margin-right w3-margin-left" style="display:inline; margin-top:8px;" title="Edit Definition" href="/admin/themes/{{ theme.id }}/editor#/{{ template | replace:'.','s/' }}"><i class="fa fa-gear w3-xlarge w3-text-white"></i></a>{% endif %}{% comment %}<a class="pull-right w3-margin-left" style="display:inline; margin-top:8px; cursor:pointer;" onclick="uploadToServer();" title="Save session to server"><i class="fa fa-cloud-upload w3-xlarge w3-text-white"></i></a><a class="pull-right w3-margin-left" style="display:inline; margin-top:8px; cursor:pointer;" onclick="downloadFromServer();" title="Restore session from server"><i class="fa fa-cloud-download w3-xlarge w3-text-white"></i></a>&nbsp;<a class="w3-text-white w3-large pull-right w3-magin-right" style="margin-top:8px;" href="/account">My Account</a>{% endcomment %}
+		<div class="container-fluid w3-black w3-card-4" style="height: 57px; padding-top: 8px;">
+          <a href="/" class="w3-text-white w3-xlarge w3-padding" id="fix" style="display:inline;"><img src="{{ settings.favicon | img_url:"100x100" }}" width="32" height="32"/>&nbsp;{{ page.title }}</a>{% comment %}<img onclick="window.open(window.location.href);" src="https://cdn.shopify.com/s/files/1/1953/3447/files/Footer_logo.png?10858290572512973125" class="pull-right img-responsive" style="height:42px; width:auto;"/>{% endcomment %}{% if customer.tags contains Role_Admin %}<a class="pull-right w3-margin-right w3-margin-left" style="display:inline; margin-top:8px;" title="Edit Definition" href="/admin/themes/{{ theme.id }}/editor#/{{ template | replace:'.','s/' }}"><i class="fa fa-gear w3-xlarge w3-text-white"></i></a>{% endif %}{% comment %}<a class="pull-right w3-margin-left" style="display:inline; margin-top:8px; cursor:pointer;" onclick="uploadToServer();" title="Save session to server"><i class="fa fa-cloud-upload w3-xlarge w3-text-white"></i></a><a class="pull-right w3-margin-left" style="display:inline; margin-top:8px; cursor:pointer;" onclick="downloadFromServer();" title="Restore session from server"><i class="fa fa-cloud-download w3-xlarge w3-text-white"></i></a>&nbsp;<a class="w3-text-white w3-large pull-right w3-magin-right" style="margin-top:8px;" href="/account">My Account</a>{% endcomment %}
 		</div>
 		
 	</div>
 		<div class="container-fluid" style="">
 			<br>
-<!-- 			<hr> -->
-             <div class="state-loaded alert alert-info fade in" style="display:none;"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>State of the table has been restored. <button class="mini btn-sm btn btn-danger reset-state">Reset table state</button></div>
-			
-			 <div id="datasheet" class="hot handsontable htRowHeaders htColumnHeaders w3-card-2" style=""></div> 
-			 
-            <div id="error-log" class="w3-text-red w3-block w3-card-2 w3-padding w3-margin-top" style="display:none;"></div>
+
+			<div id="error-log" class="w3-text-red w3-block w3-card-2 w3-padding w3-margin-bottom" style="display:none;"></div>
+
+			<div class="state-loaded alert alert-info fade in" style="display:none;"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>State of the table has been restored. <button class="mini btn-sm btn btn-danger reset-state">Reset table state</button></div>
+
+			<div id="datasheet" class="hot handsontable htRowHeaders htColumnHeaders w3-card-2" style=""><div class="placeholdLoader" style="width:100%; height:100%; max-height:300px; min-height:300px;"></div></div> 
           
 			<h4>&nbsp;</h4>
 			<div class="row">
@@ -291,20 +360,22 @@
 		<div class="container-fluid theme-color" style="border-top: 1px solid gray; background-color: black;">
 			<div class="container" style="border-top: 1px solid lightgrey; padding:10px 50px;color: rgba(255, 255, 255, 0.6);">
 				<small>
-					&copy; 2017
-					<a href="/" style="color:white;" title="">PepsiPrintStudios</a>
+					&copy; {{ 'now' | date: "%Y" }}
+					<a href="/" style="color:white;" title="">{{ shop.name }}</a>
 				</small>
 			</div>
 		</div>
 		{{ "https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js" | script_tag }}
 		{{ "//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" | script_tag }}
         {{ "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js" | script_tag }}
-		{{ "https://docs.handsontable.com/pro/1.7.0/bower_components/handsontable-pro/dist/handsontable.full.min.js" | script_tag }}
+		{% comment %}{{ "https://docs.handsontable.com/pro/1.7.0/bower_components/handsontable-pro/dist/handsontable.full.min.js" | script_tag }}{% endcomment %}
 		{{ 'papaparse.min.js' | asset_url | script_tag }}
-      	{{ 'handsontable.js' | asset_url | script_tag }}
+		{{ 'handsontable.full.min.js' | asset_url | script_tag }}
+      	{% comment %}{{ 'handsontable.js' | asset_url | script_tag }}{% endcomment %}
       	{{ "multiselect.min.js" | asset_url | script_tag }}
-<!--       	{{ 'w3data.js' | asset_url | script_tag }} -->
+		<!-- {{ 'w3data.js' | asset_url | script_tag }} -->
         {{ 'https://www.w3schools.com/lib/w3.js' | script_tag }}
+        {{ 'jquery-ui.js' | asset_url | script_tag }}
       
       	{% comment %}{% section 'definition'  %}{% endcomment %}
         {% section 'definitions-new2' %}
@@ -335,7 +406,21 @@
 
 // 				$("#nav-wrapper").on('affix-top.bs.affix', function(){
 // 					$('.ht_clone_top, .ht_clone_top_left_corner').css('display','none');
-// 				});		
+// 				});	
+
+				$(".datepicker").datepicker({
+					showAnim: "drop",
+					changeMonth: true,
+					changeYear: true,
+					minDate: '1',
+					maxDate: '365',
+					        // showButtonPanel: true,
+					dateFormat: "ExpireAt:mm-dd-yy",
+					showOtherMonths: true,
+					        // onClose: function(dateText, inst) { 
+					        //     $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+					        // }
+				});	
 			});
 
 			document.addEventListener("DOMContentLoaded", function() {
@@ -456,7 +541,7 @@
 													    className: "htRight",
 													    // contextMenu: true,
 													    fixedColumnsLeft: 4,
-													    colWidths: ['25' ,'10', '250', '400', '250', '150', '250', '150', '250', '100', '150', '0', '250', '0', '0', '0', '150', '250', '150', '250', '100'],
+													    colWidths: ['25' ,'25', '250', '400', '250', '150', '250', '150', '250', '100', '150', '0', '250', '0', '0', '0', '150', '250', '150', '250', '100'],
 													    //validator: /(\$[\d]+[\.]?[\d]{1,3})/,
 													    //placeholder: '$0.00',
 													    // columns: [{col: 0, className: "htCenter"},],
@@ -588,7 +673,7 @@
 																	],
 															hiddenColumns: {
 														      columns: [2, 9, 11, 13, 14, 15, 20],
-														      indicators: true
+														      indicators: false
 														    },
 //                                                             beforeChange: function(change, source){
 //                                                               try{
@@ -679,6 +764,8 @@
                                                                       }
                                                                       
                                                                       if(change[0][1] == 'type'){console.log(change);
+                                                                      	change[0][3] = (change[0][3] || "").replace(" ", ""); //new
+                                                                        change[0][2] = (change[0][2] || "").replace(" ", ""); //old
                                                                         if(change[0][2].split(" ")[0] != change[0][3].split(" ")[0]){
                                                                           hot.setDataAtCell(change[0][0], hot.propToCol('option1_value'), '');
                                                                           hot.setDataAtCell(change[0][0], hot.propToCol('variant_price'), '');
@@ -905,7 +992,8 @@
 //                                                                 return '1319px';
 //                                                             },
 													  };
-              
+          		  datasheet.innerHTML = "";
+
                   hot = new Handsontable(datasheet, settings);//console.log(getJSONdata());
               
                   hot2 = new Handsontable(document.getElementById('datasheet2'), settings2);
@@ -938,12 +1026,12 @@
         			return url.substr(0, lastIndex)+'_150x'+url.substr(lastIndex);
                   };
               
-                  $('#datasheet .wtHolder').scroll(function(){ 
-                    try{
-                        if($('#datasheet .wtHolder').scrollLeft() <= 300 || $('#datasheet .wtHolder').scrollLeft() >= $('#datasheet .wtHolder').width()){ hot.render(); }
+                  // $('#datasheet .wtHolder').scroll(function(){ 
+                  //   try{
+                  //       if($('#datasheet .wtHolder').scrollLeft() <= 300 || $('#datasheet .wtHolder').scrollLeft() >= $('#datasheet .wtHolder').width()){ hot.render(); }
 
-                    }catch(e){ console.warn(e.message); }
-                  });
+                  //   }catch(e){ console.warn(e.message); }
+                  // });
 
 				  function removeThisRow (instance, td, row, col, prop, value, cellProperties) {
 				    var escaped = Handsontable.helper.stringify(value),
@@ -1010,7 +1098,8 @@
                               rowHandle = rowData[2].split('-'),
                               rowHandleLast = rowHandle[rowHandle.length-1],
                               rowTitle = rowData[3].split(' ');
-  //                         console.log(rowData);
+//                           console.log(rowData);
+                              rowData[19] = "";
                           if(isNaN(rowHandleLast)){
                               rowData[2] = rowData[2] + '-1';
                               rowData[3] = rowData[3] + ' 1';
@@ -1132,13 +1221,16 @@
                           e.preventDefault(); // prevent selection quirk
                           var vendorTag = Handsontable.helper.stringify(instance.getDataAtCell(row, instance.propToCol('vendor'))).replace(" ","");
                             if(!vendorTag){
-                              	hot.selectCellByProp(row, 'vendor');
+                              	hot.selectCell{% comment %}ByProp{% endcomment %}(row, 'vendor');
                             	show_message4("Select Brand before Selecting Tags", false);
                               	return false;
                             }
                           var selectedTags = instance.getDataAtCell(row, col+1);
                           if(selectedTags == null)selectedTags = ""
                           selectedTags = (selectedTags.length > 0) ? selectedTags.split(',') : []; console.log('selectedTags:',selectedTags);
+
+                  		  $("#expired_date").val('');
+
                           $('#multiselectTag, #multiselectTag_to').html('');
                           function updateTags(tagList){
                             $('#multiselectTag').html('');
@@ -1166,7 +1258,9 @@
 
                           if(selectedTags.length > 0 && selectedTags[0] != ""){
                             selectedTags.forEach(function(tag, index){
-                              if(newTagList.indexOf(tag) == -1){//console.log('currTags:',tag);
+                              if(tag.indexOf('ExpireAt:') != -1){
+                          		$("#expired_date").val(tag);
+                              }else if(newTagList.indexOf(tag) == -1){//console.log('currTags:',tag);
                                 var tag_regions = '', pre = '', post = '';
                                 if(o[tag]){
                                   	tag_regions = '('+o[tag].sort().join(', ').replace('California, GreatLakes, MidAtlantic, MidWest, Mountain, NorthEast, South, SouthEast', 'All Region')+')';
@@ -1251,11 +1345,16 @@
                             }
 //                               $("#tagModal").off('hide.bs.modal').animateCss('zoomOutDown', function(modal){ $(modal).modal('hide'); });
                           });
-                          $("#tagSave").off('click').one('click', function (e) {
+                          $("#tagSave").off('click').on('click', function (e) {
+                          	if(!Boolean($("#expired_date").val())){
+                          		show_message4("Expiration Date Required !!", false, false);
+                          		$("#expired_date").focus().css('outline','2px red solid');
+                          		return false;
+                          	}
                             selectedTags = $.unique($('#multiselectTag_to option').map( function() { return this.getAttribute('value'); }).get()).join(",");
                             txt = (selectedTags == '') ? '' : ',';
 //                             templ = ((instance.getDataAtCell(row, instance.propToCol('type'))).indexOf("No") != -1) ? "NoCustomization," : "";
-                            selectedTags += txt + newTagList.join(","); //+ vendorTag + ","
+                            selectedTags += txt + newTagList.concat([$("#expired_date").val()]).join(","); //+ vendorTag + ","
                             selectedTags = $.unique(selectedTags.split(",")).join(",");
                             instance.setDataAtCell(row, col+1, selectedTags); 
                             $(this).prop('disabled', 'disabled');
@@ -1308,7 +1407,7 @@
 				        e.preventDefault(); // prevent selection quirk
                         var productType_ = instance.getDataAtCell(row, instance.propToCol('type'));
                           if(!productType_){
-                              instance.selectCellByProp(row, 'type');
+                              instance.selectCell{% comment %}ByProp{% endcomment %}(row, 'type');
                               show_message4("Select Type before Selecting Elements", false);
                               return false;
                           }
@@ -1477,8 +1576,9 @@
                         
                         $('#optionPriceModal tbody').html('');
                         selectedOptions.forEach(function(option, index){
-                            try{ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0 || this.value == 0) this.value = \'0.01\'; else this.value = (parseFloat(this.value)||0.01).toFixed(2); " value="'+ ((price[option] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? price[option] : "0.01") +'"></td></tr>'); }
-                            catch(e){ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0 || this.value == 0) this.value = \'0.01\'; else this.value = (parseFloat(this.value)||0.01).toFixed(2); " value="'+ ((selectedPrices[index] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? selectedPrices[index] : "0.01") +'"></td></tr>'); }
+                        	is_readonly = ((option == "Window Mesh") ? ' min="0.01" max="1" ' : '');
+                            try{ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(parseFloat(this.value) > 1)show_message4(\'Price too high per square inch please keep it <b>$1 or below</b>. Call Lapine for a manual override\', false); this.value = Math.min(1.00,Math.max(...[0.01,(parseFloat(this.value)||0.01)])).toFixed(2)" '+ is_readonly +' value="'+ ((price[option] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? price[option] : "0.01") +'"></td></tr>'); }
+                            catch(e){ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(parseFloat(this.value) > 1)show_message4(\'Price too high per square inch please keep it <b>$1 or below</b>. Call Lapine for a manual override\', false); this.value = Math.min(1.00,Math.max(...[0.01,(parseFloat(this.value)||0.01)])).toFixed(2)" '+ is_readonly +' value="'+ ((selectedPrices[index] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? selectedPrices[index] : "0.01") +'"></td></tr>'); }
                         });
                         
                         $("#priceSave").prop('disabled', 'disabled');
@@ -1658,18 +1758,30 @@
                         title = Handsontable.helper.stringify(hot.getDataAtCell(row, 3));
                        	brand = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('vendor')));
                         elements = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('option1_value')));
+                        prices = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('variant_price')));
                        	imgs = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('image_src')));
+                       	tags = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('tags')));
+                       	type = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('type')));
+                       	option1_value = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('option1_value')));
                        	if(title.length == 0)
-                          $('#error-log').append('<p style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'title\');" title="Click to Go to here.">- Row '+(row+1)+': Product Title Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'title\');" title="Click to Go to here.">- Row '+(row+1)+': Product Title Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
                        	if(brand.length == 0)
-                          $('#error-log').append('<p style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'vendor\');" title="Click to Go to here.">- Row '+(row+1)+': Product Brand Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'vendor\');" title="Click to Go to here.">- Row '+(row+1)+': Product Brand Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
                         if(elements.length == 0)
-                          $('#error-log').append('<p style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'option1_value\');" title="Click to Go to here.">- Row '+(row+1)+': Product Elements Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="$.when(hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'add_options\')).done(simulateMouseClick($(\'.current.highlight a\')[0]));" title="Click to Go to here.">- Row '+(row+1)+': Product Elements Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
+                      	if(prices.length == 0)
+						  $('#error-log').append('<p style="cursor:pointer;" onclick="$.when(hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'add_price\')).done(simulateMouseClick($(\'.current.highlight a\')[0]));" title="Click to Go to here.">- Row '+(row+1)+': Default Element Price Can Not be Zero. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
+                      	if(tags.indexOf('ExpireAt:') == -1)
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="$.when(hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'add_tags\')).done(simulateMouseClick($(\'.current.highlight a\')[0]));" title="Click to Go to here.">- Row '+(row+1)+': Product Expiry date Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>'); 
                         if(imgs.length == 0)
-                          $('#error-log').append('<p style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'image_src\');" title="Click to Go to here.">- Row '+(row+1)+': Atleast one product image required. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="$.when(hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'add_images\')).done(simulateMouseClick($(\'.current.highlight a\')[0]));" title="Click to Go to here.">- Row '+(row+1)+': Atleast one product image required. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
+                  		if(type == "PTT" && option1_value == "Window Mesh" && (parseFloat(prices) <= 0 || parseFloat(prices) > 1 ))
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="$.when(hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'add_price\')).done(simulateMouseClick($(\'.current.highlight a\')[0]));" title="Click to Go to here.">- Row '+(row+1)+': Window Mesh Price should be between <b>$0.01 - $1</b>. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
+console.log(prices);
                       }
                       if($('#error-log').text().length > 0){
                         $('#error-log').prepend('<h2>Error log</h2>').show();
+                        $('body, html').delay(100).animate({scrollTop: 0});
                         show_message4("Upload aborted due to missing data..", false);
                         return false;
                       }else
@@ -1784,7 +1896,7 @@
                       hot2.setDataAtCell(row, hot2.propToCol('type'), "POS");
                     }else {console.log('no no no');}
                     
-                    hot2.selectCellByProp(row, 'option1_value');
+                    hot2.selectCell{% comment %}ByProp{% endcomment %}(row, 'option1_value');
                     if(rowsBelow > 1)
                       hot2.alter('insert_row', row+1, rowsBelow-1);
                     opt.split(',').forEach(function(item, index){ arr2D.push([item]); });
@@ -2218,7 +2330,8 @@
                    
                    
                    else if(prodName.length > 0){
-                      var queryResult = hot.search.query(prodName);
+                      var search = hot.getPlugin('search');
+                      var queryResult = search.query(prodName);
                       var len = (hot.getDataAtCell(searchRow, 3) == null) ? 0 : 1;
                       console.log(queryResult);
                       if(queryResult.length > len){

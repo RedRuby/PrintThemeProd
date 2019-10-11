@@ -56,9 +56,31 @@
   <div class="grid__item medium-down--one-whole one-half printModeExclude">
     {% if customer_role_tag == Role_FSAdmin %}
     <a href="/account?view=prod-upload-form-mod" target="_blank">
-      <button id="printOrder" type="button" class="btn btn-primary printModeExclude placeholdLoader" title="Print this order"><i class="fa fa-upload"></i>&nbsp; Upload Products</button>
+      <button id="printOrder" type="button" disabled1 class="btn btn-primary printModeExclude placeholdLoader" title="Open Product Upload Form"><i class="fa fa-upload"></i>&nbsp; Upload Products</button>
     </a>
     <br><br>
+    {% endif %}
+
+    {% if customer_role_tag == Role_FSManager %}
+    <div id="select_team" class="placeholdLoader" style="position: relative;">
+      <label>View Regional Staff List</label>
+      <small>
+        <div style="width: 15px; height: 15px; background: #cccccc; border: 2px #000 solid; display: inline-block;"></div> user already selected by a budget approver&nbsp;&nbsp;&nbsp;
+      </small>
+      <style>
+        #select_team option[channel_manager][disabled]{ background-color: #ccc !important; color: #fff !important; }
+      </style>
+      <select id="select_{% raw %}{{id}}{% endraw %}" onmousedown="if(!Boolean(all_customer)){ $('.fau-refresh').show(); fetch_AllUsers(); $(this).prop('disabled', true); }" onchange="editTeam(this, true); this.title = this.options[this.selectedIndex].innerHTML;" title="" class="assign-printer" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{fulfillment_status}}{% endraw %}">
+        <option value="" selected disabled>Click to Select your team members</option>
+        <option w3-repeat="customers" value="{% raw %}{{id}}{% endraw %}" title="{% raw %}{{first_name}} {{last_name}}{% endraw %}" select="{% raw %}{{selected}}{% endraw %}" channel_manager="{% raw %}{{ channel_manager }}{% endraw %}" style="color: transparent !important;">{% raw %}{{email}}{% endraw %}</option>
+      </select>
+      <span class="fau-refresh" style="display: none; position: absolute; right: 11px; bottom: 8px; background: white;"><i class="fa fa-refresh fa-spin fa-lg"></i></span>
+    </div>
+
+    <div id="selected_team" class="placeholdLoader" style="border:1px solid #aaa; border-radius:2px; display:none;">
+      <span class="btn--secondary btn-custom w3-small" style="margin:5px; background-color: black;" w3-repeat="customers" title="{% raw %}{{first_name}} {{last_name}}{% endraw %}">{% raw %}{{email}}{% endraw %}&nbsp;&nbsp;<a style="color:white;" href="javascript:void(0);" value="{% raw %}{{id}}{% endraw %}" onclick="editTeam(this,false);"><i class="fa fa-times" title="Remove {% raw %}{{first_name}} {{last_name}}{% endraw %}"></i></a></span>
+    </div>
+    <br>
     {% endif %}
     
     {% if can_order %}
@@ -77,6 +99,9 @@
     </p>
     {% endif %}
     
+    <a id="exportPsudoLink" href="" target="stealthFrame" class="hide"></a>
+    <iframe name="stealthFrame" style="display:none;"></iframe>
+
     {% comment %}              
     <button class="btn" style="min-width:350px;" type="button" onclick="toggleDash();">Export Order History</button>
     <br>
@@ -87,15 +112,13 @@
      <button id="print-btn" type="button" class="btn one-whole" onclick="initExport();">Export</button>
     </div>
     <br>
-    <a id="exportPsudoLink" href="" target="stealthFrame" class="hide"></a>
-    <iframe name="stealthFrame" style="display:none;"></iframe>
 
-    {% if customer_role_tag == Role_ASM or customer_role_tag == Role_Admin %}
-    <button class="btn" style="min-width:350px;" type="button" onclick="toggleRDash();">My Reports</button>
+    {% if customer_role_tag == Role_NSM or customer_role_tag == Role_FSAdmin %}
+    <button class="btn hide" style="min-width:350px;" type="button" onclick="toggleRDash();">My Reports</button>
     <br>
     <div id="reportDash" class="border w3-padding animated  w3-white" style="max-width:350px; display:none;">
       - <a href="javascript:agedExport();" class="aged" hrefs="/apps/pepsi-print/fs_collection_response/aged_reports.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Open Order Report</a><br>
-      {% unless customer_role_tag == Role_Admin %}
+      {% unless customer_role_tag == Role_FSAdmin %}
       {% if customer_region_tag contains region_NorthEast %}
        - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Standard_' }}_2017.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Standard Report (2017)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Dashboard_' }}_2017.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Dynamic Report (2017)</a><br>
@@ -103,7 +126,7 @@
        - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Standard_' |replace:'0','o' }}.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Standard Report (2018)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ customer_region_tag |replace:'Region:', 'Dashboard_' |replace:'0','o' }}.xlsm">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Dynamic Report (2018)</a><br>
       {% endunless %}
-      {% if customer_role_tag == Role_Admin %}
+      {% if customer_role_tag == Role_FSAdmin %}
        - <a href="https://print-reports.s3.amazonaws.com/PPS_Standard_All_2017.xlsm">Standard Report (2017)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All_2017.xlsm">Dynamic Report (2017)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5_2017.xlsm">ASM KPI Summary Report (2017)</a><br>
@@ -113,7 +136,7 @@
       {% endif %}
     </div>
     <br>
-    {% if customer_role_tag == Role_ASM or customer_role_tag == Role_Admin %}
+    {% if customer_role_tag == Role_NSM or customer_role_tag == Role_FSAdmin %}
     <a target="_blank" href="/pages/product-upload-form" onclicks="window.open('');" onc="('https://s3.amazonaws.com/printreports/PepsiPrintProductUploadForm_v7.xlsm');" ><button class="btn" style="min-width:350px;" type="button">Upload Products</button></a><br><br>
     {% endif %}
     <!--     <a href="/pages/locations"><button class="btn" style="min-width:350px;" type="button">Add Location for Regional List</button></a> -->
@@ -121,19 +144,7 @@
     {% endif %}
     {% endcomment %}
 
-    {% if customer_role_tag == Role_FSManager %}
-    <div id="select_team" class="placeholdLoader">
-      <label>View Regional Staff List</label>
-      <select id="select_{% raw %}{{id}}{% endraw %}" onchange="editTeam(this, true); this.title = this.options[this.selectedIndex].innerHTML;" title="" class="assign-printer" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{fulfillment_status}}{% endraw %}">
-        <option selected disabled>Click to Select your team members</option>
-        <option w3-repeat="customers" value="{% raw %}{{id}}{% endraw %}" title="{% raw %}{{first_name}} {{last_name}}{% endraw %}" select="{% raw %}{{selected}}{% endraw %}">{% raw %}{{email}}{% endraw %}</option>
-      </select>
-    </div>
-
-    <div id="selected_team" class="placeholdLoader" style="border:1px solid #aaa; border-radius:5px; display:none;">
-      <span class="btn--secondary btn-custom" style="margin:5px;" w3-repeat="customers" title="{% raw %}{{first_name}} {{last_name}}{% endraw %}">{% raw %}{{email}}{% endraw %}&nbsp;&nbsp;<a style="color:white;" href="javascript:void(0);" value="{% raw %}{{id}}{% endraw %}" onclick="editTeam(this,false);"><i class="fa fa-times" title="Remove {% raw %}{{first_name}} {{last_name}}{% endraw %}"></i></a></span>
-    </div>
-    {% endif %}
+    {% comment %}Manager code was here{% endcomment %}
 
     {% comment %}
     <!--     <br> -->
@@ -158,7 +169,7 @@
       <a target="_blank" href="https://www.microsoft.com/en-in/download/internet-explorer.aspx"><i class="fa fa-internet-explorer"></i> Internet Explorer</a> -->
     </div>{% endcomment %}
    
-    {% if customer.tags contains 'SuperUser' %}
+    {% if customer.tags contains 'SuperUser' and false %}
       <br>
       <label>Role / Region Switch</label>
       <select onchange="updateCustomer(this.value);">
@@ -207,9 +218,9 @@
   <div class="grid__item medium-down--one-whole one-half printModeExclude medium-down--text-center text-right">
     <button id="printOrder" type="button" class="btn1 btn--secondary printModeExclude placeholdLoader" onclick="window.print(); /*windowPrint();*/" title="Print this order"><i class="fa fa-print"></i>&nbsp; Print Order History</button>&nbsp;&nbsp;
 
-    <button id="exportOrder" type="button" class="btn1 btn--secondary printModeExclude placeholdLoader" onclick="toggleDash();" title="Toggle Export Order History Section"><i class="fa fa-download"></i>&nbsp; Export Order History</button>&nbsp;&nbsp;
+    <button id="exportOrder" type="button" class="btn1 btn--secondary printModeExclude placeholdLoader" onclick="toggleDash();" title="Toggle Export Order History Section"><i class="fa fa-download"></i>&nbsp; Export Order History</button><!-- &nbsp;&nbsp; -->
 
-    <button id="myReports" type="button" class="btn1 btn--secondary printModeExclude placeholdLoader" onclick="toggleRDash();" title="Toggle My Reports Section"><i class="fa fa-line-chart"></i>&nbsp; My Reports</button>
+    <button id="myReports" type="button" class="btn1 btn--secondary printModeExclude placeholdLoader hide" onclick="toggleRDash();" title="Toggle My Reports Section"><i class="fa fa-line-chart"></i>&nbsp; My Reports</button>
     <br><br>
     <div id="reportDash" class="border w3-padding animated w3-white w3-right text-left placeholdLoader" style="width: 100%; max-width:350px; display:none;">
       - <a href="javascript:agedExport();" class="aged" hrefs="/apps/pepsi-print/fs_collection_response/aged_reports.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}">{{ customer_region_tag |remove:'Region:' |replace:'0','o' }} Open Order Report</a><br>
@@ -224,11 +235,13 @@
     </div>
 
     <div id="printDash" class="border w3-padding animated w3-white w3-right text-left placeholdLoader" style="width: 100%; max-width:350px; display:none;">
-     <label><input type="radio" checked name="exportType" value="current"> Current Page Orders</label>
-     <label class="w3-text-grey"><input id="radio2" disabled type="radio" name="exportType" value="filtered"> All Filtered Orders</label>
-     <label><input type="radio" name="exportType" value="all"> All Orders</label>
-     <br>
-     <button id="print-btn" type="button" class="btn one-whole" onclick="initExport();">Export</button>
+      <button type="button" class="no-btn w3-right" onclick="toggleDash();"><i class="fa fa-times"></i></button>
+      <p></p>
+      <label><input type="radio" checked name="exportType" value="current" class="w3-radio w3-check">&nbsp;&nbsp; Current Page Orders</label>
+      <label class="w3-text-grey"><input id="radio2" disabled type="radio" name="exportType" value="filtered" class="w3-radio w3-check">&nbsp;&nbsp; All Filtered Orders</label>
+      <label><input type="radio" name="exportType" value="all" class="w3-radio w3-check">&nbsp;&nbsp; All Orders</label>
+      <p></p>
+      <button id="print-btn" type="button" class="btn one-whole" onclick="initExport();">Export</button>
     </div>
   </div>
 
@@ -264,7 +277,7 @@
     type: 'HEAD',
     url: data,
         crossDomain: true,
-        dataType: 'jsonp',
+        dataType: (data.indexOf('.xlsx') > -1) ? 'xlsx' : 'jsonp',
     error: function(xhr) {
           console.log(xhr);
           if(xhr.status == 404)
@@ -327,94 +340,38 @@
   function initExport(){
     var selected = $('[name = "exportType"]').filter(':checked').val();
     var data = '/apps/pepsi-print/fs_collection_response/print_orders.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}';
-    var params = jQuery.extend({}, query); if(params.per_page != undefined) delete params.per_page;
+    var params = jQuery.extend({}, query); if(params.per_page != undefined) delete params.per_page; if(params.page != undefined) delete params.page;
 
-    if((selected == 'filtered' || selected == 'all') && order_data.total_entries > 50){
+    if( ( (selected == 'filtered' || ( selected == 'all' && Object.keys(params).length == 0 ) ) &&  order_data.total_entries > 100 ) || ( selected == 'all' && Object.keys(params).length > 0 ) ){
       var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
-      {% comment %}
-      {% if customer_role_tag == Role_User  %}
-          data.customer_id = '{{ customer.id }}';
-      {% elsif customer_role_tag == Role_Manager %}
-        if(selected != 'all'){
-          data.customer_id = var4;
-        }
-      {% elsif customer_role_tag == Role_Admin %}
-        if(var4.length > 0){
-          data.region_tag = var4;
-        }
-      {% endif %}
-      if(var1.length > 0 && selected != 'all'){
-    data.start_date = var1;
-        data.end_date = var2;
-      }
-      {% endcomment %}
+      
 
       if(selected == 'filtered'){
-        if(params.page != undefined)delete params.page;
+        if(params.page != undefined) delete params.page;
         data = jQuery.extend({}, data, params);
       }
 
-      console.log(JSON.stringify(data));
+      // console.log(JSON.stringify(data));
+    
       exportLarge(data);
       return;
     }
 
-    {% comment %}
-    if(selected == 'current'){
-      data += '&page='+var3;
-    }
-    if(selected == 'filtered' || ( var1.length > 0 && selected != 'all' )){
-      data += '&start_date='+var1+'&end_date='+var2;
-    }
 
-    {% assign Role_Manager = 'general.Role.Manager' | t %}
-  {% assign Role_Admin = 'general.Role.Admin' | t %}
-
-    {% if customer_role_tag == Role_Manager %}
-      if(var4 != '' && selected != 'all'){
-        data += '&customer_id='+var4;
-      }
-    {% elsif customer_role_tag == Role_Admin %}
-      if(var4 != '' && selected != 'all'){
-        data += '&region_tag='+var4;
-      }
-    {% elsif customer_role_tag == Role_User %}
-      data += '&customer_id='+'{{ customer.id }}';
-    {% endif %}
-    {% endcomment %}
-
-    params.page = var_page;
     if(selected == 'filtered' || selected == 'all')
       params.per_page = order_data.total_entries;
     else
-      params.per_page = var_per_page;
+      params.per_page = var_per_page, params.page = var_page;
+  
+  
     data += ($.param(params).length != 0) ? '&'+$.param(params) : '';
     console.log('export url = '+data);
 
-    exportPsudoLink(data);
+    exportPsudoLink(data.replace('.json', '.xlsx'));
 
     // window.location.assign(data);
     // var data = prepareData(orderExport, printerExport);
 
-    {%comment%}
-    $.ajax({
-          url: 'http://54.71.28.218/pepsiprint/exportExcel.php',
-          type: 'POST',
-          crossDomain: true,
-          data: JSON.stringify(data),
-          dataType: 'json',
-          success: function(data){
-              console.log(JSON.stringify(data));
-          $('#exportPsudoLink').attr('href', data).trigger('click');
-              $.unblockUI();
-
-          },
-          error: function(){
-            $.unblockUI; show_message2('Error in Exporting.',false);
-          }
-
-    });
-    {%endcomment%}
   }
 
   function prepareData(data1,data2){
@@ -437,7 +394,7 @@
   }
 
   function agedExport(){
-  freez();
+    freez();
     $.ajax({
       url: '/apps/pepsi-print/fs_collection_response/job_aged_reports.json?cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}',
       type: 'GET',
@@ -445,7 +402,7 @@
       // dataType: 'json',
       success: function(data){
         console.log(JSON.stringify(data));
-        $.unblockUI(); show_message3('Report file will be mailed to {{ customer.email }}.',true);
+        $.unblockUI(); show_message4('Report file will be mailed to {{ customer.email }}.',true);
 
       },
       error: function(){
@@ -455,8 +412,8 @@
     });
   }
 
-  function exportLarge(data){
-  freez();
+  function exportLarge(data){console.log(JSON.stringify(data));
+    freez();
     $.ajax({
       url: '/apps/pepsi-print/fs_collection_response/job_print_orders.json',
       type: 'GET',
@@ -464,7 +421,7 @@
       dataType: 'json',
       success: function(data){
         console.log(JSON.stringify(data));
-        $.unblockUI(); show_message3('Export file will be mailed to {{ customer.email }}.',true);
+        $.unblockUI(); show_message4('Export file will be mailed to {{ customer.email }}.',true);
 
       },
       error: function(){
@@ -482,7 +439,7 @@
 
       $('#address-hidden, #id01').css({ 'position':'relative', 'bottom':'80px'}),
       $('.printModeInclude').toggleClass('hide'),
-        $('.print-one-whole').toggleClass('one-whole {% if customer_role_tag == Role_ASM %}three-quarters{% else %}two-thirds{% endif %}'),
+        $('.print-one-whole').toggleClass('one-whole {% if customer_role_tag == Role_NSM %}three-quarters{% else %}two-thirds{% endif %}'),
       $('.th-span').toggleClass('th-span th-spaned')
       {% endcapture %}
     ).done(function(){
@@ -492,11 +449,11 @@
     {% comment %}{% endcomment %}
     {% capture afterPrint %}
     $('{% unless customer_role_tag == Role_Printer %}header .grid--full:not(:nth-of-type(1)),{% endunless %} .header-bar, .printModeExclude.visible, footer').show().toggleClass('visible');
-    $('.site-header__logo img').css('margin','0 auto');
+    $('.site-header__logo img').css('margin','0');
     $('.site-header__logo').toggleClass('w3-col s3');
 
     $('.printModeInclude').toggleClass('hide');
-      $('.print-one-whole').toggleClass('one-whole {% if customer_role_tag == Role_ASM %}three-quarters{% else %}two-thirds{% endif %}');
+      $('.print-one-whole').toggleClass('one-whole {% if customer_role_tag == Role_NSM %}three-quarters{% else %}two-thirds{% endif %}');
     $('.th-spaned').toggleClass('th-span th-spaned');
     {% endcapture %}
 

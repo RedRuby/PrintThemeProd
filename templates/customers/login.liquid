@@ -122,18 +122,20 @@
 <script>
   
   $(function() {
-    if (typeof(Storage) !== "undefined") {
-        if (sessionStorage.pepsiPrintURL) {
-          var redirectURL = sessionStorage.pepsiPrintURL;
-          sessionStorage.pepsiPrintURL = '';
-        }
-        else{
-          var redirectURL = '/pages/welcome';
-        }
+    if (typeof(Storage) !== "undefined" && sessionStorage.pepsiPrintURL != undefined && sessionStorage.pepsiPrintURL.length > 0) {
+        var redirectURL = sessionStorage.pepsiPrintURL;
+        sessionStorage.pepsiPrintURL = '';
     }
+    else if(document.URL.indexOf('redirect=') > -1){
+        var redirectURL = document.URL.split('redirect=')[1];
+    }
+    {% comment %}
+    else if(document.referrer != document.URL && document.referrer != location.host && document.referrer.indexOf(location.host) > -1 && document.referrer.indexOf('/account/login') == -1){
+      var redirectURL = document.referrer.split(location.host)[1];
+    }
+    {% endcomment %}
     else{
-        var url = document.URL;
-        var redirectURL = url.split('redirect=')[1];
+      var redirectURL = '/pages/welcome';
     }
 
     if(redirectURL.length > 1){
@@ -168,10 +170,10 @@
   
   $.ajax({ url: "/cart/clear.json", async: "true" }).done(function(){ console.log('CART CLEARED'); });
   
-  setInterval(function(){
-    if($('[name="customer[email]"]').val().indexOf('Monitor.') != -1)
-      $('[name="checkout_url"]').val('/');
-  }, 500);
+  // setInterval(function(){
+  //   if($('[name="customer[email]"]').val().indexOf('Monitor.') != -1)
+  //     $('[name="checkout_url"]').val('/');
+  // }, 500);
 </script>
 
 {% include 'customer-account-common-code' with 'save_token' %}

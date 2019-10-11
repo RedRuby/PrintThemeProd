@@ -41,7 +41,8 @@
       shipping = parseFloat($('.total-line--shipping .order-summary__emphasis').first().attr('data-checkout-total-shipping-target'));
       $('.total-line--shipping .order-summary__emphasis').first().html("$"+(shipping/100).toFixed(2));
     }
-    if($('.total-line--reduction .order-summary__emphasis').length == 0){
+    total_due = $('div[data-order-summary-section="payment-lines"]').first().find('span[data-checkout-payment-due-target]').attr('data-checkout-payment-due-target');
+    if($('.total-line--reduction .order-summary__emphasis').length == 0 && total_due != "0"){
       discount = 0.00;
     }else{
       discount = price + tax + shipping;

@@ -1,37 +1,37 @@
 <div id="order-list" style1="display:none;">
-  	<div class="w3-row printModeExclude">
-    	<div class="w3-col m2">
+    <div class="w3-row printModeExclude">
+      <div class="w3-col m2">
         <small class="nbsp-hide"><label for=""><small class="nbsp-hide placeholdLoader">Date Filter</small></label></small>
-    	  <input id="start_date" value="{{first_order}}" readonly class="datepicker placeholdLoader" type="text" name="start_date" placeholder="Start Date" >
-    	</div>
-    	<div class="w3-col m2 w3-row-padding" styles="position:relative;">
+        <input id="start_date" value="{{first_order}}" readonly class="datepicker placeholdLoader" type="text" name="start_date" placeholder="Start Date" >
+      </div>
+      <div class="w3-col m2 w3-row-padding" styles="position:relative;">
         <small class="nbsp-hide"><label for="">&nbsp;</label></small>
-    	  <input id="end_date" value="{{'now' | date: '%m/%d/%Y'}}" readonly class="datepicker placeholdLoader" type="text" name="end_date" placeholder="End Date" >
+        <input id="end_date" value="{{'now' | date: '%m/%d/%Y'}}" readonly class="datepicker placeholdLoader" type="text" name="end_date" placeholder="End Date" >
         <button type="button" disabled class="btn btn--secondary w3-padding-01 w3-padding-top1 w3-padding-bottom1 w3-border-black w3-small clear-filter hide1 placeholdLoader" disabled1 style="position:absolute; bottom: 22.75px; right:15px; z-index:; display:none; padding:0 5px; font-size:3px;"><i class="fa fa-times"></i></button>
-    	</div>
-    	<div class="w3-col m2">
+      </div>
+      <div class="w3-col m2">
         <small class="nbsp-hide"><label for="">&nbsp;</label></small>
         {% comment %}<button id="" class="btn--secondary btn--full1 clear-filter placeholdLoader" type="button" style="display:none;" >Clear</button>{% endcomment %}
-    	  <button id="filter_order" class="btn--secondary btn--full1 placeholdLoader" type="button" >Filter Dates</button>
-    	</div>
+        <button id="filter_order" class="btn--secondary btn--full1 placeholdLoader" type="button" >Filter Dates</button>
+      </div>
       <div class="w3-col m2">
         {% include 'customer-account-common-code' with 'order-search-bar' %}
       </div>
-    	<div id="td_select" class="w3-col m2 w3-row-padding">
+      <div id="td_select" class="w3-col m2 w3-row-padding">
         <small><label for="select_tml"><small class="placeholdLoader"><br class="br-hide">Filter By Team Members</small></label></small>
-    	  <select id="select_tml" onchange="changeUser(this.value); this.title = this.options[this.selectedIndex].innerHTML;" title="" class="assign-printer placeholdLoader" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{fulfillment_status}}{% endraw %}">
+        <select id="select_tml" onchange="changeUser(this.value); this.title = this.options[this.selectedIndex].innerHTML;" title="" class="assign-printer placeholdLoader" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{fulfillment_status}}{% endraw %}">
             <option value="" selected>All</option>
             <option value="{{ customer.id }}">My Orders</option>
             <option w3-repeat="customers" value="{% raw %}{{id}}{% endraw %}" title="{% raw %}{{first_name}} {{last_name}}{% endraw %}" select="{% raw %}{{selected}}{% endraw %}">{% raw %}{{email}}{% endraw %}</option>
           </select>
-    	</div>
-      	<div id="td_select" class="w3-col m2">
+      </div>
+        <div id="td_select" class="w3-col m2">
           <small><label for="select_tl"><small class="placeholdLoader"><br class="br-hide">Additional Filters</small></label></small>
           <select id="select_tl" onchange="params={page: '1', order_status: '', assigned_designer: ''}; params[$(this).find('option:selected').attr('filter_attr')]=this.value; updateState(params);" name="order_status" class="placeholdLoader">
             <option value="" selected>Clear Additional Filters</option>
             {% include 'customer-account-common-code' with 'order-status-option-code-fs' %}
           </select>
-    	</div>
+      </div>
     </div>
   <table id="id02" class="responsive-table w3-table w3-bordered w3-striped1">
     <thead>
@@ -41,7 +41,9 @@
     </thead>
     <tr class="w3-hover-light-grey" w3-repeat="orders">
       <th class="w3-text-orange1 orders text-center" id="{% raw %}{{id}}{% endraw %}"><a class="{% raw %}{{cancel_status}}{% endraw %} placeholdLoader" href="/pages/order?id={% raw %}{{id}}{% endraw %}"><b>{% raw %}{{order_name}}{% endraw %}</b></a></th>
+      <td class="text-center"><div class="placeholdLoader">{% raw %}{{company}}{% endraw %}</div></td>
       <td class="text-center" title="{% raw %}{{customer_last_email}}{% endraw %}"><div class="placeholdLoader">{% raw %}{{customer_first_name}} {{customer_last_name}}{% endraw %}</div></td>
+      <td class="text-center"><div class="placeholdLoader">${% raw %}{{spend}}{% endraw %}</div></td>
       <td class="text-center"><div class="placeholdLoader">{% raw %}{{discount_codes}}{% endraw %}</div></td>
       <td class="text-center"><div class="placeholdLoader">{% raw %}{{order_date}}{% endraw %}</div></td>
       {% comment %}<td>{% raw %}{{payment_status}}{% endraw %}</td>{% endcomment %}
@@ -57,7 +59,8 @@
 {% include 'customer-account-common-code' with 'per-page-form' %}
 
 <script>
-  
+  var all_customer = '';
+
   {% include 'customer-account-common-code' with 'init-variables-fs' %}
   
 //   fetch_Orders('','','','');
@@ -71,8 +74,8 @@
   
     {% include 'customer-account-common-code' with 'doc-ready-code' %}
     
-    setTimeout(fetch_AllUsers, 0);
-    setTimeout(fetch_TeamUsers,100);
+    // setTimeout(fetch_AllUsers, 500);
+    setTimeout(fetch_TeamUsers, 800);
     
     
   });
@@ -97,14 +100,14 @@
      defreez(); defreez(); $('.placeholdLoader1').addClass('placeholdLoader').removeClass('placeholdLoader1');
      $('.table-wrapper').addClass('overflow-hidden');
 
-  	 $.ajax({
+     $.ajax({
           url: '/apps/pepsi-print/fs_collection_response/get_orders_list.json',
           type: 'GET',
           data: data,
           dataType: 'json',
           success: function(data){
-            	// console.log(JSON.stringify(data)); 
-            	if(data["total_entries"] > 0){
+              // console.log(JSON.stringify(data)); 
+              if(data["total_entries"] > 0){
                   calcT(data); //, start_date, end_date, page, cid);
                   
                   $.when(setTimeout(w3DisplayData("id02", data),100))
@@ -118,13 +121,13 @@
                   $("#print-btn").removeAttr('disabled').prop('title', '').css('cursor', 'default');
                                     
                   
-      				}else{
+              }else{
                   $("#id02, .per_pageContainer").hide();
                   $("#order-none, #order-list").show();
                   $("#print-btn").prop('disabled','disabled').prop('title', 'No orders to print.').css('cursor', 'not-allowed');
                   defreez();
                 }
-            	defreez();
+              defreez();
               $('.placeholdLoader').addClass('placeholdLoader1').removeClass('placeholdLoader');
               $('.table-wrapper').removeClass('overflow-hidden');
                 
@@ -133,8 +136,182 @@
             defreez(); show_message2('Error in fetching Orders.',false);
           }
           
-	 	});
+    });
     
+  }
+
+  function ftu(data) {
+    if(data.status == 'ok' && data.customers != undefined && data.customers.length > 0){
+                 
+      $.when(w3DisplayData('select_tml', data)).done(
+      w3DisplayData('selected_team', data)
+      ).done(setTimeout(afterDisplay,1000));
+      function afterDisplay(){
+        $('#selected_team').show();
+        $select_team = $('#select_team select'); console.log($select_team.html());
+        $select_team.find("option").removeAttr('disabled'); //console.log($('#select_tml').html());
+        {% comment %}
+        $('#select_tml option').each(function(index, item){
+          if(index > 1){
+            $val = $(item).attr('value'); //console.log($val+','+JSON.stringify(item)+','+index);
+            $select_team.find("option[value = "+$val+"]").prop('disabled', 'disabled');
+          }
+        }); //console.log('team fetched');
+        {% endcomment %}
+        if(Boolean(var_customer_id))
+          $('#select_tml').val(var_customer_id);
+      }
+    }
+    else{
+      $('#selected_team, #select_tml option:eq(2)').hide();
+      $('#select_team select option').removeAttr('disabled');
+      $('#selected_team').html('');
+    }
+    defreez();
+  }
+
+  function ExpandSelect(select, maxOptionsVisible){
+    
+    if (typeof maxOptionsVisible == "undefined") {
+            maxOptionsVisible = 20;
+    }
+    if (typeof select == "string") {
+            select = document.getElementById(select);
+    }
+    if (typeof window["ExpandSelect_tempID"] == "undefined") {
+            window["ExpandSelect_tempID"] = 0;
+    }
+    window["ExpandSelect_tempID"]++;
+
+    var rects = select.getClientRects();
+
+    // ie: cannot populate options using innerHTML.
+    function PopulateOptions(select, select2)
+    {
+      select2.options.length = 0; // clear out existing items
+      for (var i = 0; i < select.options.length; i++) {
+              var d = select.options[i];
+              select2.options.add(new Option(d.text, i))
+      }
+    }
+
+    var select2 = document.createElement("SELECT");
+    //select2.innerHTML = select.innerHTML;
+    PopulateOptions(select, select2);
+    select2.style.cssText = "visibility: hidden;";
+    if (select.style.width) {
+            select2.style.width = select.style.width;
+    }
+    if (select.style.height) {
+            select2.style.height = select.style.height;
+    }
+    select2.id = "ExpandSelect_" + window.ExpandSelect_tempID;
+
+    select.parentNode.insertBefore(select2, select.nextSibling);
+    select = select.parentNode.removeChild(select);
+
+    if (select.length > maxOptionsVisible) {
+            select.size = maxOptionsVisible;
+    } else {
+            select.size = select.length;
+    }
+
+    if ("pageXOffset" in window) {
+            var scrollLeft = window.pageXOffset;
+            var scrollTop = window.pageYOffset;
+    } else {
+            // ie <= 8
+            // Function taken from here: http://help.dottoro.com/ljafodvj.php
+            function GetZoomFactor()
+            {
+                    var factor = 1;
+                    if (document.body.getBoundingClientRect) {
+                            var rect = document.body.getBoundingClientRect ();
+                            var physicalW = rect.right - rect.left;
+                            var logicalW = document.body.offsetWidth;
+                            factor = Math.round ((physicalW / logicalW) * 100) / 100;
+                    }
+                    return factor;
+            }
+            var zoomFactor = GetZoomFactor();
+            var scrollLeft = Math.round(document.documentElement.scrollLeft / zoomFactor);
+            var scrollTop = Math.round(document.documentElement.scrollTop / zoomFactor);
+    }
+
+    select.style.position = "absolute";
+    select.style.left = (rects[0].left + scrollLeft) + "px";
+    select.style.top = (rects[0].top + scrollTop) + "px";
+    select.style.zIndex = "1000000";
+
+    var keydownFunc = function(e){
+            e = e ? e : window.event;
+            // Need to implement hiding select on "Escape" and "Enter".
+            if (e.altKey || e.ctrlKey || e.shiftKey || e.metaKey) {
+                    return 1;
+            }
+            // Escape, Enter.
+            if (27 == e.keyCode || 13 == e.keyCode) {
+                    select.blur();
+                    return 0;
+            }
+            return 1;
+    };
+
+    if (select.addEventListener) {
+            select.addEventListener("keydown", keydownFunc, false);
+    } else {
+            select.attachEvent("onkeydown", keydownFunc);
+    }
+
+    var tempID = window["ExpandSelect_tempID"];
+
+    var clickFunc = function(e){
+            e = e ? e : window.event;
+            if (e.target) {
+                    if (e.target.tagName == "OPTION") {
+                            select.blur();
+                    }
+            } else {
+                    // IE case.
+                    if (e.srcElement.tagName == "SELECT" || e.srcElement.tagName == "OPTION") {
+                            select.blur();
+                    }
+            }
+    };
+
+    if (select.addEventListener) {
+            select.addEventListener("click", clickFunc, false);
+    } else {
+            select.attachEvent("onclick", clickFunc);
+    }
+
+    var blurFunc = function(){
+            if (select.removeEventListener) {
+                    select.removeEventListener("blur", arguments.callee, false);
+                    select.removeEventListener("click", clickFunc, false);
+                    select.removeEventListener("keydown", keydownFunc, false);
+            } else {
+                    select.detachEvent("onblur", arguments.callee);
+                    select.detachEvent("onclick", clickFunc);
+                    select.detachEvent("onkeydown", keydownFunc);
+            }
+            select.size = 1;
+            select.style.position = "static";
+            select = select.parentNode.removeChild(select);
+            var select2 = document.getElementById("ExpandSelect_"+tempID);
+            select2.parentNode.insertBefore(select, select2);
+            select2.parentNode.removeChild(select2);
+
+    };
+
+    if (select.addEventListener) {
+            select.addEventListener("blur", blurFunc, false);
+    } else {
+            select.attachEvent("onblur", blurFunc);
+    }
+
+    document.body.appendChild(select);
+    select.focus();
   }
   
   function fetch_TeamUsers(state){
@@ -145,29 +322,8 @@
           data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
           dataType: 'json',
           success: function (data) { //console.log(JSON.stringify(data));
-                 	
-                    if(data.status == 'ok' && data.customers != undefined ){
-                 
-                    $.when(w3DisplayData('select_tml', data)).done(
-                      w3DisplayData('selected_team', data)
-                    ).done(setTimeout(afterDisplay,1000));
-                      function afterDisplay(){
-                        $('#selected_team').show();
-                        $select_team = $('#select_team select'); //console.log($select_team.html());
-                        $select_team.find("option").removeAttr('disabled'); //console.log($('#select_tml').html());
-                        $('#select_tml option').each(function(index, item){
-                          if(index > 1){
-                            $val = $(item).attr('value'); //console.log($val+','+JSON.stringify(item)+','+index);
-                            $select_team.find("option[value = "+$val+"]").prop('disabled', 'disabled');
-                          }
-                        }); //console.log('team fetched');
-                      }
-                    }
-                    else{
-                      $('#selected_team, #select_tml option:eq(2)').hide();
-                      $('#select_team select option').removeAttr('disabled');
-                    }
-                 	defreez();
+                  
+                    ftu(data);
 
           },
           error: function(){
@@ -185,8 +341,21 @@
           data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
           dataType: 'json',
           success: function (data) { //console.log(JSON.stringify(data));
-                 	w3DisplayData('select_team', data);
-                 	defreez();
+                  all_customer = data;
+                  $.when(w3DisplayData('select_team', data)).done(
+                    setTimeout(function() {
+                      $("#select_team option").removeAttr("style").filter(":not([channel_manager~='channel_manager'])").each(function(index, item){
+                          $(item).prop('disabled', 'disabled');
+                      });
+                      $('.fau-refresh').hide();
+                      // $("#select_team select").click();
+                      ExpandSelect($("#select_team select").prop('disabled', false).focus());
+                    }, 1000)
+                  );
+
+                  // ftu({customers: data.customers.filter(function(x){ return x.channel_manager == "{{ customer.id }}" }), status: "ok"})
+
+                  defreez();
 
           },
           error: function(){
@@ -217,7 +386,9 @@
       cid = $(obj).attr('value');
     }
     
-//     console.log(cid);
+    //     console.log(cid);
+
+    if(!Boolean(cid)){ defreez(); return false; }
     
     {% comment %}{% endcomment %}
     $.ajax({
@@ -234,48 +405,49 @@
             202:function() { console.log("202"); }
           },
           success: function(data){
-//             	console.log(JSON.stringify(data));
-            	
+//              console.log(JSON.stringify(data));
+              
                 if(200 == Number(data.status)){
-//                   	fetch_TeamUsers();
+//                    fetch_TeamUsers();
 //                     setTimeout(fetch_TeamUsers,2000);
                   
                   if(var_customer_id == cid)
                     updateState({customer_id: ''});
-                  	
-                  	//defreez(); 
+                    
+                    //defreez(); 
                   setTimeout(function(){
                     if(status){
-                      $('#select_team option[value="'+cid+'"]').attr('disabled','disabled');
+                      $('#select_team option[value="'+cid+'"]').attr({'disabled':'disabled', "channel_manager":"{{ customer.id }}"});
                       $('#select_team select option:eq(0)').prop('selected','selected');
                       $('#selected_team').append('<span class="btn--secondary btn-custom" style="margin:5px;" w3-repeat="customers" title="Brandon Pullen">'+$('#select_team option[value="'+cid+'"]').text()+'&nbsp;&nbsp;<a style="color:white;" href="javascript:void(0);" value="'+cid+'" onclick="editTeam(this,false);"><i class="fa fa-times" title="Remove '+$('#select_team option[value="'+cid+'"]').attr('title')+'"></i></a></span>');
                       $('#select_tml').append('<option value="'+cid+'" w3-repeat="customers" title="'+$(obj).attr('title')+'" select="{{selected}}">'+$('#select_team option[value="'+cid+'"]').text()+'</option>');
                       $('#selected_team').show();
                       show_message2('Added Successfully.',true);
                     }else{
-                      $('#select_team option[value="'+cid+'"]').removeAttr('disabled');
+                      $('#select_team option[value="'+cid+'"]').removeAttr('disabled').attr("channel_manager","{% raw %}{{ channel_manager }}{% endraw %}");
                       $('#select_tml option[value="'+cid+'"]').remove();
                       $(obj).parent().remove();
                       show_message2('Removed Successfully.',true);
                       if($('#selected_team a').length == 0)
-                      	$('#selected_team').hide();
+                        $('#selected_team').hide();
                     }
                   },100);
-                  	
+                    
                 }else if(401 === Number(data.status)){
-                  	defreez(); show_message2(data.message,false);
+                  show_message2(data.message||'Some Error Occured.',false);
                 }else{
-                	defreez(); show_message2(data.message,false); console.log('else');
+                  show_message2(data.message||'Some Error Occured.',false); console.log('else');
                 }
            
             
-            	
+              
           },
           error: function(data){
-            defreez(); show_message2('Some Error Occured.',false);
+            show_message4(data.responseJSON.message||'Some Error Occured.', false, false);
+            $('#select_team option').first().prop('selected', true);
           }
           
-	 });
+   });
   
     
    }

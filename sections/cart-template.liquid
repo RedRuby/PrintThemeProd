@@ -28,10 +28,12 @@
             <h1 class="section-header__title">{{ 'cart.general.title' | t }}</h1>
           </div>
           <div class="grid__item one-half medium-down--one-whole1 text-right">
+            <a class="btn btn--secondary1" href="/cart/clear">{{ "Clear My Cart" }}</a>
+            &nbsp;&nbsp;
             {% if fs_shop_active %}
-              <button type="button" class="btn btn-primary" onclick="detectIE('cart?view=checkout-grid');">{{ 'cart.general.checkout' | t }}</button>
+              <button type="button" class="btn btn-primary" {% if cart.items.size > max_allowed_item_count %}disabled{% endif %} onclick="detectIE('cart?view=checkout-grid');">{{ 'cart.general.checkout' | t }}</button>
             {% else %}
-              <button type="button" class="btn btn-primary" onclick="detectIE('pages/locations');">{{ 'cart.general.checkout' | t }}</button>
+              <button type="button" class="btn btn-primary" {% if cart.items.size > max_allowed_item_count %}disabled{% endif %} onclick="detectIE('pages/locations');">{{ 'cart.general.checkout' | t }}</button>
             {% endif %}
           </div>
         </div>
@@ -240,9 +242,9 @@
             <button type="submit" name="checkout" class="btn">{{ 'cart.general.checkout' | t }}</button>
             {% endcomment %}
             {% if fs_shop_active %}
-              <button type="button" class="btn btn-primary" onclick="detectIE('cart?view=checkout-grid');">{{ 'cart.general.checkout' | t }}</button>
+              <button type="button" class="btn btn-primary" {% if cart.items.size > max_allowed_item_count %}disabled{% endif %} onclick="detectIE('cart?view=checkout-grid');">{{ 'cart.general.checkout' | t }}</button>
             {% else %}
-              <button type="button" class="btn btn-primary" onclick="detectIE('pages/locations');">{{ 'cart.general.checkout' | t }}</button>
+              <button type="button" class="btn btn-primary" {% if cart.items.size > max_allowed_item_count %}disabled{% endif %} onclick="detectIE('pages/locations');">{{ 'cart.general.checkout' | t }}</button>
             {% endif %}
             {% if additional_checkout_buttons %}
               <div class="cart__additional_checkout">{{ content_for_additional_checkout_buttons }}</div>
@@ -279,14 +281,21 @@
   }
 {% endschema %}
 
-{% comment %}{% endcomment %}
 <script>
-    {% for line_item in cart.items %}
-      {% assign per_line_price = line_item.price | money_without_currency %}
-        {% for property in line_item.properties %}
-          console.log('property', '= {{ property }}');
-        {% endfor %}
-    {% endfor %}
+    {% if cart.items.size > max_allowed_item_count %}
+      $(document).ready(function(){
+        show_message4('{{ max_cart_count_message }}', false, false);
+      });
+    {% endif %}
+
+    {% comment %}
+    // {% for line_item in cart.items %}
+    //   {% assign per_line_price = line_item.price | money_without_currency %}
+    //     {% for property in line_item.properties %}
+    //       console.log('property', '= {{ property }}');
+    //     {% endfor %}
+    // {% endfor %}
+    {% endcomment %}
 
     $('a.cart__remove').on('click', function(){
       $this = $(this);

@@ -5,3 +5,71 @@
 {% else %}
   {% include "order-detail-retail" %}
 {% endif %}
+
+<script>
+  	function dataURLtoBlob(dataurl) {
+        var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+            bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+        while(n--){
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], {type:mime});
+    }
+  
+	$(document).on('click', 'a[title="Download"]', function (event) {
+		event.preventDefault();
+      {% comment %}
+		var xhr = new XMLHttpRequest();
+		xhr.onload = function() {
+			var reader = new FileReader();
+			reader.onloadend = function() {
+				// $('#properties_0 > div > p:nth-child(8) > a:nth-child(2)').attr({'href': reader.result.replace('webp', extension), 'download': filename});
+
+				var element = document.createElement('a');
+
+			    element.setAttribute('href', reader.result.replace('webp', extension));
+			    element.setAttribute('download', filename);
+			    document.body.appendChild(element);
+			    element.click();
+			    document.body.removeChild(element);
+			}
+			reader.readAsDataURL(xhr.response);
+		};
+		url = $(this).attr('href');
+		filename = $(this).prev().text()||url.split('/').reverse()[0];
+		extension = filename.toLowerCase().match(/\.([^\.]+)$/)[1];
+		xhr.open('GET', url);
+		xhr.responseType = 'blob';
+		xhr.send();
+      {% endcomment %}
+      
+      	var img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.onload = function() {
+          var canvas = document.createElement('CANVAS');
+          var ctx = canvas.getContext('2d');
+          var dataURL;
+          canvas.height = this.height;
+          canvas.width = this.width;
+          ctx.drawImage(this, 0, 0);
+          dataURL = canvas.toDataURL("image/"+extension){% comment %}.replace(/^data:image\/[^;]/, 'data:application/octet-stream'){% endcomment %};
+          
+          var blob = dataURLtoBlob(dataURL);
+          var objURL = URL.createObjectURL(blob);
+          
+          var element = document.createElement('a');
+
+          element.setAttribute('href', objURL);
+//           element.setAttribute('href', dataURL.replace('webp', extension));
+//           console.log(dataURL);
+          element.setAttribute('download', filename);
+          document.body.appendChild(element);
+          element.click();
+          document.body.removeChild(element);
+        };
+      	url = $(this).attr('href');
+		filename = $(this).prev().text()||url.split('/').reverse()[0];
+		extension = filename.toLowerCase().match(/\.([^\.]+)$/)[1];
+        img.src = url;
+	});
+</script>

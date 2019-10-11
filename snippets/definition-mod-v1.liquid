@@ -1,0 +1,357 @@
+<!-- MOD Vendor List -->
+{% assign verdorList = '' %}
+{% if linklists.brands-mod.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.brands-mod.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+  {% assign vendorList = vendorList |append:link.title |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- MOD Vendor Tags -->
+{% assign verdorTagList = '' %}
+{% if linklists.brands-mod.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.brands-mod.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+  {% assign vendor_tag = link.url |split:'/' |last %}
+  {% assign vendorTagList = vendorTagList |append:vendor_tag |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- National Programs List -->
+{% assign nationalProgramsTagList = '' %}
+{% if linklists.national-programs.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.national-programs.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+  {% assign nationalProg_tag = link.url |split:'/' |last %}
+  {% assign nationalProgramsTagList = nationalProgramsTagList |append:nationalProg_tag |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Program ADS -->
+{% assign programAdsTagList = '' %}
+{% if linklists.program-ads.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.program-ads.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+  {% assign progAds_tag = link.url |split:'/' |last %}
+  {% assign programAdsTagList = programAdsTagList |append:progAds_tag |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Sports -->
+{% assign sportsTagList = '' %}
+{% if linklists.sports-mod.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.sports-mod.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+  {% assign sports_tag = link.url |split:'/' |last %}
+  {% assign sportsTagList = sportsTagList |append:sports_tag |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Turnkey Kits -->
+{% assign turnkeyKitsTagList = '' %}
+{% if linklists.turnkey-kits.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.turnkey-kits.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+  {% assign tkk_tag = link.url |split:'/' |last %}
+  {% assign turnkeyKitsTagList = turnkeyKitsTagList |append:tkk_tag |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- For Download Only -->
+{% assign forDownloadOnlyTagList = '' %}
+{% if linklists.for-download-only.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.for-download-only.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+  {% assign forDownloadOnly_tag = link.url |split:'/' |last %}
+  {% assign forDownloadOnlyTagList = forDownloadOnlyTagList |append:forDownloadOnly_tag |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Combo Meal POS -->
+{% assign comboMealPOSTagList = '' %}
+{% if linklists.combo-meal-pos.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.combo-meal-pos.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+  {% assign comboMealPOS_tag = link.url |split:'/' |last %}
+  {% assign comboMealPOSTagList = comboMealPOSTagList |append:comboMealPOS_tag |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Channel Specific -->
+{% assign channelSpecificTagList = '' %}
+{% if linklists.channel-specific.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.channel-specific.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+  {% assign channelSpecific_tag = link.url |split:'/' |last %}
+  {% assign channelSpecificTagList = channelSpecificTagList |append:channelSpecific_tag |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Speciality -->
+{% assign specialityTagList = '' %}
+{% if linklists.specialty.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.specialty.links %}
+    {% if forloop.last %}{% assign comma = ',' %}{% endif %}
+  {% assign speciality_tag = link.url |split:'/' |last %}
+  {% assign specialityTagList = specialityTagList |append:speciality_tag |append:comma %}
+  {% endfor %}
+{% endif %}
+{% if linklists.specialty.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.paint-the-town.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+  {% assign speciality_tag = link.url |split:'/' |last %}
+  {% assign specialityTagList = specialityTagList |append:speciality_tag |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Departments -->
+{% assign departmentTagList = '' %}
+{% if linklists.departments.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.departments.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+  {% assign department_tag = link.url |split:'/' |last %}
+  {% if department_tag contains 'DPT:' %}
+      {% assign departmentTagList = departmentTagList |append:department_tag |append:comma %}
+  {% endif %}
+  {% endfor %}
+{% endif %}
+
+<!-- New Tags -->
+{% assign newTagList = '' %}
+{% if linklists.region-new-tags.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.region-new-tags.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+  {% assign newTagList = newTagList |append:link.title |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Options -->
+{% assign optionList = '' %}
+{% if linklists.mod-generic-elements.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.mod-generic-elements.links %}
+    {% if forloop.last and false %}{% assign comma = '' %}{% endif %}
+  {% assign link_title = link.title  | replace: '"', '\"' %}
+  {% assign optionList = optionList |append:link_title |append:comma %}
+  {% endfor %}
+{% endif %}
+
+{% if linklists.mod-multi-offer-elements.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.mod-multi-offer-elements.links %}
+    {% if forloop.last and false %}{% assign comma = '' %}{% endif %}
+  {% assign link_title = link.title  | replace: '"', '\"' %}
+  {% assign optionList = optionList |append:link_title |append:comma %}
+  {% endfor %}
+{% endif %}
+
+{% if linklists.mod-flavor-shots-dt-elements.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.mod-flavor-shots-dt-elements.links %}
+    {% if forloop.last and false %}{% assign comma = '' %}{% endif %}
+  {% assign link_title = link.title  | replace: '"', '\"' %}
+  {% assign optionList = optionList |append:link_title |append:comma %}
+  {% endfor %}
+{% endif %}
+
+{% if linklists.mod-frequency-elements.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.mod-frequency-elements.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+  {% assign link_title = link.title  | replace: '"', '\"' %}
+  {% assign optionList = optionList |append:link_title |append:comma %}
+  {% endfor %}
+{% endif %}
+
+<!-- Element Default Prices -->
+{% assign defaultPrice_arr = "{" %}
+{% if linklists.mod-generic-elements.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.mod-generic-elements.links %}
+    {% if forloop.last and false %}{% assign comma = '' %}{% endif %}
+  {% assign link_title = link.title  | replace: '"', '\"' %}
+  {% assign elem_price = link.url |split:'/' |last %}
+    {% assign item_arr = '"' |append:link_title |append:'":"' |append:elem_price |append:'"' |append:comma %}
+    {% assign defaultPrice_arr = defaultPrice_arr |append:item_arr %}
+  {% endfor %}
+{% endif %}
+
+{% if linklists.mod-multi-offer-elements.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.mod-multi-offer-elements.links %}
+    {% if forloop.last and false %}{% assign comma = '' %}{% endif %}
+  {% assign elem_price = link.url |split:'/' |last %}
+  {% assign link_title = link.title  | replace: '"', '\"' %}
+    {% assign item_arr = '"' |append:link_title |append:'":"' |append:elem_price |append:'"' |append:comma %}
+    {% assign defaultPrice_arr = defaultPrice_arr |append:item_arr %}
+  {% endfor %}
+{% endif %}
+
+{% if linklists.mod-flavor-shots-dt-elements.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.mod-flavor-shots-dt-elements.links %}
+    {% if forloop.last and false %}{% assign comma = '' %}{% endif %}
+  {% assign elem_price = link.url |split:'/' |last %}
+  {% assign link_title = link.title  | replace: '"', '\"' %}
+    {% assign item_arr = '"' |append:link_title |append:'":"' |append:elem_price |append:'"' |append:comma %}
+    {% assign defaultPrice_arr = defaultPrice_arr |append:item_arr %}
+  {% endfor %}
+{% endif %}
+
+{% if linklists.mod-frequency-elements.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.mod-frequency-elements.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+  {% assign elem_price = link.url |split:'/' |last %}
+  {% assign link_title = link.title  | replace: '"', '\"' %}
+    {% assign item_arr = '"' |append:link_title |append:'":"' |append:elem_price |append:'"' |append:comma %}
+    {% assign defaultPrice_arr = defaultPrice_arr |append:item_arr %}
+  {% endfor %}
+{% endif %}
+
+{% assign defaultPrice_arr = defaultPrice_arr |append:"}" |replace:",}","}" %}
+
+<!-- Templates -->
+{% assign template_arr = "{" %}
+{% if linklists.mod-templates.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.mod-templates.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+  {% assign templates = link.url |split:'/' |last | split: "+" %}
+  {% assign link_title = link.title  | replace: '"', '\"' %}
+    {% assign item_arr = '"' |append:link_title |append:'":"' |append:templates[0] |append:'"' |append:comma %}
+    {% assign template_arr = template_arr |append:item_arr %}
+  {% endfor %}
+{% endif %}
+
+{% assign template_arr = template_arr |append:"}" |replace:",}","}" %}
+
+<!-- Templates 2 -->
+{% assign template_h_arr = "{" %}
+{% if linklists.mod-templates.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.mod-templates.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+  {% assign templates = link.url |split:'/' |last | split: "+" %}
+  {% assign link_title = link.title  | replace: '"', '\"' %}
+    {% assign item_arr = '"' |append:link_title |append:'":"' |append:templates[1] |append:'"' |append:comma %}
+    {% assign template_h_arr = template_h_arr |append:item_arr %}
+  {% endfor %}
+{% endif %}
+
+{% assign template_h_arr = template_h_arr |append:"}" |replace:",}","}" %}
+
+
+<!-- Market Specific -->
+{% assign market_arr = "[" %}
+{% if linklists.region-markets.links.size > 0 %}
+  {% for link in linklists.region-markets.links %}
+    {% if forloop.last %}{% assign block_last = true %}{% endif %}
+    {% assign cont_arr = link.url |split:'/' |last |replace:', ', ',' |replace:' ,', ',' |replace:' , ', ',' | split:',' %}
+    {% for item in cont_arr %}
+        {% assign comma = ',' %}
+        {% if forloop.last and block_last %}{% assign comma = '' %}{% endif %}
+        {% assign item_arr = '{name:"' |append:item |append:'",value:"' |append:link.title |append:'"}' |append:comma %}
+        {% assign market_arr = market_arr |append:item_arr %}
+    {% endfor %}
+  {% endfor %}
+{% endif %}
+{% assign market_arr = market_arr |append:"]" %}
+
+<script  type="text/javascript">
+  
+  var defaultPriceList = JSON.stringify({{ defaultPrice_arr }});
+
+  var template_arr = '{{ template_arr }}';
+  
+  var market_array = {{ market_arr |replace:',]',']' }};
+              
+  var vendorList = "{{ vendorList }}".split(',').sort();
+
+  var typeList = "{{ 'MOD' }}".split(',').sort();
+  
+  var nationalProgramsTagList = "{{ nationalProgramsTagList }}".split(',').sort();
+  
+  var vendorTagList = "{{ vendorTagList }}".split(',').sort();
+  
+  var sportsTagList = "{{ sportsTagList }}".split(',').sort();
+
+  var turnkeyKitsTagList = "{{ turnkeyKitsTagList }}".split(",").sort();
+  var forDownloadOnlyTagList = "{{ forDownloadOnlyTagList }}".split(",").sort();
+  var comboMealPOSTagList = "{{ comboMealPOSTagList }}".split(",").sort();
+  var channelSpecificTagList = "{{ channelSpecificTagList }}".split(",").sort();
+  var specialityTagList = "{{ specialityTagList }}".split(",").sort();
+  var departmentTagList = "{{ departmentTagList }}".split(",").sort();
+
+  // -------
+  {% comment %}
+  // var elementTypePTT = $.unique([]).sort();
+  
+  // var elementTypePOS_NOC = $.unique([].concat([])).sort();
+  
+  // var elementTypePOS_NOT = $.unique([]).sort();
+  
+  // var elementTypePOS = $.unique([].concat([])).sort();
+
+  // var elementTypeMOD = $.unique([]).sort();
+  {% endcomment %}
+
+  var specialityTagList = "{{ specialityTagList }}".split(',').sort();
+  
+  var programAdsTagList = "{{ programAdsTagList }}".split(',').sort();
+  
+  var departmentTagList = "{{ departmentTagList |replace:',]',']' }}".split(',').sort();
+  
+  var newTagList = "{{ newTagList | replace: 'New', 'Region' }}".split(',').sort();
+  
+  var optionList = "{{ optionList }}".split(',').sort();
+  
+  
+  var output = [], o = {};
+  $(document).ready(function(){ 
+
+    market_array.forEach(function(value) {
+      var existing = output.filter(function(v, i) {
+        return v.name == value.name;
+      });
+      if (existing.length) {
+        var existingIndex = output.indexOf(existing[0]);
+        output[existingIndex].value = output[existingIndex].value.concat(value.value);
+      } else {
+        if (typeof value.value == 'string')
+          value.value = [value.value];
+        output.push(value);
+      }
+    });
+    
+    //console.log(output);
+    
+     $.each(output, function () {
+          if (o[this.name]) {
+              if (!o[this.name].push) {
+                  o[this.name] = [o[this.name]];
+              }
+              o[this.name].push(this.value || '');
+          } else {
+              o[this.name] = this.value || '';
+          }
+      });
+    
+    //console.log(o);
+    
+    marketSpecificTagList = Object.keys(o); //console.log(marketSpecificTagList);
+  });
+</script>

@@ -1,0 +1,140 @@
+<script>
+  var old_url = "", mfpHTML3 = "";
+
+  function simulateMouseClick(targetNode) {
+    function triggerMouseEvent(targetNode, eventType) {
+        var clickEvent = document.createEvent('MouseEvents');
+        clickEvent.initEvent(eventType, true, true);
+        targetNode.dispatchEvent(clickEvent);
+    }
+    ["mouseover", "mousedown", "mouseup", "click"].forEach(function(eventType) { 
+        triggerMouseEvent(targetNode, eventType);
+    });
+  }
+
+  function editPrice(instance, row, col, optBkpData, selectedOptions){
+    var selectedPrices = instance.getDataAtCell(row, col+1);
+    if(selectedPrices == null)selectedPrices = "";
+    selectedPrices = (selectedPrices.length > 0) ? selectedPrices.split(',') : [];
+
+//     var selectedOptions = instance.getDataAtCell(row, col-6);
+    var defaultPrice = JSON.parse(defaultPriceList);
+    if(selectedOptions == null)selectedOptions = "";
+    selectedOptions = (selectedOptions.length > 0) ? selectedOptions.split(',') : [];
+    
+    console.log(selectedOptions);
+
+    var price = instance.getDataAtCell(row, 20);
+    if(price == null || price.length == 0){
+      price = {};
+      selectedPrices = []; 
+      selectedOptions.forEach(function(option, index){ selectedPrices.push(defaultPrice[option]||'0.01'); });
+       //                    selectedOptions.forEach(function(option, index){
+              // price[option] = '0.00';
+       //                    });
+      price = defaultPrice;
+    }else
+      price = JSON.parse(price);
+
+    $('#optionPriceModal tbody').html('');
+    selectedOptions.forEach(function(option, index){
+      {% comment %}
+        // try{ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0 || this.value == 0) this.value = \'0.01\'; else this.value = (parseFloat(this.value)||0.01).toFixed(2); " value="'+ ((price[option] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? price[option] : "0.01") +'"></td></tr>'); }
+        // catch(e){ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0 || this.value == 0) this.value = \'0.01\'; else this.value = (parseFloat(this.value)||0.01).toFixed(2); " value="'+ ((selectedPrices[index] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? selectedPrices[index] : "0.01") +'"></td></tr>'); }
+      {% endcomment %}
+      optPrice = (parseFloat(selectedPrices[index]||defaultPrice[option]||'0.01').toFixed(2).toString().match(/^\d+\.\d{0,2}$/)[0])||'0.01';
+      $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" style="margin: 0;" type="number" required patterns="" onchange="if(this.value.length == 0 || this.value == 0) this.value = \'0.01\'; else this.value = (parseFloat(this.value)||0.01).toFixed(2); " value="'+ optPrice +'"></td></tr>');
+    });
+
+    // $("#priceSave").prop('disabled', 'disabled');
+    $("#priceSave").removeAttr('disabled');
+    $('#optionPriceModal').one('show.bs.modal', function(){ $(this).animateCss('animated slideInRight'); }).modal({backdrop:"static", show:true, keyboard:false});
+
+    $("#goBackToElements").off("click").on("click", function() {
+      $.when(instance.selectCell(row, 'add_options')).done(
+        simulateMouseClick($('.current.highlight a')[0])
+      );
+      $("#goBackToElements").off("click");
+    });
+
+    $("#optionPriceModal").off('hide.bs.modal').on('hide.bs.modal', function () {
+
+      if(!$('#priceSave').is(':disabled')){
+        if (confirm("Your changes will be lost !") == true) {
+          $("#optionPriceModal").off('hide.bs.modal').animateCss('slideOutRight', function(modal){ $(modal).modal('hide'); });
+        } else
+            return false;
+      } else
+          $("#optionPriceModal").off('hide.bs.modal').animateCss('slideOutRight', function(modal){ $(modal).modal('hide'); });
+          return false;
+    });
+
+    $('#optionPriceModal tbody input').off('keyup').one('keyup', function(){
+        $("#priceSave").removeAttr('disabled');
+    });
+
+    $("#priceSave").off('click').one('click', function (e) {
+      var element = e.target || e.srcElement;
+      selectedPrices = $('#optionPriceModal tbody input').map( function() { return this.value; }).get();
+      instance.setDataAtCell(row, col+1, selectedPrices.join(","));
+      $(this).prop('disabled', 'disabled');
+      setPrice = function(){
+        selectedOptions.forEach(function(option, index){
+          price[option] = selectedPrices[index];
+        });
+        return JSON.stringify(price);
+      }
+      instance.setDataAtCell(row, instance.propToCol('default_price'), setPrice());
+      instance.setDataAtCell(row, instance.propToCol('option1_value'), selectedOptions.join(','));
+//                           Handsontable.dom.empty(td);
+//                           td.appendChild(btn);
+      $("#optionPriceModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+      $("#priceSave").prop('disabled', 'disabled');
+      window["selectedOptions"] = null;
+    });
+    
+  }
+
+  function setTemplate(select) {
+    $('#tagSave').prop('disabled', !Boolean($(select).val())); 
+    $(select).css('outline','none'); 
+    $('#preview_template').attr('href', "javascript:showProductModal('/collections/mod/products/" + $(select).find('option:selected').attr('handle') + "' ,'"+ $(select).find('option:selected').text() + "');");
+  }
+  
+  function showProductModal(url, templateTitle){ 
+      // $('html, body').css('overflow','hidden');
+      // $('#mfp-product-preview .mfp-content').removeClass('bounceOutDown').addClass('slideInUp');
+      // $('#mfp-product-preview .mfp-bg, #mfp-product-preview .mfp-wrap').show().removeClass('mfp-hide');
+
+      $('#templateModal .modal-title').text(templateTitle);
+
+      $('#templateModal').one('show.bs.modal', function(){ $(this).animateCss('animated slideInUp'); }).modal({backdrop:"static", show:true, keyboard:false});
+
+      $("#templateModal").off('hide.bs.modal').on('hide.bs.modal', function () {
+        $("#templateModal").off('hide.bs.modal').animateCss('bounceOutDown', function(modal){ $(modal).modal('hide'); });
+      });
+
+      if(url == old_url)
+        return false;
+      else
+        $('#templateModal .templateWrap').html('').append(mfpHTML3);
+
+      $.ajax({
+        url: url,
+        type: 'GET',
+        dataType: 'html',
+        success: function(itemData) { 
+          const regex = /(?=\<\!-- psudoContent --\>)[\w\W]+(?=<\!-- psudoContent -->)/g;
+
+          let m;
+
+          m = regex.exec(itemData);
+          var res= m[0].replace('<!-- psudoContent -->', '');
+
+          $('#templateModal .templateWrap').html(res);
+        }
+      });
+
+      old_url = url;
+  }
+</script>

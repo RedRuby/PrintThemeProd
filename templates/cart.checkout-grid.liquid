@@ -4,7 +4,11 @@
 
 {% endif %}
 
-
+{% if cart.items.size > max_allowed_item_count %}
+  {% layout 'none' %}
+  <meta content="0; url=/cart" http-equiv="refresh" />
+  {% continue %}
+{% endif %}
 
 {% assign cart_product_properties = cart.items | map:"properties" | map: 'Printing' | uniq | join:"," %}
           
@@ -17,12 +21,13 @@
 {% endif %}
 
 
-
 <div id="checkout-grid">
   {% if cart.item_count > 0 %}
     {% assign loader = '<i class="fa fa-circle-o-notch fa-spin"></i>' %}
 
-    <form action="/cart" method="post" novalidate class="cart">
+    
+
+    {% comment %}<form action="/cart" method="post" novalidate class="cart">{% endcomment %}
 
       <div class="section-header wrapper">
         <div class="grid">
@@ -32,7 +37,7 @@
           </div>
           <div class="grid__item one-half medium-down--one-whole1 text-right">
             <h1>&nbsp;</h1>
-            <button type="button" class="btn btn-primary" onclick="gridPush(null, true);">Continue</button>
+            <button type="button" class="btn btn-primary continue-btn" onclick="gridPush(null, true);">Continue</button>
           </div>
         </div>
       </div>
@@ -68,11 +73,11 @@
               <style>.budget_code_wrapper > .table-wrapper{ height: 100%; }</style>
               <table class="w3-margin-0 w3-border-0" style="height: inherit;">
                 <tr class="w3-border-0">
-                  <td class="w3-padding text-center1 w3-border-0">
+                  <td class="w3-padding text-center1 w3-border-0 visually-hidden">
                     <label for="budget_code">Budget Type <span class="w3-text-red">*</span></label>
-                    <select name="" id="budget_code" required="" onchange="gridPush();">
-                      <option value="">Select</option>
-                      <option value="A&M">A&M</option>
+                    <select name="" id="budget_code" required="" onchange="budget_code = this.value; gridPush();">
+                      {% comment %}<option value="" selected disabled>Select</option>{% endcomment %}
+                      <option value="A&M" {% if customer.email contains "Monitor" or true %}selected{% endif %}>A&M</option>
                       <option value="TPM">TPM</option>
                       <option value="Trade">Trade</option>
                     </select>
@@ -101,7 +106,17 @@
                     {% comment %}</div>{% endcomment %}
                     <p class="w3-margin-0">Product Details</p>
                     
-                    <p class="w3-margin-0"><b>Element:</b> <span>{{ item.variant.option1 | default: "Default" }}</span></p>
+                    <p class="w3-margin-0"><b>Element:</b> 
+                      <span>
+                        {% assign variant_title = item.variant.option1 | default: "Default" %}
+                        
+                        {% if item.properties['Printing'] == 'No' and item.variant.option1 contains "Default" %}
+                          {% assign variant_title = variant_title | replace: "Default", "Digital" | remove: "Title" %}
+                        {% endif %}
+                        
+                        {{ variant_title }}
+                      </span>
+                    </p>
 
                     {% unless item.variant.option1 contains "Default" %}
                       <div class="variant_title_line_{{ forloop.index0 }} hide">
@@ -118,12 +133,12 @@
                     {% if propertySize > 0 %}
                       {% for p in item.properties %}
                         {% if p.first contains 'Unit Price' %}
-                        {% assign p_last = p.last | split:'$' | last | times: 100 %}
-                        {% comment %}<script>console.log('gotcha: {{ p_last }}, {{ item_price }}, {{ total_calculated_price_difference }}');</script>{% endcomment %}
+                          {% assign p_last = p.last | remove:'$' | remove: ',' | strip | times: 100 %}
+                          {% comment %}<script>console.log('gotcha: {{ p_last }}, {{ item_price }}, {{ total_calculated_price_difference }}');</script>{% endcomment %}
                         {% endif %}
                       {% endfor %}
                     {% endif %}
-                    <p class="product_price" product_id="{{ item.key | replace: ':', '_' }}" data-price="{{ p_last | default: item.price }}">{{ p_last | default: item.price | money }}</p>
+                    <p class="product_price" product_id="{{ item.key | replace: ':', '_' }}" data-price="{{ p_last | default: item.price }}">{{ p_last | default: item.price | money }}{% assign p_last = blank %}</p>
                   </td>
                 </tr>
               </table>
@@ -139,7 +154,7 @@
               <b>Digital Orders</b>
               <p></p>
               <p class="w3-margin-0">
-                <small>{{ customer.first_name }} {{ customer.last_name }}</small>
+                <small>{{ customer.default_address.first_name }} {{ customer.default_address.last_name }}</small>
                 <br>
                 <small>{{ customer.email }}</small>
               </p>
@@ -170,6 +185,7 @@
             {% capture address_repeat %}
             <td style="height: 293px;" id="address_{% raw %}{{ id }}{% endraw %}">
               <b>{% raw %}{{ customer }}{% endraw %}</b>
+              <span class="w3-right w3-tag w3-small" style="text-transform: capitalize;" add_type="{% raw %}{{ address_type }}{% endraw %}">{% raw %}{{ address_type }}{% endraw %}</span>
               <p></p>
               <p class="w3-margin-0">
                 <small>{% raw %}{{ first_name }} {{ last_name }}{% endraw %}</small>
@@ -188,8 +204,10 @@
               </p>
               <p></p>
               <p class="w3-margin-0">
+                {% comment %}
                 <small>{% raw %}{{ budget_identifier }}{% endraw %}</small>
                 <br>
+                {% endcomment %}
                 <small>{% raw %}{{ channel_identifier }}{% endraw %}</small>
                 <br>
                 <small><b>
@@ -214,7 +232,7 @@
             </td>
             {% for item in cart.items) %}
             <td class="text-center">
-              <input type="number" name="order[address][{% raw %}{{ id }}{% endraw %}][product][{{ item.key | replace: ':', '_' }}]" {% if item.properties['Printing'] == 'No' %} class="text-center w3-opacity" value="0" readonly="" oninput="updateGrid('quantity', this);" {% else %}class="text-center" value="{% raw %}{{{% endraw %}{{ item.key | replace: ':', '_' }}{% raw %}}}{% endraw %}" oninput="if (this.value.length > 4) {this.value = Number(this.value.slice(0,4)); } updateGrid('quantity', this);" onblur="if(this.getAttribute('changed') == '1') gridPush(); this.setAttribute('changed','0');" onchange="this.setAttribute('changed','1');" {% if forloop.first or forloop.last %}onkeydown="tabFunction(this, event);"{% endif %} changed="0" min="0" max="9999" pattern="[0-9]{4}" {% endif %} line_index="{{ forloop.index }}" />
+              <input type="number" name="order[address][{% raw %}{{ id }}{% endraw %}][product][{{ item.key | replace: ':', '_' }}]" {% if item.properties['Printing'] == 'No' %} class="text-center w3-opacity" value="0" readonly="" oninput="updateGrid('quantity', this);" {% else %}class="text-center" value="{% raw %}{{{% endraw %}{{ item.key | replace: ':', '_' }}{% raw %}}}{% endraw %}" oninput="if (this.value.length > 4) {this.value = Number(this.value.slice(0,4)); } updateGrid('quantity', this); $('.continue-btn').prop('disabled', true);" onfocus="" onblur="if(this.getAttribute('changed') == '1') gridPush(); else $('.continue-btn').prop('disabled', false); this.setAttribute('changed','0');" onchange="this.setAttribute('changed','1');" {% if forloop.first or forloop.last %}onkeydown="tabFunction(this, event);"{% endif %} changed="0" min="0" max="9999" pattern="[0-9]{4}" {% endif %} line_index="{{ forloop.index }}" />
               <input type="hidden" name="order[address][{% raw %}{{ id }}{% endraw %}][shipping_amount]" value="0"/>
             </td>
             {% endfor %}
@@ -269,14 +287,14 @@
             <a href="/cart"><button type="button" class="btn">Return to Cart</button></a>
           </div>
           <div class="grid__item one-half medium-down--one-whole1 text-right">
-            <button type="button" class="btn btn-primary" onclick="gridPush(null, true);">Continue</button>
+            <button type="button" class="btn btn-primary continue-btn" onclick="gridPush(null, true);">Continue</button>
           </div>
         </div>
       </div>      
 
       <div id="address_template" class="hide address_template">{{ address_repeat }}</div>
 
-    </form>
+    {% comment %}</form>{% endcomment %}
 
     <div id="mfp-address-add">
     {% include 'checkout-grid-add-address-form' %}
@@ -293,6 +311,26 @@
     {% comment %}{{ 'papaparse.min.js' | asset_url | script_tag }}{% endcomment %}
     {{ 'nanobar.min.js' | asset_url | script_tag }}
 
+    <input type="hidden" id="refreshed" value="no">
+    <script>
+      if (!!window.performance && window.performance.navigation.type === 2) {
+          // value 2 means "The page was accessed by navigating into the history"
+          console.log('Reloading');
+          window.location.reload(); // reload whole page
+      }            
+
+      window.onpageshow = function (event) {
+          if (event.persisted) {
+              window.location.reload();
+          }
+      };   
+
+      window.onload=function(){
+        var e=document.getElementById("refreshed");
+        if(e.value=="no")e.value="yes";
+        else{e.value="no";window.location.reload();}
+      }
+    </script>
 
     <script>
       loader_enable = true;
@@ -357,7 +395,7 @@
 
                     setTimeout(function(){
                       setPresets();
-                    },100);             
+                    },100);      
 
                     if(data["grid_info"] != undefined && data["grid_info"]["addresses"] != undefined && data["grid_info"]["addresses"].length > 0){
                       cart_keys = new Set(('{{ cart.items | map: "key" | join: "," | replace: ":","_" }}').split(","));
@@ -505,14 +543,16 @@
       }
 
       function setPresets(){
-        qty_inputs = $('.id02_wrapper #id02 > tbody > tr > td:nth-child(3) [name^="order["]:visible, tr[w3-repeat="addresses"] [name^="order["]:visible');
+        // qty_inputs = $('.id02_wrapper #id02 > tbody > tr > td:nth-child(3) [name^="order["]:visible, tr[w3-repeat="addresses"] [name^="order["]:visible');
+        qty_inputs = $('.id02_wrapper #default_address [name^="order["]:visible, tr[w3-repeat="addresses"] [name^="order["]:visible');
 
         if(qty_inputs.length > 0)
-          qty_inputs.trigger('input');
+          qty_inputs.trigger('input').trigger('blur');
         else
           updateGrid('quantity');
 
         rosterInit();
+        $('#id02').hide(0).show(0);
       }
 
       function rosterInit() {
@@ -595,11 +635,16 @@
       }
 
       function gridPush(data, final, remove){
-        if(final && !budget_code){
+        $('#budget_code').val("A&M");
+
+        if(final && !Boolean($('#budget_code').val())){
           $('#budget_code').focus();
           show_message2('Budget Type is required.', false); 
           return false;
         }
+
+        if(Boolean($('#budget_code').val()))
+          budget_code = $('#budget_code').val();
 
         {% comment %}
         // if(roster_url && {% if has_digital_product %}true{% else %}false{% endif %} && !remove){
@@ -616,11 +661,7 @@
           data = grid_data.order = Object.assign({}, $('#id02 [name^="order["]:not([name~="id"])').serializeJSON().order || { address: {} });
         }
 
-        console.log("*******************************************");
-        console.log(Boolean(roster_url));
-        console.log(Object.keys(data.address).length);
-        console.log(!remove);
-        console.log("*******************************************");
+        
 
         if(roster_url && Object.keys(data.address).length < {% if has_digital_product %}2{% else %}1{% endif %} && !remove){
           nanobarLoad(0);
@@ -634,14 +675,20 @@
           nanobarLoad(0);
           show_message4("Atleast one Shipping Address required.", false, "Please add Shipping Addresses/Bulk Order Shiplist.");
           return false;
-        }else if(!remove){
+        }{% unless only_digital_product %}
+          else if(!remove){
           inputFields = $('{% if has_digital_product %}tr[w3-repeat="addresses"] {% endif %}[name^="order["]:visible').map(function(i, o){ return (Number(o.value) || 0) }).get();
-          if(inputFields.length > 0 && inputFields.reduce(function(t,n){ return t+n; }) < 1 ){
+          if(inputFields.length == 0 || inputFields.reduce(function(t,n){ return t+n; }) < 1 ){
             nanobarLoad(0);
             show_message4("Atleast one Quantity is required.", false);
             return false;
           }
+        }else if($('tr[w3-repeat="addresses"]').length*{{ cart.items.size }} > 50 ){
+          nanobarLoad(0);
+          show_message4("Maximum {% assign shiplist_limit = 50 | divided_by: cart.items.size | round %}{{ shiplist_limit }} shipping addresses are allowed, Exceeding by "+$('tr[w3-repeat="addresses"]').length-{{ shiplist_limit }}+".", false, "Please use Bulk Order Shiplist instead.");
+          return false;
         }
+        {% endunless %}
 
         {% comment %}
         // if(roster_url && data.address.length > 0 && !remove){
@@ -653,8 +700,11 @@
         
         data1 = { cart_info: cart_items, grid_info: data, grid_id: grid_data.grid_id };
 
-        if($('#budget_code').val().length > 0){
+        if(Boolean($('#budget_code').val())){
           data1["budget_code"] = budget_code = $('#budget_code').val();
+        }else if(Boolean(budget_code)){
+          data1["budget_code"] = budget_code;
+          $('#budget_code').val(budget_code);
         }
 
         data1["roster_url"] = roster_url;
@@ -665,6 +715,8 @@
           freez();
         }
         console.log(data1);
+
+        $('.continue-btn').prop('disabled', true);
         $.ajax({
                 url: '/apps/place_bulk_order?cid={{ customer.id }}&action_type=save_fs_grid',
                 type: 'POST',
@@ -695,6 +747,10 @@
                   console.log(data);
                   show_message2(((data.message != undefined) ? data.message : 'Some Error Occured.'),false); 
                   nanobarLoad(0);
+                },
+                complete: function(){
+                  if($('tr[w3-repeat="addresses"] [name^="order["]:visible:focus').length == 0)
+                    $('.continue-btn').prop('disabled', false);
                 }
         });
       }
@@ -720,7 +776,7 @@
           }
 
           if(!isEqualObject(cart_items, cart_info)){
-            show_message2("Cart got updated. Reloading!", false, true);
+            show_message2("Cart got updated. Reloading!", true, true);
             location.reload();
             return false;
           }
@@ -741,7 +797,8 @@
           .always(function(data) {
             console.log(data);
             nanobarLoad(99);
-            window.parent.location.href = "/checkout"
+            {% assign da = customer.default_address %}
+            window.parent.location.href = "/checkout?checkout[shipping_address][first_name]={{ da.first_name }}&checkout[shipping_address][last_name]={{ da.last_name }}&checkout[shipping_address][address1]={{ da.address1 }}&checkout[shipping_address][address2]={{ da.address2 }}&checkout[shipping_address][city]={{ da.city }}&checkout[shipping_address][country]={{ da.country }}&checkout[shipping_address][province]={{ da.province }}&checkout[shipping_address][zip]={{ da.zip }}&step=contact_information";
           })
           .error(function(jqXHR, exception){
             console.log(exception)
@@ -965,7 +1022,7 @@
           }
         }, 1000);
       }
-
+      console.log("/checkout?checkout[shipping_address][first_name]={{ da.first_name }}&checkout[shipping_address][last_name]={{ da.last_name }}&checkout[shipping_address][address1]={{ da.address1 }}&checkout[shipping_address][address2]={{ da.address2 }}&checkout[shipping_address][city]={{ da.city }}&checkout[shipping_address][country]={{ da.country }}&checkout[shipping_address][province]={{ da.province }}&checkout[shipping_address][zip]={{ da.zip }}&step=contact_information");
     </script>
 
   {% else %}

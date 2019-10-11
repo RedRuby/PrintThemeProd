@@ -30,8 +30,13 @@
     {% assign region_MidWest = "general.Region_Tags.MidWest" | t %}
     {% assign region_GreatLakes = "general.Region_Tags.GreatLakes" | t %}
     {% assign region_External = "general.Region_Tags.External" | t %}
+    {% assign region_NationalCustomer = "Region:NationalCustomer" %}
+    {% assign region_FranchiseBottler = "Region:FranchiseBottler" %}
 
-    {% if customer.tags contains region_NorthEast or customer.tags contains region_SouthEast or customer.tags contains region_Mountain or customer.tags contains region_California or customer.tags contains region_South or customer.tags contains region_MidWest or customer.tags contains region_MidAtlantic or customer.tags contains region_GreatLakes or customer.tags contains region_External %}
+    {% assign max_allowed_item_count = 30 %}
+    {% assign max_cart_count_message = "To many product in cart. The recommended unique products count is max_allowed_item_count per order." | replace: 'max_allowed_item_count', max_allowed_item_count %}
+
+    {% if customer.tags contains region_NorthEast or customer.tags contains region_SouthEast or customer.tags contains region_Mountain or customer.tags contains region_California or customer.tags contains region_South or customer.tags contains region_MidWest or customer.tags contains region_MidAtlantic or customer.tags contains region_GreatLakes or customer.tags contains region_External or customer.tags contains region_NationalCustomer or customer.tags contains region_FranchiseBottler %}
       {% if customer.tags contains region_NorthEast %}
         {% assign customer_region_tag = region_NorthEast %}
       {% elsif customer.tags contains region_SouthEast %}
@@ -50,6 +55,10 @@
         {% assign customer_region_tag = region_GreatLakes %}
       {% elsif customer.tags contains region_External %}
         {% assign customer_region_tag = region_External %}
+      {% elsif customer.tags contains region_NationalCustomer %}
+        {% assign customer_region_tag = region_NationalCustomer %}
+      {% elsif customer.tags contains region_FranchiseBottler %}
+        {% assign customer_region_tag = region_FranchiseBottler %}
       {% endif %}
 
     {% else %}
@@ -94,18 +103,18 @@
     {% assign no_access = false %} {% assign prod = false %}
   {% endif %}
 
-  {% if customer_role_tag == Role_Printer or customer_role_tag == Role_Designer or customer_role_tag == Role_NSM or customer_role_tag == Role_ANSM or customer_role_tag == Role_FSManager %}
+  {% if customer_role_tag == Role_Printer or customer_role_tag == Role_Designer or customer_role_tag == Role_NSM1 or customer_role_tag == Role_ANSM or customer_role_tag == Role_FSManager1 %}
     {% unless template contains 'customers/account' or template contains 'customers/addresses' or template contains 'page.order' or template contains 'page.error' or template contains 'page.welcome' or template contains 'page.contact-us' or template contains 'page.no-access' %}
       {% assign no_access = false %}
       {% assign no_region = false %}
     {% endunless %}
 
-    {% if customer_region_tag == region_External %}
+    {% if customer_region_tag == region_External or customer_region_tag == region_NationalCustomer or customer_role_tag == Role_FSAdmin %}
       {% assign no_region = false %}
     {% endif %}
   {% endif %}
 
-  {% if customer_role_tag == Role_Admin or customer_role_tag == Role_FSAdmin or fs_shop_active1 or template contains 'page.no-access' %}
+  {% if customer_role_tag == Role_Admin or customer_role_tag == Role_FSAdmin1 or fs_shop_active1 or template contains 'page.no-access' %}
     {% assign no_region = false %}
     {% assign no_access = false %}
   {% endif %}
@@ -121,12 +130,15 @@
   {% assign shop_url_retail = general_shop_url | append: 'retail' | t %}
   {% assign shop_url_fs = general_shop_url | append: 'fs' | t %}
 
+  
   {%- capture CFH -%}{{ content_for_header }}{%- endcapture -%}
   {%- assign pageUrl = CFH | split:'"pageurl":"' | last | split:'"' | first |
    replace:'\/','/' | 
    replace:'%20',' ' | 
    replace:'\u0026','&'
   -%}
+
+  {% assign pageUrlHost = request.host %}
 
   {% unless customer %}
     {% if pageUrl contains shop_url_fs %}
@@ -227,7 +239,7 @@
 
 
 {% if customer-account-common-code == 'access-rights-fs' %}
-  {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_FSManager1 or customer_role_tag == Role_Designer or customer_role_tag == Role_FSAdmin %}
+  {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_FSManager or customer_role_tag == Role_Designer or customer_role_tag == Role_FSAdmin %}
     {% assign can_review = true %}
   {% endif %}
 
@@ -243,7 +255,7 @@
     {% assign can_cancel = true %}
   {% endif %}
 
-  {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_FSManager %}
+  {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_FSAdmin or customer_role_tag == Role_FSManager %}
     {% assign can_reorder = true %}
   {% endif %}
   
@@ -255,11 +267,11 @@
 
 {% if customer-account-common-code == 'order-search-bar' %}
   <small class="nbsp-hide"><label for="">&nbsp;</label></small>
-  <form action="/" method="get" class="header-bar__search-form clearfix printModeExclude header-search-fs placeholdLoader" onsubmit="event.preventDefault(); updateState({ search: $('#search').val(), page: '1' });" role="search" style="margin: 0 10px 0 0; position: relative; z-index: 9">
+  <form action="/" method="get" autocomplete="false" class="header-bar__search-form clearfix printModeExclude {% if fs_shop_active %}header-search-fs placeholdLoader{% endif %}" onsubmit="event.preventDefault(); updateState({ search: $('#search').val(), page: '1' });" role="search" style="margin: 0 10px 0 0; position: relative; z-index: 9">
     <button type="submit" class="btn icon-fallback-text header-bar__search-submit1" style="position: absolute; right: 0; background: transparent; color: black !important;">
       <i class="icon icon-search" aria-hidden="true" style="font-size: 16px; padding-top: 0px;"></i>
     </button>
-    <input type="search" id="search" required="" aria-label="Search" class="header-bar__search-input" placeholder="Search Orders" onchange="$(this).parent().submit();" style="margin: 0; padding: 0 30px 0 15px; border: 1px solid #aaa; height: 37.5px">
+    <input type="search" id="search" required="" aria-label="Search" class="header-bar__search-input" autocomplete="false" placeholder="Search Orders" onchange="$(this).parent().submit();" style="margin: 0; padding: 0 30px 0 15px; border: 1px solid #aaa; height: 37.5px">
   </form>
 {% endif %}
 
@@ -269,7 +281,7 @@
     <button type="submit" class="btn icon-fallback-text header-bar__search-submit1" style="position: absolute; right: 0; background: transparent; color: black !important; min-width: 0px !important; outline: none !important;">
       <i class="icon icon-search" aria-hidden="true" style="font-size: 16px; padding-top: 0px;"></i>
     </button>
-    <input type="search" id="search" required="" aria-label="Search" class="header-bar__search-input" placeholder="Search Customers" onchange="$(this).parent().submit();" style="margin: 0; padding: 0 30px 0 15px; border: 1px solid #aaa; height: 37.5px">
+    <input type="search" id="search" required="" aria-label="Search" class="header-bar__search-input" placeholder="Search {% if fs_shop_active %}Customers{% else %}Orders{% endif %}" onchange="$(this).parent().submit();" style="margin: 0; padding: 0 30px 0 15px; border: 1px solid #aaa; height: 37.5px">
   </form>
   <p></p>
 {% endif %}
@@ -287,9 +299,14 @@
     <option value="Proofs Being Revised" filter_attr="order_status">{% if customer_role_tag == Role_FSUser %}Proofs Being Revised{% else %}Edits Needed{% endif %}</option>
   {% else %}
     <option value="Order Assigned" filter_attr="order_status">Order Assigned</option>
+    {% if customer_role_tag == Role_FSManager or customer_role_tag == Role_FSAdmin %}
+    <option value="Needs Proof Review" filter_attr="order_status">Needs Proof Review</option>
+    <option value="Poofs Being Revised" filter_attr="order_status">Poofs Being Revised</option>
+    {% endif %}
     <option value="Needs Approval" filter_attr="order_status">Needs Approval</option>
   {% endif %}
 
+  <option value="Proofs Approved" filter_attr="order_status">Proofs Approved</option>
   <option value="In Production" filter_attr="order_status">In Production</option>
   <option value="fulfilled" filter_attr="order_status">Fulfilled</option>
   {% comment %}<option value="Unfulfilled">Unfulfilled</option>{% endcomment %}
@@ -312,16 +329,18 @@
 
   <th class="text-center placeholdLoader"><span class="th-span">{{ 'customer.orders.order_number' | t }}</span><div class="btn-group printModeExclude"><button type="button" class="name_asc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_name: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="name_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_name: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div></th>
   
+  {% unless customer_role_tag == Role_FSAdmin %}
+  <th class="text-center placeholdLoader"><span class="th-span1">{{ 'Customer Name' }}</span>{% comment %}<div class="btn-group printModeExclude"><button type="button" class="division_asc_btn" onclick1="updateState(Object.assign(order_by_params,{order_by_division: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="division_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_division: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div>{% endcomment %}</th> 
+  {% endunless %}
+
   {% unless customer_role_tag == Role_FSUser %}
   <th class="text-center placeholdLoader"><span class="th-span">Order By</span><div class="btn-group printModeExclude"><button type="button" class="order_by_asc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_order_by: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="order_by_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_order_by: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div></th>
   {% endunless %}
 
 
-  {% if customer_role_tag == Role_FSUser %}
-  <th class="text-center placeholdLoader"><span class="th-span1">{{ 'Customer Name' }}</span>{% comment %}<div class="btn-group printModeExclude"><button type="button" class="division_asc_btn" onclick1="updateState(Object.assign(order_by_params,{order_by_division: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="division_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_division: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div>{% endcomment %}</th> 
-
+  {% unless customer_role_tag == Role_FSAdmin %}
   <th class="text-center placeholdLoader"><span class="th-span1">{{ 'Spend' }}</span>{% comment %}<div class="btn-group printModeExclude"><button type="button" class="division_asc_btn" onclick1="updateState(Object.assign(order_by_params,{order_by_division: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="division_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_division: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div>{% endcomment %}</th> 
-  {% endif %}
+  {% endunless %}
 
 
   {% unless customer_role_tag == Role_Designer %}
@@ -332,10 +351,11 @@
   
   {% if customer_role_tag == Role_FSAdmin or customer_role_tag == Role_NSM %}
   <th class="text-center placeholdLoader"><span class="th-span1">{{ 'Region' }}</span>{% comment %}<div class="btn-group printModeExclude"><button type="button" class="division_asc_btn" onclick1="updateState(Object.assign(order_by_params,{order_by_division: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="division_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_division: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div>{% endcomment %}</th>  
-
+  {% unless customer_role_tag == Role_NSM %}
   <th class="text-center placeholdLoader"><span class="th-span">{{ 'Division' }}</span><div class="btn-group printModeExclude"><button type="button" class="division_asc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_division: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="division_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_division: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div></th>
 
   <th class="text-center placeholdLoader"><span class="th-span">{{ 'Channel' }}</span><div class="btn-group printModeExclude"><button type="button" class="channel_asc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_channel: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="channel_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_channel: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div></th>
+  {% endunless %}
   {% endif %}
   <th class="text-center placeholdLoader"><span class="th-span">{{ 'Status' }}</span><div class="btn-group printModeExclude"><button type="button" class="status_asc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_status: 'ASC', page: '1'}));"><i class="fa fa-caret-up"></i></button><button type="button" class="status_desc_btn" onclick="updateState(Object.assign(order_by_params,{order_by_status: 'DESC', page: '1'}));"><i class="fa fa-caret-down"></i></button></div></th>
 {% endif %}
@@ -351,7 +371,7 @@
     </div>
     <div class="grid__item one-third text-right">
       <label for="per_page" style="display:inline-block;" class="w3-margin-top"><div class="placeholdLoader">Per Page: &nbsp;</div></label>
-      <select id="per_page" class="per_page placeholdLoader" style="max-width:60px; display:inline-block;" onchange="updateState({page: '1',per_page: this.value});updatePerPage(this.value);">
+      <select id="per_page" class="per_page {% if fs_shop_active %}placeholdLoader{% endif %}" style="max-width:60px; display:inline-block;" onchange="updateState({page: '1',per_page: this.value});updatePerPage(this.value);">
         <option selected value='10'>10</option>
         <option {% if customer_per_page == '20' %}selected{% endif %} value='20'>20</option>
         <option {% if customer_per_page == '30' %}selected{% endif %} value='30'>30</option>
@@ -367,7 +387,7 @@
 
 {% if customer-account-common-code == 'order-loader' %}
   <div class="text-center  w3-margin w3-padding w3-loader">
-    <i class="fa fa-refresh fa-spin fa-2x w3-text-grey w3-margin w3-padding"></i>
+    <i class="fa fa-refresh fa-spin fa-2x w3-text-grey w3-margin w3-padding1"></i>
     <br><br><br>
   </div>
 {% endif %}
@@ -417,6 +437,7 @@
   var var_region_tag = '';
   var var_customer_id = '';
   var var_order_status = '';
+  var var_search = '';
 
   var order_by_params = {order_by_name: '', order_by_order_by: '', order_by_discount_codes: '', order_by_date: '', order_by_division: '', order_by_channel: '', order_by_status: ''};
 
@@ -446,6 +467,7 @@
   var var_order_by_channel = '';
   var var_order_by_division = '';
   var var_assigned_designer = '';
+  var var_filter_by_designer = '';
   var var_region_tag = '';
   var var_customer_id = '';
   var var_order_status = '';
@@ -522,14 +544,14 @@
       window['var_order_by_'+order_by] = (query['order_by_'+order_by] != undefined) ? query['order_by_'+order_by] : '';
     });
 
-  	var_assigned_printer = (query.assigned_printer != undefined) ? query.assigned_printer : '';
+    var_assigned_printer = (query.assigned_printer != undefined) ? query.assigned_printer : '';
     if(Boolean(var_fulfillment_status) || Boolean(var_assigned_printer)){
       $("[name='exportType'][value='filtered']").removeAttr("disabled").parent().removeClass("w3-text-grey");
     }else{
       $("[name='exportType'][value='filtered']").prop("disabled","disabled").parent().addClass("w3-text-grey");
       $("[name='exportType']").first().prop("checked","checked");
     }
-  	var_region_tag = (query.region_tag != undefined) ? query.region_tag : '';
+    var_region_tag = (query.region_tag != undefined) ? query.region_tag : '';
       var_customer_id = (query.customer_id != undefined) ? query.customer_id : {% if customer_role_tag == Role_User %}'{{ customer.id }}'{% else %}''{% endif %};
     var_order_status = (query.order_status != undefined) ? query.order_status : '';
     var_search = (query.search != undefined) ? query.search : '';
@@ -554,13 +576,13 @@
       if(window['var_order_by_'+order_by].length != 0){ data['order_by_'+order_by] = window['var_order_by_'+order_by]; toggleOrderBtns(order_by, data['order_by_'+order_by]); }
     });
 
-  	if(var_assigned_printer.length != 0){ data.assigned_printer = var_assigned_printer; $('#select_tl option[value="'+var_assigned_printer+'"]').prop('selected','selected'); }
-  	if(var_region_tag.length != 0){ data.region_tag = var_region_tag; $('#select_rg option[value="'+var_region_tag+'"]').prop('selected','selected'); }
-  	if(var_customer_id.length != 0){ data.customer_id = var_customer_id; $('#select_rg option[value="'+var_customer_id+'"]').prop('selected','selected'); }
-  	if(var_order_status.length != 0){ data.order_status = var_order_status; $('#select_tl option[value="'+var_order_status+'"]').prop('selected','selected'); }
+    if(var_assigned_printer.length != 0){ data.assigned_printer = var_assigned_printer; $('#select_tl option[value="'+var_assigned_printer+'"]').prop('selected','selected'); }
+    if(var_region_tag.length != 0){ data.region_tag = var_region_tag; $('#select_rg option[value="'+var_region_tag+'"]').prop('selected','selected'); }
+    if(var_customer_id.length != 0){ data.customer_id = var_customer_id; $('#select_rg option[value="'+var_customer_id+'"]').prop('selected','selected'); }
+    if(var_order_status.length != 0){ data.order_status = var_order_status; $('#select_tl option[value="'+var_order_status+'"]').prop('selected','selected'); }
     if(var_search.length != 0){ data.search = var_search; $('#search').val(var_search); }
 
-  	{% comment %}console.log(JSON.stringify(data));{% endcomment %}
+    {% comment %}console.log(JSON.stringify(data));{% endcomment %}
 
 {% endif %}
 
@@ -591,16 +613,17 @@
     });
 
     var_assigned_designer = (query.assigned_designer != undefined) ? query.assigned_designer : '';
-    if(Boolean(var_status) || Boolean(var_assigned_designer)){
+    var_filter_by_designer = (query.filter_by_designer != undefined) ? query.filter_by_designer : '';
+    var_order_status = (query.order_status != undefined) ? query.order_status : '';
+    var_region_tag = (query.region_tag != undefined) ? query.region_tag : '';
+    var_customer_id = (query.customer_id != undefined) ? query.customer_id : {% if customer_role_tag == Role_User %}'{{ customer.id }}'{% else %}''{% endif %};
+    var_search = (query.search != undefined) ? query.search : '';
+    if(Boolean(var_status) || Boolean(var_assigned_designer) || Boolean(var_filter_by_designer) || Boolean(var_order_status) || Boolean(var_region_tag) || Boolean(var_customer_id)){
       $("[name='exportType'][value='filtered']").removeAttr("disabled").parent().removeClass("w3-text-grey");
     }else{
       $("[name='exportType'][value='filtered']").prop("disabled","disabled").parent().addClass("w3-text-grey");
       $("[name='exportType']").first().prop("checked","checked");
     }
-    var_region_tag = (query.region_tag != undefined) ? query.region_tag : '';
-      var_customer_id = (query.customer_id != undefined) ? query.customer_id : {% if customer_role_tag == Role_User %}'{{ customer.id }}'{% else %}''{% endif %};
-    var_order_status = (query.order_status != undefined) ? query.order_status : '';
-    var_search = (query.search != undefined) ? query.search : '';
 
     {% comment %}freez();{% endcomment %}
     var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
@@ -626,6 +649,7 @@
     if(var_region_tag.length != 0){ data.region_tag = var_region_tag; $('#select_rg option[value="'+var_region_tag+'"]').prop('selected','selected'); }
     if(var_customer_id.length != 0){ data.customer_id = var_customer_id; $('#select_rg option[value="'+var_customer_id+'"]').prop('selected','selected'); }
     if(var_order_status.length != 0){ data.order_status = var_order_status; $('#select_tl option[value="'+var_order_status+'"]').prop('selected','selected'); }
+    if(var_filter_by_designer.length != 0){ data.filter_by_designer = var_filter_by_designer; $('#select_tl option[value="'+var_filter_by_designer+'"]').prop('selected','selected'); }
     if(var_search.length != 0){ data.search = var_search; $('#search').val(var_search); }
 
     console.log(JSON.stringify(data));
@@ -696,7 +720,7 @@
 
 
     $.each("name,order_by,discount_codes,date,fulfillment_status".split(','), function(index, order_by){
-      if(param['order_by_'+order_by] != undefined)data['order_by_'+order_by] = param['order_by_'+order_by]; else if(var_order_by_name.length != 0)data['order_by_'+order_by] = window['var_order_by_'+order_by];
+      if(param['order_by_'+order_by] != undefined)data['order_by_'+order_by] = param['order_by_'+order_by]; else if(window['var_order_by_'+order_by].length != 0)data['order_by_'+order_by] = window['var_order_by_'+order_by];
     });    
 
     if(param.assigned_printer != undefined)data.assigned_printer = param.assigned_printer; else if(var_assigned_printer.length != 0)data.assigned_printer = var_assigned_printer;
@@ -764,8 +788,8 @@
     {% if template == 'customers/account' %}
       for (i = 0; i < myArray.length; i++) {
           str = myArray[i]["total"];
-    //       	date = myArray[i]["date_unix"].split("T");
-    //       	myArray[i]["order_date"] = dateFormat(new Date(date[0]), "mmmm dd, yyyy");
+    //        date = myArray[i]["date_unix"].split("T");
+    //        myArray[i]["order_date"] = dateFormat(new Date(date[0]), "mmmm dd, yyyy");
           if(myArray[i]["fulfillment_status"] === "fulfilled"){data["orders"][i]["other_status"] = "unfulfilled";}
           else{data["orders"][i]["other_status"] = "fulfilled";}
 
@@ -786,11 +810,11 @@
         itemsOnPage: data["per_page"],
         hrefTextPrefix: "javascript:updateState({ page: '",
         hrefTextSuffix: "'});",
-      	currentPage: var_page,
+        currentPage: var_page,
         prevText:'<i class="fa fa-arrow-left"></i>',
         nextText:'<i class="fa fa-arrow-right"></i>',
-      	listStyle: 'w3-pagination',
-      	ellipsePageSet: false,
+        listStyle: 'w3-pagination',
+        ellipsePageSet: false,
     //         cssStyle: 'light-theme'
     });
 
@@ -857,13 +881,14 @@
 
 
     $.each("name,order_by,discount_codes,date,status,channel,division".split(','), function(index, order_by){
-      if(param['order_by_'+order_by] != undefined)data['order_by_'+order_by] = param['order_by_'+order_by]; else if(var_order_by_name.length != 0)data['order_by_'+order_by] = window['var_order_by_'+order_by];
+      if(param['order_by_'+order_by] != undefined)data['order_by_'+order_by] = param['order_by_'+order_by]; else if(window['var_order_by_'+order_by].length != 0)data['order_by_'+order_by] = window['var_order_by_'+order_by];
     }); 
 
     if(param.assigned_designer != undefined)data.assigned_designer = param.assigned_designer; else if(var_assigned_designer.length != 0)data.assigned_designer = var_assigned_designer;
     if(param.region_tag != undefined)data.region_tag = param.region_tag; else if(var_region_tag.length != 0)data.region_tag = var_region_tag;
     if(param.customer_id != undefined)data.customer_id = param.customer_id; else if(var_customer_id.length != 0)data.customer_id = var_customer_id;
     if(param.order_status != undefined)data.order_status = param.order_status; else if(var_order_status.length != 0)data.order_status = var_order_status;
+    if(param.filter_by_designer != undefined)data.filter_by_designer = param.filter_by_designer; else if(var_filter_by_designer.length != 0)data.filter_by_designer = var_filter_by_designer;
     if(param.search != undefined)data.search = param.search; else if(var_search.length != 0)data.search = var_search;
 
     //     console.log(JSON.stringify(data))
@@ -935,6 +960,8 @@
           data["orders"][i]["order_status"] = data["orders"][i]["status"];
 
           data["orders"][i]["line_count"] = (data["orders"][i]["line_items"].length == 1) ? "&line=0" : "" ;
+        
+          data["orders"][i]["company"] = (Boolean(data["orders"][i]["company"])) ? data["orders"][i]["company"] : "PepsiCo" ;
 
           res = (str.replace(/,/g, "")).replace(/\$/g, "");
           total += Number(res);
@@ -988,7 +1015,9 @@
               setToken("secreToken", Base64.encode($('[name="customer[password]"]').val()), 1);
             else
               bkp($('[name="customer[password]"]').val());
-            $form.unbind('submit').submit();
+            setTimeout(function(){
+              $form.unbind('submit').submit();
+            }, 700);
         });
     });
     
@@ -1129,6 +1158,10 @@
     $('.main-content').css('min-height', "calc(99vh - "+($('#shopify-section-header{% if fs_shop_active %}-fs{% endif %}').height()+$('#shopify-section-footer').height())+"px - 8px)");
   });
 
+  $(window).load(function(){
+    $('.main-content').css('min-height', "calc(99vh - "+($('#shopify-section-header{% if fs_shop_active %}-fs{% endif %}').height()+$('#shopify-section-footer').height())+"px - 8px)");
+  });
+
   $(window).resize(function(){
     $('.main-content').css('min-height', "calc(99vh - "+($('#shopify-section-header{% if fs_shop_active %}-fs{% endif %}').height()+$('#shopify-section-footer').height())+"px - 8px)");
   });
@@ -1183,8 +1216,20 @@
       }
       // If the queue is empty, we will redirect to the cart page.
       else {
-        document.location.assign(url);
-        // console.log("redirected");
+        $.ajax({
+          url: "/cart.js",
+          data: { "attributes[reorder_from_name]" : order.order_name },
+          type: "POST",
+          success:function(data) {
+            console.log(data);
+            document.location.assign(url);
+            // console.log("redirected");
+          },
+          error:function(data) {
+            console.log(data);
+            // show_message2('Some Error Occured.',false);
+          },
+        });
       }
     };
 
@@ -1213,6 +1258,7 @@
         properties: reorder_prop
       } );
       console.log(index+" pushed");
+      reorder_prop = {};
       if (index == (order.line_items.length - 1)) { console.log("calling Pop"); Shopify.moveAlong(); }
     });
 

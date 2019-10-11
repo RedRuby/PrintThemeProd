@@ -6,7 +6,7 @@
     
     <div>
       
-      {% form 'contact' %}
+      {% form 'contact', onsubmit:"" %}
 
         {% if form.posted_successfully? or bypass %}
           {% if fs_shop_active %}
@@ -45,7 +45,7 @@
         <label for="ContactFormFirstName" class="label--hidden1">First Name</label>
         <input type="text" required id="ContactFormFirstName" name="contact[FirstName]" placeholder="First Name" autocapitalize="words" value="{% if form[name_attr] %}{{ form[name_attr] }}{% endif %}">
       
-      	<label for="ContactFormLastName" class="label--hidden1">Last Name</label>
+        <label for="ContactFormLastName" class="label--hidden1">Last Name</label>
         <input type="text" required id="ContactFormLastName" name="contact[LastName]" placeholder="Last Name" autocapitalize="words" value="{% if form[name_attr] %}{{ form[name_attr] }}{% endif %}">
 
         <label for="ContactFormEmail" class="label--hidden1">{{ 'contact.form.email' | t }}</label>
@@ -55,18 +55,18 @@
         <label for="ContactFormPhone" class="label--hidden1">{{ 'contact.form.phone' | t }}</label>
         <input type="tel" required id="ContactFormPhone" name="contact[{{ name_attr }}]" placeholder="{{ 'contact.form.phone' | t }}" pattern="[0-9\-]*" value="{% if form[name_attr] %}{{ form[name_attr] }}{% elsif customer %}{{ customer.phone }}{% endif %}">
       
-      	<label for="ContactFormStreet" class="label--hidden1">{{ 'contact.form.address' | t }}</label>
-      	<input id="ContactFormStreet" required type="text" name="contact[street]" valued="{{ shop.address.street }}">
+        <label for="ContactFormStreet" class="label--hidden1">{{ 'contact.form.address' | t }}</label>
+        <input id="ContactFormStreet" required type="text" name="contact[street]" valued="{{ shop.address.street }}">
       
-      	<label for="ContactFormCity" class="label--hidden1">{{ 'contact.form.city' | t }}</label>
+        <label for="ContactFormCity" class="label--hidden1">{{ 'contact.form.city' | t }}</label>
         <input id="ContactFormCity" required type="text" name="contact[city]" valued="{{ shop.address.city }}">
       
-      	<label for="ContactFormZip" class="label--hidden1">{{ 'contact.form.zip' | t }}</label>
+        <label for="ContactFormZip" class="label--hidden1">{{ 'contact.form.zip' | t }}</label>
         <input id="ContactFormZip" required type="text" name="contact[zip]" valued="{{ shop.address.zip }}">
       
-      	<label for="ContactFormProvince" class="label--hidden1">{{ 'contact.form.province' | t }}</label>
+        <label for="ContactFormProvince" class="label--hidden1">{{ 'contact.form.province' | t }}</label>
 <!--         <input id="ContactFormProvince" required type="text" name="contact[province]" valued="{{ shop.address.province }}"> -->
-      	<select title="Enter Province" required id="ContactFormProvince" name="contact[province]">
+        <select title="Enter Province" required id="ContactFormProvince" name="contact[province]">
           <option style="color:#666; background-color:lightgrey;" value="" disabled selected>State</option>
           <option style="color:#666; background-color:white;" value="AL">Alabama, AL</option>
           <option style="color:#666; background-color:white;" value="AK">Alaska, AK</option>
@@ -129,25 +129,32 @@
           <option value="Division:West">West</option>
           <option value="Division:Central">Central</option>
           <option value="Division:South">South</option>
+          <option value="Division:NationalCustomer">National Customer</option>
+          <option value='Division:FranchiseBottler'>Franchise Bottler</option>
         </select>
         
         <label for="ContactFormLegacyRegion" class="label--hidden1">{{ 'Legacy Region' }}</label>
         <select name="contact[legacy_region]" id="ContactFormLegacyRegion" required="">
           <option style="color:#666; background-color:lightgray;" value="" selected disabled>Select</option>
-          <option style="color:#666;" value='LegacyRegion:NorthEast'>NorthEast</option>
-          <option style="color:#666;" value='LegacyRegion:SouthEast'>Sunbelt</option>
-          <option style="color:#666;" value='LegacyRegion:California'>California</option>
-          <option style="color:#666;" value='LegacyRegion:MidAtlantic'>Metro Atlantic</option>
-          <option style="color:#666;" value='LegacyRegion:Mountain'>Mountain</option>
-          <option style="color:#666;" value='LegacyRegion:MidWest'>MidWest</option>
-          <option style="color:#666;" value='LegacyRegion:S0uth'>South</option>
-          <option style="color:#666;" value='LegacyRegion:GreatLakes'>Great Lakes</option>
+          <option style="color:#666;" value='Region:California'>California</option>
+          <option style="color:#666;" value='Region:FranchiseBottler'>Franchise Bottler</option>
+          <option style="color:#666;" value='Region:GreatLakes'>Great Lakes</option>
+          <option style="color:#666;" value='Region:MidAtlantic'>Mid-Atlantic</option>
+          <option style="color:#666;" value='Region:Mountain'>Mountain</option>
+          <option style="color:#666;" value='Region:MidWest'>Midwest</option>
+          <option style="color:#666;" value='Region:NationalCustomer'>National Customer</option>
+          <option style="color:#666;" value='Region:NorthEast'>Northeast</option>
+          <option style="color:#666;" value='Region:S0uth'>South</option>
+          <option style="color:#666;" value='Region:SouthEast'>Southeast</option>
         </select>
+
+        <input type="hidden" name="contact[modregion]">
+        <input type="hidden" name="contact[moddivision]">
 
         <label for="ContactFormChannel" class="label--hidden1">{{ 'Channel' }}</label>
         <select name="contact[channel]" id="ContactFormChannel" required="">
           <option value="">Select</option>
-          {% assign channels = "general.mod_channels" | t | split: "," %}
+          {% assign channels = "general.mod_channels" | t | split: "," | sort %}
           {% for channel in channels %}
           <option value="Channel:{{ channel }}">{{ channel }}</option>
           {% endfor %}
@@ -155,14 +162,14 @@
         {% endif %}
 
         <label for="ContactFormCountry" class="label--hidden1">{{ 'contact.form.country' | t }}</label>
-        <input id="ContactFormCountry" required type="text" name="contact[country]" value="{{ shop.address.country }}"> 
+        <input id="ContactFormCountry" readonly required type="text" name="contact[country]" value="{{ shop.address.country }}"> 
       
-{%comment%} 
+        {%comment%} 
         <label for="ContactFormCompanyName" class="label--hidden1">Company Name</label>
         <input type="text" required id="ContactFormCompanyName" name="contact[CompanyName]" placeholder="Company Name">
 
-      	<label for="ContactFormFunction" class="label--hidden1">Function</label>
-      	<select name="contact[function]" title="Function" required id="ContactFormFunction" style="color: rgb(163,163,163);" onchange="this.style.color = '#666';" >
+        <label for="ContactFormFunction" class="label--hidden1">Function</label>
+        <select name="contact[function]" title="Function" required id="ContactFormFunction" style="color: rgb(163,163,163);" onchange="this.style.color = '#666';" >
           <option style="color:#666; background-color:lightgray;" value="" selected disabled>Select Function</option>
           <option style="color:#666;" value='ASM'>ASM</option>
           <option style="color:#666;" value='Printer'>Printer</option>
@@ -171,59 +178,65 @@
           <option style="color:#666;" value='All Other'>All Other</option>
         </select>
 
-     	<label for="ContactFormMarket" class="label--hidden1">Market</label>
+      <label for="ContactFormMarket" class="label--hidden1">Market</label>
         <input type="text" id="ContactFormMarket" name="contact[Market]" placeholder="Market">
-{%endcomment%}
-      	<label for="ContactFormRegion" class="label--hidden1">Region</label>
-      	<select name="contact[Region]" title="Region" required oninvalid="this.setCustomValidity('Must select the region you are associated with.')" onchange="this.setCustomValidity('')" id="ContactFormRegion" style="color: #666;" onchange="this.style.color = '#000';" >
+    {%endcomment%}
+        
+        {% unless fs_shop_active %}
+        <label for="ContactFormRegion" class="label--hidden1">Region</label>
+        <select name="contact[Region]" title="Region" required oninvalid="this.setCustomValidity('Must select the region you are associated with.')" onchange="this.setCustomValidity('')" id="ContactFormRegion" style="color: #666;" onchange="this.style.color = '#000';" >
           <option style="color:#666; background-color:lightgray;" value="" selected disabled>Select Region</option>
-          <option style="color:#666;" value='Region:NorthEast'>NorthEast</option>
-          <option style="color:#666;" value='Region:SouthEast'>Sunbelt</option>
-          <option style="color:#666;" value='Region:California'>California</option>
-          <option style="color:#666;" value='Region:MidAtlantic'>Metro Atlantic</option>
-          <option style="color:#666;" value='Region:Mountain'>Mountain</option>
+          <option style="color:#666;" value='Region:California'>California/Mountain</option>
+          <option style="color:#666;" value='Region:GreatLakes'>Great Lakes/NorthEast</option>
+          <option style="color:#666;" value='Region:MidAtlantic'>Mid-Atlantic/MetroAtlantic</option>
+<!--           <option style="color:#666;" value='Region:Mountain'>Mountain</option> -->
           <option style="color:#666;" value='Region:MidWest'>MidWest</option>
+<!--           <option style="color:#666;" value='Region:NorthEast'>NorthEast</option> -->
           <option style="color:#666;" value='Region:S0uth'>South</option>
-    		  <option style="color:#666;" value='Region:GreatLakes'>Great Lakes</option>
+          <option style="color:#666;" value='Region:SouthEast'>SouthEast/Sunbelt</option>
         </select>
-      	
-      	<label for="ContactFormRole" class="label--hidden1">Do you have people reporting to you whose orders you would like to see ?</label>
-      	<select name="contact[userRole]" title="Role" required id="ContactFormRegion" style="color: #666;" onchange="this.style.color = '#000';" > 
-          {% if fs_shop_active %}
-          <option style="color:#666;" value='Role:FSManager'>Yes</option>
+        {% endunless %}
+
+        {% if fs_shop_active %}
+        <label for="ContactFormRole" class="label--hidden1">Do you have budget approver responsibilities ?</label>
+        <select name="contact[userRole]" title="Role" required id="ContactFormRegion" style="color: #666;" onchange="this.style.color = '#000';" > 
           <option style="color:#666;" selected value='Role:FSUser'>No</option>
-          {% else %}
-          <option style="color:#666;" value='Role:UserManager'>Yes</option>
+          <option style="color:#666;" value='Role:ChannelManager'>Yes</option>
+        </select>
+        {% else %}
+        <label for="ContactFormRole" class="label--hidden1">Do you have people reporting to you whose orders you would like to see ?</label>
+        <select name="contact[userRole]" title="Role" required id="ContactFormRegion" style="color: #666;" onchange="this.style.color = '#000';" > 
           <option style="color:#666;" selected value='Role:SiteUser'>No</option>
+          <option style="color:#666;" value='Role:UserManager'>Yes</option>
           {% endif %}
         </select>
       
-		{% comment %}
-      	<input class="text-center1" type="text" required id="ContactFormRole" disabled name="" placeholder="" value="Do you have people reporting to you whose orders you would like to see ?">
-      	<div class="text-center">
+    {% comment %}
+        <input class="text-center1" type="text" required id="ContactFormRole" disabled name="" placeholder="" value="Do you have people reporting to you whose orders you would like to see ?">
+        <div class="text-center">
           <label  style="display:initial;"><input type="radio" value="Role:UserManager" name="contact[userRole]"/> Yes</label>
           <label  style="display:initial; padding-left:20px;"><input type="radio" checked="checked" value="Role:SiteUser" name="contact[userRole]"/> No</label>
-      	</div>      	
-      	
-      	<label for="ContactFormPass" class="label--hidden1">Password</label>
-      	<input id="ContactFormPass" required type="password" name="" value="">
-      	<label for="ContactFormConfirmPass" class="label--hidden1">Confirm Password</label>
-      	<input id="ContactFormConfirmPass" required type="password" name="" value="">
-      	
+        </div>        
+        
+        <label for="ContactFormPass" class="label--hidden1">Password</label>
+        <input id="ContactFormPass" required type="password" name="" value="">
+        <label for="ContactFormConfirmPass" class="label--hidden1">Confirm Password</label>
+        <input id="ContactFormConfirmPass" required type="password" name="" value="">
+        
         <div class="hidden">
           <input id="ContactFormStreet" type="hidden" name="" value="{{ shop.address.street }}">
           <input id="ContactFormCity" type="hidden" name="" value="{{ shop.address.city }}">
           <input id="ContactFormProvince" type="hidden" name="" value="{{ shop.address.province }}">
           <input id="ContactFormZip" type="hidden" name="" value="{{ shop.address.zip }}">
           <input id="ContactFormCountry" type="hidden" name="" readonly value="{{ shop.address.country }}">
-<!--           <input id="ContactFormMarket" type="hidden" name="" value="{{ shop.address.street }}"> -->
+          <!-- <input id="ContactFormMarket" type="hidden" name="" value="{{ shop.address.street }}"> -->
         </div>
-      	{% endcomment %}
+        {% endcomment %}
       
-      	<div style="padding-top:50px;" class="text-center">
+        <div style="padding-top:50px;" class="text-center">
         <input type="submit" class="btn btn-primary" value="Submit Registration Request">
           <br><br><a href="/account/login" class="btn">Cancel</a>
-      	</div>
+        </div>
       {% endif %}
       {% endform %}
       
@@ -248,7 +261,7 @@
   $('#contact_form').bind('submit', function(e, obj){ 
     e.preventDefault();
     if(isIE())
-      iePause();	
+      iePause();  
     else
       ajaxSubmit();
   });
@@ -256,7 +269,7 @@
   function ajaxSubmit(){
   
     freez();
-  	
+    
     var data = { customer : {} };
     
     data.customer["first_name"] = $('#ContactFormFirstName').val();
@@ -274,8 +287,13 @@
 
     {% if fs_shop_active %}
     data.customer["division"] = $('#ContactFormDivision').val();
+    data.customer["region"] = $('#ContactFormLegacyRegion').val();
     data.customer["legacy_region"] = $('#ContactFormLegacyRegion').val();
     data.customer["channel"] = $('#ContactFormChannel').val();
+    data.customer["moddivision"] = $('#ContactFormDivision').val().replace(':', 'MOD:');
+    data.customer["modregion"] = $('#ContactFormLegacyRegion').val().replace(':', 'MOD:');
+    $('[name="contact[modregion]"]').val(data.customer["modregion"]);
+    $('[name="contact[moddivision]"]').val(data.customer["moddivision"]);
     {% endif %}
     
     formData = JSON.stringify(data);
@@ -297,8 +315,8 @@
             202:function() { console.log("202"); }
           },
           success: function(data){
-            	console.log(JSON.stringify(data));
-            	
+              console.log(JSON.stringify(data));
+              
                 if(200 === Number(data.status)){ console.log("unbiding");
                   if(formData.toLowerCase().indexOf("test") == -1){
                     $('#contact_form').unbind('submit').delay(500).submit();
@@ -306,28 +324,28 @@
                     show_message2("Test account created, activation link sent to your email. ",true);
                     setTimeout(function(){ window.location.assign('/account/login'); },4000);
                   }
-                  	
+                    
                 }else if(401 === Number(data.status)){
-                	show_message2(data.message,false);
+                  show_message2(data.message,false);
                 }else{
-                	show_message2(data.message,false); 
+                  show_message2(data.message,false); 
                   console.log('else');
                 }
            
             
-            	
+              
           },
           error: function(data){
             show_message2(((data.message != undefined) ? data.message : 'Some Error Occured.'),false);
           }
           
-	 });
+   });
     
     
     
     //return false;
   
- 	
+  
   }
   
   

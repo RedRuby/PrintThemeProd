@@ -97,6 +97,7 @@
         {% endif %}
         {% endunless %}
 
+        {% unless fs_shop_active %}
         {% if on_sale %}
         <span class="visually-hidden">{{ 'products.product.regular_price' | t }}</span>
         <s class="grid-link__sale_price">{{ featured.compare_at_price | money }}</s>
@@ -111,6 +112,7 @@
           {% endif %}
           {{ price }}
         {% endif %}
+        {% endunless %}
       </p>
     {% endif %}
     </div>

@@ -3,7 +3,7 @@
 
 {% if customer.tags contains Role_NSM %}
   {% if product.tags contains customer_region_tag %}
-	<style>#nav-2 li:nth-of-type(1) button{background-color: {{ settings.color_primary }};}</style>
+  <style>#nav-2 li:nth-of-type(1) button{background-color: {{ settings.color_primary }};}</style>
   {% else %}
     <style>#nav-2 li:nth-of-type(2) button{background-color: {{ settings.color_primary }};}</style>
   {% endif %}
@@ -11,7 +11,7 @@
 
 {% comment %}
 {% unless product.tags contains customer_region_tag %}
-	<meta content="0; url={{shop.secure_url}}/pages/catalog" http-equiv="refresh" />
+  <meta content="0; url={{shop.secure_url}}/pages/catalog" http-equiv="refresh" />
 {% endunless %}
 {% endcomment %}
 
@@ -28,27 +28,33 @@
     <div class="grid product-single__hero">
       <div class="grid__item post-large--seven-twelfths">
 
-        {% if section.settings.product_thumbnails_position == 'below' or product.images.size < 2 %}
-
+        {% if section.settings.product_thumbnails_position == 'below' or product.images.size > 10 %}
+          
           <div class="product-single__photos" id="ProductPhoto">
             {% assign featured_image = product.selected_or_first_available_variant.featured_image | default: product.featured_image %}
             <img src="{{ featured_image | img_url: '1024x1024' }}" alt="{{ featured_image.alt | escape }}" id="ProductPhotoImg"{% if section.settings.product_image_zoom_type == 'zoom-in' %} data-zoom="{{ featured_image | img_url: '1024x1024' }}"{% endif %}{% if section.settings.product_image_zoom_type == 'lightbox' %} class="zoom-lightbox"{% endif %} data-image-id="{{ featured_image.id }}">
           </div>
-
+        
+          {% capture thumb %}
           {% if product.images.size > 1 %}
 
             <ul class="product-single__thumbnails grid-uniform" id="ProductThumbs">
               {% for image in product.images %}
-                <li class="grid__item wide--one-quarter large--one-third medium-down--one-third">
+                <li class="grid__item {% if product.images.size > 10 %}wide--one-sixth{% else %}wide--one-quarter{% endif %} large--one-third medium-down--one-third">
                   <a data-image-id="{{ image.id }}" href="{{ image.src | img_url: '1024x1024' }}" class="product-single__thumbnail">
+                    {% if product.images.size > 10 %}
+                    <img src="{{ image.src | img_url: '60x60' }}" alt="{{ image.alt | escape }}">
+                    {% else %}
                     <img src="{{ image.src | img_url: 'grande' }}" alt="{{ image.alt | escape }}">
+                    {% endif %}
                   </a>
                 </li>
               {% endfor %}
             </ul>
 
           {% endif %}
-
+          {% endcapture %}
+          {% unless product.tags contains "ImageDownload" %}{{ thumb }}{% endunless %}
         {% else %}
 
           <div class="grid">
@@ -90,6 +96,57 @@
           <span class="h3" itemprop="brand">{{ product.vendor }}</span>
         {% endif %}
         <h1 itemprop="name">{{ product.title }}</h1>
+        
+        {% if product.tags contains "DownloadOnly" and product.tags contains "ImageDownload" and product.images.size > 1 %}
+          <h3>Click on the large image to download</h3>
+          <br>
+          <script>
+            $('#ProductPhoto').on('click', function(){
+              setTimeout($('.mfp-close').last().after('<a target="_blank" href="https:'+ $('.mfp-img').attr('src').split('?v=')[0].replace('_1024x1024', '') +'"download download1="'+ $('.mfp-img').attr('src').split('/').reverse()[0].split('?v=')[0].replace('_1024x1024', '') +'" title="Click Here To Download Image" class="img_download_btn mfp-prevent-close" style="position: absolute; padding: 33px 37px; color: black; font-size: 122%; right: 80px; z-index: 1047;"><button type="button" class="btn btn--secondary">Click Here To Download</button></a>'), 1500)
+            });
+
+            $('body').on('click', '.mfp-arrow', function(){
+              $('.img_download_btn').attr({'href': $('.mfp-img').attr('src').split('?v=')[0].replace('_1024x1024', ''), 'download1': $('.mfp-img').attr('src').split('/').reverse()[0].split('?v=')[0].replace('_1024x1024', '')});
+            });
+
+            function dataURLtoBlob(dataurl) {   
+                var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],    
+                    bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);    
+                while(n--){   
+                    u8arr[n] = bstr.charCodeAt(n);    
+                }   
+                return new Blob([u8arr], {type:mime});    
+            }   
+            $(document).on('click', 'a[title="Click Here To Download Image"]', function (event) {   
+                event.preventDefault();   
+                var img = new Image();    
+                img.crossOrigin = 'Anonymous';    
+                img.onload = function() {   
+                  var canvas = document.createElement('CANVAS');    
+                  var ctx = canvas.getContext('2d');    
+                  var dataURL;    
+                  canvas.height = this.height;    
+                  canvas.width = this.width;    
+                  ctx.drawImage(this, 0, 0);    
+                  dataURL = canvas.toDataURL("image/"+extension);   
+                  var blob = dataURLtoBlob(dataURL);    
+                  var objURL = URL.createObjectURL(blob);   
+                  var element = document.createElement('a');    
+                  element.setAttribute('href', objURL);   
+                      
+                  element.setAttribute('download', filename);   
+                  document.body.appendChild(element);   
+                  element.click();    
+                  document.body.removeChild(element);   
+                };    
+                url = $(this).attr('href');   
+                filename = url.split('/').reverse()[0];   
+                extension = filename.toLowerCase().match(/\.([^\.]+)$/)[1];   
+                img.src = url;    
+            });
+          </script>
+          {{ thumb }}
+        {% endif %}
 
         <div itemprop="offers" itemscope itemtype="http://schema.org/Offer">
           {% assign variant = product.selected_or_first_available_variant %}
@@ -97,7 +154,7 @@
           <meta itemprop="priceCurrency" content="{{ shop.currency }}">
           <link itemprop="availability" href="http://schema.org/{% if product.available %}InStock{% else %}OutOfStock{% endif %}">
 
-          <div class="product-single__prices">
+          <div class="product-single__prices {% if product.tags contains "DownloadOnly" %}visually-hidden{% endif %}">
             {% if product.compare_at_price > product.price %}
               <span id="ComparePriceA11y" class="visually-hidden">{{ 'products.product.sale_price' | t }}</span>
             {% else %}
@@ -122,62 +179,72 @@
           {% endfor %}
 
           <div class="product-description rte" itemprop="description">
-            <p>{{ product.description }}</p>
+            
+            {% unless product.tags contains "DownloadOnly" %}
+              <p>{{ product.description }}</p>
+            {% elsif product.description.size > 1 %}
+              <br>
+              {% if product.description contains ',' %}
+                {% assign multiple_files = true %}
+              {% endif %}
+              {% if multiple_files != true and product.description contains '.pdf' or product.description contains '.PDF' %}
+              <br /> 
+                <a target="_blank" title="Download" 
+                   href="{{ product.description | strip_html | strip_new_line | strip }}?disposition=attachment" rel="noopener noreferrer"> 
+                  <button type="button" class="btn btn--secondary"> 
+                    <span>Download PDF &nbsp;<i class="fa fa-download"></i></span> 
+                  </button> 
+                </a>
+              {% elsif product.description contains '.jpg' or product.description contains '.png' %}
+              <br /> 
+                <a target="_blank" title="Download" 
+                   href="{{ product.description | strip_html | strip_new_line | strip }}"> 
+                  <button type="button" class="btn btn--secondary"> 
+                    <span>Download Image &nbsp;<i class="fa fa-download"></i></span> 
+                  </button> 
+                </a>
+              {% elsif product.description contains '.mp4' or product.description contains '.mov' %}
+              {% if product.description contains '.mp4' %}
+              <video poster="{{ product.featured_image.src | img_url: 'grande' }}" preload="none" controls="controls" playsinline="" width="100%" height="100%" class="media_embed_dynamic" data-target="media-embed.media" 
+                       src="{{ product.description | strip_html | strip_new_line | strip }}"></video> 
+              {% endif %}
+                <br /> 
+                <a target="_blank" title="Download" download="{{ product.description | strip_html | strip_new_line | strip | split: "/" | last | escape }}"
+                   href="{{ product.description | strip_html | strip_new_line | strip }}" rel1="noopener noreferrer"> 
+                  <button type="button" class="btn btn--secondary"> 
+                    <span>Download Video &nbsp;<i class="fa fa-download"></i></span> 
+                  </button> 
+                </a>
+              {% elsif product.description contains 'http' %}
+              <br /> 
+              {% assign urls = product.description | strip_html | strip_new_line | strip | split: "," %}
+              {% for url in urls %}
+                <a target="_blank" title="Download" 
+                   href="{{ url }}"> 
+                  <button type="button" class="btn btn--secondary btn--full"> 
+                    <span>Download {{ url | split: '/' | last | split: '?' | first | url_decode }} &nbsp;<i class="fa fa-download"></i></span> 
+                  </button> 
+                </a>
+              <br /> <br /> 
+              {% endfor %}
+              {% endif %}
+            {% endunless %}
+            
+            
             {% if has_post_descipt_note %}
             <p><i>All requests are subject to approval.</i></p>
             {% endif %}
 
             {% for variant in product.variants %}
-
-              {% if variant.option1 == 'Wallpaper' %}
-                {% assign wallpaper = true %}
-
-              {% elsif variant.option1 == 'Fountain Backsplash' %}
-              	{% if variant.option2 == blank or variant.option2 == 'Default' %}
-                    {% assign fountain_backsplash = true %}
-                    <p>Your measurements must be of the space from top to bottom and between the screws NOT the full width. This will give the graphic better durability and quality upon installation.</p>
-        				{% endif %}
-
-              {% elsif variant.option1 == 'Fountain Back' %}
-              	{% if variant.option2 == blank or variant.option2 == 'Default' %}
-                    {% assign fountain_back = true %}
-                    <p>Please select the appropriate version you are looking for in the lower dropdown. Partnership layouts can either include the third party logo or just the wording as requested.</p>
-        				{% endif %}
-
-              {% elsif variant.option1 == 'Cooler Vault Wrap' %}
-                {% assign cooler_vault_wrap = true %}
-
-              {% elsif variant.option1 == 'Store Banner' %}
-                {% assign store_banner = true %}
-
-              {% elsif variant.option1 == 'Cooler Header' %}
-                {% assign cooler_header = true %}
-
-              {% elsif variant.option1 == '2 x 3 Window Mesh Poster' %}
-              	{% if variant.option2 == blank or variant.option2 == 'Default' %}
-                    {% assign store_banner = true %}
-                    <p>2 x 3 Window Mesh Posters under Paint the Town are printed on view-through window mesh and are the only available option for pricing on windows.</p>
-        				{% endif %}
-
-              {% elsif variant.option1 == 'Window Mesh' %}
-              	{% if variant.option2 == blank or variant.option2 == 'Default' %}
-                    {% assign window_mesh = true %}
-                    <div align="center"><span color="#444444"><i><img src="https://cdn.shopify.com/s/files/1/0415/9233/files/Screen_shot_2014-06-17_at_1.27.15_PM_large.png?10392" data-mfp-src="https://cdn.shopify.com/s/files/1/0415/9233/files/Screen_shot_2014-06-17_at_1.27.15_PM.png?10392" class="zoom-lightbox-modal zoom-lightbox" /></i></span></div>
-                    <p>An Image of the space you are covering is required
-    (hint: order via your iPad and upload right from your gallery!)
-    Not required but really helpful is an Excel Map of the space you are covering if the space is more than 6 windows ...<br>Above is a sample of what these maps could look like.</p>
-        				{% endif %}
-              {% elsif variant.option1 == 'Frosted Decals' %}
-              	{% if variant.option2 == blank or variant.option2 == 'Default' %}
-                    {% assign window_mesh = true %}
-                    <p>Quantity 1-10: $20.82 each<br /><br />Quantity: 10-50: $14.75 each<br /><br />Quantity 50-100: $10.24 each<br /><br />Quantity 100+: $8.87 each</p>
-        				{% endif %}
-
+              {% assign variant_option1 = variant.option1 | downcase %}
+              {% if variant_option1 contains 'custom size' %}
+                {% assign custom_size = true %}
+              {% break %}
               {% endif %}
             {% endfor %}
           </div>
 
-          <form action="/cart/add" method="post" enctype="multipart/form-data" id="AddToCartForm" class="" onsubmit="detectIE();">
+          <form action="/cart/add" method="post" enctype="multipart/form-data" id="AddToCartForm" class="" onsubmit="detectIE(); addCartClass();">
 
             {% if product.available and product.variants.size > 0 %}
 
@@ -197,8 +264,8 @@
                     {% if variant.title contains 'Default' %} {% assign custom_available = false %} {% assign select_index = forloop.index0 %} {% break %} {% endif %}
 
                   {% endif %}
-              	{% endfor %}
-              {% endif %}	<script> console.log('{{select_index}}'); </script>
+                {% endfor %}
+              {% endif %} <script> console.log('{{select_index}}'); </script>
 
               {% assign selected = false %}
 
@@ -206,7 +273,7 @@
                <select name="id" id="productSelect" class="product-single__variants">
                  {% assign pass = false %}
                   {% for variant in product.variants %}
-                 	{% assign variant_price_value = variant.price | money_without_currency %}
+                  {% assign variant_price_value = variant.price | money_without_currency %}
                     {% if variant.available %}
                       <option {% if variant == product.selected_or_first_available_variant or pass == true %} {% if  variant_price_value != '0.00' %} selected="selected" {% assign pass = false %} {% else %} {% assign pass = true %} {% endif %} {% endif %} data-sku="{{ variant.sku }}" value="{{ variant.id }}">{{ variant.title }} - {{ variant.price | money_with_currency }}</option>
                     {% else %}
@@ -230,9 +297,9 @@
                  {% assign pass = false %}
                  {% assign index = -1 %}
                   {% for variant in product.variants %}
-                 	{% assign variant_title_array = variant.title | split: ' / ' %}
+                  {% assign variant_title_array = variant.title | split: ' / ' %}
                     {% assign check = false %}
-                 	{% if variant.option2 %}
+                  {% if variant.option2 %}
                       {% assign check_variant_option2 = true %}
                       {% for variant1 in product.variants %}
                         {% assign variant_title_array4custom = variant1.title | split: ' / ' %}
@@ -253,7 +320,7 @@
                     {% else %}
                       {% continue %}
                     {% endif %}
-                 	{% assign variant_price_value = variant.price | money_without_currency %}
+                  {% assign variant_price_value = variant.price | money_without_currency %}
                     {% if variant.available and variant_price_value != '0.00' %}
                       <option index="{{ index }}" variant="{{variant.title}}" {% if variant == product.selected_or_first_available_variant or pass == true %} {% if  variant_price_value != '0.00' %} selected="selected" {% assign pass = false %} {% else %} {% assign pass = true %} {% endif %} {% endif %} data-sku="{{ variant.sku }}" value="{{ variant.id }}">{{ variant.option1 }}</option>
                     {% else %}
@@ -271,35 +338,14 @@
 
             {% include 'product-customizer' %}
 
+            {% if custom_size or true %}
             <div class="hide">
-              {% if window_mesh %}
-                  <label for="">Total Window Area(H x W) in sq. inch</label>
-                  <input type="text" readonly disabled1 name="properties[__Total Window Area(H x W)]" value="1"/>
-                  <label for="">Window Mesh Calculated Unit Price</label>
-                  <input type="text" readonly disabled1 name="properties[__Window Mesh Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
-              {% elsif wallpaper %}
-                  <input type="text" readonly disabled1 name="properties[__Total Wallpaper Area(H x W)]" value="1"/>
-                  <input type="text" readonly disabled1 name="properties[__Wallpaper Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
-              {% elsif fountain_back %}
-                  <input type="text" readonly disabled1 name="properties[__Total Fountain Back Area(H x W)]" value="1"/>
-                  <input type="text" readonly disabled1 name="properties[__Fountain Back Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
-              {% elsif fountain_backsplash %}
-                  <input type="text" readonly disabled1 name="properties[__Total Fountain Backsplash Area(H x W)]" value="1"/>
-                  <input type="text" readonly disabled1 name="properties[__Fountain Backsplash Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
-              {% elsif cooler_vault_wrap %}
-                  <input type="text" readonly disabled1 name="properties[__Total Cooler Vault Wrap Area(H x W)]" value="1"/>
-                  <input type="text" readonly disabled1 name="properties[__Cooler Vault Wrap Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
-              {% elsif store_banner %}
-                  <input type="text" readonly disabled1 name="properties[__Total Store Banner Area(H x W)]" value="1"/>
-                  <input type="text" readonly disabled1 name="properties[__Store Banner Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
-              {% elsif cooler_header %}
-                  <input type="text" readonly disabled1 name="properties[__Total Cooler Header Area(H x W)]" value="1"/>
-                  <input type="text" readonly disabled1 name="properties[__Cooler Header Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
-              {% else %}
-
-              {% endif %}
+              <input type="text" readonly disabled1 name="properties[__Total Area(H x W)]" value="1"/>
+              <input type="text" readonly disabled1 name="properties[__Calculated Unit Price]" value="" value1="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
             </div>
+            {% endif %}
 
+            {% unless product.tags contains "DownloadOnly" %}
             <div class="product-single__quantity{% unless section.settings.product_quantity_enable %} is-hidden{% endunless %}">
               <label for="Quantity">{{ 'products.product.quantity' | t }}</label>
               <input type="number" id="Quantity" name="quantity" value="1" min="1" class="quantity-selector">
@@ -310,7 +356,7 @@
             <button type="submit" disabled name="add" id="AddToCart" class="btn hide">
               <span id="AddToCartText">{{ 'products.product.add_to_cart' | t }}</span>
             </button>
-            <button type="button" disabled id="AddToCart2" class="btn--secondary" {% if product.tags contains customer_region_tag %}onclick="logSession(this);{% endif %}">
+            <button type="button" disabled id="AddToCart2" class="btn--secondary" {% if cart.items.size <= max_allowed_item_count and product.type == "MOD" and product.tags contains customer_region_tag or can_order %}onclick="logSession(this);"{% else %}title="{{ max_cart_count_message }}"{% endif %}>
               <span id="AddToCartText2">{{ 'products.product.add_to_cart' | t }}</span>
             </button>
 
@@ -318,12 +364,14 @@
               <p></p>
               <small class="h6"><b>Note: </b><h3 style="font-weight:normal; display:inline-block;">Quantity will be entered during checkout.</h3></small>
             </div>
+            {% endunless %}
+            
             {% comment %}
             <br><br>
             <button type="button" class="btn" onclick="window.location.assign('/pages/catalog');" >Continue Shopping</button>
             <br><br>
             <button type="button" class="btn" onclick="detectIE('/pages/locations');" >Start Checkout Process</button>
-      			{% endcomment %}
+            {% endcomment %}
             <input id="return_to" name="return_to" value="{{ product.url | split: '.com' | last }}" type="hidden">
 
             {% comment %}
@@ -363,6 +411,10 @@
     {{ product | json }}
   </script>
 {% endunless %}
+
+<script type="text/javascript">
+  console.log(prod = {{product | json}});
+</script>
 
 {{ 'option_selection.js' | shopify_asset_url | script_tag }}
 
@@ -455,7 +507,7 @@
 <script>
     window.prefill_data = false;
 
-  	$.fn.extend({
+    $.fn.extend({
         animateCss: function (animationName) {
             var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
             this.addClass('animated ' + animationName).one(animationEnd, function() {
@@ -474,25 +526,28 @@
         $('#ProductPrice').show('slow'); //product.tags contains customer_region_tag and 
       {% endif %}
       
-      {% if can_order %} 
-      	if($('#AddToCart').is(':enabled') || $('[name = "id"]').length > 0)
+      {% if can_order and product.type == "MOD" and cart.items.size <= max_allowed_item_count %} 
+        if($('#AddToCart').is(':enabled') || $('[name = "id"]').length > 0)
           $('#AddToCart2, #AddToCart').removeAttr('disabled');
       {% endif %}
       $('#productSelect-option-0').bind('change', function(e) {
         $('#ProductPrice').show('slow'); //product.tags contains customer_region_tag and
-       	var url = document.URL.split(location.host)[1]; //.split('?')[0]
+        var url = document.URL.split(location.host)[1]; //.split('?')[0]
         // console.log(url);
-      	$('#return_to').val(url);
+        $('#return_to').val(url);
         if($(this).text().indexOf('Banner') !== -1){
           setBSO($(this).find('option:selected').text());
         }
+        checkCustomPrice($('#productSelect-option-0')[0]);
+        
+        $('[name="properties[Printing]"]').trigger('change');
       });
 
       {% assign file_types = 'general.Role.User' | t %}
 
       $('input[type="file"]').before("<div class='product-customizer-option-description'>Supported file types: '*.eps', '*.psd', '*.ai' with maximum file size 20MB ( high res only).<br>If file size > 20MB, please email <a href='mailto:lauren@nsmprojects.com'>lauren@nsmprojects.com</a> </div>").bind('change', function(){
           var file = this.files[0];
-        	var ext = this.value.match(/\.([^\.]+)$/)[1].toLowerCase();
+          var ext = this.value.match(/\.([^\.]+)$/)[1].toLowerCase();
             switch(ext)
             {
                 case 'jpg':
@@ -502,19 +557,19 @@
                 case 'eps':
                 case 'pst':
                     // alert('allowed');
-                	if(file.size/1024/1024 > 20 ){
-                    	show_message4('Invalid file size...',false,'Try adding file of size < 20 MB');
-						this.value='';
+                  if(file.size/1024/1024 > 20 ){
+                      show_message4('Invalid file size...',false,'Try adding file of size < 20 MB');
+            this.value='';
                     }
                     break;
                 default:
-                	show_message4('Invalid file type...',false,'Try adding file of supported types.');
+                  show_message4('Invalid file type...',false,'Try adding file of supported types.');
                     this.value='';
             }
 
       });
 
-      {% unless product.tags contains customer_region_tag %}
+      {% unless product.tags contains customer_region_tag or can_order %}
       console.log('not of this region: {{ customer_region_tag }}');
       setInterval( function(){ $('#AddToCartForm').bind('submit', function(e){ e.preventDefault(); }); }, 1000);
       {% endunless %}
@@ -538,6 +593,11 @@
         // });
       }
       // setUpElements();
+      if($('#productSelect-option-0').length > 0)
+        checkCustomPrice($('#productSelect-option-0')[0]);
+      {% if product.selected_or_first_available_variant.title contains "Custom " %}
+      $('[name^="properties[Custom Element "]').trigger('input');
+      {% endif %}
     });
 
 
@@ -549,7 +609,7 @@
             el.val(value).show();
           }
           else if( el.is('input[type="file"]') ){ 
-            el.attr({'type':'text', 'title':value}).val(shorten(value, el.width()/7)).show();
+            // el.attr({'type':'text', 'title':value}).val(shorten(value, el.width()/7)).show();
           }
           else if(  el.is('input[type="radio"]') ||  el.is('input[type="checkbox"]') ){
             el.filter('[value="'+value+'"]').prop('checked', 'checked').show();
@@ -558,10 +618,10 @@
             // el.find('option[value="'+value+'"]').prop('selected', 'selected').trigger('change').show();
             // console.log(value);
             value.split(", ").forEach(function(val) {
-              el.find('option[value="'+val+'"]').prop('selected', 'selected');
+              el.find('option[value="'+val+'"]').prop('selected', 'selected').trigger('change');
             });
             if($(el).hasClass('multiselect'))
-              el.trigger('change').show().filter('.multiselect').find('option[value=""]').remove().end().fastselect();
+              el.show().filter('.multiselect').find('option[value=""]').remove().end().fastselect();
           }
       });
   }
@@ -578,12 +638,22 @@
     // $('#productSelect-option-0 option:eq('+$index+')').prop('selected', true)
     // $('#productSelect-option-0').change();
     // $('#productSelect-option-1 option:eq('+'{{ select_index }}'+')').prop('selected', 'selected').change();
-  	$('#productSelect-option-1 option[value="{{ customer_region_tag }}"]').prop('selected', 'selected').change();
+    $('#productSelect-option-1 option[value="{{ customer_region_tag }}"]').prop('selected', 'selected').change();
 
   }
 
   function elemntSelect(index){
-  	$('#productSelect-option-0 option:eq('+index+')').prop('selected', 'selected').change();
+    $('#productSelect-option-0 option:eq('+index+')').prop('selected', 'selected').change();
+  }
+    
+  function checkCustomPrice(obj){ //console.log(obj.value.toLowerCase());
+    if($(obj).is('select') && (obj.value||'').toLowerCase().indexOf('custom') > -1){
+      $('[data-option-name^="custom-element-"]').show().find('[name^=properties]').prop('disabled', false).parent().parent().prev().show();
+      $('[name="properties[__Total Area(H x W)]"], [name="properties[__Calculated Unit Price]"]').prop('disabled', false);
+    }else{
+      $('[data-option-name^="custom-element-"]').hide().find('[name^=properties]').prop('disabled', true).parent().parent().prev().hide();
+      $('[name="properties[__Total Area(H x W)]"], [name="properties[__Calculated Unit Price]"]').prop('disabled', true);
+    }
   }
 
   $(document).ready(function(){
@@ -619,7 +689,59 @@
 
     // // 
     {% endcomment %}
+    
+    
+    
+    
+    var $ad_specs = $('[name="properties[Printing]"]');
+    if($ad_specs.length > 0){
+      $('[name="properties[Printing]"]').on('change', function(){
+        if($(this).val() == 'No' ){
+          selected_variant_price = 10.00;
+            
+          unit_price = ( addCommas((selected_variant_price).toFixed(2)) ).replace('NaN', '$'+selected_variant_price);
 
+          $('[name="properties[__Total Area(H x W)]"]').val(1).prop('disabled', false);
+          $('[name="properties[__Calculated Unit Price]"]').val(unit_price.replace(/,/g, '').replace('$', '')).prop('disabled', false);
+          $('#ProductPrice').text( unit_price );
+        }else{
+          selected_variant = prod.variants.find(function(x){ return x.id == Number($('[name="id"]').val()) });
+          selected_variant_price = parseFloat(selected_variant.price/100);
+          
+          if(selected_variant.title.indexOf('Custom') == -1){
+            unit_price = ( addCommas((selected_variant_price).toFixed(2)) ).replace('NaN', '$'+selected_variant_price);
+
+            $('[name="properties[__Total Area(H x W)]"]').val('').prop('disabled', true);
+            $('[name="properties[__Calculated Unit Price]"]').val('').prop('disabled', true);
+            $('#ProductPrice').text( unit_price );
+          }else
+            $('[name^="properties[Custom Element "]').trigger('input');
+        }
+      }).trigger('change');
+    }
+    
+    var $ad_specs = $('[name^="properties[Custom Element "]');
+    if($ad_specs.length > 0){
+      $('[data-option-name^="custom-element-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Enter Custom Element Width/Height in INCHES (required)</label>');
+      $('[data-option-name^="custom-element-"] label').hide();
+      $('[name^="properties[Custom Element "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
+        cal_prod_price = 0.00;
+        cal_win_area = 0.00;
+        selected_variant_price = parseFloat(prod.variants.find(function(x){ return x.id == Number($('[name="id"]').val()) }).price/100).toFixed(2);
+
+        cal_win_area += parseFloat($('[name^="properties[Custom Element "]').first().val()) * parseFloat($('[name^="properties[Custom Element "]').last().val());
+        cal_prod_price += parseFloat($('[name^="properties[Custom Element "]').first().val()) * parseFloat($('[name^="properties[Custom Element "]').last().val()) * selected_variant_price;
+
+        unit_price = ( addCommas((cal_prod_price).toFixed(2)) ).replace('NaN', '$'+selected_variant_price);
+        
+        if($('[name="properties[Printing]"]').val() == 'No') unit_price = addCommas((10.00).toFixed(2));
+
+        $('[name="properties[__Total Area(H x W)]"]').val(cal_win_area || 1);
+        $('[name="properties[__Calculated Unit Price]"]').val(unit_price.replace(/,/g, '').replace('$', ''));
+        $('#ProductPrice').text( unit_price );
+      });
+    }
+  
     var $ad_specs = $('[name="properties[POS Specs]"]');
     if($ad_specs.length > 0){
       $('[data-option-name^="pos-specs"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Enter Ad Specs (required)</label>');
@@ -627,11 +749,26 @@
       $('[name^="properties[POS Specs"]').attr('style', 'width:100% !important;')
     }
 
+    
+    var $ad_specs = $('[name="properties[Multi Offer Showings]"]');
+    if($ad_specs.length > 0){
+      $ad_specs.off('change').on('change', function(){
+        $('[data-option-name^="mod-enter-details-offer-"]').hide().find('[name^=properties]').prop('disabled', true);
+        $this_val = Number($ad_specs.val());
+        if($this_val){ 
+          while($this_val >= 1 ){
+            $('[data-option-name="mod-enter-details-offer-'+$this_val+'"]').show().find('[name^=properties]').prop('disabled', false);
+            --$this_val;
+          }
+        }
+      }).trigger('change');
+    }
+    
 
     var $generic_logo = $('select[name="properties[Generic Logo]"]');
     if($generic_logo.length > 0){
       $generic_logo.on('change', function(obj){
-        if(this.value.toLowerCase() == 'yes')
+        if((this.value||'').toLowerCase() == 'yes')
           $('[data-option-name="add-customer-logo"]').show().find('[name^=properties]').prop('disabled', false);
         else
           $('[data-option-name="add-customer-logo"]').hide().find('[name^=properties]').prop('disabled', true);
@@ -641,33 +778,53 @@
     $generic_logo = $('select[name="properties[Add a Beverage]"]');
     if($generic_logo.length > 0){
       $generic_logo.on('change', function(obj){
-        if(this.value.toLowerCase() == 'yes')
+        if((this.value||'').toLowerCase() == 'yes')
           $('[data-option-name="choose-beverage"]').show().find('[name^=properties]').prop('disabled', false);
         else
           $('[data-option-name="choose-beverage"]').hide().find('[name^=properties]').prop('disabled', true);
+      }).trigger('change');
+    }
+    
+    $generic_logo = $('select[name="properties[Add a Beverage]"]');
+    if($generic_logo.length > 0){
+      $generic_logo.on('change', function(obj){
+        if((this.value||'').toLowerCase() == 'yes')
+          $('[data-option-name="wt-bev"]').show().find('[name^=properties]').prop('disabled', false);
+        else
+          $('[data-option-name="wt-bev"]').hide().find('[name^=properties]').prop('disabled', true);
       }).trigger('change');
     }
 
     $generic_logo = $('select[name="properties[Add Bev]"]');
     if($generic_logo.length > 0){
       $generic_logo.on('change', function(obj){
-        if(this.value.toLowerCase() == 'yes')
+        if((this.value||'').toLowerCase() == 'yes')
           $('[data-option-name="add-a-beverage"]').show().find('[name^=properties]').prop('disabled', false);
         else
           $('[data-option-name="add-a-beverage"]').hide().find('[name^=properties]').prop('disabled', true);
       }).trigger('change');
     }
 
-
     $generic_logo = $('select[name="properties[Add Instructions ?]"]');
     if($generic_logo.length > 0){
       $generic_logo.on('change', function(obj){
-        if(this.value.toLowerCase() == 'yes')
+        if((this.value||'').toLowerCase() == 'yes')
           $('[data-option-name="spire-instructions"]').show().find('[name^=properties]').prop('disabled', false);
         else
           $('[data-option-name="spire-instructions"]').hide().find('[name^=properties]').prop('disabled', true);
       }).trigger('change');
     }
+    
+    $generic_logo = $('select[name="properties[Add Instructions]"]');
+    if($generic_logo.length > 0){
+      $generic_logo.on('change', function(obj){
+        if((this.value||'').toLowerCase() == 'yes')
+          $('[data-option-name="spire-instructions"]').show().find('[name^=properties]').prop('disabled', false);
+        else
+          $('[data-option-name="spire-instructions"]').hide().find('[name^=properties]').prop('disabled', true);
+      }).trigger('change');
+    }
+    
 
     $('select.limit').on('change', function() {
         if ($(this).val().length > $(this).data('limit')) {
@@ -685,8 +842,8 @@
         sessionStorage.PrintATC_{{ customer.id }} = 0; //console.log(PrintATC);
         show_message2('Added to Cart.',true);
         $('.cart-page-link').animateCss('wobble');
-      }else
-        sessionStorage.PrintATC_{{ customer.id }} = 1;
+      }//else
+        // sessionStorage.PrintATC_{{ customer.id }} = 1;
     }
 
     // $("input[name = 'properties[Price Point]']").attr('pattern','[\\d]+([.][\\d]{1,2})?').attr('title','Enter only Integer or upto 2 place decimal value.');
@@ -703,22 +860,22 @@
     {% endif %}
 
     $('#pc1').attr('href', $('#link-sales').attr('href'));
-  	$('#pc2').attr('href', $('#link-food-service').attr('href'));
-  	$('#pc3').attr('href', $('#link-all-other').attr('href'));
+    $('#pc2').attr('href', $('#link-food-service').attr('href'));
+    $('#pc3').attr('href', $('#link-all-other').attr('href'));
 
     {% comment %}setUpElements();{% endcomment %}
 
     $('.zoom-lightbox-modal').magnificPopup({
         type: 'image',
         mainClass: 'mfp-fade1',
-      	removalDelay: 500,
+        removalDelay: 500,
         closeOnBgClick: true,
         closeBtnInside: false,
         closeOnContentClick: false,
 //         tClose: password.strings.pageClose,
         removalDelay: 500,
-      	tLoading: '<i class="fa fa-refresh w3-spin w3-text-black"></i>',
-      	preloader: true,
+        tLoading: '<i class="fa fa-refresh w3-spin w3-text-black"></i>',
+        preloader: true,
         callbacks: {
           beforeOpen: function() {
             this.st.image.markup = this.st.image.markup.replace('mfp-figure', 'mfp-figure mfp-with-anim');
@@ -733,19 +890,19 @@
   
   {% comment %}
   function setUpElements(){
-  	if($('[name="id"]').text().toLowerCase().indexOf('window mesh') != -1){
+    if($('[name="id"]').text().toLowerCase().indexOf('window mesh') != -1){
 
     for(i=1; i<=$("select[name = 'properties[# of Consecutive Windows]'] option").length; i++){
-    	$("[data-option-name = 'window-"+i+"-width'], [data-option-name = 'window-"+i+"-height']").addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend((i == 1) ? '<label>Window Size(s) (required)</label>' : '');
+      $("[data-option-name = 'window-"+i+"-width'], [data-option-name = 'window-"+i+"-height']").addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend((i == 1) ? '<label>Window Size(s) (required)</label>' : '');
       // $("[name = 'properties[Window "+i+" Width in feet]'], [name = 'properties[Window "+i+" Width in inches]']").wrapAll('<div class="w3-row"></div>').wrap('<div class="w3-col s6"></div>');
       // $("[name = 'properties[Window "+i+" Height in feet]'], [name = 'properties[Window "+i+" Height in inches]']").wrapAll('<div class="w3-row"></div>').wrap('<div class="w3-col s6"></div>');
-      	$('[data-option-name^="window-"] label').hide();
+        $('[data-option-name^="window-"] label').hide();
         $('[name^="properties[Window "]').attr('style', 'width:100% !important;');
     }
 
     $("select[name = 'properties[# of Consecutive Windows]']").on('change', function(e){ console.log('changed');
-      	$("[data-option-name^= 'window-'][data-option-name$= '-width'], [data-option-name^= 'window-'][data-option-name$= '-height'], [data-option-name = 'window-2-width'], [data-option-name = 'window-3-width'], [data-option-name = 'window-4-width'], [data-option-name = 'window-5-width'], [data-option-name = 'window-6-width'], [data-option-name = 'window-2-height'], [data-option-name = 'window-3-height'], [data-option-name = 'window-4-height'], [data-option-name = 'window-5-height'], [data-option-name = 'window-6-height']").hide(0).find("input[name^='properties[Window']").removeAttr('required').prop('disabled', 'disabled');
-    	var win_nos = $(this).val();
+        $("[data-option-name^= 'window-'][data-option-name$= '-width'], [data-option-name^= 'window-'][data-option-name$= '-height'], [data-option-name = 'window-2-width'], [data-option-name = 'window-3-width'], [data-option-name = 'window-4-width'], [data-option-name = 'window-5-width'], [data-option-name = 'window-6-width'], [data-option-name = 'window-2-height'], [data-option-name = 'window-3-height'], [data-option-name = 'window-4-height'], [data-option-name = 'window-5-height'], [data-option-name = 'window-6-height']").hide(0).find("input[name^='properties[Window']").removeAttr('required').prop('disabled', 'disabled');
+      var win_nos = $(this).val();
         for(i=1; i<=win_nos; i++){
           $("[data-option-name = 'window-"+i+"-width'], [data-option-name = 'window-"+i+"-height']").show(0).find("input[name^='properties[Window']").attr('required', 'required').removeAttr('disabled');
         }
@@ -773,7 +930,7 @@
       $('[data-option-name^="wallpaper-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Wallpaper Size (required)</label>');
       $('[data-option-name^="wallpaper-"] label').hide();
       $('[name^="properties[Wallpaper "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
-      	cal_prod_price = 0.00;
+        cal_prod_price = 0.00;
         cal_win_area = 0.00;
 
         cal_win_area += parseFloat($('[name^="properties[Wallpaper "]').first().val()) * parseFloat($('[name^="properties[Wallpaper "]').last().val());
@@ -793,7 +950,7 @@
       $('[data-option-name^="decal-size-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Decal Size (required)</label>');
       $('[data-option-name^="fountain-"] label, [data-option-name^="decal-size-"] label').hide();
       $('[name^="properties[Fountain "], [name^="properties[Decal Size "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
-      	cal_prod_price = 0.00;
+        cal_prod_price = 0.00;
         cal_win_area = 0.00;
 
         // cal_win_area += parseFloat($('[name^="properties[Fountain "]').first().val()) * parseFloat($('[name^="properties[Fountain "]').last().val());
@@ -817,7 +974,7 @@
       $('[data-option-name^="size-right-of-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Size RIGHT of Vault (required)</label>');
       $('[data-option-name^="size-above-vault-"] label, [data-option-name^="size-left-of-"] label,  [data-option-name^="size-right-of-"] label').hide();
       $('[name^="properties[Size ABOVE Vault "], [name^="properties[Size LEFT of Vault "], [name^="properties[Size RIGHT of Vault "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
-      	cal_prod_price = 0.00;
+        cal_prod_price = 0.00;
         cal_win_area = 0.00;
 
         cal_win_area += parseFloat($('[name^="properties[Size ABOVE Vault "]').first().val()) * parseFloat($('[name^="properties[Size ABOVE Vault "]').last().val()) || 0;
@@ -841,7 +998,7 @@
       $('[data-option-name^="size-"] label').hide();
       $('[data-option-name="partnership-message"]').hide().find('input').prop('disabled', 'disabled');
       $('[name^="properties[Size "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
-      	cal_prod_price = 0.00;
+        cal_prod_price = 0.00;
         cal_win_area = 0.00;
 
         cal_win_area += parseFloat($('[name^="properties[Size "]').first().val()) * parseFloat($('[name^="properties[Size "]').last().val());
@@ -885,7 +1042,7 @@
           }
         }
         obj2[0].setCustomValidity('');
-      	if(!isNaN(obj2.val()) && Number(obj2.val()) > 240 ){
+        if(!isNaN(obj2.val()) && Number(obj2.val()) > 240 ){
            valid = false;
            obj2[0].setCustomValidity('Maximum allowable value is 240');
            obj2.val('240').trigger("input");
@@ -919,10 +1076,10 @@
     }
 
     else if($('[name="id"]').text().toLowerCase().indexOf('cooler header') != -1){
-    	$('[data-option-name^="size-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Cooler Header Size (required)</label>');
+      $('[data-option-name^="size-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Cooler Header Size (required)</label>');
         $('[data-option-name^="size-"] label').hide();
 
-      	$('[name^="properties[Size "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
+        $('[name^="properties[Size "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
           cal_prod_price = 0.00;
           cal_win_area = 0.00;
 
@@ -956,10 +1113,10 @@
   function setBSO(opt){
     try{ console.log('selected:',opt);
       if(opt.indexOf("Banner") == -1){
-      	$("div[data-option-name='banner-size-options']").hide();
+        $("div[data-option-name='banner-size-options']").hide();
         $("[name='properties[Banner Size Options]']").prop('disabled', 'disabled');
       }else{
-      	$("div[data-option-name='banner-size-options']").show();
+        $("div[data-option-name='banner-size-options']").show();
         $("[name='properties[Banner Size Options]']").removeAttr('disabled');
       }
 
@@ -967,7 +1124,7 @@
   }
 
   function setPP(opt){
-  	if($(opt).val() == 'No'){
+    if($(opt).val() == 'No'){
           $("[data-option-name='price-point']").hide();
           $("[name='properties[Price Point]']").removeAttr('required');
     }
@@ -980,8 +1137,8 @@
   function formatThis(elem){
     var arr = elem.value.split('/'); //console.log(arr);
     if(arr.length == 1){
-    	elem.value = parseFloat(arr[0]).toFixed(2);
-      	return;
+      elem.value = parseFloat(arr[0]).toFixed(2);
+        return;
     }else{
       arr.forEach(function(item, index){
           if(item.indexOf('$') != -1){
@@ -995,21 +1152,35 @@
     }
   }
 
-  function addCartClass(){
+  function addCartClass(){freez();
     if (typeof(Storage) !== "undefined") {
       sessionStorage.PrintATC_{{ customer.id }} = 1; //console.log(sessionStorage.PrintATC);
       localStorage["{{ this_variant | remove: 'localStorage.' | remove: product.selected_or_first_available_variant.id }}" + $('#AddToCartForm [name="id"]').val()] = $('#AddToCartForm').serialize();
     }
-  	$('#AddToCart2').addClass('btn--ajax-disabled disabled');
+    $('#AddToCart2').addClass('btn--ajax-disabled disabled');
     return true;
   }
 
   function logSession(obj){
-    if($('#AddToCart').is(':enabled')){
-      obj.previousElementSibling.click();
+    empty_field = $('#AddToCartForm [name][required]:visible').filter(function(){ return this.value.length == 0; });
+    if(empty_field.length){
+      empty_field[0].focus();
+      show_message4('Please fill all required fields.', false, false);
+      return false;
     }
-  }
 
+    freez();
+    $.when(data = $.getJSON('/cart.js')).done(function(){
+      if(data.responseJSON.items.length < {{ max_allowed_item_count }}){
+        if($('#AddToCart').is(':enabled')){
+          obj.previousElementSibling.click();
+          //defreez();
+        }
+      }else{
+        show_message4('{{ max_cart_count_message }}', false, false);
+      }
+    });
+  }
 </script>
 
 <style>
@@ -1020,13 +1191,13 @@
   {% endif %}
 
   {% if custom_available == false %}
-  	#productSelect-option-0,label[for = "productSelect-option-0"]{display:block;}
+    #productSelect-option-0,label[for = "productSelect-option-0"]{display:block;}
   {% endif %}
 
   [data-option-name = 'window-2-width'], [data-option-name = 'window-3-width'], [data-option-name = 'window-4-width'], [data-option-name = 'window-5-width'], [data-option-name = 'window-6-width'],
   [data-option-name = 'window-2-height'], [data-option-name = 'window-3-height'], [data-option-name = 'window-4-height'], [data-option-name = 'window-5-height'], [data-option-name = 'window-6-height'], [data-option-name^= 'window-'][data-option-name$= '-width']:not([data-option-name = 'window-1-width']), [data-option-name^= 'window-'][data-option-name$= '-height']:not([data-option-name = 'window-1-height']), [data-option-name = "logo-upload"]{
-   		display: none;
-  		/*max-width: 50% !important; */
+      display: none;
+      /*max-width: 50% !important; */
    }
 
   .product-customizer-option-description{
@@ -1043,7 +1214,3 @@
     .product-single .grid__item.post-large--seven-twelfths{ padding-right: 50px; }
   }
 </style>
-
-<script type="text/javascript">
-  console.log(prod = {{product | json}});
-</script>

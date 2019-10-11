@@ -9,10 +9,106 @@
 <div class="grid printModeExclude">
   <div class="grid__item two-thirds1 one-whole">
     <div class="grid">
-      <div class="grid__item one-third small--one-whole">
+      <div class="grid__item two-thirds small--one-whole">
         <a id="account-back_btn" href="/account"><button type="button" class="btn--secondary min-width-240 placeholdLoader">{{ 'customer.account.return' | t }}</button></a>
+        &nbsp;
+        {% if customer.tags contains Role_FSAdmin and customer.tags contains "SuperUser" %}
+          {% assign superUserAdmin = true %}
+          <button class="btn--secondary reSyncBtn min-width-240 placeholdLoader" style="min-width:350px;" title="Re-Sync this order" status="" onclick="reSyncOrder();">Re-Sync Order</button>
+          <script>
+            setInterval(function() {
+              if (getCookie('order_id_'+order_id)) {
+                $('.reSyncBtn').prop("disabled", true);
+              } else {
+                $('.reSyncBtn').prop("disabled", false);
+              }
+            }, 1000);
+            Date.prototype.addMinutes = function(minutes) {
+                var copiedDate = new Date(this.getTime());
+                return new Date(copiedDate.getTime() + minutes * 60000);
+            }
+            function getCookie(cname) {
+              var name = cname + "=";
+              var decodedCookie = decodeURIComponent(document.cookie);
+              var ca = decodedCookie.split(';');
+              for(var i = 0; i <ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                  c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                  return c.substring(name.length, c.length);
+                }
+              }
+              return "";
+            }
+            function setCookie(cname, cvalue, exdays) {
+              var d = new Date();
+              d.setTime(d.getTime() + (exdays*24*60*60*1000));
+              var expires = "expires="+ d.toUTCString();
+              document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+            }
+            function reSyncOrder(){
+              freez();
+              {% if shop.permanent_domain contains "beta" %}
+                {% assign pc_app_domain = "beta-pepsi-print.herokuapp.com" %}
+              {% else %}
+                {% assign pc_app_domain = "printprodcustomiser.com" %}
+              {% endif %}
+              $.get('https://{{ pc_app_domain }}/save_by_api?id='+order_id).complete(function(data){ 
+                $('.reSyncBtn').prop("disabled", true);
+                document.cookie = "order_id_"+order_id+"=1; expires="+new Date().addMinutes(5).toUTCString()+";path=/";
+                if(data.responseJSON.message == "Success"){
+                  show_message4("Order re-sync request queued successfully, Please check in 5 minutes.", true);
+                  setTimeout(function(){
+                    // location.reload();
+                    fetch_Order(order_id, true, null);
+                  }, 2000);
+                }else{
+                  show_message4("Sync unsuccessful.", false, "Please Try Later.");
+                }
+              });
+            }
+
+            {% if shop.permanent_domain contains "beta" %}
+              {% assign bo_app_domain = "pepsiprintmedia.com" %}
+            {% else %}
+              {% assign bo_app_domain = "shopify-bulk-order.com" %}
+            {% endif %}
+
+            function resendSummaryEmail() {
+              freez();
+              $.get('https://{{ bo_app_domain }}/trigger_order_summary_email?shopify_order_id='+order_id).complete(function(data){ 
+                if(data.responseJSON.message == "ok"){
+                  setSent(data.responseJSON.email_timestamp);
+                  show_message4("Summary Email Sent.", true);
+                }else{
+                  show_message4("Some Error Occured.", false, "Please Try Later.");
+                }
+              });
+            }
+
+            function getSummaryEmailTime() {
+              $.get('https://{{ bo_app_domain }}/get_order_summary_email_timestamp?order_id='+order_data.order.parent_id).complete(function(data){ console.log(data);
+                if(data.responseJSON.status == 200){                  
+                  setSent(data.responseJSON.email_timestamp);
+                }else{
+                  show_message4("Some Error Occured.", false, "Please Try Later.");
+                }
+              });
+            }   
+
+            function setSent(timestamp){
+              if(Boolean(timestamp))
+                timestamp = "Sent: "+timestamp
+              $('.reSendBtn').html("Resend Email <small style='text-transform:none;'>"+timestamp+"</small>");
+            }         
+          </script>
+          &nbsp;
+          <button class="btn--secondary reSendBtn min-width-240 placeholdLoader" style="min-width:350px;" title="" status="" onclick="if(confirm('Click \'OK\' to confirm Order Summary triggering.') == true){ resendSummaryEmail(); }">Resend Email &nbsp;<i class="fa fa-refresh fa-spin fa-lg"></i></button>
+        {% endif %}
       </div>
-      <div class="grid__item  two-thirds small--one-whole text-right">
+      <div class="grid__item  one-third small--one-whole text-right">
         <button id="prevOrderBtn" type="button" class="btn--secondary placeholdLoader" style="min-width: 69.5px" onclick="eval(this.getAttribute('onclickf'));" title="Previous Order"><i class="fa fa-arrow-left"></i></button>
         <span>&nbsp;</span>
         <button id="nextOrderBtn" type="button" class="btn--secondary placeholdLoader" style="min-width: 69.5px" onclick="eval(this.getAttribute('onclickf'));" title="Next Order"><i class="fa fa-arrow-right"></i></button>
@@ -39,8 +135,8 @@
             <b>Order #{% raw %}{{ order_name }}{% endraw %}</b>
           </h2>
           {% comment %}<p style="display:inline-block;">{% endcomment %}
-            <h2 class="h3 order_date placeholdLoader" style="margin-left: 30px; display:inline-block;">Placed on :<span style="font-weight: normal;font-size: unset!important;"> {% raw %}{{ order_date }}{% endraw %}</span></h2>
-            <h2 class="h3 order_status placeholdLoader" style="margin-left: 30px; display:inline-block;">Status :<span style="font-weight: normal;font-size: unset!important;" order_status="{% raw %}{{ status }}{% endraw %}"> {% raw %}{{ status }}{% endraw %}</span></h2>
+            <h2 class="h3 order_date placeholdLoader" style="margin-left: 30px; display:inline-block;">Placed on : <span style="font-weight: normal;font-size: unset!important;">{% raw %}{{ order_date }}{% endraw %}</span></h2>
+            <h2 class="h3 order_status placeholdLoader" style="margin-left: 30px; display:inline-block;">Status : <span style="font-weight: normal;font-size: unset!important;" order_status="{% raw %}{{ status }}{% endraw %}">{% raw %}{{ status }}{% endraw %}</span></h2>
           {% comment %}</p>{% endcomment %}
         </div>
         <div class="grid__item  one-quarter small--one-whole text-right">
@@ -62,7 +158,7 @@
               </div>
               <div class="w3-col s6">
                 <select id="assign-designer" class="placeholdLoader" onchange="changePrintShop(this);" style="display: inline-block;">
-                  <option value="">Unassigned</option>
+                  <option title="Select a Designer to Assign" value="">Unassigned</option>
                 </select>
               </div>
             </div>
@@ -78,11 +174,12 @@
               </select>
             </div>{% endcomment %}
             <button id="shipping_details" class="updateBtn btn min-width-240 placeholdLoader" title="" status="" onclick="if(confirm('Click \'OK\' to confirm Order Fulfillment Cancel.') == true){ cancelFulfillment(); }" order_id="" >Cancel Fulfillment</button>
-            <button id="update-fulfillment" class="updateBtn btn btn-primary min-width-240 placeholdLoader" title="Update this order" status="" onclick="addToFulfillmentModal(this);" order_id="" >Update Fulfillment</button>
+            <button id="update-fulfillment" class="updateBtn btn btn-primary min-width-240 placeholdLoader" title="Update this order" status="" style="display: none;" disabled onclick="addToFulfillmentModal(this);" order_id="" >Update Fulfillment</button>
+            <button id="update-in-production" class="updateBtn btn btn-primary min-width-240 placeholdLoader w3-right" title="Move to 'In Production'" status="" style="display: none;" disabled onclick="if(confirm('Click \'OK\' to confirm to move \''+order_name+'\' to \'In Procuction\'.') == true){ statusUpdate(); }" order_id="" >Move to "In Production"</button>
           </div>
           {% endif %}
-          {% if can_reorder %}
-          <button id="user_reorder" type="button" class="reorderBtn btn btn-primary min-width-150 placeholdLoader" status="{% raw %}{{ status }}{% endraw %}" onclick="orderCreate();" title="Re-Order">Re-order</button>
+          {% if can_reorder and false %}
+          <button id="user_reorder" type="button" class="reorderBtn1 btn btn-primary min-width-150 placeholdLoader" disabled status="{% raw %}{{ status }}{% endraw %}" onclick="orderCreate();" title="Re-Order">Re-order</button>
           <p></p>
           {% endif %}
           {% if customer_role_tag == Role_FSAdmin or customer_role_tag == Role_NSM %}
@@ -102,7 +199,7 @@
                 </select>
               </div>{% endcomment %}
               <button id="shipping_details" class="updateBtn btn min-width-240 placeholdLoader" title="" status="" onclick="if(confirm('Click \'OK\' to confirm Order Fulfillment Cancel.') == true){ cancelFulfillment(); }" order_id="" >Cancel Fulfillment</button>
-              <button id="update-fulfillment" class="updateBtn btn btn-primary min-width-200 placeholdLoader" title="Update this order" status="" onclick="addToFulfillmentModal(this);" style="display: none;" order_id="" >Update Fulfillment</button>
+              <button id="update-fulfillment" class="updateBtn btn btn-primary min-width-200 placeholdLoader" title="Update this order" status="" onclick="addToFulfillmentModal(this);" disabled style="display: none;" order_id="" >Update Fulfillment</button>
             </div>
             <span>&nbsp;</span>
             {% endif %}
@@ -128,13 +225,16 @@
         <thead>
           <tr class="w3-text-white text-center" style="background-color: {{ settings.color_topbar_bg }}">
             <th class="text-center" style="width: 450px;">{{ 'customer.order.product' | t }}</th>
-            {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_NSM or customer_role_tag == Role_Designer or customer_role_tag == Role_FSAdmin %}
+            {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_NSM or customer_role_tag == Role_Designer or customer_role_tag == Role_FSAdmin or customer_role_tag == Role_FSManager %}
             <th class="text-center">Proof</th>
             {% endif %}
             <th class="text-center">{{ 'customer.order.sku' | t }}</th>
-            {% unless customer_role_tag == Role_Designer %}
+            
             <th class="text-center">{{ 'customer.order.price' | t }}</th>
+            
             <th class="text-center">QTY</th>
+            
+            {% unless customer_role_tag == Role_Designer %}
             <th class="text-center">{{ 'customer.order.total' | t }}</th>
             {% endunless %}
           </tr>
@@ -148,6 +248,7 @@
               <div class="row middle-xs">
                 <div class="col-xs-4">
                   <div class="box">
+                    <small><b>Note:</b> Not a proof</small>
                     <img src="{{ 'ajax-loader.gif' |asset_url }}" srcs="{% raw %}{{ product_thumb_url }}{% endraw %}" style="max-width:120px; cursor:zoom-in;" class="js-toggle-previewImg-modal zoom-lightbox1 prod_thumb" data-mfp-src="{% raw %}{{ product_image_url }}{% endraw %}">
                   </div>
                 </div>
@@ -165,7 +266,7 @@
               </div>
 
             </td>
-            {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_Designer %}
+            {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_Designer or can_order %}
             <td class="text-center {% if customer_role_tag == Role_Designer %}width-270{% endif %}">
               <a>
                 {% comment %}<button type="button" class="btn btn-primary min-width-150" status="{% raw %}{{ status }}{% endraw %}">{% raw %}{{ status }}{% endraw %}</button>{% endcomment %}
@@ -174,15 +275,17 @@
               <p class="printModeExclude"></p>
               <a class="printModeExclude"><button type="button" class="btn--secondary reviewBtn {% if customer_role_tag == Role_Designer %}min-width-240{% else %}min-width-150{% endif %}" status="{% raw %}{{ status }}{% endraw %}" onclick="showReviewModal({% raw %}{{ line_item_No }}{% endraw %}, {% raw %}{{ id }}{% endraw %});">Review</button></a>
             </td>
-            {% elsif customer_role_tag == Role_FSAdmin or customer_role_tag == Role_NSM %}
+            {% elsif customer_role_tag == Role_NSM %}
             <td class="text-center" style="width: 140px;">
               <button type="button" class="btn--secondary reviewBtn" style="min-width: 100px;" status="{% raw %}{{ status }}{% endraw %}" onclick="showReviewModal({% raw %}{{ line_item_No }}{% endraw %}, {% raw %}{{ id }}{% endraw %});">Review</button>
             </td>
             {% endif %}
             <td class="text-center">{% raw %}{{ sku }}{% endraw %}</td>
-            {% unless customer_role_tag == Role_Designer %}
+            
             <td class="text-right">{% raw %}{{ price }}{% endraw %}</td>
+            
             <td class="text-right">{% raw %}{{ quantity }}{% endraw %}</td>
+            {% unless customer_role_tag == Role_Designer %}
             <td class="text-right">{% raw %}{{ total }}{% endraw %}</td>
             {% endunless %}
           </tr>
@@ -191,14 +294,14 @@
 
         {% unless customer_role_tag == Role_Designer %}
         {% if customer_role_tag == Role_FSManager %}
-          {% assign span = 4 %}
+          {% assign span = 5 %}
         {% else %}
           {% assign span = 5 %}
         {% endif %}
         <tbody id="discountCodes" style="display:none;">
           <tr w3-repeat="discount_codes" class="order_summary discount">
             <td colspan="{{ span }}">{{ 'customer.order.discount' | t }} <b>{% raw %}{{ code }}{% endraw %}</b></td>
-            <td class="text-right">-${% raw %}{{ amount }}{% endraw %}</td>
+            <td class="text-right">${% raw %}{{ amount }}{% endraw %}</td>
           </tr>
         </tbody>
 
@@ -251,7 +354,7 @@
       </div>
 
       <div class="print-notes">
-        <h3 class="placeholdLoader">Order Notes</h3>
+        <h3 class="placeholdLoader">Order Notes (please add your name next to the comment)</h3>
         <form action="/" onsubmit="event.preventDefault(); changeOrderNote();">
           <textarea name="order_notes" id="" class="placeholdLoader" cols="30" rows="5" required="" onkeyup="if($(this).val() != $(this).attr('value'))$(this).next().prop('disabled', false); else $(this).next().prop('disabled', true);"></textarea>
           <button class="btn btn--secondary printModeExclude placeholdLoader" type="submit" disabled="">Edit Note</button>
@@ -316,10 +419,17 @@
     </div>
 
     <div id="order_attributes" class="" style1="display: none;">
+      {% if customer_role_tag == Role_Designer %}
+      <p class="payment_code placeholdLoader"><b>Payment Code:</b> {% raw %}{{ payment_code }}{% endraw %}</p>
+      {% endif %}
+      {% comment %}
       <p class="budget_code placeholdLoader"><b>Budget Type:</b> {% raw %}{{ budget_code }}{% endraw %}</p>
+      {% endcomment %}
       <p class="channel_identifier placeholdLoader"><b>Channel Identifier:</b> {% raw %}{{ channel }}{% endraw %}</p>
+      {% comment %}
       <p class="budget_identifier placeholdLoader"><b>Budget Identifier:</b> {% raw %}{{ budget_identifier }}{% endraw %}</p>
-      
+      {% endcomment %}
+
       <button id="rosterBtn" type="button" class="btn btn--primary1 min-width-200 w3-small placeholdLoader" style="margin-top: 20px; display: none;" onclick="openInNewTab('{% raw %}{{ roaster_url }}{% endraw %}');" title="Download Bulk Order ShipList"><i class="fa fa-download"></i>&nbsp; Bulk Order ShipList</button>
     </div>
   </div>
@@ -328,7 +438,7 @@
 
 </div>
 
-{% if can_review %}
+{% if can_review or true %}
   <div id="mfp-order-review">
       {% include 'magnificPopup-orderFS-Review' %}
   </div>
@@ -358,7 +468,7 @@
 {% endcomment %}
 
 <script type="text/javascript">
-  {% if customer_role_tag == Role_Printer %}
+  {% if customer_role_tag == Role_Designer %}
   var printer_order = false;
   {% endif %}
   var url = document.URL;
@@ -370,7 +480,12 @@
   var patt = new RegExp("id\=\\d+");
   var res = patt.test(url); //console.log(order_id);
   var btnState = null;
-  var prev_page_params = (url.indexOf('&') != -1) ? '&'+url.substr(url.indexOf('&')+1, url.length-1) : ''; //url.split('&')[1]||'';
+  var prev_page_params = (url.indexOf('&') != -1) ? ('&'+url.substr(url.indexOf('&')+1, url.length-1)).split('&line=')[0] : ''; //url.split('&')[1]||'';
+  var params = prev_page_params.replace('&','').length ? ('?'+prev_page_params.replace('&','')) : '';
+  var first_load = true;
+  
+  if(!Boolean(prev_page_params) && document.referrer.indexOf(document.location.host) != -1 && document.referrer.indexOf('?') != -1)
+    prev_page_params = '&'+document.referrer.split('?')[1];
 
   var bemail = '';
 
@@ -378,16 +493,8 @@
   if(res){
      order_id = url.split('id\=')[1].split('&')[0];
      fetch_Order(order_id, true, null);
-     if(url.indexOf('&action=edit') > -1)
-      setTimeout(function(){
-        $('#asm_orderEdit:visible:not([disabled])').click();
-      }, 1500);
-     else if(url.indexOf('&line=') > -1)
-      setTimeout(function(){
-        $('.reviewBtn[onclick^="showReviewModal('+url.split('&line=')[1].split('&')[0]+', "]').click();
-      }, 1500);
   }
-  else window.location.assign('/account');
+  else window.location.assign('/account'+params);
   // });
 
 
@@ -430,6 +537,7 @@
   }
 
   function fetch_Order(order_ids, first, state, no_fulfillment, withATM){
+    window['order_id_'+order_ids] = (window['order_id_'+order_ids]||0)+1;
     btnState = state;
     order_id = order_ids;
 
@@ -448,8 +556,14 @@
 
     data.order_id = order_ids;
 
-    if(query.name != undefined)
-      data["order_name"] = query.name;
+    if(query.name != undefined || query.order_name != undefined)
+      data["order_name"] = query.name || query.order_name;
+
+    if(query.search != undefined)   
+      data["search"] = null;
+
+    if(window['status_changed_'+order_id])
+      data["order_status"] = null;
 
     // console.log(JSON.stringify(data));
 
@@ -468,10 +582,13 @@
                     if(withATM == true){
                         addToEditModal(data.order.id);
                     }
+                  {% elsif superUserAdmin %}
+                    getSummaryEmailTime();
                   {% endif %}
 
-                  {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_Designer %}
+                  {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_Designer or can_order %}
                     if(withATM == 'withARM'){
+                      $(window).unbind('statechange');
                       setTimeout(function() {
                         showReviewModal(window.line_index, window.line_id);
                       }, 800);
@@ -485,15 +602,15 @@
                       // console.log('data_id: '+ data.order.designer_id);
                       // console.log('cid: {{ customer.id }}');
                       show_message4('Order not assigned to you or Assignment has been cancelled.',false);
-                      setTimeout(function(){ window.location.assign('/account'); }, 3000);
+                      setTimeout(function(){ window.location.assign('/account'+params); }, 3000);
                   }
                   if(printer_order){% endif %}
                     $(document).ready(function(){
-                      if(prev_page_params.length > 0)
-                        $('#account-back_btn').attr('href', '/account?'+prev_page_params);
+                      if(params.length > 0)
+                        $('#account-back_btn').attr('href', '/account'+params);
 
                       History.Adapter.bind(window, 'statechange', function(){ console.log('state outside:', btnState);
-                        if(btnState == null){ console.log('state inside:', btnState);
+                        if(btnState == null && withATM != 'withARM'){ console.log('state inside:', btnState);
                           order_id = History.getState().url.split('id=')[1]||'';
                           if(order_id.length > 0)
                             fetch_Order(order_id, null, false);
@@ -507,7 +624,7 @@
                       $.when(dataHide(data)).done($.when(createThumbImg(data)).done(showOrderData(data)));
                     });
 
-                  if(first == null){console.log('pushed:', order_id);
+                  if(first == null && withATM != 'withARM'){console.log('pushed:', order_id); console.log(btnState);
                     if(btnState == true)
                       History.pushState({ url: document.location.href }, document.title, "?id="+order_id+prev_page_params);
                     else
@@ -518,8 +635,25 @@
                   }
                   // data = createThumbImg(data);
                 }else{
-                  show_message4(data.message,false);
-                  setTimeout(function(){ window.location.assign('/account'); }, 800);
+                  if(window['order_id_'+order_id] == 1)
+                    setTimeout(function() {
+                      fetch_Order(order_id, true, null);
+                    }, 10000);
+                  else if(window['order_id_'+order_id] == 2){
+                    {% capture timer %}
+                      {% include "timer" with "html", seconds: 30 %}
+                    {% endcapture %}
+                    show_message4(data.message, false, '{{ timer | strip_newlines | strip }} Please allow order to update and reflect in some time.');
+                    setTimeout(function() {
+                      {% include "timer" with "script", seconds: 30 %}
+                    }, 7000);
+                    setTimeout(function() {
+                      fetch_Order(order_id, true, null);
+                    }, 37500);
+                  }else{
+                    show_message4(data.message, false);
+                    setTimeout(function(){ window.location.assign('/account'+params); }, 800);
+                  }
                 }
 
 
@@ -534,7 +668,7 @@
 
 
   function changeOrderNote(){
-    data = { order_id: order_id, cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", note: $('[name="order_notes"]').val() };
+    data = { order_id: order_id, cid: "{{ customer.id }}", cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", note: $('[name="order_notes"]').val() };
 
     freez();
     // console.log(JSON.stringify(data));
@@ -578,13 +712,13 @@
 
 
     function showProperties(item, index){ //console.log(item['product_id']);
-			setTimeout( w3DisplayData("properties_"+item['line_item_No'], item), 900+100*index);
+      setTimeout( w3DisplayData("properties_"+item['line_item_No'], item), 900+100*index);
     }
 
-		$('#billing_address .name').text(data.order.billing_address.name);
-		if(data.order.customer.email != null){ $('#billing_address .email').html(data.order.customer.email); }
-		bemail = data.order.customer.email;
-		if(data.order.billing_address.company != null){ $('#billing_address .company').html(data.order.billing_address.company); }
+    $('#billing_address .name').text(data.order.billing_address.name);
+    if(data.order.customer.email != null){ $('#billing_address .email').html(data.order.customer.email); }
+    bemail = data.order.customer.email;
+    if(data.order.billing_address.company != null){ $('#billing_address .company').html(data.order.billing_address.company); }
     if(data.order.billing_address.address1){ $('#billing_address .address1').html('<span class="printModeExclude"><br></span><span class="printModeInclude hide">, </span>'+data.order.billing_address.address1); }
     if(data.order.billing_address.address2){ $('#billing_address .address2').text(', '+data.order.billing_address.address2); }
     if(data.order.billing_address.city){ $('#billing_address .city').html('<span class="printModeExclude"><br></span><span class="printModeInclude hide">, </span>'+data.order.billing_address.city); }
@@ -607,13 +741,13 @@
     if(data.order.shipping_address.country){ $('#shipping_address .country').html(data.order.shipping_address.country+'<span class="printModeExclude"><br></span><span class="printModeInclude hide">, </span>'); }
     if(data.order.shipping_address.phone){ $('#shipping_address .phone').html(data.order.shipping_address.phone); }
 
-		if(data.order.fulfillments[0] != null){
-  		if(data.order.fulfillments[0].created_at){ $('.note .created_at').html(data.order.fulfillments[0].created_at); }
-    	if(data.order.fulfillments[0].updated){ $('.note .updated_at').html(data.order.fulfillments[0].updated); }
-  		if(data.order.fulfillments[0].tracking_url){ $('#note a').attr('href',data.order.fulfillments[0].tracking_url); }else $('.note a').removeAttr('href');
-  		if(data.order.fulfillments[0].tracking_company){ $('#note a').html(data.order.fulfillments[0].tracking_company); }
-  		if(data.order.fulfillments[0].tracking_number){ $('#note a').html($('#note a').html()+' #'+data.order.fulfillments[0].tracking_number); }
-  		if(data.order.fulfillments[0].status == 'success'){ $('.fulfilled').show(); }
+    if(data.order.fulfillments[0] != null){
+      if(data.order.fulfillments[0].created_at){ $('.note .created_at').html(data.order.fulfillments[0].created_at); }
+      if(data.order.fulfillments[0].updated){ $('.note .updated_at').html(data.order.fulfillments[0].updated); }
+      if(data.order.fulfillments[0].tracking_url){ $('#note a').attr('href',data.order.fulfillments[0].tracking_url); }else $('.note a').removeAttr('href');
+      if(data.order.fulfillments[0].tracking_company){ $('#note a').html(data.order.fulfillments[0].tracking_company); }
+      if(data.order.fulfillments[0].tracking_number){ $('#note a').html($('#note a').html()+' #'+data.order.fulfillments[0].tracking_number); }
+      if(data.order.fulfillments[0].status == 'success'){ $('.fulfilled').show(); }
 
       try{
         tnos = (data.order.fulfillments[0].tracking_number).split(',');
@@ -692,9 +826,15 @@
 
         if(Boolean(data.order.status)){
           if('In Production' == data.order.status){
-            $('#update-fulfillment').removeAttr('disabled');
+            $('#update-fulfillment').removeAttr('disabled').show();
           }else{
-            $('#update-fulfillment').prop('disabled','disabled');
+            $('#update-fulfillment').prop('disabled','disabled').hide();
+          }
+
+          if('Proofs Approved' == data.order.status){
+            $('#update-in-production').removeAttr('disabled').show();
+          }else{
+            $('#update-in-production').prop('disabled','disabled').hide();
           }
         }    
 
@@ -712,30 +852,32 @@
         $.when(setTimeout(fetch_Designers(),800)).done(function(){
           {{ fulfillment_cancel_code }}
         });
+      {% else %}
+        {{ fulfillment_cancel_code }}
       {% endif %}
       {% if can_reorder %}
         $('.reorderBtn:not([status="Fulfilled"]):not([status="In Production"])').prop("disabled", "disabled");
         $('.reorderBtn[status="Fulfilled"], .reorderBtn[status="In Production"]').removeAttr("disabled");
-
+      {% endif %}
+      {% if can_order %}
         $('a span.line_status[status="Approved"]').parent().next().next().find('button').text("View Proofs");
         $('a span.line_status[status="Cancelled"]').parent().next().next().find('button').prop("disabled", true);
         $('a span.line_status[status="Order Not Assigned"]').hide().parent().next().hide().next().find('button').prop("disabled", true);
       {% endif %}
-      {% if customer_role_tag == Role_FSAdmin or customer_role_tag == Role_NSM %}
+      {% if customer_role_tag == Role_NSM %}
         $('.reviewBtn:not([status="Fulfilled"]):not([status="In Production"])').prop("disabled", "disabled");
         $('.reviewBtn[status="Fulfilled"], .reorderBtn[status="In Production"]').removeAttr("disabled");
       {% endif %}
       {% if customer_role_tag == Role_Designer %}
-        {{ fulfillment_cancel_code }}
-
         $('a span.line_status[status="Needs Proof"]').parent().next().next().find('button').toggleClass("btn btn--secondary btn-primary").text("Upload Proofs");
-        $('a span.line_status[status="Needs Review"]').parent().next().next().find('button').text("Edit Proofs").prop("disabled", true);
-        $('a span.line_status[status="Edit Proof"]').parent().next().next().find('button').text("Edit Proofs");
+        $('a span.line_status[status="Needs Review"]').parent().next().next().find('button').text("Edit Proofs").prop("disabled", false);
+        $('a span.line_status[status="Needs Edit"]').parent().next().next().find('button').text("Edit Proofs");
         $('a span.line_status[status="Approved"]').parent().next().next().find('button').text("View Proofs");
         $('a span.line_status[status="Cancelled"]').parent().next().next().find('button').prop("disabled", true);
       {% endif %}
-      {% if customer_role_tag == Role_FSAdmin %}
-        {{ fulfillment_cancel_code }}
+      {% if customer_role_tag == Role_FSUser or can_order %}
+        $('.reviewBtn:not([status="Needs Review"]):not([status="Approved"]):not([status="In Production"])').prop("disabled", "disabled");
+        $('.reviewBtn[status="Needs Review"], .reorderBtn[status="Approved"], .reorderBtn[status="In Production"]').removeAttr("disabled");
       {% endif %}
       
           mfpInit();
@@ -744,209 +886,249 @@
 
           order_data = data;
 
+          if(url.indexOf('&action=edit') > -1 && first_load == true)
+            setTimeout(function(){
+              $('#asm_orderEdit:visible:not([disabled])').click();
+            }, 10);
+          else if(url.indexOf('&line=') > -1 && first_load == true)
+            setTimeout(function(){
+              $('.reviewBtn[onclick^="showReviewModal('+url.split('&line=')[1].split('&')[0]+', "]').click();
+            }, 10);
+
+          first_load = false;
+
           $('#id01').show();
           $('.w3-loader').hide();
   }
 
   {% if customer_role_tag == Role_NSM %}
-  function fetch_Designers(){
-      $('#assign-designer, #select_designer_edit').append('<option w3-repeat="results" value="{% raw %}{{id}}{% endraw %}" title="{% raw %}{{email}}{% endraw %}" select="{% raw %}{{selected}}{% endraw %}">{% raw %}{{company}}{% endraw %}</option>');
-      $.ajax({
-          url: '/apps/pepsi-print/fs_printer_configuration/nsm_designers.json',
-          type: 'GET',
-          data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
-          dataType: 'json',
-          success: function (data) { //console.log(JSON.stringify(data));
-                    if(document.URL.indexOf(order_id) != -1){
-                          data1 = popCompany(data,$('#assign-designer').attr('designer_id'));
-                          w3DisplayData('assign-designer', data1);
-                          w3DisplayData('select_designer_edit', data1);
-                    }
-          }
-
-      }).promise()
-        .done(function(){
-          $('option[select="selected"]').prop("selected", "selected");
-          if('fulfilled' == order_data.order.fulfillment_status){
-            $('#shippingPrice').show();
-            // $('#asm_orderEdit, #asm_orderCancel').hide();
-            $('#assign-designer').prop('disabled','disabled').css('cursor','not-allowed').prop('title','Can\'t edit fulfilled Order.');
-          }else{
-            $('#shippingPrice').hide();
-            // $('#asm_orderEdit, #asm_orderCancel').show();
-            $('#assign-designer').removeAttr('disabled').css('cursor','pointer').prop('title','');
-          }
-
-          if(order_data.order.cancelled_at.length > 0){
-            $('#assign-designer').prop('disabled','disabled').css('cursor','not-allowed').prop('title','Can\'t edit cancelled Order.');
-            // $('#asm_orderEdit, #asm_orderCancel').hide();
-          }else{
-            if('fulfilled' != order_data.order.fulfillment_status){ console.log('');
-              $('#assign-designer').removeAttr('disabled').css('cursor','pointer').prop('title','');
-              // $('#asm_orderEdit, #asm_orderCancel').show();
-            }
-          }
-      });
-  }
-
-  function changePrintShop(obj){
-      freez();
-      var $this = $(obj); console.log($this.attr('order_id')+" changed to"+$this.val());
-      var confirmed = true;
-      if(Boolean($this.val()))
-        confirm_msg_part2 = "'. \nDo you want to reassign it to '"+ $this.find('option[value="'+$this.val()+'"]').text() +"' ?";
-      else
-        confirm_msg_part2 = "'. \nDo you want to unassign it ?";
-
-      if($(obj).find('option[select = "selected"]').length > 0){
-         var existingPrinter = $(obj).find('option[select = "selected"]').text();
-         if(confirm("Order is already assigned to a vendor '"+ existingPrinter + confirm_msg_part2) != true){
-           $(obj).find('option[select = "selected"]').prop('selected', 'selected');
-           confirmed = false;
-         }
-      }
-      if(confirmed){
-      {% comment %}alert('reassigned');{% endcomment %}
+    function fetch_Designers(){
+        $('#assign-designer, #select_designer_edit').append('<option w3-repeat="results" value="{% raw %}{{id}}{% endraw %}" title="{% raw %}{{email}}{% endraw %}" select="{% raw %}{{selected}}{% endraw %}">{% raw %}{{company}}{% endraw %}</option>');
         $.ajax({
-              url: '/apps/pepsi-print/fs_printer_configuration/assign_designer_to_order',
-              type: 'POST',
-              data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order: order_id, designer_id: $this.val(), cregion: '{{ customer_region_tag |replace:'Region:','' |replace:'0','o'}}' },
-              dataType: 'json',
-              success: function(data){
-                changed = true; 
-                $('[order_status]').attr('order_status', 'Order Assigned').text(' Order Assigned'); 
-                show_message2('Assigned Successfully.',true); 
-              },
-              error: function(){defreez(); show_message2('Some Error Occured.',false);}
+            url: '/apps/pepsi-print/fs_printer_configuration/nsm_designers.json',
+            type: 'GET',
+            data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
+            dataType: 'json',
+            success: function (data) { //console.log(JSON.stringify(data));
+                      if(document.URL.indexOf(order_id) != -1){
+                            data1 = popCompany(data,$('#assign-designer').attr('designer_id'));
+                            w3DisplayData('assign-designer', data1);
+                            w3DisplayData('select_designer_edit', data1);
+                      }
+            }
+
+        }).promise()
+          .done(function(){
+            $('option[select="selected"]').prop("selected", "selected");
+            if('fulfilled' == order_data.order.fulfillment_status){
+              $('#shippingPrice').show();
+              // $('#asm_orderEdit, #asm_orderCancel').hide();
+              $('#assign-designer').prop('disabled','disabled').css('cursor','not-allowed').prop('title','Can\'t edit fulfilled Order.');
+            }else{
+              $('#shippingPrice').hide();
+              // $('#asm_orderEdit, #asm_orderCancel').show();
+              $('#assign-designer').removeAttr('disabled').css('cursor','pointer').prop('title','');
+            }
+
+            if(order_data.order.cancelled_at.length > 0){
+              $('#assign-designer').prop('disabled','disabled').css('cursor','not-allowed').prop('title','Can\'t edit cancelled Order.');
+              // $('#asm_orderEdit, #asm_orderCancel').hide();
+            }else{
+              if('fulfilled' != order_data.order.fulfillment_status){ console.log('');
+                $('#assign-designer').removeAttr('disabled').css('cursor','pointer').prop('title','');
+                // $('#asm_orderEdit, #asm_orderCancel').show();
+              }
+            }
         });
-      }
-   }
-
-  function popCompany(data,val){
-    var i; //console.log(val+" designer_id");
-    var x;
-    var str;
-    var total = 0;
-    var myArray = data["results"]; //console.log(JSON.stringify(filter_obj)); console.log(myArray);
-    for (i = 0; i < myArray.length; i++) {
-      // str = myArray[i]["default_address"]["company"];
-      // if(str.length == 0){str = 'Company';}
-      // myArray[i]["company_name"] = str;
-      if(designer_id == myArray[i]["id"]){data["results"][i]["selected"] = "selected";}
-      else {data["results"][i]["selected"] = "none";} console.log('pI = '+ designer_id);
     }
-    // console.log(JSON.stringify(data));
-    return(data);
-  }
 
+    function changePrintShop(obj){
+        var $this = $(obj); console.log($this.attr('order_id')+" changed to "+$this.val());
+        var confirmed = true;
+        if(Boolean($this.val()))
+          confirm_msg_part2 = "'. \nDo you want to reassign it to '"+ $this.find('option[value="'+$this.val()+'"]').text() +"' ?";
+        else
+          confirm_msg_part2 = "'. \nDo you want to unassign it ?";
+
+        if($(obj).find('option[select = "selected"]').length > 0){
+           var existingPrinter = $(obj).find('option[select = "selected"]').text();
+           if(confirm("Order is already assigned to a Designer '"+ existingPrinter + confirm_msg_part2) != true){
+             $(obj).find('option[select = "selected"]').prop('selected', 'selected');
+             confirmed = false;
+           }
+        }
+        if(confirmed){
+          freez();
+        {% comment %}alert('reassigned');{% endcomment %}
+          $.ajax({
+                url: '/apps/pepsi-print/fs_printer_configuration/assign_designer_to_order',
+                type: 'POST',
+                data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order: order_id, designer_id: $this.val(), cregion: '{{ customer_region_tag |replace:'Region:','' |replace:'0','o'}}' },
+                dataType: 'json',
+                success: function(data){
+                  changed = true; 
+                  order_status = data.order_status||$('[order_status]').attr("order_status");
+                  $('[order_status]').attr('order_status', order_status).text(' '+order_status);    
+                  show_message2( (Boolean($this.val())) ? 'Assigned Successfully.' : "Unassigned Successfully.", true); 
+                  window['status_changed_'+order_id] = true;
+                },
+                error: function(data){
+                  show_message2(data.responseJSON.message||'Some Error Occured.', false, true);
+                  $this.val($this.find('option:first').val());
+                }
+          });
+        }
+     }
+
+    function popCompany(data,val){
+      var i; //console.log(val+" designer_id");
+      var x;
+      var str;
+      var total = 0;
+      var myArray = data["results"]; //console.log(JSON.stringify(filter_obj)); console.log(myArray);
+      for (i = 0; i < myArray.length; i++) {
+        // str = myArray[i]["default_address"]["company"];
+        // if(str.length == 0){str = 'Company';}
+        // myArray[i]["company_name"] = str;
+        if(designer_id == myArray[i]["id"]){data["results"][i]["selected"] = "selected";}
+        else {data["results"][i]["selected"] = "none";} console.log('pI = '+ designer_id);
+      }
+      // console.log(JSON.stringify(data));
+      return(data);
+    }
+  {% elsif customer_role_tag == Role_Designer %}
+    function statusUpdate() {
+      freez();
+      $.ajax({
+            url: '/apps/pepsi-print/fs_order_configuration/change_order_status_to_in_production.json',
+            type: 'POST',
+            data: { cemail: "{{ customer.email }}", cid: {{ customer.id }}, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: order_id, cregion: '{{ customer_region_tag |replace:'Region:','' |replace:'0','o'}}', crole: '{{ customer_role_tag |remove:'Role:'}}' },
+            dataType: 'json',
+            success: function(data){   
+              console.log(data);
+              show_message2( "Moved to 'In Production' Successfully.", true);
+              window['status_changed_'+order_id] = true;
+              setTimeout(function() {
+                fetch_Order(order_id, true, null);
+              }, 1000);
+            },
+            error: function(data){ console.log(data); show_message2(data.message||'Some Error Occured.',false); }
+      });
+    }
   {% endif %}
 
   {% if can_edit %}
-  var $oem = $('#OrderEditModal');
+    var $oem = $('#OrderEditModal');
 
-  function addToEditModal(obj){
-      order_id = obj;
-      // freez();
+    function addToEditModal(obj){
+        order_id = obj;
+        // freez();
+        $('html').css('overflow','hidden');
+        $('#mfp-order-edit .mfp-content').removeClass('bounceOutDown').addClass('slideInUp');
+        $('#mfp-order-edit .mfp-bg, #mfp-order-edit .mfp-wrap').show().removeClass('mfp-hide');
+
+        setTimeout(function(){
+          $('.mfp-wrap').css('max-height', '100vh');
+        }, 800);
+
+        data = order_data;
+        // console.log(JSON.stringify(data));
+
+        w3DisplayData("lineItem2", data.order);
+        $('#OrderEditModal form').attr('order_id', data.order.id);
+        $('#OrderEditModal .orderName').text(data.order.order_name);
+        // $('#OrderEditModal .subTotal').text(data.order.sub_total);
+        $('#OrderEditModal .grandTotal').text(data.order.total);
+
+        data.order.line_items.forEach(showProperties);
+
+        function showProperties(item, index){ //console.log(item['product_id']);
+          setTimeout( w3DisplayData("properties_"+item['line_item_No']+'_1', item), 900+100*index);
+        }
+
+        // $('#OrderEditModal .discountCode').val(data.order.discount_codes[0].code);
+        // switch(data.order.discount_codes[0].type){
+        //  case 'fixed_amount':
+        //  case 'percentage':
+        //  case 'shipping':
+        //  }
+        // $('#OrderEditModal .discountType').text(data.order.sub_total);
+        // $('#OrderEditModal .discountAmount').val(data.order.discount_codes[0].amount);
+        
+        // console.log('printer:', data.order.designer_id);
+        // console.log('line_items:', data.order.line_items.length);
+        if(data.order.designer_id != null || data.order.line_items.length == 0 || true || "{{ customer_role_tag }}" != "{{ Role_NSM }}" ){
+          $('.for-order-split').remove();
+          $('td[colspan="3"]').attr('colspan', '2');
+        }
+
+
+        defreez(); $('.mfp-preloader').hide();
+        $('#OrderEditModal').show().removeClass('mfp-hide');
+
+    }
+  {% endif %}
+
+  {% if can_fulfill %}
+    function addToFulfillmentModal(obj){
       $('html').css('overflow','hidden');
-      $('#mfp-order-edit .mfp-content').removeClass('bounceOutDown').addClass('slideInUp');
-      $('#mfp-order-edit .mfp-bg, #mfp-order-edit .mfp-wrap').show().removeClass('mfp-hide');
+      $('#mfp-order-fulfill .mfp-content').removeClass('bounceOutDown').addClass('slideInUp');
+      $('#mfp-order-fulfill .mfp-bg, #mfp-order-fulfill .mfp-wrap').show().removeClass('mfp-hide');
 
       setTimeout(function(){
         $('.mfp-wrap').css('max-height', '100vh');
       }, 800);
 
-      data = order_data;
-      // console.log(JSON.stringify(data));
+      var data = order_data;
 
-      w3DisplayData("lineItem2", data.order);
-      $('#OrderEditModal form').attr('order_id', data.order.id);
-      $('#OrderEditModal .orderName').text(data.order.order_name);
-      // $('#OrderEditModal .subTotal').text(data.order.sub_total);
-      $('#OrderEditModal .grandTotal').text(data.order.total);
-
-      data.order.line_items.forEach(showProperties);
-
-      function showProperties(item, index){ //console.log(item['product_id']);
-        setTimeout( w3DisplayData("properties_"+item['line_item_No']+'_1', item), 900+100*index);
-      }
-
-      // $('#OrderEditModal .discountCode').val(data.order.discount_codes[0].code);
-      // switch(data.order.discount_codes[0].type){
-      //  case 'fixed_amount':
-      //  case 'percentage':
-      //  case 'shipping':
-      //  }
-      // $('#OrderEditModal .discountType').text(data.order.sub_total);
-      // $('#OrderEditModal .discountAmount').val(data.order.discount_codes[0].amount);
-      
-      // console.log('printer:', data.order.designer_id);
-      // console.log('line_items:', data.order.line_items.length);
-      if(data.order.designer_id != null || data.order.line_items.length == 0 || true || "{{ customer_role_tag }}" != "{{ Role_NSM }}" ){
-        $('.for-order-split').remove();
-        $('td[colspan="3"]').attr('colspan', '2');
-      }
-
-
-      defreez(); $('.mfp-preloader').hide();
-      $('#OrderEditModal').show().removeClass('mfp-hide');
-
-  }
-  {% endif %}
-
-  {% if can_fulfill %}
-  function addToFulfillmentModal(obj){
-    $('html').css('overflow','hidden');
-    $('#mfp-order-fulfill .mfp-content').removeClass('bounceOutDown').addClass('slideInUp');
-    $('#mfp-order-fulfill .mfp-bg, #mfp-order-fulfill .mfp-wrap').show().removeClass('mfp-hide');
-
-    setTimeout(function(){
-      $('.mfp-wrap').css('max-height', '100vh');
-    }, 800);
-
-    var data = order_data;
-
-    $('#OrderFulfillmentModal form').attr('order_id', data.order.id);
-    $('#OrderFulfillmentModal .orderName').text(data.order.order_name);
-    if(data.order.fulfillments[0]){
-      $('#OrderFulfillmentModal .design_fee').val(data.order.design_fee);
-      $('#OrderFulfillmentModal .shipping_price').val(data.order.shipping_lines[0].price);
-      $('#OrderFulfillmentModal .shipping_code').val(data.order.fulfillments[0].shipping_code);
-      $('#OrderFulfillmentModal .tracking_company option[value = "'+data.order.fulfillments[0].tracking_company+'"]').prop('selected','selected');
-      if(data.order.fulfillments[0].tracking_company.indexOf('Pick Up') != -1 || data.order.fulfillments[0].tracking_company == 'Install'  || data.order.fulfillments[0].tracking_company == 'Emailed (artwork only)'){
-        $('#OrderFulfillmentModal .tracking_number').prop({'disabled':'disabled', 'value':''}).css('cursor', 'not-allowed');
-        changeTracking(true);
-      }else{
-        tnos = data.order.fulfillments[0].tracking_number.split(',');
-        $('#OrderFulfillmentModal .tracking_number').val(tnos[0]);
-        if(tnos.length > 1){
-          for(i=1; i<tnos.length; i++){
-            addTracking( $('#OrderFulfillmentModal .add_tno').last().get(0),tnos[i]);
+      $('#OrderFulfillmentModal form').attr('order_id', data.order.id);
+      $('#OrderFulfillmentModal .orderName').text(data.order.order_name);
+      if(data.order.fulfillments[0]){
+        $('#OrderFulfillmentModal .design_fee').val(data.order.design_fee);
+        $('#OrderFulfillmentModal .shipping_price').val(data.order.shipping_lines[0].price);
+        $('#OrderFulfillmentModal .shipping_code').val(data.order.fulfillments[0].shipping_code);
+        $('#OrderFulfillmentModal .tracking_company option[value = "'+data.order.fulfillments[0].tracking_company+'"]').prop('selected','selected');
+        if(data.order.fulfillments[0].tracking_company.indexOf('Pick Up') != -1 || data.order.fulfillments[0].tracking_company == 'Install'  || data.order.fulfillments[0].tracking_company == 'Emailed (artwork only)'){
+          $('#OrderFulfillmentModal .tracking_number').prop({'disabled':'disabled', 'value':''}).css('cursor', 'not-allowed');
+          changeTracking(true);
+        }else{
+          tnos = data.order.fulfillments[0].tracking_number.split(',');
+          $('#OrderFulfillmentModal .tracking_number').val(tnos[0]);
+          if(tnos.length > 1){
+            for(i=1; i<tnos.length; i++){
+              addTracking( $('#OrderFulfillmentModal .add_tno').last().get(0),tnos[i]);
+            }
           }
+          changeTracking(false);
         }
-        changeTracking(false);
+        $('#OrderFulfillmentModal .tracking_url').val(data.order.fulfillments[0].tracking_url);
       }
-      $('#OrderFulfillmentModal .tracking_url').val(data.order.fulfillments[0].tracking_url);
+
+      defreez(); $('.mfp-preloader').hide(); 
+      $('#OrderFulfillmentModal').show().removeClass('mfp-hide');
+
     }
 
-    defreez(); $('.mfp-preloader').hide(); 
-    $('#OrderFulfillmentModal').show().removeClass('mfp-hide');
-
-  }
-
-  function cancelFulfillment(){
-    var $this =$(this);
-    freez();
-    var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: order_id };
-    $.ajax({
-            url: '/apps/pepsi-print/fs_order_configuration/cancel_fulfillment.json',
-            type: 'POST',
-            data: JSON.stringify(data),
-            dataType: 'json',
-            contentType: 'application/json',
-            success: function(){ $this.prop("disabled", "disabled").css('cursor','not-allowed'); defreez(); show_message2('Updated Successfully.', true); setTimeout(function(){ fetch_Order(order_id, true, null); }, 1000);}, //location.reload()
-            error: function(){defreez(); show_message2('Some Error Occured.',false);}
-    });
-  }
+    function cancelFulfillment(){
+      var $this =$(this);
+      freez();
+      var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: order_id };
+      $.ajax({
+              url: '/apps/pepsi-print/fs_order_configuration/cancel_fulfillment.json',
+              type: 'POST',
+              data: JSON.stringify(data),
+              dataType: 'json',
+              contentType: 'application/json',
+              success: function(){ 
+                $this.prop("disabled", "disabled").css('cursor','not-allowed'); 
+                defreez(); show_message2('Updated Successfully.', true); 
+                window['status_changed_'+order_id] = true;
+                setTimeout(function(){ 
+                  fetch_Order(order_id, true, null); }, 1000);
+                }, //location.reload()
+              error: function(){defreez(); show_message2('Some Error Occured.',false);}
+      });
+    }
   {% endif %}
 
 
@@ -986,9 +1168,11 @@
     var myArray = data.order.line_items;  //console.log(JSON.stringify(myArray));
     data.order.notes = data.order.notes || '';
     data.order.design_fee = data.order.design_fee || '0.00';
+    data.order.payment_code = data.order.discount_codes[0].code;
+    data.order.total = (parseFloat(data.order.discount_codes[0].amount) + parseFloat(data.order.total)).toFixed(2);
     for (i = 0; i < myArray.length; i++) {
       str = myArray[i]["title"].replace().replace(' / Default','').replace(' / {{ customer_region_tag }}','');
-      myArray[i]["title"] = {% unless customer_role_tag ==  %}{% endunless %}'<a class="w3-text-blue" href="/collections/{{ collection_handle }}/products/'+myArray[i]["handle"]+"?variant?="+myArray[i]["variant_id"]+'"><b>' + str + {% unless customer_role_tag ==  %}'</b></a>'{% endunless %};
+      myArray[i]["title"] = {% unless customer_role_tag ==  %}{% endunless %}'<a class="w3-text-blue" href="/collections/{{ collection_handle }}/products/'+myArray[i]["handle"]+"?variant="+myArray[i]["variant_id"]+'"><b>' + str + {% unless customer_role_tag ==  %}'</b></a>'{% endunless %};
       myArray[i]["line_item_No"] = i;
       // data['order']['properties_'+myArray[i]['product_id']] = myArray[i]['properties'];
       myArray2 = myArray[i]['properties']; nullCount = 0; //console.log(JSON.stringify(myArray2));
@@ -1004,7 +1188,7 @@
               $('head').append('<style class="prop-hide-style">.properties_'+myArray[i]['line_item_No']+' p:nth-of-type('+(x+1)+'){ display:none; }</style>');
               nullCount++;
           }
-          else if(myArray2[x]['property_name'].indexOf("__") != -1){
+          else if(myArray2[x]['property_name'].substring(0, 1) == '_'){
               file_name = myArray2[x]['property_value'];
               // delete myArray2[x];
               $('head').append('<style class="prop-hide-style">.properties_'+myArray[i]['line_item_No'] +' p:nth-of-type('+(x+1)+'){ display:none; }</style>');
@@ -1013,11 +1197,31 @@
           else if(myArray2[x]['property_value'].indexOf("/uploads/") != -1 && myArray2[x]['property_value'].indexOf("&nbsp;") == -1){ console.log(myArray2[x]['property_value']);
             if(myArray2[x]['property_value'].toLowerCase().indexOf(".jpg") != -1 ||
                myArray2[x]['property_value'].toLowerCase().indexOf(".jpeg") != -1 ||
+               myArray2[x]['property_value'].toLowerCase().indexOf(".eps") != -1 ||
+               myArray2[x]['property_value'].toLowerCase().indexOf(".pdf") != -1 ||
+               myArray2[x]['property_value'].toLowerCase().indexOf(".ai") != -1 ||
+               myArray2[x]['property_value'].toLowerCase().indexOf(".psd") != -1 ||
+               myArray2[x]['property_value'].toLowerCase().indexOf(".tiff") != -1 ||
+               myArray2[x]['property_value'].toLowerCase().indexOf(".indd") != -1 ||
+               myArray2[x]['property_value'].toLowerCase().indexOf(".raw") != -1 ||
                myArray2[x]['property_value'].toLowerCase().indexOf(".png") != -1 ||
                myArray2[x]['property_value'].toLowerCase().indexOf(".gif") != -1 ){
+              if(myArray2[x]['property_value'].toLowerCase().indexOf(".eps") != -1 ||
+               myArray2[x]['property_value'].toLowerCase().indexOf(".pdf") != -1 ||
+               myArray2[x]['property_value'].toLowerCase().indexOf(".ai") != -1 ||
+               myArray2[x]['property_value'].toLowerCase().indexOf(".psd") != -1 ||
+               myArray2[x]['property_value'].toLowerCase().indexOf(".tiff") != -1 ||
+               myArray2[x]['property_value'].toLowerCase().indexOf(".indd") != -1 ||
+               myArray2[x]['property_value'].toLowerCase().indexOf(".raw") != -1 ){
+                class_txt = "target='_blank'"
+                title = "title='Download '"
+              }else{
+                class_txt = "class='js-toggle-previewImg-modal zoom-lightbox1'"
+                title = "title='Download'"
+              }
               file_url = myArray2[x]["property_value"];
-              anchorPre = "<a class='js-toggle-previewImg-modal zoom-lightbox1' title='View' href='"+file_url+"' data-mfp-src='"+file_url+"'>"
-              anchorPost = "</a> &nbsp; <a target='_blank' title='Download' href='"+myArray2[x]["property_value"]+"'><i class='fa fa-download'></i></a>"
+              anchorPre = "<a "+ class_txt +" title='View' href='"+file_url+"' data-mfp-src='"+file_url+"'>"
+              anchorPost = "</a> &nbsp; <a target='_blank' "+title+" href='"+myArray2[x]["property_value"]+"'><i class='fa fa-download'></i></a>"
               myArray2[x]['property_value'] = anchorPre + file_name + anchorPost;
             }else{
               anchorPre = "<a target='_blank' href='"+myArray2[x]["property_value"]+"'>"

@@ -51,14 +51,14 @@
         <div class="section-header section-header--large">
           <h1 class="section-header__title h2">{{ 'general.search.no_results_html' | t: terms: search.terms | remove: ' product_type:mod' }}</h1>
         </div>
-        {% include 'search-bar' with 'header-fs' %}
+        {% include 'search-bar' with header %}
 
       {% else %}
 
         <div class="section-header section-header--large">
           <h1 class="section-header__title h2">{{ 'general.search.results_for_html' | t: terms: search.terms | remove: ' product_type:mod' }}</h1>
         </div>
-        {% include 'search-bar' with 'header-fs' %}
+        {% include 'search-bar' with header %}
 
         {% comment %}
           Each result template, based on the grid_layout variable above
@@ -73,8 +73,10 @@
               {% if count == 10 %}{% break %}{% endif %}
               {% assign count = count | default:0 | plus: 1 %}
             {% endunless %}{% endcomment %}
+            {% unless fs_shop_active and item.type != 'MOD' %}
             {% include 'search-result' %}
-            <hr>
+      <hr>
+      {% endunless %}
           {% endfor %}
 
         {% else %}
@@ -114,7 +116,7 @@
     <div class="section-header section-header--large">
       <h1 class="section-header__title h2">{{ 'general.search.title' | t }}</h1>
     </div>
-    {% include 'search-bar' %}
+    {% include 'search-bar' with header %}
 
   {% endif %}
 

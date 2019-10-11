@@ -9,6 +9,10 @@
 
 
 <style>
+  {% if fs_shop_active %}
+    .header-bar{ background-color: {{ settings.color_primary }} !important; }
+  {% endif %}
+
   .site-header__logo img {
     max-width: {{ section.settings.logo_max_width }}px;
   }
@@ -75,10 +79,12 @@
                   {% endif %}
                 {% elsif customer_region_tag %}
                   {% if customer_has_retail %}
-                    Pepsi Print Studios
+                    <button type="button" class="btn btn--secondary" style="padding: 4px 8px; pointer-events: none;"><small>Pepsi Print Studios</small></button>
                   {% elsif customer_has_fs %}
-                    MOD
+                    <button type="button" class="btn btn--secondary" style="padding: 4px 8px; pointer-events:none;"><small>MOD</small></button>
                   {% endif %}
+                {% else %}
+                  <button type="button" class="btn btn--secondary" style="padding: 4px 8px; pointer-events: none; visibility: hidden;"><small>&nbsp;</small></button>
                 {% endif %}
 
               </div>

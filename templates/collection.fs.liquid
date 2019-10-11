@@ -4,7 +4,7 @@
 {
 	{%- if collection.products.size > 0 -%}
 		"total": {{ collection.products.size }},
-		{%- paginate collection.products by 2 -%}
+		{%- paginate collection.products by 1 -%}
 			"ids": {{ collection.products | map: "id" | json }}
 		{%- endpaginate -%}
 	{%- endif -%}

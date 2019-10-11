@@ -45,6 +45,7 @@
     <div class="w3-padding">
       <h3 class="w3-margin-0">
         {% raw %}{{ customer }}{% endraw %}
+        <span class="w3-right w3-tag w3-small" style="text-transform: capitalize;" add_type="{% raw %}{{ address_type }}{% endraw %}">{% raw %}{{ address_type }}{% endraw %}</span>
       </h3>
 
       <p></p>
@@ -65,8 +66,10 @@
       </p>
       <p></p>
       <p class="w3-margin-0">
+        {% comment %}
         {% raw %}{{ budget_identifier }}{% endraw %}
         <br>
+        {% endcomment %}
         {% raw %}{{ channel_identifier }}{% endraw %}
         <br>
         <b>
@@ -207,6 +210,10 @@
                   $.when(setTimeout(w3DisplayData("shipAddress", data),100))
                   .done(function(){ 
                     setAddTable();
+
+                    if(data.addresses.map(function(x){ return x.address_type }).includes(null))
+                      show_message4("Please set Address Type for All Shipping Addresses.", true, null, 15000);
+
                     $(".w3-loader").hide();
 
                     $('#paginationInit').pagination({
@@ -232,8 +239,8 @@
                 }else{
                     $(".w3-loader").hide();
                     $("#no_address").show();
+                    defreez();
                 }
-                defreez();
             },
             error: function(data){ 
               show_message2(data.responseJSON.message||'Some Error Occured.',false); 

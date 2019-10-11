@@ -1,26 +1,26 @@
 
   <div id="order-list" style1="display:none;">
     <div class="w3-row printModeExclude">
-    	<div class="w3-col m2">
+      <div class="w3-col m2">
         <small class="nbsp-hide"><label for=""><small class="placeholdLoader">Date Filter</small></label></small>
-    	  <input id="start_date" value="{{first_order}}" readonly class="datepicker placeholdLoader" type="text" name="start_date" placeholder="Start Date" >
-    	</div>
-    	<div class="w3-col m2 w3-row-padding" style="position:relative;">
+        <input id="start_date" value="{{first_order}}" readonly class="datepicker placeholdLoader" type="text" name="start_date" placeholder="Start Date" >
+      </div>
+      <div class="w3-col m2 w3-row-padding" style="position:relative;">
         <small class="nbsp-hide"><label for="">&nbsp;</label></small>
-    	  <input id="end_date" value="{{'now' | date: '%m/%d/%Y'}}" readonly class="datepicker placeholdLoader" type="text" name="end_date" placeholder="End Date" >
+        <input id="end_date" value="{{'now' | date: '%m/%d/%Y'}}" readonly class="datepicker placeholdLoader" type="text" name="end_date" placeholder="End Date" >
         <button type="button" disabled class="btn btn--secondary w3-padding-01 w3-padding-top1 w3-padding-bottom1 w3-border-black w3-small clear-filter hide1 placeholdLoader" disabled1 style="position:absolute; bottom: 22.75px; right:15px; z-index:; display:none; padding:0 5px; font-size:3px;"><i class="fa fa-times"></i></button>
-    	</div>
-    	<div class="w3-col m2">
+      </div>
+      <div class="w3-col m2">
         <small class="nbsp-hide"><label for="">&nbsp;</label></small>
         {% comment %}<button id="" class="btn--secondary btn--full1 clear-filter placeholdLoader" type="button" style="display:none;" >Clear Dates</button>{% endcomment %}
-    	  <button id="filter_order" class="btn--secondary btn--full1 placeholdLoader" type="button" >Filter Dates</button>
-    	</div>
+        <button id="filter_order" class="btn--secondary btn--full1 placeholdLoader" type="button" >Filter Dates</button>
+      </div>
       <div class="w3-col m3">
         {% include 'customer-account-common-code' with 'order-search-bar' %}
       </div>
-    	<div id="td_select" class="w3-col m3">
+      <div id="td_select" class="w3-col m3">
         <small><label for="select_tl"><small class="placeholdLoader"><br class="br-hide">Additional Filters</small></label></small>
-    	  <select id="select_tl" onchange="params={page: '1', order_status: '', assigned_designer: ''}; params[$(this).find('option:selected').attr('filter_attr')]=this.value; updateState(params);" name="order_status" class="placeholdLoader">
+        <select id="select_tl" onchange="params={page: '1', order_status: '', assigned_designer: '', filter_by_designer: ''}; params[$(this).find('option:selected').attr('filter_attr')]=this.value; updateState(params);" name="order_status" class="placeholdLoader">
           <option value="" selected>Clear Additional Filters</option>
           <optgroup label="Order status">
             {% include 'customer-account-common-code' with 'order-status-option-code-fs' %}
@@ -29,8 +29,10 @@
             <option value="assigned" filter_attr="assigned_designer">Designer Assigned</option>
             <option value="notassigned" filter_attr="assigned_designer">Designer Not Assigned</option>
           </optgroup>
+<!--           <optgroup label="Filter By Designers" class="hide">
+          </optgroup> -->
         </select>
-    	</div>
+      </div>
     </div>
 
   <table id="id02" class="responsive-table w3-table w3-bordered w3-striped1">
@@ -43,20 +45,22 @@
     </thead>
     <tr class="w3-hover-light-grey" w3-repeat="orders">
       <td class="w3-text-orange1 orders text-center" id="{% raw %}{{id}}{% endraw %}"><a class="{% raw %}{{cancel_status}}{% endraw %} placeholdLoader" href="/pages/order?id={% raw %}{{id}}{% endraw %}"><b>{% raw %}{{order_name}}{% endraw %}</b></a></td>
+      <td class="text-center"><div class="placeholdLoader">{% raw %}{{company}}{% endraw %}</div></td>
       <td class="text-center" title="{% raw %}{{customer_last_email}}{% endraw %}"><div class="placeholdLoader">{% raw %}{{customer_first_name}} {{customer_last_name}}{% endraw %}</div></td>
+      <td class="text-center"><div class="placeholdLoader">${% raw %}{{spend}}{% endraw %}</div></td>
       <td class="text-center"><div class="placeholdLoader">{% raw %}{{discount_codes}}{% endraw %}</div></td>
       <td class="text-center"><div class="placeholdLoader">{% raw %}{{order_date}}{% endraw %}</div></td>
       {% comment %}<td>{% raw %}{{payment_status}}{% endraw %}</td>{% endcomment %}
       <td class="text-center"><div class="placeholdLoader">{% raw %}{{region}}{% endraw %}</div></td>
-      <td class="text-center"><div class="placeholdLoader">{% raw %}{{division}}{% endraw %}</div></td>
-      <td class="text-center"><div class="placeholdLoader">{% raw %}{{channel}}{% endraw %}</div></td>
-      <td class="text-center"><div class="placeholdLoader" order_status="{% raw %}{{order_status}}{% endraw %}">{% raw %}{{order_status}}{% endraw %}</div></td>
+      {% comment %}<td class="text-center"><div class="placeholdLoader">{% raw %}{{division}}{% endraw %}</div></td>{% endcomment %}
+      {% comment %}<td class="text-center"><div class="placeholdLoader">{% raw %}{{channel}}{% endraw %}</div></td>{% endcomment %}
+      <td class="text-center" order_status="{% raw %}{{order_status}}{% endraw %}"><div class="placeholdLoader">{% raw %}{{order_status}}{% endraw %}</div></td>
       {% comment %}<td class="text-right">${% raw %}{{total}}{% endraw %}</td>{% endcomment %}
       <td id="td_{% raw %}{{id}}{% endraw %}" class="td_select" designer_id="{% raw %}{{designer_id}}{% endraw %}">
         <select id="select_{% raw %}{{id}}{% endraw %}" onchange="changePrintShop(this); this.title = this.options[this.selectedIndex].innerHTML;" title="Select a Designer to Assign" style="margin:auto 0px;" class="assign-printer placeholdLoader" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{order_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}"><option selected disabled title="Select a Designer to Assign">Unassigned</option></select>
       </td>
       <td class="text-center printModeExclude">
-        <button type="btn" class="btn btn-primary editBtn placeholdLoader" style="" title="Update Order Fulfilment" status="{% raw %}{{order_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" order_id="{% raw %}{{id}}{% endraw %}" onclick="addToUpdateModal('{% raw %}{{id}}{% endraw %}');" tracking_url="{% raw %}{{ tracking_url }}{% endraw %}">Update</button>
+        <button type="btn" class="btn btn-primary editBtn placeholdLoader min-width-100" style="" title="Update Order Fulfilment" status="{% raw %}{{order_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" order_id="{% raw %}{{id}}{% endraw %}" onclick="addToUpdateModal('{% raw %}{{id}}{% endraw %}');" tracking_url="{% raw %}{{ tracking_url }}{% endraw %}">Update</button>
       </td>
     </tr>
     {% comment %}
@@ -90,9 +94,9 @@
   
  jQuery(document).ready(function($) {
    
-   	fetch_Orders();
+    fetch_Orders();
   
-	{% include 'customer-account-common-code' with 'doc-ready-code' %}   
+  {% include 'customer-account-common-code' with 'doc-ready-code' %}   
     
   });
   
@@ -124,17 +128,17 @@
   
   function fetch_Orders(){
 
-	{% include 'customer-account-common-code' with 'fetchOrders-code-fs' %}
+  {% include 'customer-account-common-code' with 'fetchOrders-code-fs' %}
   defreez(); defreez(); $('.placeholdLoader1').addClass('placeholdLoader').removeClass('placeholdLoader1');
   $('.table-wrapper').addClass('overflow-hidden');
                 
-  	 $.ajax({
+     $.ajax({
           url: '/apps/pepsi-print/fs_collection_response/get_orders_list.json',
           type: 'GET',
           data: data,
           dataType: 'json',
           success: function(data){
-              	// console.log(JSON.stringify(data));
+                // console.log(JSON.stringify(data));
                 if(data["total_entries"] > 0){
                   calcT(data);
                   
@@ -155,7 +159,7 @@
                   $("#print-btn").prop('disabled','disabled').prop('title', 'No orders to print.').css('cursor', 'not-allowed');
                   defreez();
                 }
-              	// defreez();
+                // defreez();
                 $('.placeholdLoader').addClass('placeholdLoader1').removeClass('placeholdLoader');
                 $('.table-wrapper').removeClass('overflow-hidden');
           },
@@ -163,12 +167,13 @@
             defreez(); show_message2('Error in fetching Orders.',false);
           }
           
-	 });
+   });
   }
   
   function fetch_Designers(){
       var i = 0;
       $('.td_select select, #select_designer_edit').append('<option w3-repeat="results" value="{% raw %}{{id}}{% endraw %}" title="{% raw %}{{email}}{% endraw %}" select="{% raw %}{{selected}}{% endraw %}">{% raw %}{{company}}{% endraw %}</option>');
+      $('#select_tl [label="Filter By Designers"]').append('<option w3-repeat="results" value="{% raw %}{{ id }}{% endraw %}" filter_attr="filter_by_designer" title="{% raw %}{{email}}{% endraw %}">{% raw %}{{ company }}{% endraw %}</option>');
       $.ajax({
           url: '/apps/pepsi-print/fs_printer_configuration/nsm_designers.json',
           type: 'GET',
@@ -176,11 +181,15 @@
           dataType: 'json',
           success: function (data) { // console.log(JSON.stringify(data));
         
-        			data1 = popCompany(data, null);
+              data1 = popCompany(data, null);
                           
               // w3DisplayData('select_designer_edit', data1);
+              
+              select_tl_back = $('#select_tl').val();
         
-        			mfpHTML = $('#OrderEditModal').html();
+              w3DisplayData('select_tl', data1);
+        
+              mfpHTML = $('#OrderEditModal').html();
         
               $('.td_select').each(function(index,id){ // console.log($(id).attr('designer_id'));
                     var $id = $(id);
@@ -194,9 +203,9 @@
                         $('option[select = "selected"]').prop("selected", "selected");
                         $('.td_select select').each(function(index, id){
                           var $id = $(id).attr('id');
-          								$('#'+$id).prop('title', $('#'+$id+' option[select = "selected"]').last().text());
+                          $('#'+$id).prop('title', $('#'+$id+' option[select = "selected"]').last().text());
                           if($('#'+$id+' option[select = "selected"]').length > 0){
-                          	$('#'+$id+' option[select = "selected"]').parent().prop("disabled", "disabled").prop('title', 'Reassign Designer from Order detail page.').css('cursor', 'not-allowed');
+                            $('#'+$id+' option[select = "selected"]').parent().prop("disabled", "disabled").prop('title', 'Reassign Designer from Order detail page.').css('cursor', 'not-allowed');
                           }
                         });
                         $('.editBtn[status = "Fulfilled"]').toggleClass("btn-primary btn--secondary btn").text("Track").attr("onclick", "if($(this).attr('tracking_url').indexOf('tracking_url') == -1) openInNewTab($(this).attr('tracking_url')); else location.assign('/pages/order?id='+$(this).attr('order_id'));").prop('title', 'Track Order Shipment.');
@@ -204,11 +213,15 @@
                         $('.editBtn:not([status = "In Production"]):not([status = "Fulfilled"])').prop("disabled", "disabled").css('cursor', 'not-allowed');
                         defreez();
                         $('.placeholdLoader').addClass('placeholdLoader1').removeClass('placeholdLoader');
+                        if(Boolean(var_filter_by_designer))
+                          $('#select_tl').val(var_filter_by_designer);
+                    else
+                          $('#select_tl').val(select_tl_back);
               });
 
 
             },
-        		error: function(){
+            error: function(){
               defreez(); show_message2('Error in fetching Designers.',false);
             }
 
@@ -218,69 +231,69 @@
   var $oem = $('#OrderEditModal');
   
   {% comment %}
-  function addToEditModal(obj){
-    order_id = obj;
-    // freez();
-    $('html').css('overflow','hidden');
-    $('#mfp-order-edit .mfp-bg, #mfp-order-edit .mfp-wrap').show().removeClass('mfp-hide');
-    var data = {order_id: obj, cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
+  // function addToEditModal(obj){
+  //   order_id = obj;
+  //   // freez();
+  //   $('html').css('overflow','hidden');
+  //   $('#mfp-order-edit .mfp-bg, #mfp-order-edit .mfp-wrap').show().removeClass('mfp-hide');
+  //   var data = {order_id: obj, cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
                 
-  	 $.ajax({
-          url: '/apps/pepsi-print/fs_collection_response/get_order_detail.json',
-          type: 'GET',
-          data: data,
-          dataType: 'json',
-          success: function(data){
-              	// console.log(JSON.stringify(data));
-                data = dataHide(data);
-                w3DisplayData("lineItem2", data.order);
-                $('#OrderEditModal form').attr('order_id', data.order.id);
-          			$('#OrderEditModal .orderName').text(data.order.order_name);
-                // $('#OrderEditModal .subTotal').text(data.order.sub_total);
-                $('#OrderEditModal .grandTotal').text(data.order.total);
+  //    $.ajax({
+  //         url: '/apps/pepsi-print/fs_collection_response/get_order_detail.json',
+  //         type: 'GET',
+  //         data: data,
+  //         dataType: 'json',
+  //         success: function(data){
+  //               // console.log(JSON.stringify(data));
+  //               data = dataHide(data);
+  //               w3DisplayData("lineItem2", data.order);
+  //               $('#OrderEditModal form').attr('order_id', data.order.id);
+  //               $('#OrderEditModal .orderName').text(data.order.order_name);
+  //               // $('#OrderEditModal .subTotal').text(data.order.sub_total);
+  //               $('#OrderEditModal .grandTotal').text(data.order.total);
                 
-                // $('#OrderEditModal .discountCode').val(data.order.discount_codes[0].code);
-                // switch(data.order.discount_codes[0].type){
-                // 	case 'fixed_amount':
-                // 	case 'percentage':
-                // 	case 'shipping':
-               	// }
-                // $('#OrderEditModal .discountType').text(data.order.sub_total);
-                // $('#OrderEditModal .discountAmount').val(data.order.discount_codes[0].amount);
-                {% comment %}{% endcomment %}
-                if(data.order.notes != null ){ 
-                    // $('#note .note_text').text(data.notes).show();
-                    // console.log('note:', data.order.notes);
-                    orderMsg = JSON.parse(data.order.notes.replace(/=>/g, ':'));
-                  	if((orderMsg.order_msg||'').length > 0)
-                      $.when(prepareMsg(orderMsg, function(data){
-                        w3DisplayData('orderNotes', data);
-						
-                      })).done(function(){ $('#orderNotes').show(0); });{% unless customer.tags contains Role_ASM or customer.tags contains Role_Printer %}
-                    else{
-                      $('#orderBtn').hide(0);
-                    }{% endunless %}
-                }else
-                  $('#orderNotes').hide(0);
+  //               // $('#OrderEditModal .discountCode').val(data.order.discount_codes[0].code);
+  //               // switch(data.order.discount_codes[0].type){
+  //               //  case 'fixed_amount':
+  //               //  case 'percentage':
+  //               //  case 'shipping':
+  //               // }
+  //               // $('#OrderEditModal .discountType').text(data.order.sub_total);
+  //               // $('#OrderEditModal .discountAmount').val(data.order.discount_codes[0].amount);
+  //               {% comment %}{% endcomment %}
+  //               if(data.order.notes != null ){ 
+  //                   // $('#note .note_text').text(data.notes).show();
+  //                   // console.log('note:', data.order.notes);
+  //                   orderMsg = JSON.parse(data.order.notes.replace(/=>/g, ':'));
+  //                   if((orderMsg.order_msg||'').length > 0)
+  //                     $.when(prepareMsg(orderMsg, function(data){
+  //                       w3DisplayData('orderNotes', data);
+            
+  //                     })).done(function(){ $('#orderNotes').show(0); });{% unless customer.tags contains Role_ASM or customer.tags contains Role_Printer %}
+  //                   else{
+  //                     $('#orderBtn').hide(0);
+  //                   }{% endunless %}
+  //               }else
+  //                 $('#orderNotes').hide(0);
                 
-                // console.log('printer:', data.order.designer_id);
-                // console.log('line_items:', data.order.line_items.length);
-                if(data.order.designer_id != null || data.order.line_items.length == 0 ){
-                  $('.for-order-split').remove();
-                  $('td[colspan="3"]').attr('colspan', '2');
-                }
+  //               // console.log('printer:', data.order.designer_id);
+  //               // console.log('line_items:', data.order.line_items.length);
+  //               if(data.order.designer_id != null || data.order.line_items.length == 0 ){
+  //                 $('.for-order-split').remove();
+  //                 $('td[colspan="3"]').attr('colspan', '2');
+  //               }
                   
                 
-            	defreez(); $('.mfp-preloader').hide(); if($('.mfp-note').length == 0)$('.mfp-container').css('height','auto').prepend('<div class="mfp-note"><div class="note text-center" style="margin:0px 5%;"><p><b>Use the edit order function to adjust pricing, adjust quantities, and/or split an order.<b></p></div><br><div>'); $('#OrderEditModal').show().removeClass('mfp-hide');
+  //             defreez(); $('.mfp-preloader').hide(); if($('.mfp-note').length == 0)$('.mfp-container').css('height','auto').prepend('<div class="mfp-note"><div class="note text-center" style="margin:0px 5%;"><p><b>Use the edit order function to adjust pricing, adjust quantities, and/or split an order.<b></p></div><br><div>'); $('#OrderEditModal').show().removeClass('mfp-hide');
                 
-          },
-          error: function(){
-            defreez(); show_message2('Error in fetching Order.',false);
-          }
+  //         },
+  //         error: function(){
+  //           defreez(); show_message2('Error in fetching Order.',false);
+  //         }
           
-	 });
+  //  });
   
-  }
+  // }
   {% endcomment %}
 
 
@@ -339,7 +352,7 @@
   }
   
   function dataHide(data){
-  	var i; 
+    var i; 
     var x;
     var str;
     var total = 0;
@@ -353,7 +366,7 @@
   
   
 
- 	function changePrintShop(obj, order_id){
+  function changePrintShop(obj, order_id){
       freez();
       var $this = $(obj); // console.log($this.attr('order_id')+" changed to"+$this.val());
       if(order_id == null)
@@ -361,20 +374,19 @@
       console.log(JSON.stringify({ cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order: order_id, designer_id: $this.val(), cregion: customer_region }));
       {% comment %}{% endcomment %}
       $.ajax({
-            url: '/apps/pepsi-print/fs_printer_configuration/assign_designer_to_order',
+            url: '/apps/pepsi-print/fs_printer_configuration/assign_designer_to_order.json',
             type: 'POST',
             data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order: order_id, designer_id: $this.val(), cregion: customer_region },
             dataType: 'json',
             success: function(data){
-              // console.log(data);
+              console.log(data);
               defreez(); 
               show_message2('Assigned Successfully.',true); 
-              $this.prop({'disabled':'disabled', 'title': 'Reassign Designer from Order detail page.'}).css('cursor', 'not-allowed').parent().prev().find('div').text(data.order_status||$this.parent().prev().find('div').text()).attr("order_status", (data.order_status||$this.parent().prev().text()));
+              $this.prop({'disabled':'disabled', 'title': 'Reassign Designer from Order detail page.'}).css('cursor', 'not-allowed').parent().prev().find('div').text(data.order_status||$this.parent().prev().find('div').text()).end().attr("order_status", (data.order_status||$this.parent().prev().attr("order_status")));
               changed = true; 
             },
-            error: function(){
-              defreez(); 
-              show_message2('Some Error Occured.',false); 
+            error: function(data){
+              show_message2(data.responseJSON.message||'Some Error Occured.', false, true); 
               $this.val($this.find('option:first').text()); 
             }
         });
@@ -383,7 +395,7 @@
   
   
   function popCompany(data,val){
-  	var i; // console.log(val+" designer_id");
+    var i; // console.log(val+" designer_id");
     var x;
     var str;
     var total = 0;

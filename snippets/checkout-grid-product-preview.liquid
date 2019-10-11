@@ -78,7 +78,7 @@
         $('.mfp-wrap').css('max-height', '100vh');
       }, 800);
 
-      if(url == old_url)
+      if(url == old_url && line == old_line)
         return false;
       else
         $('#ProductPreview').html('').append(mfpHTML3);
@@ -107,5 +107,6 @@
       });
 
       old_url = url;
+      old_line = line;
   }
 </script>

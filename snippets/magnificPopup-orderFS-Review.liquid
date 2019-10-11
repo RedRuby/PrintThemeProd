@@ -8,13 +8,13 @@
       <div id="OrderReviewModal" class="white-popup-block text-center" styles="display:none;">
         <form action="" method="post" onsubmit="updateLineState(event, this);" order_id="" line_id="" line_index=""> 
           <br>
-          <h2>{% if customer_role_tag == Role_FSUser %}Review {% endif %}Proof</h2>
+          <h2>{% if customer_role_tag == Role_FSUser or can_order %}Review {% endif %}Proof</h2>
           <br><br>
           <div class="grid text-left">
-            <div class="grid__item one-half small--one-whole w3-padding-right">
+            <div class="grid__item one-half small--one-whole w3-padding-right hide">
               <img src="{% raw %}{{ product_thumb_url }}{% endraw %}" alt="" class="line_img" style="width: 100%;">
             </div>
-            <div class="grid__item one-half small--one-whole">
+            <div class="grid__item one-whole half small--one-whole">
               <h3>{% raw %}{{ title }}{% endraw %}</h3>
               <div id="properties_{% raw %}{{ line_item_No }}{% endraw %}" class="properties-wrapper properties_{% raw %}{{ line_item_No }}{% endraw %}">
                 <b>Product Detail:</b>
@@ -28,12 +28,13 @@
               <br>
 
               {% if customer_role_tag == Role_Designer %}
-                <button type="button" id="upload_proof" class="uploadBtn btn btn-primary min-width-240" style1="display:none;" status="" order_id="" line_id="" onclick="$(this).next().toggle();">Upload Proof</button>
-                <div class="w3-margin-top" style="display: none;">
+                <button type="button" id="upload_proof" class="uploadBtn btn btn-primary min-width-240" style1="display:none;" status="" order_id="" line_id="" onclick1="$(this).next().toggle();" onclick="$(this).next().click();">Upload Proof</button>
+                <input type="file" class="visually-hidden" name="" id="" accept1=".csv" onchange="if(this.value.length > 0)validateRoster(this);">
+                <div class="w3-margin-top hide" style="display: none;">
                   <label>Proof URL <span class="w3-text-red">*</span></label>
                   <textarea name="proof_upload" id="" cols="30" rows="1" style="min-height: 70px;"></textarea>
                 </div>
-              {% elsif customer_role_tag == Role_FSUser %}
+              {% elsif customer_role_tag == Role_FSUser or can_order %}
                 <div class="review_section">
                   <br>
                   <h3>Is this proof approved? <span class="w3-text-red">*</span></h3>
@@ -43,7 +44,7 @@
                 </div>
               {% endif %}
               <br><br>
-              <h3 class="w3-margin-0">Notes</h3>
+              <h3 class="w3-margin-0">Notes - (Click link below to view your proof)</h3>
               <div id="notes_wrapper" class="notes_wrapper" style="max-height: 400px; overflow-y: auto; display: none;">
                 <div class="w3-row" w3-repeat="notes">
                   <hr style="margin: 10px 0;">
@@ -57,18 +58,23 @@
                 </div>
                 <br>
               </div>
-              <textarea name="line_notes" class="w3-medium w3-margin-top" id="" cols="30" rows="5" onchange="$(this).next().prop('disabled', false);"></textarea>
+              <textarea name="line_notes" class="w3-medium w3-margin-top" id="" cols="30" rows="5" maxlength="250" placeholder="Add Note Here (Maximum 250 Characters)" oninput1="$(this).next().prop('disabled', false);"></textarea>
+              {% if customer_role_tag == Role_Designer %}
               <button class="btn btn--secondary" type="submit" disabled="">Add Note</button>
+              {% endif %}
+              <div class="textarea_feedback w3-right"></div>
             </div>
           </div>
 
           <div class="w3-block w3-margin-top">
+            {% if customer_role_tag == Role_FSUser or can_order %}
             <br>
             <button type="submit" class="btn btn-primary min-width-200" >Submit</button>
+            {% endif %}
             <br>
             <p></p>
             <a>
-              <button type="button" class="btn" onclick="updateReviewModal();">Cancel</button>
+              <button type="button" class="btn" onclick="updateReviewModal();">Return to Order</button>
             </a>
           </div>
           <br>
@@ -84,13 +90,27 @@
 
 </div>
 
-
+{{ 'nanobar.min.js' | asset_url | script_tag }}
 
 <script>
   var mfpHTML_Review = '';
   var changed_Review = "";
+  var line_id = "";
+  var line_index = "";
+
+  var options = {
+          classname: 'my-class',
+          id: 'my-id',
+          target: $('.header-bar').get(0)
+      };
+  var nanobar = new Nanobar( options );
+      
+  function nanobarLoad(data){ console.log(data.toString());
+    nanobar.go(parseInt(data));
+  }
+
   $(document).ready(function(){
-  	 mfpHTML_Review = $('#OrderReviewModal').html();
+     mfpHTML_Review = $('#OrderReviewModal').html();
   });
   
   function updateReviewModal(){
@@ -98,7 +118,7 @@
     setTimeout(function(){
       $('#mfp-order-review .mfp-bg, #mfp-order-review .mfp-wrap').delay(1000).hide().addClass('mfp-hide');
       $('html').css('overflow','auto');
-    	$('#OrderReviewModal *, .mfp-note').remove();
+      $('#OrderReviewModal *, .mfp-note').remove();
       $('#OrderReviewModal').html('').append(mfpHTML_Review);
     }, 800);
     // $('.mfp-container').removeAttr('style');
@@ -119,7 +139,7 @@
   
   function saveOrderNote(e, obj){
     freez();
-  	e.preventDefault();
+    e.preventDefault();
     e.stopPropagation();
     
     order_id = $(obj).attr('order_id');
@@ -144,32 +164,32 @@
             202:function() { console.log("202"); }
           },
           success: function(data){
-            	console.log(JSON.stringify(data));
-            	
+              console.log(JSON.stringify(data));
+              
                 if(200 === Number(data.status)){
-                  	$('#OrderReviewModal button[type = "submit"]').prop('disabled', 'disabled');
-                  	freez();
-                  	show_message2('Updated Successfully.',true);
-                   	setTimeout( function (){ 
+                    $('#OrderReviewModal button[type = "submit"]').prop('disabled', 'disabled');
+                    freez();
+                    show_message2('Updated Successfully.',true);
+                    setTimeout( function (){ 
                       location.reload();
                       changed_Review = true;
-                    	// $.unblockUI; 
+                      // $.unblockUI; 
                       
                     }, 1500);
                 }else if(401 === Number(data.status)){
-                  	$.unblockUI; show_message2(data.message,false);
+                    $.unblockUI; show_message2(data.message,false);
                 }else{
-                	$.unblockUI; show_message2(data.message,false); console.log('else');
+                  $.unblockUI; show_message2(data.message,false); console.log('else');
                 }
            
             
-            	
+              
           },
           error: function(data){
             $.unblockUI; show_message2('Some Error Occured.',false);
           }
           
-	 });
+   });
    {% endcomment %} 
     
   }
@@ -199,6 +219,7 @@
         jQuery.unique(urls).forEach(function(item, index1){
           item_u = item.match(/^https?:/) ? item : (item.match(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/) ? 'mailto:' : '//') + item;
           target = item_u.match(/^mailto/) ? '' : "target='_blank'" ;
+          target = (item_u.indexOf('s3.amazonaws.com') > -1) ? (target+' download="'+item_u.split('/').reverse()[0]+'"') : target;
           data.notes[index].message = data.notes[index].message.replace(item, "<a "+ target +" href='"+ item_u + "'><u>"+item+"</u></a><br>" );
         });
 
@@ -207,15 +228,159 @@
     callback(data);
   }
 
+  function validateRoster(element){
+          {% comment %}
+          // if({% if has_digital_product %}true{% else %}false{% endif %}){
+          //   nanobarLoad(0);
+          //   show_message4("Bulk Order Shiplist not acceptible with Digital Products.", false);
+          //   return false;
+          // }
+          {% endcomment %}
+
+          var file = element.files[0];
+          var reader = new FileReader();
+          var imgCheck = true;
+
+          // uploadProof(file);
+          // return false;
+                                                        
+          reader.onloadend = function() {
+            attachment = reader.result.split(',')[1];
+            attachment = attachment.replace(' ', '');
+            filename = file.name;
+            extension = filename.toLowerCase().match(/\.([^\.]+)$/)[1];
+            {% comment %}
+            switch(extension)
+            {
+                case 'csv':
+
+                  break;
+                default:
+                  show_message4('Unsupported file type...',false,'Supported file type ".csv"');
+                  imgCheck = false;
+            }
+            {% endcomment %}
+            if(file.size/1024/1024 > 2 ){
+              show_message4('Invalid image file size...',false,'Try adding file of size < 2 MB');
+                imgCheck = false;
+            }
+            
+            if(imgCheck){
+              // readCSV(element);
+              uploadProof(file);
+            }
+            element.value='';
+          }
+                  
+          reader.readAsDataURL(file);
+      }
+
+      function uploadProof(file){ freez();
+        obj = $('#OrderReviewModal form');
+        txtbkp = $('#upload_proof').html();
+        $('#upload_proof').html(txtbkp.replace('Upload', 'Uploading'));
+
+        {% comment %}
+        // file = element.files[0];
+
+        // alert(file.name+" | "+file.size+" | "+file.type);
+        {% endcomment %}
+
+        var formData = new FormData();
+
+        formData.append("file", file);
+        formData.append("cid", "{{ customer.id }}");
+        formData.append("cemail", "{{ customer.email }}");
+        formData.append("ctoken", "{{ customer.id  | hmac_sha1: shop.domain }}");
+        formData.append("crole", "{{ Role_FSUser | remove: 'Role:' }}");
+        formData.append("order_id", order_id);
+        formData.append("order_name", order_name);
+        formData.append("line_item_id", line_id);
+        formData.append("line_item_index", line_index);
+        formData.append("message", $('[name="line_notes"]').val().trim());
+        formData.append("proof_upload", true);
+        formData.append("shop", "{{ shop.permanent_domain }}");
+
+        {% comment %}
+        // Loop through each of the selected files.
+        // for (var i = 0; i < files.length; i++) {
+        //   var file = files[i];
+
+        //   // Check the file type.
+        //   // if (!file.type.match('image.*')) {
+        //   //   continue;
+        //   // }
+
+        //   // Add the file to the request.
+        //   formData.append('roster[]' file, file.name);
+        // }
+        {% endcomment %}
+
+        var xhr = new XMLHttpRequest();
+        xhr.upload.addEventListener("progress", rstrUpldProgressHandler, false);
+        xhr.addEventListener("load", rstrUpldCompleteHandler, false);
+        xhr.addEventListener("error", rstrUpldErrorHandler, false);
+        xhr.addEventListener("abort", rstrUpldAbortHandler, false);
+        // xhr.open('POST', '/apps/pepsi-print/fs_order_configuration/upload_proofs', true);
+        {% if shop.permanent_domain contains "beta" %}                         
+          xhr.open('POST', 'https://beta-pepsi-print.herokuapp.com/print_app/fs_order_configuration/upload_proofs', true);                       
+        {% else %}
+          xhr.open('POST', 'https://printprodcustomiser.com/print_app/fs_order_configuration/upload_proofs', true);
+        {% endif %}
+        xhr.responseType = "json";
+        xhr.onload = function () {
+          // console.log(xhr);
+          if (xhr.status === 200) {
+            // File(s) uploaded.
+            $('#upload_proof').html(txtbkp.replace('Upload', 'Uploaded'));
+            show_message2('Uploaded.',true);
+          } else {
+            $('#upload_proof').html(txtbkp);
+            show_message2('Upload Failed.',false);
+          }
+        };
+        function rstrUpldProgressHandler(event){
+          var percent = (event.loaded / event.total) * 100;
+          nanobarLoad(Math.round(percent));
+          $('#upload_proof').html(txtbkp.replace('Upload', 'Uploading')+" "+Math.round(percent)+"%");
+        }
+        function rstrUpldCompleteHandler(event){
+          // nanobarLoad(100);
+          console.log(event.target.response);
+          data = event.target.response;
+          
+          if(data.status != undefined && data.status == 200){
+            window['line_id'] = obj.attr('line_id');
+            window['line_index'] = obj.attr('line_index');
+            setTimeout(function(){
+              fetch_Order(order_id, null, null, null, "withARM");
+            }, 800);
+            $('[name="proof_upload"], [name="line_notes"]').val('');
+          }
+        }
+        function rstrUpldErrorHandler(event){
+          // _("status").innerHTML = "Upload Failed";
+          show_message2('Upload Failed.',false);
+        }
+        function rstrUpldAbortHandler(event){
+          // _("status").innerHTML = "Upload Aborted";
+          show_message2('Upload Aborted.',false);
+        }
+        console.log(formData);
+        xhr.send(formData);
+      }
+
   function updateLineState(e, obj) {
     e.preventDefault();
     freez();
-    data = {  cid: "{{ customer.id }}", cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", crole: "{{ Role_FSUser | remove: 'Role:' }}", order_id: order_id, order_name: order_name, line_item_id: $(obj).attr('line_id'), line_item_index: $(obj).attr('line_index')
+    
+//     $(obj).attr('line_id') $(obj).attr('line_index')
+    data = {  cid: "{{ customer.id }}", cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", crole: "{{ Role_FSUser | remove: 'Role:' }}", order_id: order_id, order_name: order_name, line_item_id: line_id, line_item_index: line_index
             };
 
     {% if customer_role_tag == Role_Designer %}
     proof_upload = $('[name="proof_upload"]').val().trim();
-    message = $('[name="proof_upload"]').val().trim() +"\n\n"+ $('[name="line_notes"]').val().trim();
+    message = ($('[name="proof_upload"]').val().trim() +"\n\n"+ $('[name="line_notes"]').val()).trim();
     if(Boolean(proof_upload)){
       data["proof_upload"] = proof_upload;
       var expression = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
@@ -226,7 +391,7 @@
         return false;
       }
     }
-    {% elsif customer_role_tag == Role_FSUser %}
+    {% elsif customer_role_tag == Role_FSUser or can_order %}
     approved = $('[name="approved"]:checked').val();
     message = $('[name="line_notes"]').val().trim() || $('[name="approved"]:checked').parent().text().trim();
     if(Boolean(approved))
@@ -258,16 +423,16 @@
                   fetch_Order(order_id, null, null, null, "withARM");
                 }, 800);
               }else
-                listLineNotes(data.line_item_id);
+                listLineNotes(data.line_item_id, data.line_item_index);
               $('[name="proof_upload"], [name="line_notes"]').val('');
             },
-            error: function(){$.unblockUI; show_message2('Some Error Occured.',false);}
+            error: function(){show_message2('Some Error Occured.',false);}
     });
   }
 
 
-  function listLineNotes(line_id){
-    data = { cid: "{{ customer.id }}", cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", line_item_id: line_id, order_id: order_id, order_name: order_name, page: 1, per_page: 100};
+  function listLineNotes(line_id, line_index){
+    data = { cid: "{{ customer.id }}", cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", line_item_id: line_id, line_item_index: line_index, order_id: order_id, order_name: order_name, page: 1, per_page: 100};
     
     console.log(JSON.stringify(data));
 
@@ -284,7 +449,8 @@
             w3DisplayData('notes_wrapper', data);
           })).done(function(){ 
             $('#notes_wrapper').show(0); 
-            $('#notes_wrapper').delay(100).animate({scrollTop: $('#notes_wrapper [w3-repeat="notes"]').offset().top}); 
+            // $('#notes_wrapper').delay(100).animate({scrollTop: $('#notes_wrapper [w3-repeat="notes"]').last().offset().top}); 
+            $('#notes_wrapper').delay(100).scrollTop($('#notes_wrapper [w3-repeat="notes"]').last().offset().top); 
           });
         }
       },
@@ -308,22 +474,31 @@
     else
       $('.uploadBtn').text('Upload Proof');
 
-    if($('.review_status[status="Approved"], .review_status[status="Needs Review"]').length > 0)
+    if($('.review_status[status="Approved"], .review_status[status="Needs Review1"]').length > 0)
       $('.uploadBtn').hide();
     else
       $('.uploadBtn').show();
-    {% elsif customer_role_tag == Role_FSUser %}
+    {% elsif customer_role_tag == Role_FSUser or can_order %}
     $('.review_status[status="Needs Edit"]').text('Proof is being edited by the Designer');
-    if($('.review_status[status="Approved"]').length > 0 || $('.review_status[status="Needs Edit"]').length > 0)
+    if($('.review_status[status="Approved"]').length > 0 || $('.review_status[status="Needs Edit"]').length > 0 || $('.review_status[status="Needs Proof"]').length > 0){
       $('.review_section').hide();
-    else
+    }else
       $('.review_section').show();
+
+    if("{{ customer.email | downcase }}" != order_data.order.customer.email.toLowerCase()){
+      $('.review_section').hide();
+      // return false;
+    }
     {% endif %}
   }
   
   function showReviewModal(line_item_No, line_item_id){
       console.log("index: "+line_item_No);
+      line_id = line_item_id;
       line_index = line_item_No;
+
+      listLineNotes(line_item_id, line_item_No);
+      
       $('html').css('overflow','hidden');
       $('#mfp-order-review .mfp-content').removeClass('bounceOutDown').addClass('slideInUp');
       $('#mfp-order-review .mfp-bg, #mfp-order-review .mfp-wrap').show().removeClass('mfp-hide');
@@ -331,17 +506,29 @@
       setTimeout(function(){
         $('#OrderReviewModal form').attr({ 'order_id': order_data.order.id.toString(), 'line_id': line_item_id.toString(), 'line_index': line_index.toString() });
         $('.mfp-wrap').css('max-height', '100vh');
+        setStatus();
       }, 800);
 
+      $('#mfp-order-review .mfp-wrap').delay(100).animate({scrollTop: $('#mfp-order-review .mfp-wrap').offset().top-600}); 
+
       w3DisplayData("OrderReviewModal", order_data.order.line_items[line_item_No]);
-
-      listLineNotes(line_item_id);
-
-      setStatus();
 
       if(order_data.order.line_items[line_item_No].product_image_url)
         $('.line_img').attr('src', order_data.order.line_items[line_item_No].product_image_url);
       else
         $('.line_img').attr('src', order_data.order.line_items[line_item_No].product_thumb_url.replace('150','600').replace('200','800'));
+      
+      var text_max = $('[name="line_notes"]').attr('maxlength');
+      $('.textarea_feedback').html(text_max + ' characters remaining');
+
+      $('[name="line_notes"]').off('input').on('input', function() {
+          var text_length = $(this).val().length;
+          var text_remaining = text_max - text_length;
+
+          if(text_length && $(this).next().is(':disabled'))
+            $(this).next().prop('disabled', false);
+
+          $('.textarea_feedback').html(text_remaining + ' characters remaining');
+      });
   }
 </script>

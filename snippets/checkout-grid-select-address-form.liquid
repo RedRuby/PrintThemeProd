@@ -66,6 +66,7 @@
             </div>
           </div>
         </div>
+        <a class='w3-text-blue' href='/account/addresses?view=shipping'><u>Edit My Shipping Address</u></a>
         <form onsubmit="selectAddress(event, this);">
           <div class="w3-block w3-margin-top">
 
@@ -75,10 +76,13 @@
                 <label class="select_label">
                   <div class="w3-row">
                     <div class="w3-col s2 text-right">
-                      <input name="selectAddress[{% raw %}{{ id }}{% endraw %}]" class="w3-check w3-white w3-margin-right" type="checkbox">
+                      <input id="selectAddress_{% raw %}{{ id }}{% endraw %}" name="selectAddress[{% raw %}{{ id }}{% endraw %}]" class="w3-check w3-white w3-margin-right" type="checkbox">
                     </div>
                     <div class="w3-col s10">
                       <b>{% raw %}{{ customer }}{% endraw %}</b>
+
+                      <span class="w3-right w3-tag w3-small" style="text-transform: capitalize;" add_type="{% raw %}{{ address_type }}{% endraw %}">{% raw %}{{ address_type }}{% endraw %}</span>
+                      
                       <p></p>
                       <p class="w3-margin-0">
                         <small>{% raw %}{{ first_name }} {{ last_name }}{% endraw %}</small>
@@ -97,8 +101,10 @@
                       </p>
                       <p></p>
                       <p class="w3-margin-0">
+                        {% comment %}
                         <small>{% raw %}{{ budget_identifier }}{% endraw %}</small>
                         <br>
+                        {% endcomment %}
                         <small>{% raw %}{{ channel_identifier }}{% endraw %}</small>
                       </p>
                     </div>
@@ -213,15 +219,18 @@
     // sort = (query.sort != undefined) ? query.sort : '';
 
     // freez();
-    var data = { cid: "{{ customer.id }}", action_type: "list_fs_address" };
+    var data = { cid: "{{ customer.id }}", action_type: "list_fs_address", default_address: {{ customer.default_address | json }} };
 
     // if(page.length != 0){ data.page = page }
     // if(per_page.length != 0){ data.per_page = per_page; $('.per_page').val(per_page.toString()); }
-    if(search.length != 0){ data.search = search; $('#search').val(search); }
+    if(search.length != 0){ 
+      data.search = search; $('#search').val(search); 
+    }
     // if(sort.length != 0){ data.sort = sort; $('#sort').val(sort); }
 
     data.per_page = 5000;
-
+    console.log(data);
+  
     $.ajax({
             url: '/apps/place_bulk_order',
             type: 'GET',
@@ -229,75 +238,87 @@
             data: data,
             contentType: 'application/json',
             success: function(data){ 
-              console.log(data);  
-              default_id = data.default_address.id;
-              {% if has_digital_product %}
-              if($('#default_address')  && setDefault && Boolean(data.default_address) && data["total_addresses"] == 0)
-                  w3DisplayData("default_address", data.default_address);
-              {% endif %}
-              if(data["total_addresses"] > 0){
-                  address.addresses = data.addresses;
-                  $('#OrderAddressSelect').html('').append(mfpHTML2);
-                  $.when(setTimeout(w3DisplayData("OrderAddressSelect", data),100))
-                  .done(function(){ 
-                    setAddTable();
-
-                    {% if has_digital_product %}
-                    if($('#default_address') && setDefault && Boolean(data.default_address))
-                      w3DisplayData("default_address", data.default_address);
-                    {% endif %}
-                    enableGroupSelection('[name^="selectAddress["]');
-
-                    $.each(grid_data.addresses.map(function(x){ return x.id }), function(){
-                      $('[name^="selectAddress['+this+']"').prop('disabled', true).parents('label').addClass('w3-text-grey').css('cursor', 'not-allowed');
-                    });
-
-                    $('[name="selectAllAddress"]').off('click').on('click', function() {
-                        if (this.checked == true)
-                            $('#OrderAddressSelect').find('input[name^="selectAddress["]').prop('checked', true);
-                        else
-                            $('#OrderAddressSelect').find('input[name^="selectAddress["]').prop('checked', false);
-                        $('#OrderAddressSelect').find('[type="submit"]').focus();
-                    });
-
-                    $('input[name^="selectAddress["], [name="selectAllAddress"]').on('click', function(){
-                      $('input[name^="selectAddress["][disabled]:checked').prop('checked', false);
-                    });
-
-                    $('#paginationInit').pagination({
-                        items: data["total_addresses"],
-                        itemsOnPage: data["per_page"],
-                        hrefTextPrefix: "javascript:updateState({ page: '",
-                        hrefTextSuffix: "'});",
-                        currentPage: page,
-                        prevText:'<i class="fa fa-arrow-left"></i>',
-                        nextText:'<i class="fa fa-arrow-right"></i>',
-                        listStyle: 'w3-pagination',
-                        ellipsePageSet: false,
-                        displayedPages: 0,
-                        edges: 0,
-                    });
-
-                    $('#OrderAddressSelect, .per_pageContainer').show();
-                    $('.no_addresses').hide();
-
-                    if(page.length != 0){ data.page = page }
-                    if(per_page.length != 0){ data.per_page = per_page; $('.per_page').val(per_page.toString()); }
-                    if(search.length != 0){ data.search = search; $('#search').val(search); }
-                    if(sort.length != 0){ data.sort = sort; $('#sort').val(sort); }
-
-                  });
-                  
-                }else{
-                  $('.no_addresses').show();
-                }
-                $(".w3-loader").hide();
+              success_fn(data);
             },
             error: function(data){ 
               show_message2(data.responseJSON.message||'Some Error Occured.',false); 
               console.log(data);
             }
     });
+    
+    function success_fn(data){
+      console.log(data);  
+        default_id = default_id || data.default_address.id;
+        {% if has_digital_product %}
+        if($('#default_address')  && setDefault && Boolean(data.default_address) && data["total_addresses"] == 0)
+            w3DisplayData("default_address", data.default_address);
+        {% endif %}
+        if(data["total_addresses"] > 0){
+            address.addresses = data.addresses;
+            $('#OrderAddressSelect').html('').append(mfpHTML2);
+            $.when(setTimeout(w3DisplayData("OrderAddressSelect", data),100))
+            .done(function(){ 
+              setAddTable();
+
+              t = setDefault ? 3000 : 0;
+
+              setTimeout(function(){
+              if(data.addresses.map(function(x){ return x.address_type }).includes(null))
+                show_message4("ALERT: Please click <a class='w3-text-orange' href='/account/addresses?view=shipping'><u>here</u></a> to update all of your shipping addresses to classify them as residential or business.", true, null, 15000);
+              }, t);
+
+              {% if has_digital_product %}
+              if($('#default_address') && setDefault && Boolean(data.default_address))
+                w3DisplayData("default_address", data.default_address);
+              {% endif %}
+              enableGroupSelection('[name^="selectAddress["]');
+
+              $.each(grid_data.addresses.map(function(x){ return x.id }), function(i, e){
+                // $('[name="selectAddress['+e.toString()+']"').prop('disabled', true).parents('label').addClass('w3-text-grey').css('cursor', 'not-allowed');
+                $('#selectAddress_'+e.toString()).prop('disabled', true).parents('label').addClass('w3-text-grey').css('cursor', 'not-allowed');
+              });
+
+              $('[name="selectAllAddress"]').off('click').on('click', function() {
+                  if (this.checked == true)
+                      $('#OrderAddressSelect').find('input[name^="selectAddress["]').prop('checked', true);
+                  else
+                      $('#OrderAddressSelect').find('input[name^="selectAddress["]').prop('checked', false);
+                  $('#OrderAddressSelect').find('[type="submit"]').focus();
+              });
+
+              $('input[name^="selectAddress["], [name="selectAllAddress"]').on('click', function(){
+                $('input[name^="selectAddress["][disabled]:checked').prop('checked', false);
+              });
+
+              $('#paginationInit').pagination({
+                  items: data["total_addresses"],
+                  itemsOnPage: data["per_page"],
+                  hrefTextPrefix: "javascript:updateState({ page: '",
+                  hrefTextSuffix: "'});",
+                  currentPage: page,
+                  prevText:'<i class="fa fa-arrow-left"></i>',
+                  nextText:'<i class="fa fa-arrow-right"></i>',
+                  listStyle: 'w3-pagination',
+                  ellipsePageSet: false,
+                  displayedPages: 0,
+                  edges: 0,
+              });
+
+              $('#OrderAddressSelect, .per_pageContainer').show();
+              $('.no_addresses').hide();
+
+              if(page.length != 0){ data.page = page }
+              if(per_page.length != 0){ data.per_page = per_page; $('.per_page').val(per_page.toString()); }
+              if(search.length != 0){ data.search = search; $('#search').val(search); }
+              if(sort.length != 0){ data.sort = sort; $('#sort').val(sort); }
+
+            });
+
+          }else{
+            $('.no_addresses').show();
+          }
+          $(".w3-loader").hide();
+    }
   }
   
   $(document).ready(function(){
@@ -341,10 +362,9 @@
     // else if(id){
     //   updateGrid("address", address.addresses.filter(function( obj ) { if(id == obj.id) return obj; }));
     //   updateModal2();
+      defreez();
     }else
       show_message2("Please Select at leat one address.", false, true);
-
-    defreez();
   }
   
   function showSelectModal(){

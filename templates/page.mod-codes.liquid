@@ -1,0 +1,92 @@
+<div class="grid">
+
+  <div class="grid__item post-large--two-thirds push--post-large--one-sixth">
+
+    <div class="section-header">
+      <h1 class="section-header--title">{{ page.title }}</h1>
+    </div>
+
+    <div class="rte">
+      {% assign region_codes = page.content | strip | replace: "<br>", "," | strip_html | split: "Legacy " %}
+      {% comment %}
+      {% for code in codes %}
+        {{ code }}
+        <br><br>
+      {% endfor %}
+      {% endcomment %}
+      
+      {% for region_code in region_codes offset:1 %}
+      {% assign codes = region_code | split: ","  %}
+      <h3>Legacy {{ codes | first }}</h3>
+      <table>
+        {% tablerow code in codes cols:3 offset:1 %}
+          <button type="button" class="no-btn small center" onclick1="copyText(this.nextElementSibling);" onclick="Clipboard.copy('{{ code }}');" my-title="Click to Copy Code">{{ code }}</button>
+          <input type="text" readonly contenteditable="true" class="visually-hidden" value="{{ code }}"/>
+        {% endtablerow %}
+      </table>
+      {% endfor %}
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  function copyText(copyText) {
+    /* Select the text field */
+    copyText.select();
+
+    /* Copy the text inside the text field */
+    document.execCommand("copy");
+
+    /* Alert the copied text */
+    show_message2("Copied the code: " + copyText.value, true);
+  }
+  
+  window.Clipboard = (function(window, document, navigator) {
+    var textArea,
+        copy;
+
+    function isOS() {
+        return navigator.userAgent.match(/ipad|iphone/i);
+    }
+
+    function createTextArea(text) {
+        textArea = document.createElement('textArea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+    }
+
+    function selectText() {
+        var range,
+            selection;
+
+        if (isOS()) {
+            range = document.createRange();
+            range.selectNodeContents(textArea);
+            selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            textArea.setSelectionRange(0, 999999);
+        } else {
+            textArea.select();
+        }
+    }
+
+    function copyToClipboard() {        
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+    }
+
+    copy = function(text) {
+        createTextArea(text);
+        selectText();
+        copyToClipboard();
+        show_message2("Copied the code: " + text, true);
+    };
+
+    return {
+        copy: copy
+    };
+})(window, document, navigator);
+</script>

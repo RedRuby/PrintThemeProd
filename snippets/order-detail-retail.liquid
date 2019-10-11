@@ -211,7 +211,7 @@
    <div id="assign-printer-wrapper" class="grid__item one-third medium-down--one-whole print-shop-block printModeExclude">
     <label for="assign-printer">Assign Order to Vendor</label>
     <select id="assign-printer" onchange="changePrintShop(this);">
-     <option selected disabled>Select Vendor</option>
+     <option selected value="">Unassign Vendor</option>
     </select>
    </div>
   {% elsif customer.tags contains Role_Printer %}
@@ -228,6 +228,60 @@
     </div>
     <button id="update-fulfillment" class="js-toggle-update-modal1 updateBtn btn" style="display:none; min-width:350px;" title="Update this order" status="" onclick="addToModal(this);" order_id="" >Update Fulfillment</button>
   </div>
+  {% elsif customer.tags contains Role_Admin and customer.tags contains "SuperUser" %}
+    <div  class="grid__item one-third medium-down--one-whole print-shop-block printModeExclude">
+      <button class="btn reSyncBtn" style="min-width:350px;" title="Re-Sync this order" status="" onclick="reSyncOrder();">Re-Sync Order</button>
+      <script>
+        setInterval(function() {
+          if (getCookie('order_id_'+order_id)) {
+            $('.reSyncBtn').prop("disabled", true);
+          } else {
+            $('.reSyncBtn').prop("disabled", false);
+          }
+        }, 1000);
+        Date.prototype.addMinutes = function(minutes) {
+            var copiedDate = new Date(this.getTime());
+            return new Date(copiedDate.getTime() + minutes * 60000);
+        }
+        function getCookie(cname) {
+          var name = cname + "=";
+          var decodedCookie = decodeURIComponent(document.cookie);
+          var ca = decodedCookie.split(';');
+          for(var i = 0; i <ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+              c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+              return c.substring(name.length, c.length);
+            }
+          }
+          return "";
+        }
+        function setCookie(cname, cvalue, exdays) {
+          var d = new Date();
+          d.setTime(d.getTime() + (exdays*24*60*60*1000));
+          var expires = "expires="+ d.toUTCString();
+          document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        }
+        function reSyncOrder(){
+          freez();
+          {% if shop.permanent_domain contains "beta" %}
+            {% assign pc_app_domain = "beta-pepsi-print.herokuapp.com" %}
+          {% else %}
+            {% assign pc_app_domain = "printprodcustomiser" %}
+          {% endif %}
+          $.get('https://{{ pc_app_domain }}/save_by_api?id='+order_id).complete(function(){ 
+            show_message4("Order re-sync  request queued successfully, Please check 5 minutes later.", true);
+            // $('.reSyncBtn').prop("disabled", true);
+            document.cookie = "order_id_"+order_id+"=1; expires="+new Date().addMinutes(5).toUTCString()+";path=/";
+            setTimeout(function(){
+              // location.reload();
+            }, 2000);
+          });
+        }
+      </script>
+    </div>
   {% endif %}
 
 </div>
@@ -418,13 +472,13 @@
 
 
                 function showProperties(item, index){ //console.log(item['product_id']);
-					setTimeout( w3DisplayData("properties_"+item['line_item_No'], item), 900+100*index);
+          setTimeout( w3DisplayData("properties_"+item['line_item_No'], item), 900+100*index);
                 }
 
-    			$('#billing_address .name').text(data.order.billing_address.name);
-    			if(data.order.customer.email != null){ $('#billing_address .email').html(data.order.customer.email); }
-    			bemail = data.order.customer.email;
-    			if(data.order.billing_address.company != null){ $('#billing_address .company').html(data.order.billing_address.company); }
+          $('#billing_address .name').text(data.order.billing_address.name);
+          if(data.order.customer.email != null){ $('#billing_address .email').html(data.order.customer.email); }
+          bemail = data.order.customer.email;
+          if(data.order.billing_address.company != null){ $('#billing_address .company').html(data.order.billing_address.company); }
                 if(data.order.billing_address.address1){ $('#billing_address .address1').html('<span class="printModeExclude"><br></span><span class="printModeInclude hide">, </span>'+data.order.billing_address.address1); }
                 if(data.order.billing_address.address2){ $('#billing_address .address2').text(', '+data.order.billing_address.address2); }
                 if(data.order.billing_address.city){ $('#billing_address .city').html('<span class="printModeExclude"><br></span><span class="printModeInclude hide">, </span>'+data.order.billing_address.city); }
@@ -447,13 +501,13 @@
                 if(data.order.shipping_address.country){ $('#shipping_address .country').html(data.order.shipping_address.country+'<span class="printModeExclude"><br></span><span class="printModeInclude hide">, </span>'); }
                 if(data.order.shipping_address.phone){ $('#shipping_address .phone').html(data.order.shipping_address.phone); }
 
-    			if(data.order.fulfillments[0] != null){
-				if(data.order.fulfillments[0].created_at){ $('.note .created_at').html(data.order.fulfillments[0].created_at); }
-            	if(data.order.fulfillments[0].updated){ $('.note .updated_at').html(data.order.fulfillments[0].updated); }
-				if(data.order.fulfillments[0].tracking_url){ $('#note a').attr('href',data.order.fulfillments[0].tracking_url); }else $('.note a').removeAttr('href');
-				if(data.order.fulfillments[0].tracking_company){ $('#note a').html(data.order.fulfillments[0].tracking_company); }
-				if(data.order.fulfillments[0].tracking_number){ $('#note a').html($('#note a').html()+' #'+data.order.fulfillments[0].tracking_number); }
-				if(data.order.fulfillments[0].status == 'success'){ $('.fulfilled').show(); }
+          if(data.order.fulfillments[0] != null){
+        if(data.order.fulfillments[0].created_at){ $('.note .created_at').html(data.order.fulfillments[0].created_at); }
+              if(data.order.fulfillments[0].updated){ $('.note .updated_at').html(data.order.fulfillments[0].updated); }
+        if(data.order.fulfillments[0].tracking_url){ $('#note a').attr('href',data.order.fulfillments[0].tracking_url); }else $('.note a').removeAttr('href');
+        if(data.order.fulfillments[0].tracking_company){ $('#note a').html(data.order.fulfillments[0].tracking_company); }
+        if(data.order.fulfillments[0].tracking_number){ $('#note a').html($('#note a').html()+' #'+data.order.fulfillments[0].tracking_number); }
+        if(data.order.fulfillments[0].status == 'success'){ $('.fulfilled').show(); }
 
                   try{
                     tnos = (data.order.fulfillments[0].tracking_number).split(',');
@@ -604,9 +658,14 @@
       freez();
       var $this = $(obj); console.log($this.attr('order_id')+" changed to"+$this.val());
       var confirmed = true;
+      if(Boolean($this.val()))
+        confirm_msg_part2 = "'. \nDo you want to reassign it to '"+ $this.find('option[value="'+$this.val()+'"]').text() +"' ?";
+      else
+        confirm_msg_part2 = "'. \nDo you want to unassign it ?";
+
       if($(obj).find('option[select = "selected"]').length > 0){
          var existingPrinter = $(obj).find('option[select = "selected"]').text();
-         if(confirm("Order is already assigned to a vendor '"+ existingPrinter +"'. \nDo you want to reassign it to '"+ $this.find('option[value="'+$this.val()+'"]').text() +"' ?") != true){
+         if(confirm("Order is already assigned to a Vendor '"+ existingPrinter + confirm_msg_part2) != true){
            $(obj).find('option[select = "selected"]').prop('selected', 'selected');
            confirmed = false;
          }
@@ -618,8 +677,8 @@
               type: 'POST',
               data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order: order_id, printer_id: $this.val(), cregion: '{{ customer_region_tag |replace:'Region:','' |replace:'0','o'}}' },
               dataType: 'json',
-              success: function(){$.unblockUI; show_message2('Assigned Successfully.',true); changed = true; },
-              error: function(){$.unblockUI; show_message2('Some Error Occured.',false);}
+              success: function(){ show_message2( (Boolean($this.val())) ? 'Assigned Successfully.' : "Unassigned Successfully.", true);  changed = true; },
+              error: function(){ show_message2('Some Error Occured.',false);}
         });
       }
    }
@@ -733,7 +792,7 @@
             data: JSON.stringify(data),
             dataType: 'json',
             contentType: 'application/json',
-            success: function(){ $this.prop("disabled", "disabled").css('cursor','not-allowed'); $.unblockUI; show_message2('Updated Successfully.', true); setTimeout(fetch_Order(order_id, null, null, true), 1000);}, //location.reload()
+            success: function(){ $this.prop("disabled", "disabled").css('cursor','not-allowed'); show_message2('Updated Successfully.', true); setTimeout(fetch_Order(order_id, null, null, true), 1000);}, //location.reload()
             error: function(){$.unblockUI; show_message2('Some Error Occured.',false);}
     });
   }

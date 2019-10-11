@@ -32,6 +32,17 @@
     <input type="search" name1="q" value="{{ search.terms | escape | remove: ' product_type:mod' }}" aria-label="{{ 'general.search.placeholder' | t }}" class="header-bar__search-input min-width-240" placeholder="{{ 'general.search.placeholder' | t }}" style="margin: 0; padding: 0 30px 0 15px; border: 1px solid #aaa; height: 43px" oninput="$(this).next().val(this.value.replace(' product_type:mod', '') + ' product_type:mod');">
     <input type="hidden" class="" name="q" value="{{ search.terms | escape }}" />
   </form>
+{% elsif search-bar == 'header-retail' %}
+  <form action="/search" method="get" class="header-bar__search-form clearfix printModeExclude header-search-fs" role="search" style="margin: 5px 0; position: relative; z-index: 9" onsubmit="">
+    <input type="hidden" name="type" value="product">
+    <button type="submit" class="btn icon-fallback-text header-bar__search-submit1" style="position: absolute; right: 0; background: transparent; color: black !important;">
+      <i class="icon icon-search" aria-hidden="true" style="font-size: 16px; padding-top: 2px;"></i>
+      {% comment %}<span class="fallback-text">{{ 'general.search.submit' | t }}</span>{% endcomment %}
+    </button>
+    {% assign search_postfix =  " tag:'" | append: customer_region_tag | append: "'" %}
+    <input type="search" name1="q" value="{{ search.terms | escape | remove: search_postfix }}" aria-label="{{ 'general.search.placeholder' | t }}" class="header-bar__search-input min-width-240" placeholder="{{ 'general.search.placeholder' | t }}" style="margin: 0; padding: 0 30px 0 15px; border: 1px solid #aaa; height: 43px" oninput="$(this).next().val(this.value.replace(' tag:\'{{ customer_region_tag }}\'', '') + ' tag:\'{{ customer_region_tag }}\'');">
+    <input type="hidden" class="" name="q" value="{{ search.terms | escape }}" />
+  </form>
 {% else %}
   <form action="/search" method="get" class="input-group search-bar" role="search">
     {% comment %}<input type="hidden" name="type" value="product">{% endcomment %}

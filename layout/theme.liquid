@@ -6,6 +6,23 @@
 	{% endif %}
 {% endunless %}
 
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
+
+{% comment %}{% assign pageHost = pageUrl | split:"/" | first %}{% endcomment %}
+
+{% assign pageHost = request.host %}
+
+{% if pageHost == 'www.pepsicomod.com' %}
+  {% layout 'none' %}
+  <meta content="0; url=https://{{ shop_url_fs }}{{ pageUrl | split:'.com' | last }}" http-equiv="refresh" />
+  {% break %}
+  {% continue %}
+{% elsif pageHost == shop.permanent_domain and shop.domain != shop.permanent_domain and Admin_logged_in == false %}
+  {% layout 'none' %}
+  <meta content="0; url=https://{{ shop_url_retail }}{{ pageUrl | split:'.com' | last }}" http-equiv="refresh" />
+  {% break %}
+  {% continue %}
+{% endif %}
 
 {% if send_to_login %}
 	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -63,22 +80,6 @@
         </body>
     </html>
 {% else %}
-
-{% include 'customer-account-common-code' with 'theme-layout-code' %}
-
-{% assign pageHost = pageUrl | split:"/" | first %}
-
-{% if pageHost == 'pepsicomod.com' %}
-  {% layout 'none' %}
-  <meta content="0; url=https://{{ shop_url_fs }}{{ pageUrl | split:'.com' | last }}" http-equiv="refresh" />
-  {% break %}
-  {% continue %}
-{% elsif pageHost == shop.permanent_domain and shop.domain != shop.permanent_domain %}
-  {% layout 'none' %}
-  <meta content="0; url=https://{{ shop_url_retail }}{{ pageUrl | split:'.com' | last }}" http-equiv="refresh" />
-  {% break %}
-  {% continue %}
-{% endif %}
 
 {% if no_region == true or no_access == true or cross_shop_req_url %}
 	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -251,8 +252,7 @@
 
   <!--BeginCFFPersistentCartCart-->
   {% if customer %}
-    <script>
-        // console.log('csu:{{current_shop_url}}');
+    <script>  
         window.cffCustomer = {
             name: '{{customer.name}}',
             email: '{{customer.email}}',
@@ -378,7 +378,7 @@
           });
         {% endif %}
 
-        
+        {% comment %}
         $.ajax({
           url: "/cart.js",
           {% if fs_shop_active %}
@@ -388,6 +388,7 @@
           {% endif %}
           type: "POST",
           success:function(data) {
+            console.log(data);
             // location.href = "/account";
             // location.reload();
           },
@@ -396,6 +397,7 @@
             // show_message2('Some Error Occured.',false);
           },
         });
+        {% endcomment %}
         	
       	var url = document.URL;
       	var pattern = /\?sort_by=created-descending/;
@@ -463,12 +465,14 @@
                 	$('#psudo img').removeClass('hide');
                 	if($(document).height() > 900)$('#header--logo').addClass('logo-fixed');
                   $('.main-content').css('padding-top', '94px');
+                  $('.site-header .header-search-fs').addClass('search-fixed');
               }
               else if($scroll <= 4){
                   $('#nav-2').removeClass('site-nav2-fixed'); $('.main-content').removeClass('main-content-extra');
                 	$('#psudo img').addClass('hide');
                 	$('#header--logo').removeClass('logo-fixed');
                   $('.main-content').css('padding-top', '0px');
+                  $('.site-header .header-search-fs').removeClass('search-fixed');
               }
               
               if($scroll >= 5){

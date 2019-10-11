@@ -1,7 +1,10 @@
 
   <div id="order-list" style="display:none;">
     <div class="w3-row printModeExclude">
-    	<div class="w3-col m2" style="position:relative;">
+      <div class="w3-col m12">
+        {% include 'customer-account-common-code' with 'address-search-bar' %}
+      </div>
+    	<div class="w3-col m2" style="position:relative; padding-left: 0;">
           <small class="nbsp-hide"><label for="">Date Filter</label></small>
     	  <input id="start_date" value="{{first_order}}" readonly class="datepicker" type="text" name="start_date" placeholder="Start Date" >
           <button type="button" disabled class="btn btn--secondary w3-padding-01 w3-padding-top1 w3-padding-bottom1 w3-border-black w3-small clear-filter hide" disabled1 style="position:absolute; bottom: 22.75px; right:10px; z-index:; display:none; padding:0 5px; font-size:3px;">Clear Dates</button>

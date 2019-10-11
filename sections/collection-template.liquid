@@ -1,4 +1,4 @@
-
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
 
 {% if collection.products.size > 0 %}
 
@@ -38,13 +38,13 @@
 <!--     <script>console.log(JSON.stringify({{ collection.products | json }}));</script> -->
 
     {% for product in collection.products %}
-    {% if product.tags contains customer_region_tag or customer.tags contains Role_Admin %}
+    {% if product.tags contains customer_region_tag or customer.tags contains Role_Admin or fs_shop_active %}
       {% assign featured = product %}
       <div class="grid__item {{grid_item_width}}">
         {% include 'product-grid-item' %}
       </div>
     {% else %}
-    	{% continue %}
+      {% continue %}
     {% endif %}
 
       {% if shop.products_count == 0 %}
@@ -75,7 +75,7 @@
           <p><em>{{ 'collections.general.no_matches' | t }}</em></p>
         </div> -->
       {% endif %}
-	
+  
     {% endfor %}
 
   </div>
@@ -91,7 +91,7 @@
 {% endpaginate %}
 
 {% else %}
-	<div class="grid__item">
+  <div class="grid__item">
       <div class="helper-section">
         <h1>No Products...</h1>
         <div class="grid-uniform helper-content{% if section.settings.center_grid_link %} text-center{% endif %}">

@@ -11,6 +11,9 @@
 		<title>MOD Product Upload Form</title>
       	
        	<link rel="shortcut icon" href="{{ settings.favicon_mod | img_url:'32x32' }}" type="image/png" />
+
+       	{{ 'timber.scss.css' | asset_url | stylesheet_tag }}
+		{% comment %}{{ 'theme.scss.css' | asset_url | stylesheet_tag }}{% endcomment %}
       
 		{% comment %}<link rel="stylesheet" type="text/css" href="css/bootstrap.css">{% endcomment %}
 		{{ "//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" | stylesheet_tag }}
@@ -18,11 +21,13 @@
 		{{ "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" | stylesheet_tag }}
 		{{ "https://www.w3schools.com/w3css/4/w3.css" | stylesheet_tag }}
 		{{ "https://daneden.github.io/animate.css/animate.min.css" | stylesheet_tag }}
+      	
 		{% comment %}{{ "https://docs.handsontable.com/pro/1.7.0/bower_components/handsontable-pro/dist/handsontable.full.min.css" | stylesheet_tag }}{% endcomment %}
 		{% comment %}{{ "//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" | stylesheet_tag }}{% endcomment %}
 		{% comment %}{{ 'custom-style.css' | asset_url | stylesheet_tag }}{% endcomment %}
       	{{ 'handsontable.full.css' | asset_url | stylesheet_tag }}
         {{ 'custom-style2.css' | asset_url | stylesheet_tag }}
+        {{ 'datepicker-UI.css' | asset_url | stylesheet_tag }}
       	{% comment %}{{ 'https://fonts.googleapis.com/css?family=Montserrat:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900italic,900' | stylesheet_tag }}{% endcomment %}
       	<link href="//fonts.googleapis.com/css?family=Ubuntu:400,700" rel="stylesheet" type="text/css" media="all" />
 		<style type="text/css">
@@ -39,19 +44,19 @@
             }
           
           	.handsontable th, .handsontable td { max-height: 30px !important; height:30px !important; min-height: 30px !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
+            {% comment %}
 			.ht_clone_top, .ht_clone_top_left_corner{
 				top:20px !important;
 				display: none;
 				/*position: fixed !important;*/
 			}
-          
+            {% endcomment %}
             .htCenter, td{ vertical-align:middle !important; }
             button:disabled{ pointer-events: all !important; }
             button{ text-transform:uppercase; font-weight: bold; border-radius: 2px !important; }
-            .blockUI.blockOverlay{ z-index:99999 !important; }
+            .blockUI.blockOverlay, .blockUI{ z-index:99999 !important; }
           
-            body > div:nth-child(6){ min-height: calc(100% - 162px); }
+            /*body > div:nth-child(6){ min-height: calc(100% - 162px); }*/
             th, td{ vertical-align: middle !important; }
             .handsontable th{ background-color: #000 !important; color: #fff !important; height: 50px !important; }
             .handsontable th.beforeHiddenColumn::after, .handsontable th.afterHiddenColumn::before{ display: none !important; }
@@ -62,60 +67,229 @@
             	color: #fff !important;
             }
             .copyRowBtn .fa{ padding: 10px !important; }
+          	
+            .htAutocompleteArrow{ 
+                background-image: url(//cdn.shopify.com/s/files/1/1634/5803/t/8/assets/ico-select.svg?12249);
+                background-repeat: no-repeat;  
+              	color: transparent !important;
+                background-position-y: 4px;
+            }
+            .htAutocomplete{
+            	padding: 10px !important;
+            }
+            #tagModal option, #optionModal option{ padding: 4px; }
+            .slideOutLeft.animated{ overflow: hidden; }
+          	select[multiple], select[size] {
+                height: auto;
+                min-height: 300px;
+              	max-height: 300px;
+            }
+          	.min-width-200{
+              min-width: 200px !important;
+            }
+
+            .min-width-150{
+              min-width: 150px !important;
+            }
+
+            .min-width-100{
+              min-width: 100px !important;
+            }
+            .btn-primary:not(.w3-black){ background-color: {{ settings.color_primary }} !important; }
+          	.w3-check{
+              filter: contrast(145%);
+            }
+            button.close{ 
+            	font-size: 2.5em  !important;
+              	font-weight: normal !important;
+              	margin-top: -13px !important;
+              	color: #000 !important;
+              	opacity: 1;
+            }
+          	.modal-backdrop.in {
+                filter: alpha(opacity=80);
+                opacity: 0.8;
+            }
+          	#optionPriceModal .modal-body {
+                max-height: 70vh;
+                overflow: auto;
+            }
+            #optionPriceModal .modal-footer{ padding-top: 15px; }
+/*           	.ht_master .wtHolder {
+                overflow-y: hidden;
+            } */
+            #chatra, #hot-display-license-info{ display: none !important; }
+            #datasheet{ width: 100% !important; }
+
+            .ui-datepicker-month, .ui-datepicker-year{
+            	display: inline !important;
+              	width: auto !important;
+            }
+          	
+          	.fs_shop_active .placeholdLoader{
+            /*background-color: #cccccc !important;*/
+            outline: none !important;
+            border: none !important;
+            pointer-events: none !important;
+            cursor: pointer !important;
+            color: transparent !important;
+            opacity: 0.4 !important;
+            animation-duration: 15s;
+            animation-fill-mode: forwards;
+            animation-iteration-count: infinite;
+            animation-name: placeHolderShimmer;
+            animation-timing-function: linear;
+            background: #cccccc;
+            /*background: linear-gradient(to right, #cccccc 8%, #dddddd 33%, #cccccc 18%);*/
+            background: linear-gradient(to right, #d0d0d0 8%, #dddddd 18%, #d0d0d0 33%);
+            /*background-size: 800px 104px;
+            height: 96px;
+            position: relative;*/
+          }
+
+          .fs_shop_active .placeholdLoader *{
+            visibility: hidden !important;
+            overflow: hidden !important;
+          }
+
+		  .growlUI-added h3, .growlUI-added .h3 {
+			  font-size: 1.125em;
+			  line-height: 1.4;
+			  margin: 0;
+		  }
+
+          @-webkit-keyframes placeHolderShimmer{
+              0%{
+                background-position: -500px 0
+              }
+              100%{
+                background-position: 500px 0
+              }
+          }
+
+
+          @keyframes placeHolderShimmer{
+              0%{
+                background-position: -500px 0
+              }
+              100%{
+                background-position: 500px 0
+              }
+          }
+
+          input[type="text"].form-control, select.form-control{
+			border: 1px solid #aaa !important;
+			box-shadow: none !important;
+          }
+
+          select[id^="multiselect"][multiple="multiple"]{
+          	padding: 0 !important;
+          }
+
+          select[id^="multiselect"][multiple="multiple"] option{
+          	padding: 6px 12px !important;
+          }
+
+          option:nth-of-type(even) {
+          	background: #ededed !important;
+          }
+
+          .modal.modal-wide .modal-dialog {
+			width: 80% !important;
+		}
 		</style>
       	{% include 'modal-css' %}
         {% include 'js-error-handler' %}
-      	{% include 'nxtBtn-functions' %}
+      	{% include 'nxtBtn-functions-mod' %}
         {{ content_for_header  }}
 	</head>
-	<body class="">
+	<body class="fs_shop_active">
 
 		<div id="tagModal" class="modal modal-wide" tabindex="-1" role="dialog" aria-labelledby="tagModal" aria-hidden="true" style="">
 		  <div class="modal-dialog">
 
 		    <!-- Modal content-->
 		    <div class="modal-content w3-white w3-card-2" style="border-radius:2px;">
-		      <div class="modal-header">
-		        <button type="button" class="close" data-dismiss="modal">&times;</button>
-		        <h4 class="modal-title">Select Tags</h4>
+		      <div class="modal-header text-center">
+                <br>
+		        <button type="button" class="close" data-dismiss="modal">×</button>
+                <h2 class="modal-title1"><b>Select Tags</b></h2>
+                <br>
 		      </div>
 		      <div class="modal-body">
                 <div class="container-fluid">
-                	<label class="radio-inline"><input type="radio" name="optradio" value="vendorTagList">Brand</label>
-                    <label class="radio-inline"><input type="radio" name="optradio" value="marketSpecificTagList" checked>Market Specific</label>
-                    <label class="radio-inline"><input type="radio" name="optradio" value="accountSpecificTagList">Account Specific</label> 
-                    <label class="radio-inline"><input type="radio" name="optradio" value="programTagList">Programs</label>
-                  	<label class="radio-inline"><input type="radio" name="optradio" value="sportsTagList">Sports</label>
-                    <label class="radio-inline"><input type="radio" name="optradio" value="specialityTagList">Specialty</label>
-                    <label class="radio-inline"><input type="radio" name="optradio" value="departmentTagList">More</label>    
+                	<label class="radio-inline"><input type="radio" name="optradio" value="vendorTagList" class="w3-radio w3-check" style="margin-top:0; top:0;">&nbsp;&nbsp; Brand</label>
+                    <label class="radio-inline"><input type="radio" name="optradio" value="nationalProgramsTagList" class="w3-radio w3-check" style="margin-top:0; top:0;" &nbsp;checked>&nbsp; National Programs</label>
+                    <label class="radio-inline"><input type="radio" name="optradio" value="programAdsTagList" class="w3-radio w3-check" style="margin-top:0; top:0;">&nbsp;&nbsp; Program Ads</label> 
+                    <label class="radio-inline"><input type="radio" name="optradio" value="sportsTagList" class="w3-radio w3-check" style="margin-top:0; top:0;">&nbsp;&nbsp; Sports</label>
+                    <label class="radio-inline"><input type="radio" name="optradio" value="turnkeyKitsTagList" class="w3-radio w3-check" style="margin-top:0; top:0;">&nbsp;&nbsp; Turnkey Kits</label>
+                    <label class="radio-inline"><input type="radio" name="optradio" value="forDownloadOnlyTagList" class="w3-radio w3-check" style="margin-top:0; top:0;">&nbsp;&nbsp; For Download Only</label>
+                    <label class="radio-inline"><input type="radio" name="optradio" value="comboMealPOSTagList" class="w3-radio w3-check" style="margin-top:0; top:0;">&nbsp;&nbsp; Combo Meal Specific</label>  
+					<label class="radio-inline"><input type="radio" name="optradio" value="channelSpecificTagList" class="w3-radio w3-check" style="margin-top:0; top:0;">&nbsp;&nbsp; Channel Specific</label>  
                 </div>
-                <hr><br>
+                <hr>
                 
                 <div class="container-fluid">
                 	<div class="row">
                       <div class="col-xs-5">
-                        <select name="from[]" id="multiselectTag" class="form-control" size="12" multiple="multiple">
+                        <select name="from[]" id="multiselectTag" class="form-control" size="11" multiple="multiple">
                           
                         </select>
                       </div>
                       <div class="col-xs-2">
-                        <h1>&nbsp;</h1>
-                        <button type="button" id="multiselectTag_undo" class="btn btn-primary btn-block" title="Undo last move">undo</button>
+                        <h2>&nbsp;</h2>
+                        <button type="button" id="multiselectTag_undo" class="btn btn-primary w3-black btn-block" title="Undo last move">undo</button>
                         <button type="button" id="multiselectTag_rightAll" class="btn btn-default btn-block" title="Move all">&nbsp;<i class="glyphicon glyphicon-forward"></i>&nbsp;</button>
                         <button type="button" id="multiselectTag_rightSelected" class="btn btn-default btn-block" title="Move selected">&nbsp;<i class="glyphicon glyphicon-chevron-right"></i>&nbsp;</button>
                         <button type="button" id="multiselectTag_leftSelected" class="btn btn-default btn-block" title="Remove selected">&nbsp;<i class="glyphicon glyphicon-chevron-left"></i>&nbsp;</button>
                         <button type="button" id="multiselectTag_leftAll" class="btn btn-default btn-block" title="Remove all">&nbsp;<i class="glyphicon glyphicon-backward"></i>&nbsp;</button>
-                        <button type="button" id="multiselectTag_redo" class="btn btn-primary btn-block" title="Redo last move">redo</button>
+                        <button type="button" id="multiselectTag_redo" class="btn btn-primary w3-black btn-block" title="Redo last move">redo</button>
                       </div>
                       <div class="col-xs-5">
-                        <select name="to[]" id="multiselectTag_to" class="form-control" size="12" multiple="multiple">
+                        <select name="to[]" id="multiselectTag_to" class="form-control" size="11" multiple="multiple">
                         </select>
+						
+						<div class="row w3-margin-top w3-row-padding">
+							<div class="w3-half">
+								<label for="">Expiration Date</label>
+		                        <input type="text" class="form-control datepicker" placeholder="Select Expiration Date" name="" required="" id="expired_date" onchange="$('#tagSave').prop('disabled', !Boolean($(this).val())); $(this).css('outline','none');" />
+							</div>
+							<div class="w3-half">
+								<label for="">Template</label>
+		                        <select class="form-control" id="template_id" required="" onchange="setTemplate(this);">
+		                        	<option value="" selected="" disabled="">Select Template</option>
+		                        	{% assign template_arr = "{" %}
+									{% if linklists.mod-templates.links.size > 0 %}
+									  {% assign comma = ',' %}
+									  {% for link in linklists.mod-templates.links %}
+									    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+									  {% assign templates = link.url |split:'/' |last %}
+									    {% assign item_arr = '"' |append:link.title |append:'":"' |append:templates |append:'"' |append:comma %}
+									    {% assign template_arr = template_arr |append:item_arr %}
+									  {% endfor %}
+									{% endif %}
+
+									{% assign template_arr = template_arr |append:"}" |replace:",}","}" %}
+
+		                        	{% assign templates = template_arr | remove: "{" | remove: "}" | remove: '"' | split: "," %}
+		                        	{% for templ in templates %}
+		                        	<option value="MODTemplate:{{ templ | split: ':' | last | split: '+' | first }}" handle="{{ templ | split: ':' | last | split: '+' | last }}">{{ templ | split: ":" | first }}</option>
+		                        	{% endfor %}
+		                        </select>
+		                        <small class="hide"><p></p></small>
+		                        <a id="preview_template" href="#" target="_blank" class="hide"><small>Preview Template <i class="fa fa-eye"></i></small></a>
+		                    </div>
+						</div>
+                        
                       </div>
                     </div>
                 </div>
 		      </div>
-		      <div class="modal-footer">
-		        <button type="button" id="tagSave" disabled class="btn btn-primary" data-dismiss1="modal">Save</button>
+		      <div class="modal-footer1 modal-header text-center">
+		        <button type="button" id="tagSave" disabled class="btn btn-primary min-width-200" data-dismiss1="modal">Save</button>
+                <br><br>
+                <button type="button" class="btn btn-primary w3-black min-width-100" data-dismiss="modal">Close</button>
+                <br><br>
 		      </div>
 		    </div>
 
@@ -127,9 +301,11 @@
 
 		    <!-- Modal content-->
 		    <div class="modal-content w3-white w3-card-2" style="border-radius:2px;">
-		      <div class="modal-header">
+		      <div class="modal-header text-center">
+                <br>
 		        <button type="button" class="close" data-dismiss="modal">&times;</button>
-		        <h4 class="modal-title">Select up to Ten (10) Elements</h4>
+                <h2 class="modal-title1"><b>Select up to Hundred (100) Elements</b></h2>
+                <br>
 		      </div>
 		      <div class="modal-body">
                 <div class="container-fluid">
@@ -141,12 +317,12 @@
                       </div>
                       <div class="col-xs-2">
                         <h1>&nbsp;</h1>
-                        <button type="button" id="multiselectOption_undo" class="btn btn-primary btn-block" title="Undo last move">undo</button>
+                        <button type="button" id="multiselectOption_undo" class="btn btn-primary w3-black btn-block" title="Undo last move">undo</button>
                         <button type="button" id="multiselectOption_rightAll" class="btn btn-default btn-block" title="Move all">&nbsp;<i class="glyphicon glyphicon-forward"></i>&nbsp;</button>
                         <button type="button" id="multiselectOption_rightSelected" class="btn btn-default btn-block" title="Move selected">&nbsp;<i class="glyphicon glyphicon-chevron-right"></i>&nbsp;</button>
                         <button type="button" id="multiselectOption_leftSelected" class="btn btn-default btn-block" title="Remove selected">&nbsp;<i class="glyphicon glyphicon-chevron-left"></i>&nbsp;</button>
                         <button type="button" id="multiselectOption_leftAll" class="btn btn-default btn-block" title="Remove all">&nbsp;<i class="glyphicon glyphicon-backward"></i>&nbsp;</button>
-                        <button type="button" id="multiselectOption_redo" class="btn btn-primary btn-block" title="Redo last move">redo</button>
+                        <button type="button" id="multiselectOption_redo" class="btn btn-primary w3-black btn-block" title="Redo last move">redo</button>
                       </div>
                       <div class="col-xs-5">
                         <select name="to[]" id="multiselectOption_to" class="form-control" size="12" multiple="multiple">
@@ -155,8 +331,11 @@
                     </div>
                 </div>
 		      </div>
-		      <div class="modal-footer">
-		        <button type="button" id="optionSave" disabled class="btn btn-primary" data-dismiss1="modal">Save</button>
+              <div class="modal-footer1 modal-header text-center">
+		        <button type="button" id="optionSave" disabled class="btn btn-primary min-width-200" data-dismiss1="modal">Save</button>
+                <br><br>
+                <button type="button" class="btn btn-primary w3-black min-width-100" data-dismiss="modal">Close</button>
+                <br><br>
 		      </div>
 		    </div>
 
@@ -177,7 +356,7 @@
 		        <div class="table-responsive">          
                   <table class="table">
                     <thead>
-                      <tr>
+                      <tr class="w3-black">
                         <th>#</th>
                         <th>Option</th>
                         <th>Price</th>
@@ -189,7 +368,8 @@
                   </table>
                 </div>
 		      </div>
-		      <div class="modal-footer">
+		      <div class="modal-footer w3-padding-top">
+		      	<button id="goBackToElements" type="button" class="btn btn-primary w3-black min-width-100" data-dismiss="modal">Back</button>
 		        <button id="priceSave" type="button" class="btn btn-primary" data-dismiss="modal">Save</button>
 		      </div>
 		    </div>
@@ -211,7 +391,7 @@
 		      		<div class="row">
 		      			<div class="col-sm-5">
                             <label>Upload Image</label> <small style="font-size:75%;">( ".jpg" | ".jpeg" | ".png" | ".gif" | ".svg", size &lt; 2 MB )</small>
-				      		<input id="imgFileBrowse" type="file" class="" onchange="if(this.value.length > 0) encodeImageFileAsURL(this);" style="width:0px; height:0px; overflow:hidden;" accept="image/*" />
+				      		<input id="imgFileBrowse" type="file" class="" onchange="if(this.value.length > 0) encodeImageFileAsURL(this);" style="width:0px; height:0px; overflow:hidden; margin: 0; padding: 0; visibility: hidden;" accept="image/*" max="10" multiple />
 		      				<div class="input-group">
 			      				<input id="imgFileTxt" type="text" readonly class="form-control" style="cursor:default;" onclick="document.getElementById('imgFileBrowse').click();" />
 			      				<span class="input-group-btn">
@@ -235,7 +415,7 @@
 		      	</div>
 		      	<hr>
 		        <div class="container-fluid">
-		        	<div class="row imgWrap">
+		        	<div class="row imgWrap middle-xs">
 		        		
 		        	</div>
 		        </div>
@@ -248,38 +428,73 @@
 		  </div>
 		</div>
 
+		<div id="templateModal" class="modal modal-wide" tabindex="-1" role="dialog" aria-labelledby="templateModal" aria-hidden="true" style="">
+		  <div class="modal-dialog">
+
+		    <!-- Modal content-->
+		    <div class="modal-content w3-white w3-card-2" style="border-radius:2px;">
+		      <div class="modal-header">
+		        <button type="button" class="close templateSave" data-dismiss="modal">&times;</button>
+		        <h4 class="modal-title"></h4>
+		      </div>
+		      <div class="modal-body">
+		        <div class="container-fluid">
+		        	<div class="row templateWrap center-xs middle-xs">
+		        		<div class="text-center w3-margin w3-padding">
+			        		<i class="fa fa-refresh fa-spin fa-2x"></i>
+		        		</div>
+		        	</div>
+		        </div>
+		      </div>
+		      {% comment %}<div class="modal-footer">
+		        <button type="button" class="btn btn-primary imgSave" data-dismiss="modal">Close & Save</button>
+		      </div>{% endcomment %}
+		    </div>
+
+		  </div>
+		</div>
+
 		<!-- <div class="jumbotron" style="padding:20px 0 10px 0; margin-bottom:0px; background-color: #0e5aa8;">
 			<div class="container">
 				<a href="#"><img src="https://cdn.shopify.com/s/files/1/1431/0294/t/3/assets/logo.png?16214878102389155724" style="max-width:115px; width:100%;"></a>
 			</div>	
 		</div> -->
 		<div id="nav-wrapper" data-spy="affix1" data-offset-top="0">
-		<div class="container-fluid w3-black w3-card-4" style="height:42px;">
-          <a href="/" class="w3-text-white w3-xlarge" id="fix" style="display:inline;"><img src="{{ settings.favicon_mod | img_url:"48x48" }}" width="32" height="32"/>&nbsp;{{ page.title }}</a>{% comment %}<img onclick="window.open(window.location.href);" src="https://cdn.shopify.com/s/files/1/1953/3447/files/Footer_logo.png?10858290572512973125" class="pull-right img-responsive" style="height:42px; width:auto;"/>{% endcomment %}{% if customer_role_tag == Role_FSAdmin %}<a class="pull-right w3-margin-right w3-margin-left" style="display:inline; margin-top:8px;" title="Edit Definition" href="/admin/themes/{{ theme.id }}/editor#/{{ template | replace:'.','s/' }}"><i class="fa fa-gear w3-xlarge w3-text-white"></i></a>{% endif %}{% comment %}<a class="pull-right w3-margin-left" style="display:inline; margin-top:8px; cursor:pointer;" onclick="uploadToServer();" title="Save session to server"><i class="fa fa-cloud-upload w3-xlarge w3-text-white"></i></a><a class="pull-right w3-margin-left" style="display:inline; margin-top:8px; cursor:pointer;" onclick="downloadFromServer();" title="Restore session from server"><i class="fa fa-cloud-download w3-xlarge w3-text-white"></i></a>&nbsp;<a class="w3-text-white w3-large pull-right w3-magin-right" style="margin-top:8px;" href="/account">My Account</a>{% endcomment %}
+		<div class="container-fluid w3-black w3-card-4" style="height: 57px; padding-top: 8px;">
+          <a href="/" class="w3-text-white w3-xlarge w3-padding" id="fix" style="display:inline;"><img src="{{ settings.favicon_mod | img_url:"100x100" }}" width="32" height="32"/>&nbsp;{{ page.title }}</a>{% comment %}<img onclick="window.open(window.location.href);" src="https://cdn.shopify.com/s/files/1/1953/3447/files/Footer_logo.png?10858290572512973125" class="pull-right img-responsive" style="height:42px; width:auto;"/>{% endcomment %}{% if customer_role_tag == Role_FSAdmin and false %}<a class="pull-right w3-margin-right w3-margin-left" style="display:inline; margin-top:8px;" title="Edit Definition" href="/admin/themes/{{ theme.id }}/editor#/{{ template | replace:'.','s/' }}"><i class="fa fa-gear w3-xlarge w3-text-white"></i></a>{% endif %}{% comment %}<a class="pull-right w3-margin-left" style="display:inline; margin-top:8px; cursor:pointer;" onclick="uploadToServer();" title="Save session to server"><i class="fa fa-cloud-upload w3-xlarge w3-text-white"></i></a><a class="pull-right w3-margin-left" style="display:inline; margin-top:8px; cursor:pointer;" onclick="downloadFromServer();" title="Restore session from server"><i class="fa fa-cloud-download w3-xlarge w3-text-white"></i></a>&nbsp;<a class="w3-text-white w3-large pull-right w3-magin-right" style="margin-top:8px;" href="/account">My Account</a>{% endcomment %}
 		</div>
 		
 	</div>
-		<div class="container-fluid w3-padding-0" style="">
-			<br>
+		<div class="container-fluid w3-padding-0" style="padding:0;">
+<!-- 			<br> -->
 <!-- 			<hr> -->
-			<h2 class="h2"><b>Upload Products</b></h2>
-             <div class="state-loaded alert alert-info fade in" style="display:none;"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>State of the table has been restored. <button class="mini btn-sm btn btn-danger reset-state">Reset table state</button></div>
-			
-			 <div id="datasheet" class="hot handsontable htRowHeaders htColumnHeaders w3-card-2" style=""></div> 
-			 
-            <div id="error-log" class="w3-text-red w3-block w3-card-2 w3-padding w3-margin-top" style="display:none;"></div>
+			<h2 class="h2 w3-margin-left w3-padding w3-left"><b>Upload Products</b></h2>
           
+          	<div class="w3-margin-right w3-padding w3-right btn-wrap-sec" style="display: none;">
+              <button id="export-production" disabled1="" type="button" class="w3-btn w3-card-1 w3-round w3-text-white intext-btn btn-primary w3-margin-right w3-margin-top min-width-150" onclick="if(confirm('Please click “OK” to upload your data.') == true) uploadTo('dev');">UPLOAD</button>
+              <button id="clear-form" type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin-top min-width-150" onclick="if(confirm('Caution: this action will clear the form data.') == true) clearHot();">Clear Form</button>
+            </div>
+          
+          <div class="w3-clear"></div>
+          
+          	<div id="error-log" class="w3-text-red w3-block w3-card-2 w3-padding w3-margin-bottom" style="display:none;"></div>
+          	
+            <div class="state-loaded alert alert-info fade in" style="display:none;"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>State of the table has been restored. <button class="mini btn-sm btn btn-danger reset-state">Reset table state</button></div>
+
+            <div id="datasheet" class="hot handsontable htRowHeaders htColumnHeaders w3-card-2" style="height: 465px;" data-originalstyle="">{% include "psudo-upload-form" %}</div> 
+
 			<h4>&nbsp;</h4>
-			<div class="row">
-		  		<div class="col-md-12 text-center1 w3-padding">
-		  			<button id="export-string" disabled1 type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin hide" style="min-width:150px;" onclick="prepareHot2(true);">GENERATE SHEET</button>
-		  			<button id="export-production" disabled1 type="button" class="w3-btn w3-card-1 w3-round w3-text-white intext-btn w3-margin-right w3-margin-bottom" style="min-width:150px; background-color: {{ settings.color_primary }};" onclick="if(confirm('Please click “OK” to upload your data.') == true) uploadTo('dev');" disabled="">UPLOAD</button>
-                  	<button id="clear-form" type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin-bottom" style="min-width:150px;" onclick="if(confirm('Caution: this action will clear the form data.') == true) clearHot();">Clear Form</button>
+			<div class="row w3-margin-left">
+		  		<div class="col-md-12 text-center1 w3-padding btn-wrap-prim">
+		  			<button id="export-string" disabled type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin hide min-width-150" onclick="prepareHot2(true);">GENERATE SHEET</button>
+		  			<button id="export-production" disabled1 type="button" class="w3-btn w3-card-1 w3-round w3-text-white intext-btn btn-primary w3-margin-right w3-margin-bottom min-width-150" onclick="if(confirm('Please click “OK” to upload your data.') == true) uploadTo('dev');">UPLOAD</button>
+                  	<button id="clear-form" type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin-bottom min-width-150" onclick="if(confirm('Caution: this action will clear the form data.') == true) clearHot();">Clear Form</button>
 <!--                   	<button id="export-dump" disabled name="dump" data-dump="datasheet" data-instance="hot" type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin" style="min-width:234px;">DATA DUMP</button> -->
                   	<button id="export-staging" disabled1 type="button" class="w3-btn w3-black w3-card-1 w3-round intext-btn w3-margin hide" style="min-width:234px;" onclick="if(confirm('Please click “OK” to upload your data.') == true) uploadTo('dev');">UPLOAD TO BETA</button>
 <!--                     <a class="hide1" href="javascript:startPageImport();" >import</a> -->
 		  		</div>
             </div>
+          	<br><br>
           	<div class="hide1 w3-hide1" style="visibility: hidden; max-height:1px; overflow:hidden;">
               <h4>&nbsp;</h4>
                 <div id="datasheet2" class="hot handsontable htRowHeaders htColumnHeaders w3-card-2" style=""></div>
@@ -295,23 +510,27 @@
 		<div class="container-fluid theme-color" style="border-top: 1px solid gray; background-color: black;">
 			<div class="container" style="border-top: 1px solid lightgrey; padding:10px 50px;color: rgba(255, 255, 255, 0.6);">
 				<small>
-					&copy; 2017
-					<a href="/" style="color:white;" title="">PepsiPrintStudios</a>
+					&copy; {{ 'now' | date: "%Y" }}
+					<a href="/" style="color:white;" title="">{{ shop.name }}</a>
 				</small>
 			</div>
 		</div>
 		{{ "https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js" | script_tag }}
 		{{ "//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" | script_tag }}
         {{ "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js" | script_tag }}
-		{{ "https://docs.handsontable.com/pro/1.7.0/bower_components/handsontable-pro/dist/handsontable.full.min.js" | script_tag }}
+		{% comment %}{{ "https://docs.handsontable.com/pro/1.7.0/bower_components/handsontable-pro/dist/handsontable.full.min.js" | script_tag }}{% endcomment %}
 		{{ 'papaparse.min.js' | asset_url | script_tag }}
-      	{{ 'handsontable.js' | asset_url | script_tag }}
+      	{{ 'handsontable.full.min.js' | asset_url | script_tag }}
       	{{ "multiselect.min.js" | asset_url | script_tag }}
 		{{ 'w3data.js' | asset_url | script_tag }}
         {{ 'https://www.w3schools.com/lib/w3.js' | script_tag }}
-      
-      	{% comment %}{% section 'definition'  %}{% endcomment %}
-        {% section 'definitions-new2' %}
+      	{{ 'jquery-ui.js' | asset_url | script_tag }}
+      	{% comment %}{% section 'definition' %}{% endcomment %}
+        {% comment %}{% section 'definitions-new2' %}{% endcomment %}
+
+		{{ 'theme.js' | asset_url | script_tag }}
+
+        {% include "definition-mod-v1" %}
       
       	{% include 'notify-UI' %}
       
@@ -332,14 +551,57 @@
                 }
             });
           
-			$(document).ready(function(){
-// 				$("#nav-wrapper").on('affix.bs.affix', function(){
-// 					$('.ht_clone_top, .ht_clone_top_left_corner').css('display','block');
-// 				});
+            function btnCheck(){
+              if(isScrolledIntoView($('.btn-wrap-prim')))
+                $('.btn-wrap-sec').hide();
+              else
+                $('.btn-wrap-sec').show();
+            }
+          
+          	function isScrolledIntoView(elem){
+                var docViewTop = $(window).scrollTop();
+                var docViewBottom = docViewTop + $(window).height();
 
-// 				$("#nav-wrapper").on('affix-top.bs.affix', function(){
-// 					$('.ht_clone_top, .ht_clone_top_left_corner').css('display','none');
-// 				});		
+                var elemTop = $(elem).offset().top-22.5;
+                var elemBottom = elemTop + $(elem).height()-22.5;
+
+                return ((elemBottom <= docViewBottom) && (elemTop >= docViewTop));
+            }
+          
+			$(document).ready(function(){
+				// $("#nav-wrapper").on('affix.bs.affix', function(){
+				// 	$('.ht_clone_top, .ht_clone_top_left_corner').css('display','block');
+				// });
+
+				// $("#nav-wrapper").on('affix-top.bs.affix', function(){
+				// 	$('.ht_clone_top, .ht_clone_top_left_corner').css('display','none');
+				// });	
+				
+				$(".datepicker").datepicker({
+				showAnim: "drop",
+				changeMonth: true,
+				changeYear: true,
+				minDate: '1',
+				maxDate: '365',
+				        // showButtonPanel: true,
+				dateFormat: "ExpireAt:mm-dd-yy",
+				showOtherMonths: true,
+				        // onClose: function(dateText, inst) { 
+				        //     $(this).datepicker('setDate', new Date(inst.selectedYear, inst.selectedMonth, 1));
+				        // }
+				});
+
+				mfpHTML3 = $('#templateModal .templateWrap').html()
+                
+                $(document).on('show.bs.modal', ".modal", function(){ 
+                	$('html, body').css('overflow', 'hidden');
+                }).on('hide.bs.modal', ".modal", function(){ 
+                	$('html, body').css('overflow', 'auto');
+                });
+
+                $(document).on('click', ".ui-datepicker-unselectable.ui-state-disabled:not(.ui-datepicker-other-month)", function() {
+                	show_message4('Contact NSM for expiration date more than 365 days.', false);
+                });
 			});
 
 			document.addEventListener("DOMContentLoaded", function() {
@@ -352,6 +614,7 @@
                 var resizeTimeout;
 
                 $(window).resize(function () {
+                  	btnCheck();
                     height = $table.parent().innerHeight();
                     width = $table.parent().innerWidth();
 
@@ -362,6 +625,10 @@
 //                         console.log('Handsontable resized to height=' + height + ', width=' + width);
                     }, 200);
 
+                });
+              
+              	$(window).scroll(function () {
+                  	btnCheck();
                 });
               
                 function checkURL(){
@@ -459,7 +726,9 @@
 													    observeChanges: true,
 													    className: "htRight",
 													    // contextMenu: true,
+                  										//fixedRowsTop: 1,
 													    fixedColumnsLeft: 4,
+                  										height: 465,
 													    colWidths: ['0' ,'180', '250', '400', '250', '150', '250', '150', '250', '100', '150', '0', '250', '0', '0', '0', '150', '250', '150', '250', '100'],
 													    //validator: /(\$[\d]+[\.]?[\d]{1,3})/,
 													    //placeholder: '$0.00',
@@ -658,8 +927,8 @@
                                                                   	$('button.intext-btn').first().removeAttr('disabled');
                                                                     try{
                                                                       if(change[0][1] == 'vendor'){
-                                                                        change[0][3] = (change[0][3] || "").replace(" ", ""); //new
-                                                                        change[0][2] = (change[0][2] || "").replace(" ", ""); //old
+                                                                        change[0][3] = (change[0][3]) ? (change[0][3]+"+BrandsMOD") : (change[0][3] || "").replace(" ", ""); //new
+                                                                        change[0][2] = (change[0][2]) ? (change[0][2]+"+BrandsMOD") : (change[0][2] || "").replace(" ", ""); //old
                                                                           var tags = hot.getDataAtCell(change[0][0], 8) || "",
                                                                               tag_arr = tags.split(',');
                                                                         if(change[0][3].length == 0 && tag_arr.indexOf(change[0][2]) != -1){
@@ -683,6 +952,8 @@
                                                                       }
                                                                       
                                                                       if(change[0][1] == 'type'){console.log(change);
+                                                                      	change[0][3] = (change[0][3] || "").replace(" ", ""); //new
+                                                                        change[0][2] = (change[0][2] || "").replace(" ", ""); //old
                                                                         if(change[0][2].split(" ")[0] != change[0][3].split(" ")[0]){
                                                                           hot.setDataAtCell(change[0][0], hot.propToCol('option1_value'), '');
                                                                           hot.setDataAtCell(change[0][0], hot.propToCol('variant_price'), '');
@@ -727,7 +998,7 @@
 //                     										autoRowSize: '40%',
                     										autoColSize: false,
                   											width: function () {
-                                                                return '1319px';
+                                                                return '100%';
                                                             },
 													  };
               
@@ -909,6 +1180,7 @@
 //                                                                 return '1319px';
 //                                                             },
 													  };
+                  datasheet.innerHTML = "";
               
                   hot = new Handsontable(datasheet, settings);//console.log(getJSONdata());
               
@@ -942,12 +1214,12 @@
         			return url.substr(0, lastIndex)+'_150x'+url.substr(lastIndex);
                   };
               
-                  $('#datasheet .wtHolder').scroll(function(){ 
-                    try{
-                        if($('#datasheet .wtHolder').scrollLeft() <= 300 || $('#datasheet .wtHolder').scrollLeft() >= $('#datasheet .wtHolder').width()){ hot.render(); }
+//                   $('#datasheet .wtHolder').scroll(function(){ 
+//                     try{
+//                         if($('#datasheet .wtHolder').scrollLeft() <= 300 || $('#datasheet .wtHolder').scrollLeft() >= $('#datasheet .wtHolder').width()){ hot.render(); }
 
-                    }catch(e){ console.warn(e.message); }
-                  });
+//                     }catch(e){ console.warn(e.message); }
+//                   });
 
 				  function removeThisRow (instance, td, row, col, prop, value, cellProperties) {
 				    var escaped = Handsontable.helper.stringify(value),
@@ -986,7 +1258,7 @@
 
 				    if (escaped.length === 0) {
 			    	  btn2 = document.createElement('A');
-				      btn2.setAttribute('class', 'center-block1 w3-margin-left text-center removeRowBtn');
+				      btn2.setAttribute('class', 'center-block1 w3-margin-right text-center removeRowBtn');
 				      btn2.setAttribute('title', 'Remove this row');
 				      btn2.style.cursor = 'pointer';
 				      btn2.innerHTML = '<i class="fa fa-minus"></i>';
@@ -1013,15 +1285,15 @@
 				      });
                       
                       btn1 = document.createElement('A');
-				      btn1.setAttribute('class', 'center-block1 w3-margin-right text-center copyRowBtn');
+				      btn1.setAttribute('class', 'center-block1 w3-margin-left text-center copyRowBtn');
 				      btn1.setAttribute('title', 'Copy this row below');
 				      btn1.style.cursor = 'pointer';
 				      btn1.innerHTML = '<i class="fa fa-copy"></i>';
 
 				      Handsontable.dom.empty(td);
-				      td.appendChild(btn2);
-				      td.appendChild(btn);
                       td.appendChild(btn1);
+                      td.appendChild(btn);
+                      td.appendChild(btn2);
                       
                       Handsontable.dom.addEvent(btn1, 'mousedown', function (e){
 				        e.preventDefault(); // prevent selection quirk
@@ -1031,6 +1303,7 @@
                               rowHandleLast = rowHandle[rowHandle.length-1],
                               rowTitle = rowData[3].split(' ');
   //                         console.log(rowData);
+                              rowData[19] = "";
                           if(isNaN(rowHandleLast)){
                               rowData[2] = rowData[2] + '-1';
                               rowData[3] = rowData[3] + ' 1';
@@ -1152,13 +1425,16 @@
                           e.preventDefault(); // prevent selection quirk
                           var vendorTag = Handsontable.helper.stringify(instance.getDataAtCell(row, instance.propToCol('vendor'))).replace(" ","");
                             if(!vendorTag){
-                              	hot.selectCellByProp(row, 'vendor');
+                              	hot.selectCell{% comment %}ByProp{% endcomment %}(row, 'vendor');
                             	show_message4("Select Brand before Selecting Tags", false);
                               	return false;
                             }
                           var selectedTags = instance.getDataAtCell(row, col+1);
                           if(selectedTags == null)selectedTags = ""
                           selectedTags = (selectedTags.length > 0) ? selectedTags.split(',') : []; console.log('selectedTags:',selectedTags);
+
+                  		  $("#expired_date, #template_id").val('');
+
                           $('#multiselectTag, #multiselectTag_to').html('');
                           function updateTags(tagList){
                             $('#multiselectTag').html('');
@@ -1167,13 +1443,15 @@
                                 var tag_regions = '', pre = '', post = '';
                                 if(o[tag]){
                                   	tag_regions = '('+o[tag].sort().join(', ').replace('California, GreatLakes, MidAtlantic, MidWest, Mountain, NorthEast, South, SouthEast', 'All Region')+')';
+                                }else if(tag.indexOf("+") > 0){
+                                	tag_regions = '('+tag.split('+')[1]+')';
                                 }
                                  //$('#multiselectTag').append(pre+'<option value="'+tag+'">'+tag+'</option>'+post);
-                                 $('#multiselectTag').append('<option title="'+tag_regions+'" region="'+tag_regions+'" value="'+tag+'">'+tag+'</option>');
+                                 $('#multiselectTag').append('<option title="'+tag_regions+'" region="'+tag_regions+'" value="'+tag+'">'+tag.split('+')[0]+'</option>');
                               }
                             });
                           }
-                          updateTags(marketSpecificTagList);
+                          updateTags(nationalProgramsTagList);
                           
                           $('[name="optradio"]').eq('1').prop('checked', 'checked').trigger('change');
                           
@@ -1186,13 +1464,21 @@
 
                           if(selectedTags.length > 0 && selectedTags[0] != ""){
                             selectedTags.forEach(function(tag, index){
-                              if(newTagList.indexOf(tag) == -1){//console.log('currTags:',tag);
+                    		  if(tag.indexOf('ExpireAt:') != -1 || tag.indexOf('MODTemplate:') != -1){ 
+                    		  	if(tag.indexOf('ExpireAt:') != -1){
+                              		$("#expired_date").val(tag);
+                              	}else if(tag.indexOf('MODTemplate:') != -1){
+                              		$("#template_id").val(tag).trigger('change');
+                              	}
+                    		  }else if(newTagList.indexOf(tag) == -1){//console.log('currTags:',tag);
                                 var tag_regions = '', pre = '', post = '';
                                 if(o[tag]){
                                   	tag_regions = '('+o[tag].sort().join(', ').replace('California, GreatLakes, MidAtlantic, MidWest, Mountain, NorthEast, South, SouthEast', 'All Region')+')';
+                                }else if(tag.indexOf("+") > 0){
+                                	tag_regions = '('+tag.split('+')[1]+')';
                                 }
                                 //$('#multiselectTag_to').append(pre+'<option value="'+tag+'">'+tag+'</option>'+post);
-                                $('#multiselectTag_to').append('<option title="'+tag_regions+'" region="'+tag_regions+'" value="'+tag+'">'+tag+'</option>');
+                                $('#multiselectTag_to').append('<option title="'+tag_regions+'" region="'+tag_regions+'" value="'+tag+'">'+tag.split('+')[0]+'</option>');
                               }
                             });
                           }
@@ -1202,8 +1488,8 @@
                           function initMST(){
                             $('#multiselectTag').multiselect({
                               search: {
-                                          left: '<input type="text" name="q" class="form-control" placeholder="Search..." /><br>',
-                                          right: '<input type="text" name="q" class="form-control" placeholder="Search..." /><br>',
+                                          left: '<input type="text" name="q" class="form-control" placeholder="Search" /><i class="fa fa-search" aria-hidden="true" style="font-size: 14px;padding-top: 0px;position: absolute;top: 10px;right: 24px;"></i><br>',
+                                          right: '<input type="text" name="q" class="form-control" placeholder="Search" /><i class="fa fa-search" aria-hidden="true" style="font-size: 14px;padding-top: 0px;position: absolute;top: 10px;right: 24px;"></i><br>',
                                       },
                               fireSearch: function(value) {
                                   return value.length > 2;
@@ -1260,22 +1546,31 @@
 
                             if(!$('#tagSave').is(':disabled')){
                               if (confirm("Your changes will be lost !") == true) {
-                                  $("#tagModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+                                  $("#tagModal").off('hide.bs.modal').animateCss('slideOutRight', function(modal){ $(modal).modal('hide'); });
                                   return false;
                               } else
                                   return false;
                             } else{
 //                                 $("#tagModal").off('hide.bs.modal').one('hide.bs.modal', function(){ $(this).addClass('animated zoomOutDown'); setTimeout }).modal('hide');
-                              	$("#tagModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+                              	$("#tagModal").off('hide.bs.modal').animateCss('slideOutRight', function(modal){ $(modal).modal('hide'); });
                               	return false;
                             }
 //                               $("#tagModal").off('hide.bs.modal').animateCss('zoomOutDown', function(modal){ $(modal).modal('hide'); });
                           });
-                          $("#tagSave").off('click').one('click', function (e) {
+                          $("#tagSave").off('click').on('click', function (e) {
+                          	if(!Boolean($("#expired_date").val())){
+                          		show_message4("Expiration Date Required !!", false, false);
+                          		$("#expired_date").focus().css('outline','2px red solid');
+                          		return false;
+                          	}else if(!Boolean($("#template_id").val())){
+                          		show_message4("Template Selection Required !!", false, false);
+                          		$("#template_id").focus().css('outline','2px red solid');
+                          		return false;
+                          	}
                             selectedTags = $.unique($('#multiselectTag_to option').map( function() { return this.getAttribute('value'); }).get()).join(",");
                             txt = (selectedTags == '') ? '' : ',';
 //                             templ = ((instance.getDataAtCell(row, instance.propToCol('type'))).indexOf("No") != -1) ? "NoCustomization," : "";
-                            selectedTags += txt + newTagList.join(","); //+ vendorTag + ","
+                            selectedTags += txt + newTagList.concat([$("#expired_date").val(), $("#template_id").val()]).join(","); //+ vendorTag + ","
                             selectedTags = $.unique(selectedTags.split(",")).join(",");
                             instance.setDataAtCell(row, col+1, selectedTags); 
                             $(this).prop('disabled', 'disabled');
@@ -1299,6 +1594,7 @@
                   function setDefaultAll (row, value) {
 				    if (value.length > 0 ){
 				      hot.setDataAtCell(row, hot.propToCol('published'), 'TRUE');
+				      hot.setDataAtCell(row, hot.propToCol('type'), 'MOD');
                       hot.setDataAtCell(row, hot.propToCol('option1_name'), 'Element');
                       hot.setDataAtCell(row, hot.propToCol('option2_name'), 'Region');
                       hot.setDataAtCell(row, hot.propToCol('option2_value'), 'Default');
@@ -1306,6 +1602,7 @@
                         hot.setDataAtCell(row, hot.propToCol('tags'), newTagList.join(','));
                     }else{
                       hot.setDataAtCell(row, hot.propToCol('published'), '');
+                      hot.setDataAtCell(row, hot.propToCol('type'), '');
                       hot.setDataAtCell(row, hot.propToCol('option1_name'), '');
                       hot.setDataAtCell(row, hot.propToCol('option2_name'), '');
                       hot.setDataAtCell(row, hot.propToCol('option2_value'), '');
@@ -1328,41 +1625,44 @@
 				        e.preventDefault(); // prevent selection quirk
                         var productType_ = instance.getDataAtCell(row, instance.propToCol('type'));
                           if(!productType_){
-                              instance.selectCellByProp(row, 'type');
-                              show_message4("Select Type before Selecting Elements", false);
+                              instance.selectCell{% comment %}ByProp{% endcomment %}(row, 'type');
+                              show_message4("Select Type before Selecting Elements", false, false);
                               return false;
                           }
-                        var pos_arr = elementTypePOS; //'Aisle Interrupters,Banner,Case Card,Circular Static Cling,Horizontal Static,Mini Pole,Other,Wobbler,Outdoor Pole Sign,Poster,Pump Topper,Push Pull,Rail Strip Pages,Shelf Talker,Static Cling,Table Tent'.split(',');
+                        //var pos_arr = elementTypePOS; //'Aisle Interrupters,Banner,Case Card,Circular Static Cling,Horizontal Static,Mini Pole,Other,Wobbler,Outdoor Pole Sign,Poster,Pump Topper,Push Pull,Rail Strip Pages,Shelf Talker,Static Cling,Table Tent'.split(',');
                         var selectedOptions = instance.getDataAtCell(row, col+2);
                         if(selectedOptions == null)selectedOptions = ""
                         var optBkpData = selectedOptions;
-                        selectedOptions = (selectedOptions.length > 0) ? selectedOptions.split(',') : [];
+                        selectedOptions = (selectedOptions.length > 0) ? (window["selectedOptions"]||selectedOptions).split(',') : [];
                         $('#multiselectOption, #multiselectOption_to').html('');
-                        optionList.forEach(function(option, index){
+                        $.unique(optionList).forEach(function(option, index){
                           if(selectedOptions.indexOf(option) == -1){
-                            if( (productType_ == 'POS' && elementTypePOS.indexOf(option) != -1) || (productType_.includes('No') && elementTypePOS_NOC.indexOf(option) != -1) ){
-                              $('#multiselectOption').append('<option value="'+option+'">'+option+'</option>');
-                              $('#optionModal .modal-title').text('Select up to Ten (10) Elements');
-                            }
-                            if(productType_ == 'PTT' && elementTypePTT.indexOf(option) != -1){
-                              $('#multiselectOption').append('<option value="'+option+'">'+option+'</option>');
-                              $('#optionModal .modal-title').text('Select an Element');
-                            }
+                          	{% comment %}
+                            // if( (productType_ == 'POS' && elementTypePOS.indexOf(option) != -1) || (productType_.includes('No') && elementTypePOS_NOC.indexOf(option) != -1) ){
+                            //   $('#multiselectOption').append('<option value="'+option+'">'+option+'</option>');
+                            //   $('#optionModal .modal-title').text('Select up to Hundred (100) Elements');
+                            // }
+                            // if(productType_ == 'PTT' && elementTypePTT.indexOf(option) != -1){
+                            //   $('#multiselectOption').append('<option value="'+option+'">'+option+'</option>');
+                            //   $('#optionModal .modal-title').text('Select an Element');
+                            // }
+                            {% endcomment %}
+                            $('#multiselectOption').append('<option value="'+option.replace(/"/g, '&quote;')+'">'+option+'</option>');
                           }
                         });
                         
                         window.curr_productType = productType_;
                         
                         if(selectedOptions.length > 0 && selectedOptions[0] != ""){
-                          selectedOptions.forEach(function(option, index){
-                              $('#multiselectOption_to').append('<option value="'+option+'">'+option+'</option>');
+                          $.unique(selectedOptions).forEach(function(option, index){
+                            $('#multiselectOption_to').append('<option value="'+option.replace(/"/g, '&quote;')+'">'+option+'</option>');
                           });
                         }
                         
                         $('#multiselectOption').multiselect({
                           search: {
-                                      left: '<input type="text" name="q" class="form-control" placeholder="Search..." /><br>',
-                                      right: '<input type="text" name="q" class="form-control" placeholder="Search..." /><br>',
+                                      left: '<input type="text" name="q" class="form-control" placeholder="Search" /><i class="fa fa-search" aria-hidden="true" style="font-size: 14px;padding-top: 0px;position: absolute;top: 10px;right: 24px;"></i><br>',
+                                      right: '<input type="text" name="q" class="form-control" placeholder="Search" /><i class="fa fa-search" aria-hidden="true" style="font-size: 14px;padding-top: 0px;position: absolute;top: 10px;right: 24px;"></i><br>',
                                   },
                           fireSearch: function(value) {
                               return value.length > 3;
@@ -1380,15 +1680,23 @@
                             $options.each(function(index, option){
                               optval = $(option)[0].value;
                               opt_at_right = self.$right.find("option").map( function() { return this.getAttribute('value'); }).get().length;
-//                               console.log(productType);
-//                               console.log(opt_at_right);
-                              if( (opt_at_right < 10 && productType.includes('POS')) || (opt_at_right < 1 && productType == 'PTT') )
-                                self.$right.append(option);
-                              else if(productType.includes('POS') && opt_at_right == 10){
-                                alert('Maximum limit of 10 elements has been exceeded. If more than 10 elements are needed, split up the product into two products, grouping the elements and adjusting the title accordingly.');
-                                return false;
-                              }else if( productType == 'PTT' && opt_at_right == 1 ){
-                                alert('Due to the customized template for this element, this can be the only element selected for this product.');
+                              {% comment %}
+                              // console.log(productType);
+                              // console.log(opt_at_right);
+                              // if( (opt_at_right < 10 && productType.includes('POS')) || (opt_at_right < 1 && productType == 'PTT') )
+                              //   self.$right.append(option);
+                              // else if(productType.includes('POS') && opt_at_right == 10){
+                              //   alert('Maximum limit of 10 elements has been exceeded. If more than 10 elements are needed, split up the product into two products, grouping the elements and adjusting the title accordingly.');
+                              //   return false;
+                              // }else if( productType == 'PTT' && opt_at_right == 1 ){
+                              //   alert('Due to the customized template for this element, this can be the only element selected for this product.');
+                              //   return false;
+                              // }
+                              {% endcomment %}
+                              if(opt_at_right < 100 && productType == 'MOD')
+                              	self.$right.append(option);
+                              else if(productType == 'MOD' && opt_at_right == 100){
+                              	alert('Maximum limit of 100 elements has been exceeded. If more than 100 elements are needed, split up the product into two products, grouping the elements and adjusting the title accordingly.');
                                 return false;
                               }
                             }).promise().done(function(){ w3.sortHTML('#multiselectOption', 'option'); });
@@ -1412,37 +1720,43 @@
                           
                         });
                         
-                        $('#optionSave').prop('disabled', 'disabled');
+                        $('#optionSave').prop('disabled', (optBkpData == (window["selectedOptions"]||selectedOptions.join(','))));
                         
 				        $('#optionModal').one('show.bs.modal', function(){ $(this).animateCss('animated slideInRight'); }).modal({backdrop:"static", show:true, keyboard:false});
-//                         .modal({backdrop:"static", show:true, keyboard:false});
+                        // .modal({backdrop:"static", show:true, keyboard:false});
                         $("#optionModal").off('hide.bs.modal').on('hide.bs.modal', function () {
                           
                           if(!$('#optionSave').is(':disabled')){
                             if (confirm("Your changes will be lost !") == true) {
-                                $("#optionModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+                        		instance.setDataAtCell(row, instance.propToCol('option1_value'), optBkpData);
+                                $("#optionModal").off('hide.bs.modal').animateCss('slideOutRight', function(modal){ $(modal).modal('hide'); });
+                                window["selectedOptions"] = null;
                             } else
                                 return false;
-                          } else
-                              $("#optionModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
-                              return false;
+                          } else{
+								instance.setDataAtCell(row, instance.propToCol('option1_value'), optBkpData);
+								$("#optionModal").off('hide.bs.modal').animateCss('slideOutRight', function(modal){ $(modal).modal('hide'); });
+								window["selectedOptions"] = null;
+	                          }
+							return false;
                         });
                         $("#optionSave").off('click').one('click', function (e) {
-                          selectedOptions = $('#multiselectOption_to option').map( function() { return this.getAttribute('value'); }).get().join(",");
-//                           alert(selectedOptions);
+                          selectedOptions = $('#multiselectOption_to option').map( function() { return this.getAttribute('value'); }).get().join(",").replace(/&quote;/g, '\"');
+                          // alert(selectedOptions);
                           if(selectedOptions.length == 0 ){
                           	instance.setDataAtCell(row, instance.propToCol('variant_sku'), null);
                             instance.setDataAtCell(row, instance.propToCol('variant_price'), null);
                             instance.setDataAtCell(row, instance.propToCol('default_price'), null);
                             instance.setDataAtCell(row, col+2, null);
                           }else{
-//                             instance.setDataAtCell(row, 20, defaultPriceList);
-                            $("#optionModal").off('hidden.bs.modal').one('hidden.bs.modal', function () {
+                            // instance.setDataAtCell(row, 20, defaultPriceList);
+                            //$("#optionModal").off('hidden.bs.modal').one('hidden.bs.modal', function () {
                             	editPrice(instance, row, instance.propToCol('add_price'), optBkpData, selectedOptions);
-                            });
+                            	window["selectedOptions"] = selectedOptions;
+                            //});
                           }
                             
-//                           instance.setDataAtCell(row, col-3, selectedOptions);
+                          // instance.setDataAtCell(row, col-3, selectedOptions);
                           $(this).prop('disabled', 'disabled');
                           $("#optionModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
                         });
@@ -1487,7 +1801,8 @@
                         var price = instance.getDataAtCell(row, 20);
                         if(price == null || price.length == 0){
                           price = {};
-                          selectedPrices = function(){ selectedPrices = []; selectedOptions.forEach(function(option, index){ selectedPrices.push('0'); return selectedPrices; }); };
+                          selectedPrices = []; 
+					      selectedOptions.forEach(function(option, index){ selectedPrices.push(defaultPrice[option]||'0.01'); });
 //                           selectedOptions.forEach(function(option, index){
 // 							price[option] = '0.00';
 //                           });
@@ -1497,23 +1812,27 @@
                         
                         $('#optionPriceModal tbody').html('');
                         selectedOptions.forEach(function(option, index){
-                            try{ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0 || this.value == 0) this.value = \'0.01\'; else this.value = (parseFloat(this.value)||0.01).toFixed(2); " value="'+ ((price[option] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? price[option] : "0.01") +'"></td></tr>'); }
-                            catch(e){ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0 || this.value == 0) this.value = \'0.01\'; else this.value = (parseFloat(this.value)||0.01).toFixed(2); " value="'+ ((selectedPrices[index] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? selectedPrices[index] : "0.01") +'"></td></tr>'); }
+                            {% comment %}
+								// try{ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0 || this.value == 0) this.value = \'0.01\'; else this.value = (parseFloat(this.value)||0.01).toFixed(2); " value="'+ ((price[option] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? price[option] : "0.01") +'"></td></tr>'); }
+								// catch(e){ $('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" type="number" required patterns="" onchange="if(this.value.length == 0 || this.value == 0) this.value = \'0.01\'; else this.value = (parseFloat(this.value)||0.01).toFixed(2); " value="'+ ((selectedPrices[index] != undefined && price[option].match(/^\d+\.\d{0,2}$/)) ? selectedPrices[index] : "0.01") +'"></td></tr>'); }
+							{% endcomment %}
+							optPrice = (parseFloat(selectedPrices[index]||'0.01').toFixed(2).toString().match(/^\d+\.\d{0,2}$/)[0])||'0.01';
+							$('#optionPriceModal tbody').append('<tr><td>'+(index+1)+'</td><td>'+option+'</td><td><input class="form-control" style="margin: 0;" type="number" required patterns="" onchange="if(this.value.length == 0 || this.value == 0) this.value = \'0.01\'; else this.value = (parseFloat(this.value)||0.01).toFixed(2); " value="'+ optPrice +'"></td></tr>');
                         });
                         
                         $("#priceSave").prop('disabled', 'disabled');
 				        $('#optionPriceModal').one('show.bs.modal', function(){ $(this).animateCss('animated slideInRight'); }).modal({backdrop:"static", show:true, keyboard:false});
-//                         .modal({backdrop:"static", show:true, keyboard:false});
+                        // .modal({backdrop:"static", show:true, keyboard:false});
                         
                         $("#optionPriceModal").off('hide.bs.modal').on('hide.bs.modal', function () {
                           
                           if(!$('#priceSave').is(':disabled')){
                             if (confirm("Your changes will be lost !") == true) {
-                                $("#optionPriceModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+                                $("#optionPriceModal").off('hide.bs.modal').animateCss('slideOutRight', function(modal){ $(modal).modal('hide'); });
                             } else
                                 return false;
                           } else
-                              $("#optionPriceModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
+                              $("#optionPriceModal").off('hide.bs.modal').animateCss('slideOutRight', function(modal){ $(modal).modal('hide'); });
                               return false;
                         });
                         
@@ -1533,8 +1852,8 @@
                             return JSON.stringify(price);
                           }
                           instance.setDataAtCell(row, instance.propToCol('default_price'), setPrice());
-//                           Handsontable.dom.empty(td);
-//                           td.appendChild(btn);
+                          // Handsontable.dom.empty(td);
+                          // td.appendChild(btn);
                           $("#optionPriceModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
                         });
 				      });
@@ -1571,17 +1890,26 @@
 				        	value = value.split(',');
 				        	value.forEach(function(url, index) {
 				        		new_url = getThumbOf(url);
-				        		$('#imageModal .imgWrap').delay(index*600).append('<div class="col-xs-3 animated fadeInDown w3-padding w3-margin-top" data-url="'+url+'" style="position:relative;"><img class="img-responsive center-block w3-card-4" style="width:100%; height:auto;" src="'+ new_url +'"/><a class="pull-right w3-circle w3-text-red w3-xlarge w3-card-4 animated rubberBand" style="position:absolute; top:-10px; right:5px;cursor:pointer;" data-name="'+new_url+'" onclick="deleteImgFile(this);" style="cursor:pointer;"><i class="fa fa-times-circle"></i></a></div>');
+				        		$('#imageModal .imgWrap').delay(index*600).append('<div class="col-xs-2 animated fadeInDown w3-padding w3-margin-top" data-url="'+url+'" style="position:relative;"><div class="box"><img class="img-responsive center-block w3-card-4" style="width:100%; height:auto;" src="'+ new_url +'"/></div><a class="pull-right w3-circle w3-text-red w3-xlarge w3-card-4 animated rubberBand" style="position:absolute; top:-10px; right:5px;cursor:pointer;" data-url="'+url+'" data-name="'+new_url+'" onclick="deleteImgFile(this);" style="cursor:pointer;"><i class="fa fa-times-circle"></i></a></div>');
 				        	});
 				        }
 				        activeCell(row, col+1);
-                        $('#imageModal').one('show.bs.modal', function(){ $(this).addClass('animated slideInRight in'); }).modal({backdrop:"static", show:true, keyboard:false});
-//                         $('#imageModal').off('hide.bs.modal').on('hide.bs.modal', function(){ 
-//                           $('#imageModal').off('hide.bs.modal').removeClass('slideInRight').animateCss('slideOutLeft', function(modal){ 
-//                             setTimeout( function(){ $(modal).modal('hide'); },0); 
-//                           }); 
-//                           return false;
-//                         });
+                        $('#imageModal').one('show.bs.modal', function(){ $(this).animateCss('animated slideInRight'); }).modal({backdrop:"static", show:true, keyboard:false});
+                        window["imgMdlCls"] = 0;
+
+                        $('#imageModal [data-dismiss="modal"]').off('click').on('click', function() {
+                        	window["imgMdlCls"] = 1;
+                        });
+
+                        $('#imageModal').off('hide.bs.modal').one('hide.bs.modal', function(event){ 
+                        	$( this ).off( event );
+								$('#imageModal').off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ //alert("hide");
+									if(window["imgMdlCls"]){
+										$(modal).modal('hide');
+									}
+								}); 
+							return false;
+                        });
 				      });
 
 				      Handsontable.dom.empty(td);
@@ -1637,11 +1965,12 @@
               
                   exportHot2As = function (asCsvString, asCsvFile){
                     var confirmed = true;
-                    if(!$('.intext-btn:contains("GENERATE SHEET")').first().is(':disabled')){
+                    if(!$('.intext-btn:contains("GENERATE SHEET")').first().is(':disabled') && false){
                             if (confirm("Looks like you have made some changes after generating sheet.\nClick OK to proceed without changes.") == true) {
                               //alert('ok');
                             } else{
                               	confirmed = false;
+                              	defreez();
                                 return false;
                             }
                     }
@@ -1678,18 +2007,26 @@
                         title = Handsontable.helper.stringify(hot.getDataAtCell(row, 3));
                        	brand = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('vendor')));
                         elements = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('option1_value')));
+                        prices = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('variant_price')));
                        	imgs = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('image_src')));
+                        tags = Handsontable.helper.stringify(hot.getDataAtCell(row, hot.propToCol('tags')));
                        	if(title.length == 0)
-                          $('#error-log').append('<p style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'title\');" title="Click to Go to here.">- Row '+(row+1)+': Product Title Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'title\');" title="Click to Go to here.">- Row '+(row+1)+': Product Title Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
                        	if(brand.length == 0)
-                          $('#error-log').append('<p style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'vendor\');" title="Click to Go to here.">- Row '+(row+1)+': Product Brand Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'vendor\');" title="Click to Go to here.">- Row '+(row+1)+': Product Brand Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
                         if(elements.length == 0)
-                          $('#error-log').append('<p style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'option1_value\');" title="Click to Go to here.">- Row '+(row+1)+': Product Elements Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="$.when(hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'add_options\')).done(simulateMouseClick($(\'.current.highlight a\')[0]));" title="Click to Go to here.">- Row '+(row+1)+': Product Elements Missing (At-least one element required if don\'t have any element for the product then select <b>\'Default\'</b> from list.) . <i class="fa fa-external-link-square w3-text-grey"></i></p>');
+                      	if(prices.length == 0)
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="$.when(hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'add_price\')).done(simulateMouseClick($(\'.current.highlight a\')[0]));" title="Click to Go to here.">- Row '+(row+1)+': Default Element Price Can Not be Zero. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
+                        if(tags.indexOf('ExpireAt:') == -1 || tags.indexOf('MODTemplate:') == -1)
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="$.when(hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'add_tags\')).done(simulateMouseClick($(\'.current.highlight a\')[0]));" title="Click to Go to here.">- Row '+(row+1)+': Product Expiry date or Template Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>');                   
                         if(imgs.length == 0)
-                          $('#error-log').append('<p style="cursor:pointer;" onclick="hot.selectCellByProp('+row+', \'image_src\');" title="Click to Go to here.">- Row '+(row+1)+': Atleast one product image required. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="$.when(hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'add_images\')).done(simulateMouseClick($(\'.current.highlight a\')[0]));" title="Click to Go to here.">- Row '+(row+1)+': Atleast one product image required. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
                       }
                       if($('#error-log').text().length > 0){
                         $('#error-log').prepend('<h2>Error log</h2>').show();
+                        $('body, html').delay(100).animate({scrollTop: 0});
+                        $(window).trigger('scroll');
                         show_message4("Upload aborted due to missing data..", false);
                         return false;
                       }else
@@ -1800,11 +2137,15 @@
                       tags_no_cust = hot2.getDataAtCell(row, tag_col).split(",");
                       tags_no_cust.push("NoCustomization");
                       console.log(tags_no_cust);
-                      hot2.setDataAtCell(row, tag_col, $.unique(tags_no_cust).join(","));
+                      hot2.setDataAtCell(row, tag_col, $.unique(tags_no_cust).join(",").replace(/\+/g, ','));
                       hot2.setDataAtCell(row, hot2.propToCol('type'), "POS");
-                    }else {console.log('no no no');}
+                    }else if(type == "MOD"){
+            		  console.log('no no no');
+            		  tag_col = hot2.propToCol('tags');
+            		  hot2.setDataAtCell(row, tag_col, $.unique(hot2.getDataAtCell(row, tag_col).split(',')).join(",").replace(/\+/g, ','));
+            		}
                     
-                    hot2.selectCellByProp(row, 'option1_value');
+                    hot2.selectCell{% comment %}ByProp{% endcomment %}(row, 'option1_value');
                     if(rowsBelow > 1)
                       hot2.alter('insert_row', row+1, rowsBelow-1);
                     opt.split(',').forEach(function(item, index){ arr2D.push([item]); });
@@ -1893,7 +2234,54 @@
               
 
 				function encodeImageFileAsURL(element) { freez();
-				  var file = element.files[0];
+                                                        {% comment %}
+				  const files = element.files;
+                  var imgCheck = true, filesObj = Object.values(files);
+                                                        
+                  if(filesObj.map(function(x){return x.size/1024/1024}).sort().reverse()[0] > 2){
+                      show_message4('Invalid image file size...',false,'Try adding image of size < 2 MB');
+                      imgCheck = false;
+                      return false;
+                  }
+                  
+                  function difference(setA, setB) {
+                      var _difference = new Set(setA);
+                      for (var elem of setB) {
+                          _difference.delete(elem);
+                      }
+                      return _difference;
+                  }
+                                                        
+                  file_e1 = new Set (filesObj.map(function(x){return x.name.toLowerCase().match(/\.([^\.]+)$/)[1]}));
+                  file_e2 = new Set(["jpg", "jpeg", "png", "gif", "svg"]);
+                                                        
+                  if(difference(file_e1, file_e2).length > 0 ){
+                      show_message4('Unsupported image file type...',false,'Supported image type ".jpg" | ".jpeg" | ".png" | ".gif" | ".svg"');
+                      imgCheck = false;
+                      return false;
+                  }   
+                  
+                  if(imgCheck){                                      
+                    Object.keys(files).forEach(i => {
+                      const file = files[i];
+                      const reader = new FileReader();
+                      reader.onloadend = (e) => {
+                        attachment = reader.result.split(',')[1];
+                        attachment = attachment.replace(' ', '');
+                        filename = file.name;
+                        extension = filename.toLowerCase().match(/\.([^\.]+)$/)[1];
+                        filename = filename.replace(extension,'').replace(/[^A-Z0-9]+/ig, "_").replace(/^_+|_+$/g,'')+'_'+new Date().getTime()+'.'+extension;
+                        putImgFile(filename, attachment);
+                      }
+                      reader.readAsDataURL(file);   
+                    });
+                  }
+                                                        
+                  element.value = '';                                      
+                                                        
+                  {% endcomment %}  
+                  //single file read                                      
+                  var file = element.files[0];                                      
                   element.value='';
 				  var reader = new FileReader();
                   var imgCheck = true;
@@ -1930,6 +2318,7 @@
 				  }
                   
 				  reader.readAsDataURL(file);
+                                                    
 				}
 
 				function toDataURL(url, callback) {
@@ -2054,7 +2443,7 @@
                   var imgTag = new Image();
                   imgTag.onload = function(){
                     $.unblockUI();
-                    $('#imageModal .imgWrap').append('<div class="col-xs-3 animated fadeInDown w3-padding w3-margin-top" data-url="'+img+'"><img class="img-responsive center-block w3-card-4" style="width:100%; height:auto;" src="'+ imgThumb +'"/><a class="pull-right w3-circle w3-text-red w3-xlarge w3-card-4 animated rubberBand" style="position:absolute; top:-10px; right:5px;cursor:pointer;" data-name="'+imgThumb+'" onclick="deleteImgFile(this);" style="cursor:pointer;"><i class="fa fa-times-circle"></i></a></div>');
+                    $('#imageModal .imgWrap').append('<div class="col-xs-2 animated fadeInDown w3-padding w3-margin-top" data-url="'+img+'"><div class="box"><img class="img-responsive center-block w3-card-4" style="width:100%; height:auto;" src="'+ imgThumb +'"/></div><a class="pull-right w3-circle w3-text-red w3-xlarge w3-card-4 animated rubberBand" style="position:absolute; top:-10px; right:5px;cursor:pointer;" data-url="'+img+'" data-name="'+imgThumb+'" onclick="deleteImgFile(this);" style="cursor:pointer;"><i class="fa fa-times-circle"></i></a></div>');
                   };
                   imgTag.src = imgThumb;
                 }
@@ -2171,9 +2560,9 @@
                 }
 
 				function deleteImgFile (item) { freez();
-                   var assetName = GetFileName($(item).parent().data('url'));
+                   var assetName = GetFileName($(item).data('url'));
                    var imgURLs = Handsontable.helper.stringify(hot.getDataAtCell(activeRow, activeCol)).split(',');
-                   var imgPOS = imgURLs.indexOf($(item).parent().data('url')); //console.log(imgPOS);
+                   var imgPOS = imgURLs.indexOf($(item).data('url')); //console.log(imgPOS);
                                                     {% comment %}{% endcomment %}                                
 					var xhttp = new XMLHttpRequest();
                     xhttp.onreadystatechange = function() { 
@@ -2238,7 +2627,8 @@
                    
                    
                    else if(prodName.length > 0){
-                      var queryResult = hot.search.query(prodName);
+                   	  var search = hot.getPlugin('search');
+                      var queryResult = search.query(prodName);
                       var len = (hot.getDataAtCell(searchRow, 3) == null) ? 0 : 1;
                       console.log(queryResult);
                       if(queryResult.length > len){
@@ -2355,7 +2745,7 @@
                    var data = { action_type: "product-import-encoded" }, app_url;
                    data.cemail = "{{ customer.email }}";
                    data.cid = "{{ customer.id }}";
-                   data.crole = {% if customer.tags contains Role_Admin %}"Admin"{% elsif customer.tags contains Role_ASM %}"ASM"{% endif %};
+                   data.crole = "{{ customer_role_tag | remove: 'Role:' }}";
                    
                    if(!processed)
                      prepareHot2(true, env);
@@ -2380,13 +2770,12 @@
                     contentType: 'application/json',
                     success:function(data){
                       console.log(JSON.stringify(data)); //alert(JSON.stringify(data));
-                      if(data.message){
+                      if(data.message && data.message.indexOf("Importing") != -1){
                           console.log(data.message);
                           show_message4("Importing products in background", true);
                       }
-                       else if(data.error){
-                          console.log(data.error);
-                          show_message4(data.error, false);
+                      else{
+                        show_message4(data.error||data.message||"Importing Failed...!!", false);
                       }
                     },
                     error:function(data){
@@ -2508,5 +2897,5 @@
 	</body>
 </html>
 {% else %}
-	<meta content="0; url={{shop.secure_url}}/pages/error" http-equiv="refresh" />
+	<meta content="0; url=/pages/error" http-equiv="refresh" />
 {% endif %}

@@ -56,7 +56,8 @@
 {% include 'customer-account-common-code' with 'per-page-form' %}
 
 <script>
-  
+  var all_customer = '';
+
   {% include 'customer-account-common-code' with 'init-variables' %}
   
 //   fetch_Orders('','','','');
@@ -70,8 +71,8 @@
   
     {% include 'customer-account-common-code' with 'doc-ready-code' %}
     
-    setTimeout(fetch_AllUsers,0);
-    setTimeout(fetch_TeamUsers,100);
+    // setTimeout(fetch_AllUsers,0);
+    setTimeout(fetch_TeamUsers,800);
     
     
   });
@@ -131,6 +132,42 @@
 	 	});
     
   }
+
+  function ftu(data){
+    if(data.status == 'ok' && data.customers != undefined ){
+                 
+      $.when(w3DisplayData('select_tml', data)).done(
+        w3DisplayData('selected_team', data)
+      ).done(setTimeout(afterDisplay,1000));
+      function afterDisplay(){
+        $('#selected_team').show();
+        $select_team = $('#select_team select'); console.log($select_team.html());
+        $select_team.find("option").removeAttr('disabled'); console.log($('#select_tml').html());
+        $('#select_tml option').each(function(index, item){
+          if(index > 1){
+            $val = $(item).attr('value'); console.log($val+','+JSON.stringify(item)+','+index);
+            $select_team.find("option[value = "+$val+"]").prop('disabled', 'disabled');
+          }
+        });console.log('team fetched');
+      }
+    }
+    else{
+      $('#selected_team, #select_tml option:eq(2)').hide();
+      $('#select_team select option').removeAttr('disabled');
+    }
+    defreez();
+  }
+
+  function simulateMouseClick(targetNode) {
+    function triggerMouseEvent(targetNode, eventType) {
+        var clickEvent = document.createEvent('MouseEvents');
+        clickEvent.initEvent(eventType, true, true);
+        targetNode.dispatchEvent(clickEvent);
+    }
+    ["mouseover", "mousedown", "mouseup", "click"].forEach(function(eventType) { 
+        triggerMouseEvent(targetNode, eventType);
+    });
+  }
   
   function fetch_TeamUsers(state){
       var i = 0;
@@ -141,28 +178,7 @@
           dataType: 'json',
           success: function (data) { console.log(JSON.stringify(data));
                  	
-                    if(data.status == 'ok' && data.customers != undefined ){
-                 
-                    $.when(w3DisplayData('select_tml', data)).done(
-                      w3DisplayData('selected_team', data)
-                    ).done(setTimeout(afterDisplay,1000));
-                      function afterDisplay(){
-                        $('#selected_team').show();
-                        $select_team = $('#select_team select'); console.log($select_team.html());
-                        $select_team.find("option").removeAttr('disabled'); console.log($('#select_tml').html());
-                        $('#select_tml option').each(function(index, item){
-                          if(index > 1){
-                            $val = $(item).attr('value'); console.log($val+','+JSON.stringify(item)+','+index);
-                            $select_team.find("option[value = "+$val+"]").prop('disabled', 'disabled');
-                          }
-                        });console.log('team fetched');
-                      }
-                    }
-                    else{
-                      $('#selected_team, #select_tml option:eq(2)').hide();
-                      $('#select_team select option').removeAttr('disabled');
-                    }
-                 	$.unblockUI();
+                  ftu(data);
 
           },
           error: function(){
@@ -180,8 +196,16 @@
           data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
           dataType: 'json',
           success: function (data) { //console.log(JSON.stringify(data));
-                 	w3DisplayData('select_team', data);
-                 	$.unblockUI();
+                  all_customer = data;
+                 	$.when(w3DisplayData('select_team', data)).done(
+                    setTimeout(function(){
+                      $("#select_team option").removeAttr("style");
+                      $('.fau-refresh').hide();
+                      simulateMouseClick($("#select_team select")[0]);
+                    }, 0)
+                  );  
+
+                 	defreez();
 
           },
           error: function(){

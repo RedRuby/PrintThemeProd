@@ -1,30 +1,30 @@
 
   <div id="order-list" style1="display:none;">
     <div class="w3-row printModeExclude">
-    	<div class="w3-col m2">
+      <div class="w3-col m2">
         <small class="nbsp-hide"><label for=""><small class="placeholdLoader">Date Filter</label></small>
-    	  <input id="start_date" value="{{first_order}}" readonly class="datepicker placeholdLoader" type="text" name="start_date" placeholder="Start Date" >
-    	</div>
-    	<div class="w3-col m2 w3-row-padding" style="position:relative;">
+        <input id="start_date" value="{{first_order}}" readonly class="datepicker placeholdLoader" type="text" name="start_date" placeholder="Start Date" >
+      </div>
+      <div class="w3-col m2 w3-row-padding" style="position:relative;">
         <small class="nbsp-hide"><label for="">&nbsp;</label></small>
-    	  <input id="end_date" value="{{'now' | date: '%m/%d/%Y'}}" readonly class="datepicker placeholdLoader" type="text" name="end_date" placeholder="End Date" >
+        <input id="end_date" value="{{'now' | date: '%m/%d/%Y'}}" readonly class="datepicker placeholdLoader" type="text" name="end_date" placeholder="End Date" >
         <button type="button" disabled class="btn btn--secondary w3-padding-01 w3-padding-top1 w3-padding-bottom1 w3-border-black w3-small clear-filter hide1 placeholdLoader" disabled1 style="position:absolute; bottom: 22.75px; right:15px; z-index:; display:none; padding:0 5px; font-size:3px;"><i class="fa fa-times"></i></button>
-    	</div>
-    	<div class="w3-col m2">
+      </div>
+      <div class="w3-col m2">
         <small class="nbsp-hide"><label for="">&nbsp;</label></small>
         {% comment %}<button id="" class="btn--secondary btn--full1 clear-filter placeholdLoader" type="button" style="display:none;" >Clear Dates</button>{% endcomment %}
-    	  <button id="filter_order" class="btn--secondary btn--full1 placeholdLoader" type="button" >Filter Dates</button>
-    	</div>
+        <button id="filter_order" class="btn--secondary btn--full1 placeholdLoader" type="button" >Filter Dates</button>
+      </div>
       <div class="w3-col m3">
         {% include 'customer-account-common-code' with 'order-search-bar' %}
       </div>
-    	<div id="td_select" class="w3-col m3">
+      <div id="td_select" class="w3-col m3">
           <small><label for="select_tl"><small class="placeholdLoader"><br class="br-hide">Additional Filters</small></label></small>
-      	  <select id="select_tl" onchange="params={page: '1', order_status: '', assigned_designer: ''}; params[$(this).find('option:selected').attr('filter_attr')]=this.value; updateState(params);" name="order_status" class="placeholdLoader">
+          <select id="select_tl" onchange="params={page: '1', order_status: '', assigned_designer: ''}; params[$(this).find('option:selected').attr('filter_attr')]=this.value; updateState(params);" name="order_status" class="placeholdLoader">
             <option value="" selected filter_attr="order_status">Clear Additional Filters</option>
             {% include 'customer-account-common-code' with 'order-status-option-code-fs' %}
           </select>
-    	</div>
+      </div>
     </div>
   <table id="id02" class="responsive-table w3-table w3-bordered w3-striped1">
     <thead>
@@ -35,7 +35,9 @@
     </thead>
     <tr class="w3-hover-light-grey" w3-repeat="orders">
       <th class="w3-text-orange1 orders text-center" id="{% raw %}{{id}}{% endraw %}"><a class="{% raw %}{{cancel_status}}{% endraw %} placeholdLoader" href="/pages/order?id={% raw %}{{id}}{% endraw %}"><b>{% raw %}{{order_name}}{% endraw %}</b></a></th>
+      <td class="text-center"><div class="placeholdLoader">{% raw %}{{company}}{% endraw %}</div></td>
       <td class="text-center" title="{% raw %}{{customer_last_email}}{% endraw %}"><div class="placeholdLoader">{% raw %}{{customer_first_name}} {{customer_last_name}}{% endraw %}</div></td>
+      <td class="text-center"><div class="placeholdLoader">${% raw %}{{spend}}{% endraw %}</div></td>
       {% comment %}<td class="text-center">{% raw %}{{discount_codes}}{% endraw %}</td>{% endcomment %}
       <td class="text-center"><div class="placeholdLoader">{% raw %}{{order_date}}{% endraw %}</div></td>
       {% comment %}<td>{% raw %}{{payment_status}}{% endraw %}</td>{% endcomment %}
@@ -49,7 +51,7 @@
         </select>
       </td>
       {%endcomment%}
-      <td class="text-center printModeExclude" style="width: 230px;"><button class="js-toggle-update-modal1 updateBtn btn--secondary min-width-200 placeholdLoader" style="" title="Update this order" status="{% raw %}{{order_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" onclick="window.location.assign('/pages/order?id={% raw %}{{id}}{% endraw %}{% raw %}{{line_count}}{% endraw %}');" order_id="{% raw %}{{id}}{% endraw %}">Edit Proofs</button></td>
+      <td class="text-center printModeExclude" style="width: 280px;"><button class="js-toggle-update-modal1 updateBtn btn--secondary min-width-230 placeholdLoader" style="" title="Update this order" status="{% raw %}{{order_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" onclick="window.location.assign('/pages/order?id={% raw %}{{id}}{% endraw %}{% raw %}{{line_count}}{% endraw %}');" order_name="{% raw %}{{order_name}}{% endraw %}" order_id="{% raw %}{{id}}{% endraw %}">Edit Proofs</button></td>
     </tr>
     {% comment %}
     <tr>
@@ -67,7 +69,11 @@
 
 {% include 'customer-account-common-code' with 'per-page-form' %}
 
-{% comment %}<div id="mfp-order-edit" class="mfp-wrapper1">
+{% comment %}
+<div id="mfp-order-fulfill">
+  {% include 'magnificPopup-orderFS-Fulfill' %}
+</div>
+<div id="mfp-order-edit" class="mfp-wrapper1">
   {% include 'magnificPopup-orderEdit-NSM' %}
 </div>
 <div id="mfp-order-cancel">
@@ -97,14 +103,14 @@
     
     // console.log(JSON.stringify(data));
                 
-  	 $.ajax({
+     $.ajax({
           url: '/apps/pepsi-print/fs_collection_response/get_orders_list.json',
           type: 'GET',
           data: data,
           dataType: 'json',
           success: function(data){
-            	// console.log(JSON.stringify(data));
-            	if(data["total_entries"] > 0){
+              // console.log(JSON.stringify(data));
+              if(data["total_entries"] > 0){
                   calcT(data);
                   $.when(setTimeout(w3DisplayData("id02", data),100))
                   .done(function(){ delete query.per_page;
@@ -116,15 +122,17 @@
                   $("#print-btn").removeAttr('disabled').prop('title', '').css('cursor', 'default');
 
                   $('option[select = "selected"]').prop("selected", "selected");
-                  $('.updateBtn:not([status="Proofs Needed"]):not([status="Edits Needed"]):not([status="Proofs in Review1"]):not([status="Needs Proof Review1"])').prop("disabled", "disabled").css('cursor','not-allowed');
+                  $('.updateBtn:not([status="Proofs Needed"]):not([status="Edits Needed"]):not([status="Proofs in Review"]):not([status="Needs Proof Review1"]):not([status="Proofs Approved"])').prop("disabled", "disabled").css('cursor','not-allowed');
                   $('.updateBtn[status="Proofs Needed"]').toggleClass('btn--secondary btn-primary btn').text('Upload Proofs');
-      				}else{
+                  $('.updateBtn[status="Proofs Approved"]').toggleClass('btn--secondary btn-primary btn').text('Move to "In Production"').attr('onclick', "if(confirm('Click \\'OK\\' to confirm to move \\''+this.getAttribute('order_name')+'\\' to \\'In Procuction\\'.') == true){ statusUpdate(this) }");
+                  // $('.updateBtn[status="In Production"]').toggleClass('btn--secondary btn-primary btn').text('Update Fulfillment').attr('onclick', "addToUpdateModal(this.getAttribute('order_id'));");
+              }else{
                   $("#id02, .per_pageContainer").hide();
                   $("#order-none, #order-list").show();
                   $("#print-btn").prop('disabled','disabled').prop('title', 'No orders to print.').css('cursor', 'not-allowed');
                   
                 }
-            	defreez();
+              defreez();
               $('.placeholdLoader').addClass('placeholdLoader1').removeClass('placeholdLoader');
               $('.table-wrapper').removeClass('overflow-hidden');
                 
@@ -133,51 +141,68 @@
             defreez(); show_message2('Error in fetching Orders.',false);
           }
           
-	 	}).promise()
+    }).promise()
       .done(function(){
 
     });
     
   }
   
-  function addToUpdateModal(order_id){
-    $('html').css('overflow','hidden');
-    $('.mfp-bg, .mfp-wrap').show().removeClass('mfp-hide');
-    $.ajax({
-          url: '/apps/pepsi-print/fs_collection_response/get_order_detail.json',
-          type: 'GET',
-          data: {order_id: order_id, cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
-          dataType: 'json',
-          success: function(data){
-                // console.log(JSON.stringify(data));
-                $('#OrderEditModal form').attr('order_id', data.order.id);
-                $('#OrderEditModal .orderName').text(data.order.order_name);
-                if(data.order.fulfillments[0]){
-                  $('#OrderEditModal .shipping_price').val(data.order.shipping_lines[0].price);
-                  $('#OrderEditModal .shipping_code').val(data.order.fulfillments[0].shipping_code);
-                  $('#OrderEditModal .tracking_company option[value = "'+data.order.fulfillments[0].tracking_company+'"]').prop('selected','selected');
-                  if(data.order.fulfillments[0].tracking_company.indexOf('Pick Up') != -1 || data.order.fulfillments[0].tracking_company == 'Install'){ 
-                  $('#OrderEditModal .tracking_number').prop({'disabled':'disabled', 'value':''}).css('cursor', 'not-allowed'); 
-                    changeTracking(true);
-                  }else{ 
-                    $('#OrderEditModal .tracking_number').val(data.order.fulfillments[0].tracking_number);
-                    changeTracking(false);
-                  }
+  {% comment %}
+  // function addToUpdateModal(order_id){
+  //   $('html').css('overflow','hidden');
+  //   $('#mfp-order-fulfill .mfp-preloader, #mfp-order-fulfill .mfp-preloader .w3-loader').show();
+  //   $('#mfp-order-fulfill .mfp-content').removeClass('bounceOutDown').addClass('slideInUp');
+  //   $('#mfp-order-fulfill .mfp-bg, #mfp-order-fulfill .mfp-wrap').show().removeClass('mfp-hide');
+
+  //   setTimeout(function(){
+  //     $('.mfp-wrap').css('max-height', '100vh');
+  //   }, 800);
+
+  //   $.ajax({
+  //         url: '/apps/pepsi-print/fs_collection_response/get_order_detail.json',
+  //         type: 'GET',
+  //         data: {order_id: order_id, cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
+  //         dataType: 'json',
+  //         success: function(data){
+  //               // console.log(JSON.stringify(data));
+  //               $('#OrderFulfillmentModal form').attr('order_id', data.order.id);
+  //               $('#OrderFulfillmentModal .orderName').text(data.order.order_name);
+  //               if(data.order.fulfillments[0]){
+  //                 $('#OrderFulfillmentModal .design_fee').val(data.order.design_fee);
+  //                 $('#OrderFulfillmentModal .shipping_price').val(data.order.shipping_lines[0].price);
+  //                 $('#OrderFulfillmentModal .shipping_code').val(data.order.fulfillments[0].shipping_code);
+  //                 $('#OrderFulfillmentModal .tracking_company option[value = "'+data.order.fulfillments[0].tracking_company+'"]').prop('selected','selected');
+  //                 if(data.order.fulfillments[0].tracking_company.indexOf('Pick Up') != -1 || data.order.fulfillments[0].tracking_company == 'Install'){ 
+  //                 $('#OrderFulfillmentModal .tracking_number').prop({'disabled':'disabled', 'value':''}).css('cursor', 'not-allowed'); 
+  //                   changeTracking(true);
+  //                 }else{ 
+  //                   tnos = data.order.fulfillments[0].tracking_number.split(',');
+  //                   $('#OrderFulfillmentModal .tracking_number').val(tnos[0]);
+  //                   if(tnos.length > 1){
+  //                     for(i=1; i<tnos.length; i++){
+  //                       addTracking( $('#OrderFulfillmentModal .add_tno').last().get(0),tnos[i]);
+  //                     }
+  //                   }
+  //                   changeTracking(false);
+  //                 }
                    
-                  $('#OrderEditModal .tracking_url').val(data.order.fulfillments[0].tracking_url);
-                }else changeTracking(false);
+  //                 $('#OrderFulfillmentModal .tracking_url').val(data.order.fulfillments[0].tracking_url);
+  //               }else changeTracking(false);
                  
-                bemail = data.order.customer.email;
+  //               bemail = data.order.customer.email;
                 
-                defreez(); $('.mfp-preloader').hide(); $('#OrderEditModal').show().removeClass('mfp-hide');
+  //               defreez(); $('.mfp-preloader').hide(); 
+  //               $('#OrderFulfillmentModal').show().removeClass('mfp-hide');
                 
-          },
-          error: function(){
-            defreez(); show_message2('Error in fetching Order.',false);
-          }
+  //         },
+  //         error: function(){
+  //           defreez(); show_message2('Error in fetching Order.',false);
+  //         }
           
-    });
-  }
+  //   });
+  // }
+  {% endcomment %}
 
   function changefulfillment(obj){
     var $this = $(obj); // console.log($this.attr('order_id')+" changed to"+$this.val());
@@ -190,8 +215,23 @@
         error: function(){defreez(); show_message2('Some Error Occured.',false);}
     });
 
- }
+  }
   
+  function statusUpdate(elem) {
+    freez();
+    $.ajax({
+        url: '/apps/pepsi-print/fs_order_configuration/change_order_status_to_in_production.json',
+        type: 'POST',
+        data: { cemail: "{{ customer.email }}", cid: {{ customer.id }}, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order_id: elem.getAttribute('order_id'), cregion: '{{ customer_region_tag |replace:'Region:','' |replace:'0','o'}}', crole: '{{ customer_role_tag |remove:'Role:'}}' },
+        dataType: 'json',
+        success: function(data){   
+          console.log(data);
+          show_message2( "Moved to 'In Production' Successfully.", true); 
+          fetch_Orders();
+        },
+        error: function(data){ console.log(data); show_message2(data.responseJSON.message||'Some Error Occured.',false); }
+    });
+  }
 
 </script>
 
