@@ -44,9 +44,9 @@
       <td class="text-center" order_status="{% raw %}{{order_status}}{% endraw %}"><div class="placeholdLoader">{% raw %}{{order_status}}{% endraw %}</div></td>
       <td class="text-center printModeExclude" style="width: 340px;">
         <button class="js-toggle-edit-modal1 btn--secondary reviewBtn min-width-150 placeholdLoader" style="" title="Review this order" onclick="location.assign('/pages/order?id={% raw %}{{id}}{% endraw %}{% raw %}{{line_count}}{% endraw %}');" status="{% raw %}{{order_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" order_id="{% raw %}{{id}}{% endraw %}" >Review Proofs</button>
-<!--         <span class="">&nbsp;
-          <button class="btn btn-primary reorderBtn1 min-width-150 placeholdLoader" style="" disabled title="Re-order" status="{% raw %}{{order_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" order_id="{% raw %}{{id}}{% endraw %}" onclick="orderCreate({% raw %}{{id}}{% endraw %});">Re-Order</button>
-        </span> -->
+        <span class="">&nbsp;
+          <button class="btn btn-primary reorderBtn min-width-150 placeholdLoader" style="" disabled title="Re-order" status="{% raw %}{{order_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" order_id="{% raw %}{{id}}{% endraw %}" onclick="orderCreate({% raw %}{{id}}{% endraw %});">Re-Order</button>
+        </span>
       </td>
     </tr>
   </table>
@@ -105,7 +105,8 @@
 
                   $('.reviewBtn[status = "Fulfilled"], .reviewBtn[status="In Production"]').prop('title', 'View Proofs').text('View Proofs');
 
-                  $('.reorderBtn[status2 = "cancelled"], .reorderBtn:not([status="In Production"]):not([status="Fulfilled"])').prop("disabled", "disabled").prop('title', '').css('cursor', 'not-allowed');
+                  $('.reorderBtn[status2 = "cancelled"], .reorderBtn:not([status="In Production"]):not([status="Fulfilled"]):not([status*="Approved"])').prop("disabled", "disabled").prop('title', '').css('cursor', 'not-allowed');
+                  $('.reorderBtn[status="Fulfilled"], .reorderBtn[status="In Production"], .reorderBtn[status*="Approved"]').removeAttr("disabled");
               }else{
                   $("#id02, .per_pageContainer").hide();
                   $("#order-none, #order-list").show();

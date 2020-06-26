@@ -1,0 +1,45 @@
+<div id="mfp-img-popup">
+<div class="mfp-bg mfp-fade mfp-ready w3-black" style="display:none; opacity:0.8;"></div>
+
+<div class="mfp-wrap mfp-auto-cursor mfp-fade mfp-ready mfp-hide" tabindex="-1" style="overflow-x: hidden; overflow-y: auto;" style="display:none;">
+  <div class="mfp-container mfp-s-ready mfp-inline-holder">
+   
+    <div class="mfp-content w3-padding-xlarge w3-card-2 w3-white animated fast">
+      <div id="ImageModal" class="white-popup-block text-center wrapper" styles="display:none;">
+        <img src="https://cdn.shopify.com/s/files/1/1634/5803/files/Annotation_2019-05-08_193024_2048x_5459aea7-c031-400f-abf8-15003d818f4c_2048x.jpg?v=1585073024" alt="" style="width: 100%;">
+      </div>
+      <button title="Close (Esc)" onclick="closeModal();" type="button" class="mfp-close">&times;</button>
+    </div>
+    <div class="mfp-preloader w3-center center-block" style="display:initial;">
+      {% include 'customer-account-common-code' with 'order-loader' %}
+    </div>
+  </div>
+
+  <br>
+</div>
+</div>
+
+<script>
+  $(document).ready(function(){
+     showModal();
+  });
+
+  function showModal(){
+    $('html, body').css('overflow','hidden');
+    $('#mfp-img-popup .mfp-content').removeClass('bounceOutDown').addClass('slideInUp');
+    $('#mfp-img-popup .mfp-bg, #mfp-img-popup .mfp-wrap').show().removeClass('mfp-hide');
+    $('.mfp-preloader').hide();
+    setTimeout(function(){
+      $('.mfp-wrap').css('max-height', '100vh');
+    }, 800);
+  }
+  function closeModal(){
+    $('#mfp-img-popup .mfp-content').removeClass('slideInUp').addClass('bounceOutDown');
+    setTimeout(function(){
+      $('html, body').css('overflow','auto');
+      $('#mfp-img-popup .mfp-bg, #mfp-img-popup .mfp-wrap, #ImageModal, .mfp-note').delay(1000).hide().addClass('mfp-hide');
+      $('.mfp-container').removeAttr('style');
+      $('.mfp-preloader').show();
+    }, 800);
+  }
+</script>

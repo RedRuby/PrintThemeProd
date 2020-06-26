@@ -66,7 +66,7 @@
             </div>
           </div>
         </div>
-        <a class='w3-text-blue' href='/account/addresses?view=shipping'><u>Edit My Shipping Address</u></a>
+        <a class='btn' href='/account/addresses?view=shipping'>Edit My Shipping Address</a>
         <form onsubmit="selectAddress(event, this);">
           <div class="w3-block w3-margin-top">
 
@@ -114,7 +114,7 @@
               </tr>
             </table>
             <br><br>
-            <button type="submit" class="btn btn-primary">Add Addresses</button>
+            <button type="submit" class="btn btn-primary submit">Add Addresse</button>
             <br>
             <button type="button" class="btn--secondary w3-margin-top" onclick="updateModal2();">Cancel</button>
           </div>
@@ -138,6 +138,10 @@
 
   new Shopify.CountryProvinceSelector('country', 'state', {
     hideElement: 'AddressProvinceContainerNew'
+  });
+
+  $(document).on('click', 'span[add_type^="{"]', function(){ 
+    location.assign('/account/addresses?view=shipping');
   });
 
   var Strings = {
@@ -324,6 +328,14 @@
   $(document).ready(function(){
     mfpHTML2 = $('#OrderAddressSelect').html();
     updateState({}, true);
+
+    setInterval(function(){
+      selected_checkboxes = $('#OrderAddressSelect [name^="selectAddress["]:checked').length;
+      if(selected_checkboxes)
+        $('#OrderAddressSelect button[type="submit"].submit').text("Add "+ selected_checkboxes +" Addresses");
+      else
+        $('#OrderAddressSelect button[type="submit"].submit').text("Add Addresses");
+    }, 1000);
   });
   
   function updateModal2(openAdd){ //console.log('in'); 
@@ -355,16 +367,21 @@
     
     selected_checkboxes = $('#OrderAddressSelect [name^="selectAddress["]:checked');     
 
-    if(selected_checkboxes.length > 0){
+    grid_addr = $('tr[w3-repeat="addresses"]:visible').length;
+    total_selected_addr_line_combo = (grid_addr + selected_checkboxes.length)*{{ cart.item_count }};
+
+    if(selected_checkboxes.length > 0 && total_selected_addr_line_combo <= 100){
+      defreez();
       selected_ids = Object.keys(selected_checkboxes.serializeJSON().selectAddress);
       updateGrid("address", address.addresses.filter(function( obj ) { if(selected_ids.indexOf(obj.id.toString()) > -1) return obj; }));
       updateModal2();
     // else if(id){
     //   updateGrid("address", address.addresses.filter(function( obj ) { if(id == obj.id) return obj; }));
     //   updateModal2();
-      defreez();
-    }else
+    }else if(selected_checkboxes.length == 0)
       show_message2("Please Select at leat one address.", false, true);
+     else
+      show_message4("Total grid address for " + {{ cart.items.size }} + " cart line items can not be more than "+ 100/{{ cart.items.size }} + ".", false, grid_addr + " addresses already added, now upto " + ((100/{{ cart.items.size }})-grid_addr) + " more are allowed.");
   }
   
   function showSelectModal(){

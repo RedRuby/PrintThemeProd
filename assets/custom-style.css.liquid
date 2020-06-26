@@ -392,7 +392,7 @@ div ul li label{ display:inline !important; }
 
 *:disabled{ cursor: not-allowed !important; }
 
-.btn-group button, .cross-btn {
+.responsive-table .btn-group button, .cross-btn {
     background-color: transparent !important; /* Green background */
     border: 1px solid transparent !important; /* Green border */
     outline: none !important;
@@ -409,22 +409,22 @@ div ul li label{ display:inline !important; }
 }
 
 @-moz-document url-prefix() { 
-  .btn-group button, .cross-btn {
+  .responsive-table .btn-group button, .cross-btn {
      bottom:5px;
   }
 }
 
-.btn-group, .cross-btn { margin:0px 8px;display:inline-block; }
+.responsive-table .btn-group, .cross-btn { margin:0px 8px;display:inline-block; }
 
 .cross-btn {  height:10px;}
 /* .btn-group { line-height:1; } */
 
-.btn-group button:not(:last-child) {
+.responsive-table .btn-group button:not(:last-child) {
     border-bottom: none; /* Prevent double borders */
 }
 
 /* Add a background color on hover */
-.btn-group button:hover, .cross-btn:hover, .cross-btn.active {
+.responsive-table .btn-group button:hover, .cross-btn:hover, .cross-btn.active {
     color: white;
 }
 
@@ -454,10 +454,12 @@ div ul li label{ display:inline !important; }
 
 /*FS CSS*/
 
-[order_status^="Needs"],[order_status$="Needed"]{ color: #f37900 !important; font-weight: bold; }
+[order_status^="Needs"]{ color: #f37900 !important; font-weight: bold; }
+[order_status$="Needed"]{ color: #ffbf00 !important; font-weight: normal; }
 [order_status="Fulfilled"], .w3-text-blue{ color: #2369b0 !important; }
 [order_status="Cancelled"], .w3-text-red{ color: #d0021b !important; }
 [order_status$="Approved"], .w3-text-green{ color: #7ed321 !important; font-weight: bold; }
+[order_status^="Est. "], .w3-text-green{ color: #ffbf00 !important; font-weight: bold; }
 [order_status="In Production"], .w3-text-green{ color: #4CAF50 !important; font-weight: bold; }
 
 .line_status{ text-transform: uppercase; font-weight: bold; border-radius: 2px; }
@@ -466,12 +468,25 @@ div ul li label{ display:inline !important; }
   background-color: #f37900 !important;
 }
 
-.line_status[status$="Edit"], .line_status[status="Cancelled"]{
+.line_status[status^="Needs Est. Approval"]{
+  background-color: #ccc !important;
+  opacity: 0.5;
+}
+
+.line_status[status$="Cancelled"]{
+  background-color: #d0021b !important;
+}
+
+.line_status[status$="Edit"]{
   background-color: #d0021b !important;
 }
 
 .line_status[status="Approved"], span[add_type="residential"]{
   background-color: #7ed321 !important;
+}
+
+.line_status[status^="Est. "]{
+  background-color: #ffbf00 !important;
 }
 
 span[add_type^="{"]{ 
@@ -480,9 +495,10 @@ span[add_type^="{"]{
   animation: blink 1s ease infinite; 
   -webkit-animation: blink 1s ease infinite; 
   animation: blink 1s ease infinite; 
+  cursor: pointer;
 }
 span[add_type^="{"]::before{ 
-  content: "Set Address Type.";
+  content: "Edit Address Type.";
   position: absolute;
   color: #fff;
 }
@@ -617,7 +633,7 @@ td.td-table-wrapper{ vertical-align: initial !important; padding: 0; position: r
   max-width: 25% !important;
 }
 
-#mfp-product-preview .mfp-content, #mfp-order-edit .mfp-content{
+#mfp-product-preview .mfp-content, #mfp-order-edit .mfp-content, #mfp-img-popup .mfp-content{
   max-width: 1300px !important; 
   margin-top: 100px !important; 
   margin-bottom: 100px !important; 
@@ -679,6 +695,10 @@ td.td-table-wrapper{ vertical-align: initial !important; padding: 0; position: r
 
 .min-width-150{
   min-width: 150px !important;
+}
+
+.min-width-110{
+  min-width: 110px !important;
 }
 
 .min-width-100{

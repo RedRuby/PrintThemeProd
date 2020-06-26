@@ -141,7 +141,7 @@
     return (w1 - w2); 
   }
 
-  function resizeIframe(objr) {
+  function resizeIframe(objr) {defreez();
     iframeWinDoc = getIframeWindow(objr).document;
     $(window).scrollTop(0);
     if(iframeWinDoc.getElementsByClassName('blockUI').length > 0){

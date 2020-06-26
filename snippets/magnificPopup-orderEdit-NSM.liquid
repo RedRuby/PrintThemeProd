@@ -6,7 +6,7 @@
     <div class="mfp-content w3-padding-xlarge w3-card-2 w3-white animated fast">
       <div id="OrderEditModal" class="white-popup-block text-center wrapper" styles="display:none;">
         <br><br>
-        <h1 class="">Edit Order #<span class="orderName" style="font-size:inherit !important;"></span></h1>
+        <h1 class="">Edit {% if customer_role_tag == Role_FSManager %}Estimate{% else %}Order{% endif %} #<span class="orderName" style="font-size:inherit !important;"></span></h1>
         <br>
         <form action="" method="post" onsubmit="if($('.order_qty').map(function(){ return this.value; }).get().indexOf('0') != -1 ){ if(confirm('This will remove all \'0\' quantity line-items from order.\n Click \'OK\' to Confirm')){ editOrder(event, this); }else{ event.preventDefault(); }}else{editOrder(event, this);}" order_id=""> 
           <br>
@@ -56,11 +56,11 @@
             </td>
             <td class="text-center">{% raw %}{{ sku }}{% endraw %}</td>
             <td  class="text-center">
-              <input class="text-right order_price w3-margin-0" required type="text" pattern="^\d+((\.)\d{1,2})?$" name="order_price[{% raw %}{{ id }}{% endraw %}]" value="{% raw %}{{ price }}{% endraw %}" item_id="{% raw %}{{ id }}{% endraw %}" placeholder="0.00" title="upto two decimal places" onchange="calcTotal(this.getAttribute('item_id'));" style="max-width: 100px; display: inline;" />
+              <input class="text-right order_price w3-margin-0" required type="text" pattern="^\d+((\.)\d{1,2})?$" name="order_price[{% raw %}{{ id }}{% endraw %}]" {% if current_role == FSManager %}readonly style="border:none; background: transparent; pointer-events: none;"{% endif %} value="{% raw %}{{ price }}{% endraw %}" item_id="{% raw %}{{ id }}{% endraw %}" placeholder="0.00" title="upto two decimal places" onchange="calcTotal(this.getAttribute('item_id'));" style="max-width: 100px; display: inline;" />
               {% comment %}<div class="w3-col m2 w3-row-padding"><h3 class="w3-margin-0 w3-xlarge" style1="line-height: 1.8;"> &times; </h3></div>{% endcomment %}
             </td>
             <td  class="text-center" style="position: relative;">
-              <input class="text-right order_qty w3-margin-0" required type="text" pattern="^\d+$" name="order_qty[{% raw %}{{ id }}{% endraw %}]" value="{% raw %}{{ quantity }}{% endraw %}" item_id="{% raw %}{{ id }}{% endraw %}" onchange="calcTotal(this.getAttribute('item_id'));" style="max-width: 100px; display: inline;" />
+              <input class="text-right order_qty w3-margin-0" required type="text" pattern="^\d+$" name="order_qty[{% raw %}{{ id }}{% endraw %}]" original_value="{% raw %}{{ quantity }}{% endraw %}" value="{% raw %}{{ quantity }}{% endraw %}" item_id="{% raw %}{{ id }}{% endraw %}" onchange="calcTotal(this.getAttribute('item_id'));" style="max-width: 100px; display: inline;" />
               <button class="no-btn w3-text-red min-width-100" type="button" style="position: absolute; top: calc(50% + 30px); -webkit-transform: translateX(-50%); transform: translateX(-50%); left: 50%;" onclick="cancelItem('{% raw %}{{ id }}{% endraw %}');">Cancel Item</button>
             </td>
             <td class="order_total text-right" item_id="{% raw %}{{ id }}{% endraw %}">${% raw %}{{total}}{% endraw %}</td>
@@ -74,6 +74,13 @@
 
           <br>
           <div class="">
+
+            {% if customer_role_tag == Role_FSManager %}
+              <div class="note text-center">
+                 <small><b>Note:</b> Please be sure to “<b>APPROVE</b>” the order on the next screen after your edits are complete and you have updated the order.</small>
+              </div>
+            {% endif %}
+
             <button type="submit" disabled class="btn btn-primary min-width-200" >Update Order</button><br>
             <button type="button" class="btn w3-margin-top min-width-100" onclick="updateEditModal();">Back</button><br>
             <a class="goTo" style="display:none;" href="/pages/order?id="><button type="button" class="btn w3-margin-top w3-right" style="width:250px;">Current order detail</button></a><br>

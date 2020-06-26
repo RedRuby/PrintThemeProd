@@ -44,6 +44,12 @@
       }
     }
   {% endunless %}
+
+  @media screen and (min-width: 1200px){
+    .header-bar__left, .header-bar__right {
+        width: 50%;
+    }
+  }
 </style>
 
 <div data-section-id="{{ section.id }}" data-section-type="header-section">
@@ -86,6 +92,15 @@
                 {% else %}
                   <button type="button" class="btn btn--secondary" style="padding: 4px 8px; pointer-events: none; visibility: hidden;"><small>&nbsp;</small></button>
                 {% endif %}
+
+                {% if customer %}
+                  {% assign can_emulate = true %}
+                {% endif %}
+                {% assign shop_name = "Premiums,Path Three,Path Four" | split: "," %}
+                {% assign shop_name_size = shop_name.size | minus: 1 %}
+                {% for n in (0..shop_name_size) %}
+                  <button type="button" class="btn btn--secondary" style="opacity: 0.4; padding: 4px 8px;" onclick="oc_emulate();"><small>{{ shop_name[n] }}</small></button>
+                {% endfor %}
 
               </div>
             {% elsif section.settings.header_search_enable and false %}
@@ -268,6 +283,7 @@
 </div>
 
 {% include 'customer-account-common-code' with 'header-script-code' %}
+{% include 'customer-account-common-code' with 'oc_emulate_script' %}
 
 {% schema %}
   {

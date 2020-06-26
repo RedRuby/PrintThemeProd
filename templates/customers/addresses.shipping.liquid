@@ -113,6 +113,13 @@
 
   var grid_data = { addresses: [] };
 
+  if(document.referrer.indexOf('/account') == -1)
+    $('a:contains("Return to ")').attr('href', document.referrer).text('Return to Checkout');
+
+  $(document).on('click', 'span[add_type^="{"]', function(){ 
+    $(this).parents('[w3-repeat="addresses"]').find('button:contains("Edit")').trigger('click'); 
+  });
+
   // Modified contents of customer_area.js (global asset)
   Shopify.CustomerAddress = {
     toggleForm: function(id) {
@@ -212,7 +219,9 @@
                     setAddTable();
 
                     if(data.addresses.map(function(x){ return x.address_type }).includes(null))
-                      show_message4("Please set Address Type for All Shipping Addresses.", true, null, 15000);
+                      show_message4("Please edit Address Type for All Shipping Address.", true, null, 15000);
+                    else
+                      defreez();
 
                     $(".w3-loader").hide();
 

@@ -3,7 +3,7 @@
 
 {% if customer.tags contains Role_NSM %}
   {% if product.tags contains customer_region_tag %}
-  <style>#nav-2 li:nth-of-type(1) button{background-color: {{ settings.color_primary }};}</style>
+    <style>#nav-2 li:nth-of-type(1) button{background-color: {{ settings.color_primary }};}</style>
   {% else %}
     <style>#nav-2 li:nth-of-type(2) button{background-color: {{ settings.color_primary }};}</style>
   {% endif %}
@@ -555,7 +555,8 @@
                 case 'png':
                 case 'pdf':
                 case 'eps':
-                case 'pst':
+                case 'psd':
+                case 'ai':
                     // alert('allowed');
                   if(file.size/1024/1024 > 20 ){
                       show_message4('Invalid file size...',false,'Try adding file of size < 20 MB');
@@ -596,6 +597,8 @@
       if($('#productSelect-option-0').length > 0)
         checkCustomPrice($('#productSelect-option-0')[0]);
       {% if product.selected_or_first_available_variant.title contains "Custom " %}
+      $('[name^="properties[Custom Element "]').trigger('input');
+      {% elsif product.selected_or_first_available_variant.title contains "Digital File" %}
       $('[name^="properties[Custom Element "]').trigger('input');
       {% endif %}
     });
@@ -645,11 +648,49 @@
   function elemntSelect(index){
     $('#productSelect-option-0 option:eq('+index+')').prop('selected', 'selected').change();
   }
+
+  function checkBannerSize(obj){
+    $this_val = parseFloat($(obj).val())||0.00;
+    $that_val = parseFloat($('[data-option-name^="custom-element-"]').find('[name^=properties]').not(obj).val())||0.00;
     
-  function checkCustomPrice(obj){ //console.log(obj.value.toLowerCase());
-    if($(obj).is('select') && (obj.value||'').toLowerCase().indexOf('custom') > -1){
+    if($that_val > 58 && $this_val > 58){
+      $(obj).val('58.00').trigger('input');
+      alert('Maximum 58.00 inches allowed');
+    }
+
+  }
+    
+  function checkCustomPrice(obj){
+    if($(obj).is('select') && (obj.value||'').toLowerCase().indexOf('banner: custom') > -1)
+      $('[data-option-name^="custom-element-"]').find('[name^=properties]').off('change');
+
+    if($(obj).is('select') && (obj.value||'').toLowerCase().indexOf('digital file') == -1)
+      $('[data-option-name="printing"]').show().find('[name^=properties]').val('');
+
+    if($(obj).is('select') && (obj.value||'').toLowerCase().indexOf('custom') > -1 || $(obj).is('select') && (obj.value||'').toLowerCase().indexOf('digital file') > -1){
       $('[data-option-name^="custom-element-"]').show().find('[name^=properties]').prop('disabled', false).parent().parent().prev().show();
       $('[name="properties[__Total Area(H x W)]"], [name="properties[__Calculated Unit Price]"]').prop('disabled', false);
+
+      setTimeout(function(){ $('[name^="properties[Custom Element "]').trigger('input'); }, 60);
+
+      if($(obj).is('select') && (obj.value||'').toLowerCase().indexOf('banner: custom') > -1){
+        $('[data-option-name^="custom-element-"]').find('[name^=properties]').on('change', function(){ checkBannerSize(this) });
+      }else if($(obj).is('select') && (obj.value||'').toLowerCase().indexOf('digital file') > -1){
+        lbl = $('label.custom-element');
+        c_width = $('[name="properties[Custom Element Width]"]');
+        c_height = $('[name="properties[Custom Element Height]"]');
+        lbl.text(lbl.text().replace(/INCHES/, "PIXELS"));
+        c_width.attr('placeholder', c_width.attr('placeholder').toLowerCase().replace(/inches/, "pixels"));
+        c_height.attr('placeholder', c_height.attr('placeholder').toLowerCase().replace(/inches/, "pixels"));
+        $('[data-option-name="printing"]').hide().find('[name^=properties]').val('No');
+      }else{
+        lbl = $('label.custom-element');
+        c_width = $('[name="properties[Custom Element Width]"]');
+        c_height = $('[name="properties[Custom Element Height]"]');
+        lbl.text(lbl.text().replace(/PIXELS/, "INCHES"));
+        c_width.attr('placeholder', c_width.attr('placeholder').toLowerCase().replace(/pixels/, "inches"));
+        c_height.attr('placeholder', c_height.attr('placeholder').toLowerCase().replace(/pixels/, "inches"));
+      }
     }else{
       $('[data-option-name^="custom-element-"]').hide().find('[name^=properties]').prop('disabled', true).parent().parent().prev().hide();
       $('[name="properties[__Total Area(H x W)]"], [name="properties[__Calculated Unit Price]"]').prop('disabled', true);
@@ -696,7 +737,7 @@
     var $ad_specs = $('[name="properties[Printing]"]');
     if($ad_specs.length > 0){
       $('[name="properties[Printing]"]').on('change', function(){
-        if($(this).val() == 'No' ){
+        if($(this).val() == 'No' && $('[name="id"] option:selected').text().toLowerCase().indexOf('digital file') == -1 ){
           selected_variant_price = 10.00;
             
           unit_price = ( addCommas((selected_variant_price).toFixed(2)) ).replace('NaN', '$'+selected_variant_price);
@@ -708,7 +749,7 @@
           selected_variant = prod.variants.find(function(x){ return x.id == Number($('[name="id"]').val()) });
           selected_variant_price = parseFloat(selected_variant.price/100);
           
-          if(selected_variant.title.indexOf('Custom') == -1){
+          if(selected_variant.title.indexOf('Custom') == -1 || selected_variant.title.indexOf('Digital File') == -1 ){
             unit_price = ( addCommas((selected_variant_price).toFixed(2)) ).replace('NaN', '$'+selected_variant_price);
 
             $('[name="properties[__Total Area(H x W)]"]').val('').prop('disabled', true);
@@ -722,7 +763,7 @@
     
     var $ad_specs = $('[name^="properties[Custom Element "]');
     if($ad_specs.length > 0){
-      $('[data-option-name^="custom-element-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label>Enter Custom Element Width/Height in INCHES (required)</label>');
+      $('[data-option-name^="custom-element-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label class="custom-element">Enter Custom Element Width/Height in INCHES (required)</label>');
       $('[data-option-name^="custom-element-"] label').hide();
       $('[name^="properties[Custom Element "]').attr('style', 'width:100% !important;').off('input').on('input', function(){
         cal_prod_price = 0.00;
@@ -736,8 +777,8 @@
         
         if($('[name="properties[Printing]"]').val() == 'No') unit_price = addCommas((10.00).toFixed(2));
 
-        $('[name="properties[__Total Area(H x W)]"]').val(cal_win_area || 1);
-        $('[name="properties[__Calculated Unit Price]"]').val(unit_price.replace(/,/g, '').replace('$', ''));
+        $('[name="properties[__Total Area(H x W)]"]').val(cal_win_area || 1).prop('disabled', false);
+        $('[name="properties[__Calculated Unit Price]"]').val(unit_price.replace(/,/g, '').replace('$', '')).prop('disabled', false);
         $('#ProductPrice').text( unit_price );
       });
     }
@@ -763,7 +804,65 @@
         }
       }).trigger('change');
     }
-    
+
+    var num_to_str = ["first", "second", "third", "fourth", "fifth"]
+    var $ad_specs2 = $('[name="properties[Banner LED]"]');
+    if($ad_specs2.length > 0){
+      $ad_specs2.off('change').on('change', function(){
+        $('[data-option-name$="-brand-and-packaging"]').hide().find('[name^=properties]').prop('disabled', true);
+        $this_val = Number($ad_specs2.val());
+        if($this_val){ 
+          while($this_val >= 1 ){
+            $('[data-option-name="'+num_to_str[$this_val-1]+'-brand-and-packaging"]').show().find('[name^=properties]').prop('disabled', false);
+            --$this_val;
+          }
+        }
+      }).trigger('change');
+    } 
+
+    var $ad_specs1 = $('[name="properties[Banner LED - Other Brand]"]');
+    if($ad_specs1.length > 0){
+      $ad_specs1.off('change').on('change', function(){
+        $('[data-option-name="banner-led-2"], [data-option-name="banner-led-3"]').hide().find('[name^=properties]').prop('disabled', true);
+        $this_val = Number($ad_specs1.val());
+        if($this_val){ 
+          while($this_val >= 1 ){
+            $('[data-option-name="banner-led-'+($this_val+1)+'"]').show().find('[name^=properties]').prop('disabled', false);
+            --$this_val;
+          }
+        }
+      }).trigger('change');
+    }       
+
+    var $generic_logo = $('select[name="properties[Banner LED Brand]"]');
+    if($generic_logo.length > 0){
+      $generic_logo.on('change', function(obj){
+        $('[data-option-name="banner-led-other-brand"]').hide().find('[name^=properties]').prop('disabled', true).find('option:first').prop('selected', true).trigger('change');
+        $('[data-option-name="banner-led"]').hide().find('[name^=properties]').prop('disabled', true).find('option:first').prop('selected', true).trigger('change');
+        $('[data-option-name="theme"]').hide().find('[name^=properties]').prop('disabled', true).find('option:first').prop('selected', true).trigger('change');
+        $('[data-option-name="theme-for-brand-pepsi"]').hide().find('[name^=properties]').prop('disabled', true).find('option:first').prop('selected', true).trigger('change');
+        if((this.value||'').toLowerCase() == 'portfolio'){
+          $('[data-option-name="banner-led"]').show().find('[name^=properties]').prop('disabled', false);
+        }else if(Boolean(this.value)){
+          $('[data-option-name="banner-led-other-brand"]').show().find('[name^=properties]').prop('disabled', false);
+          if((this.value||'').toLowerCase() == 'pepsi'){
+            $('[data-option-name="theme-for-brand-pepsi"]').show().find('[name^=properties]').prop('disabled', false);
+          }else{
+            $('[data-option-name="theme"]').show().find('[name^=properties]').prop('disabled', false);
+          }
+        }
+      }).trigger('change');
+    } 
+
+    var $generic_logo = $('select[name="properties[Theme]"], select[name="properties[Theme (For Brand Pepsi)]"]');
+    if($generic_logo.length > 0){
+      $generic_logo.on('change', function(obj){
+        if((this.value||'').toLowerCase() == 'custom')
+          $('[data-option-name="copy"]').show().find('[name^=properties]').prop('disabled', false);
+        else
+          $('[data-option-name="copy"]').hide().find('[name^=properties]').prop('disabled', true);
+      }).trigger('change');
+    }
 
     var $generic_logo = $('select[name="properties[Generic Logo]"]');
     if($generic_logo.length > 0){

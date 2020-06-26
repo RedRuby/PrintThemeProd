@@ -33,8 +33,7 @@
           body > div.content > div > div.main > div.main__content > div > form > div.step__sections > div.section.section--shipping-method > div.section__content > fieldset > div:nth-child(3),
           body > div.content > div > div.main > div.main__content > div > div > div:nth-child(1) > div > div > div:nth-child(3) > div.review-block__inner > div.review-block__content > strong,
           body > div.content > div > div.main > div.main__content > div > form > div.step__sections > div:nth-child(1) > div > div > div:nth-child(3) > div.review-block__inner > div.review-block__content > strong,
-          [data-same-billing-address],
-          [data-trekkie-id="change_contact_method_link"]{ display: none !important; }
+          [data-same-billing-address]{ display: none !important; }
         </style>
       {% else %}
         {% assign settings_favicon = settings.favicon %}
@@ -139,7 +138,7 @@
             {% else %}
               {{ cfl }}
             {% endif %}
-            {% if cfl contains 'class="step" data-step="contact_information"' %}
+            {% if cfl contains '<div class="step" data-step="contact_information">' %}
               <script>
                 {% assign da = customer.default_address %}
                 var serialized="checkout%5Bshipping_address%5D%5Baddress1%5D={{ da.address1 | url_encode }}&checkout%5Bshipping_address%5D%5Baddress2%5D={{ da.address2 | url_encode }}&checkout%5Bshipping_address%5D%5Bcity%5D={{ da.city | url_encode }}&checkout%5Bshipping_address%5D%5Bcountry%5D={{ da.country | url_encode }}&checkout%5Bshipping_address%5D%5Bfirst_name%5D={{ da.first_name | url_encode }}&checkout%5Bshipping_address%5D%5Blast_name%5D={{ da.last_name | url_encode }}&checkout%5Bshipping_address%5D%5Bprovince%5D={{ da.province | url_encode }}&checkout%5Bshipping_address%5D%5Bzip%5D={{ da.zip | url_encode }}";
@@ -153,9 +152,9 @@
                      var vals = elem.split('=');
                    $('[data-step="contact_information"] form.edit_checkout [name="' + decodeURIComponent(vals[0]) + '"]').val(decodeURIComponent(vals[1].replace(/\+/g, ' '))); 
                   })).then(function() {
-                      // $('[data-step="contact_information"] form.edit_checkout').submit();
+                      $('[data-step="contact_information"] form.edit_checkout').submit();
                   });
-                  $('body > div.content > div > div.main > div.main__content > div > form > div.step__sections > div.section.section--shipping-address > div.section__content div[data-address-fields]').css('position','relative').append('<div class="address_overlay"></div>');
+                  $('body > div.content > div > div.main > div.main__content > div > form > div.step__sections > div.section.section--shipping-address > div.section__content > div[data-address-fields]').css('position','relative').append('<div class="address_overlay"></div>');
                 }
                 prohibit_ship_form();
                 setInterval(function(){

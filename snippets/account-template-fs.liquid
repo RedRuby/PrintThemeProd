@@ -1,6 +1,17 @@
 {% include 'customer-account-common-code' with 'theme-layout-code' %}
 {% include 'customer-account-common-code' with 'access-rights-fs' %}
 
+{% if customer_role_tag == Role_FSUser %}
+  {% assign cust_tags = customer.tags | join: "," %}
+  {% if cust_tags contains "ChannelManager:" %}
+    {% assign cm_id = cust_tags | split: "ChannelManager:" | last | split: "," | first %}
+  {% else %}
+  <div class="w3-red w3-text-white w3-padding w3-margin-bottom">
+      <small><b>Please Note:</b> You are not assigned to a Budget Approver. Therefore your orders will not be processed. Please ensure your Budget Approver adds you to their group.</small>
+  </div>
+  {% endif %}
+{% endif %}
+
 <div class="section-header1 section-header--large1 printModeExclude">
   <h1 class="section-header__title"><b class="placeholdLoader">{{ 'customer.account.title' | t }}</b></h1>
   <hr style="margin: 15px 0;">
@@ -55,10 +66,44 @@
 
   <div class="grid__item medium-down--one-whole one-half printModeExclude">
     {% if customer_role_tag == Role_FSAdmin %}
-    <a href="/account?view=prod-upload-form-mod" target="_blank">
-      <button id="printOrder" type="button" disabled1 class="btn btn-primary printModeExclude placeholdLoader" title="Open Product Upload Form"><i class="fa fa-upload"></i>&nbsp; Upload Products</button>
-    </a>
-    <br><br>
+      <a href="/account?view=prod-upload-form-mod" target="_blank">
+        <button id="printOrder" type="button" disabled1 class="btn btn-primary printModeExclude placeholdLoader" title="Open Product Upload Form"><i class="fa fa-upload"></i>&nbsp; Upload Products</button>
+      </a>
+      {% comment %}<br><br>{% endcomment %}
+      &nbsp;&nbsp;
+      <div style="position: relative; display: inline-block;">
+        <button class="btn btn--secondary printModeExclude placeholdLoader" style="min-width:250px;" type="button" onclick="toggleADash();"><i class="fa fa-list-ul"></i>&nbsp; Audit Logs</button>
+        <div id="auditDash" class="border w3-padding animated  w3-white" style="max-width:350px; display:none; position: absolute; top: calc(100% + 10px); width: 100%; z-index: 11;"> 
+          <button type="button" class="no-btn w3-right" onclick="toggleADash();"><i class="fa fa-times"></i></button>
+          <p></p>
+          - <a target="_blank" href="/apps/pepsi-print/collection_response/audit_log">Audit Logs PC &nbsp;<i class="fa fa-link"></i></a><br>
+          - <a target="_blank" href="/apps/place_bulk_order/audit_log">Audit Logs BO &nbsp;<i class="fa fa-link"></i></a><br>
+          <p></p>
+        </div>
+      </div>
+      <br><br>
+      
+      {% if customer.tags contains 'SuperUser' %}
+        <form action="/apps/pepsi-print/customer/multipass" method="post" target="_blank" autocomplete="false" class="header-bar__search-form clearfix printModeExclude header-search-fs placeholdLoader1" onsubmit="" role="" style="margin: 0 10px 0 0; position: relative; z-index: 9; max-width: 350px;">
+          <input type="hidden" name="cemail" value="{{ customer.email }}">
+          <input type="hidden" name="cid" value="{{ customer.id }}">
+          <input type="hidden" name="ctoken" value="{{ customer.id  | hmac_sha1: shop.domain }}">
+          <button type="submit" class="btn icon-fallback-text header-bar__search-submit1" style="position: absolute; right: 0; background: transparent; color: black !important; height: 37.5px">
+            <i class="fa fa-arrow-right" aria-hidden="true" style="font-size: 19px; padding-top: 0px;"></i>
+          </button>
+          <input type="email" id="email" name="email" required="" aria-label="Login" class="header-bar__search-input" autocomplete="false" placeholder="Login as another customer" onchange="" style="margin: 0; padding: 0 30px 0 15px; border: 1px solid #aaa; height: 37.5px">
+          <br>
+        </form>
+        <form action="/apps/pepsi-print/customer/emulate.json" method="post" target="_blank" autocomplete="false" class="header-bar__search-form clearfix printModeExclude header-search-fs placeholdLoader1" onsubmit="" role="" style="margin: 0 10px 0 0; position: relative; z-index: 9; max-width: 350px;">
+          {% capture sha1_key %}D9AbLa5gxfXX_cJ{{ 'now' | date: "%m-%d-%Y" }}{% endcapture %}
+          <input type="hidden" name="token" value="{{ customer.email  | hmac_sha1: sha1_key }}">
+          <button type="submit" class="btn icon-fallback-text header-bar__search-submit1" style="position: absolute; right: 0; background: transparent; color: black !important; height: 37.5px">
+            <i class="fa fa-arrow-right" aria-hidden="true" style="font-size: 19px; padding-top: 0px;"></i>
+          </button>
+          <input type="email" id="email" name="email" required="" aria-label="Login" class="header-bar__search-input" autocomplete="false" placeholder="Login as another customer" onchange="" style="margin: 0; padding: 0 30px 0 15px; border: 1px solid #aaa; height: 37.5px">
+          <br>
+        </form>
+      {% endif %}
     {% endif %}
 
     {% if customer_role_tag == Role_FSManager %}
@@ -97,6 +142,29 @@
     <p>
       <a href="/account/addresses?view=shipping" class="w3-text-blue placeholdLoader"><b>Shipping Addresses</b></a>
     </p>
+    {% endif %}
+
+    {% if cm_id %}
+    <div class="cm_details"><b>Your Budget Approver: </b> &nbsp;&nbsp;<a><span class="fa fa-spin fa-refresh"></span></a></div>
+    <script>
+      $(document).ready(function(){
+        $.ajax({
+                  url: 'apps/pepsi-print/fs_customer/fs_customer.json?shopify_customer_id={{ cm_id }}&cemail={{ customer.email }}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}&cid={{ customer.id }}',
+                  type: 'GET',
+                  dataType: 'json',
+                  success: function(data){
+                        console.log(JSON.stringify(data));
+                        // $.unblockUI();
+                        $('.cm_details a').attr('href', "mailto:"+data.result.email).text(new Array(data.result.first_name, data.result.last_name).join(' '));
+
+                  },
+                  error: function(){
+                    $.unblockUI; show_message2('Error',false);
+                  }
+
+            });
+      });
+    </script>
     {% endif %}
     
     <a id="exportPsudoLink" href="" target="stealthFrame" class="hide"></a>
@@ -309,6 +377,14 @@
       $('.br-hide').show();
     }
 
+  }
+
+  function toggleADash(){
+    if($('#auditDash.slideInRight').length != 0){
+      $('#auditDash').removeClass('slideInRight').addClass('slideOutRight').delay(800).hide(0);
+    }else{
+      $('#auditDash').removeClass('slideOutRight').addClass('slideInRight').show(0);
+    }
   }
 
   function toggleBDash(){

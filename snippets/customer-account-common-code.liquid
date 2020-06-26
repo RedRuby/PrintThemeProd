@@ -32,11 +32,12 @@
     {% assign region_External = "general.Region_Tags.External" | t %}
     {% assign region_NationalCustomer = "Region:NationalCustomer" %}
     {% assign region_FranchiseBottler = "Region:FranchiseBottler" %}
+    {% assign region_Distributor = "Region:Distributor" %}
 
     {% assign max_allowed_item_count = 30 %}
     {% assign max_cart_count_message = "To many product in cart. The recommended unique products count is max_allowed_item_count per order." | replace: 'max_allowed_item_count', max_allowed_item_count %}
 
-    {% if customer.tags contains region_NorthEast or customer.tags contains region_SouthEast or customer.tags contains region_Mountain or customer.tags contains region_California or customer.tags contains region_South or customer.tags contains region_MidWest or customer.tags contains region_MidAtlantic or customer.tags contains region_GreatLakes or customer.tags contains region_External or customer.tags contains region_NationalCustomer or customer.tags contains region_FranchiseBottler %}
+    {% if customer.tags contains region_NorthEast or customer.tags contains region_SouthEast or customer.tags contains region_Mountain or customer.tags contains region_California or customer.tags contains region_South or customer.tags contains region_MidWest or customer.tags contains region_MidAtlantic or customer.tags contains region_GreatLakes or customer.tags contains region_External or customer.tags contains region_NationalCustomer or customer.tags contains region_FranchiseBottler or customer.tags contains region_Distributor %}
       {% if customer.tags contains region_NorthEast %}
         {% assign customer_region_tag = region_NorthEast %}
       {% elsif customer.tags contains region_SouthEast %}
@@ -59,6 +60,8 @@
         {% assign customer_region_tag = region_NationalCustomer %}
       {% elsif customer.tags contains region_FranchiseBottler %}
         {% assign customer_region_tag = region_FranchiseBottler %}
+      {% elsif customer.tags contains region_Distributor %}
+        {% assign customer_region_tag = region_Distributor %}
       {% endif %}
 
     {% else %}
@@ -247,7 +250,7 @@
     {% assign can_fulfill = true %}
   {% endif %}
 
-  {% if customer_role_tag == Role_NSM or customer_role_tag == Role_Designer or customer_role_tag == Role_FSAdmin %}
+  {% if customer_role_tag == Role_NSM or customer_role_tag == Role_Designer or customer_role_tag == Role_FSAdmin or customer_role_tag == Role_FSManager %}
     {% assign can_edit = true %}
   {% endif %}
 
@@ -289,8 +292,9 @@
 
 
 {% if customer-account-common-code == 'order-status-option-code-fs' %}
+  <option value="Est. Approval Needed" filter_attr="order_status">{% if customer_role_tag == Role_FSManager %}Needs Est. Approval{% else %}Est. Approval Needed{% endif %}</option>
   {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_FSManager or customer_role_tag == Role_FSAdmin or customer_role_tag == Role_NSM %}
-    <option value="Order Not Assigned" filter_attr="order_status">{% if customer_role_tag == Role_NSM %}Needs Designer{% else %}Order Not Assigned{% endif %}</option>
+    <option value="Order Not Assigned" filter_attr="order_status">{% if customer_role_tag == Role_NSM %}Needs Designer{% elsif customer_role_tag == Role_FSManager %}Est. Approved{% else %}Order Not Assigned{% endif %}</option>
   {% endif %}
   
   {% if customer_role_tag == Role_FSUser or customer_role_tag == Role_Designer %}
@@ -301,9 +305,9 @@
     <option value="Order Assigned" filter_attr="order_status">Order Assigned</option>
     {% if customer_role_tag == Role_FSManager or customer_role_tag == Role_FSAdmin %}
     <option value="Needs Proof Review" filter_attr="order_status">Needs Proof Review</option>
-    <option value="Poofs Being Revised" filter_attr="order_status">Poofs Being Revised</option>
+    <option value="Proofs Being Revised" filter_attr="order_status">Proofs Being Revised</option>
     {% endif %}
-    <option value="Needs Approval" filter_attr="order_status">Needs Approval</option>
+    {% comment %}<option value="Needs Approval" filter_attr="order_status">Needs Approval</option>{% endcomment %}
   {% endif %}
 
   <option value="Proofs Approved" filter_attr="order_status">Proofs Approved</option>
@@ -1187,7 +1191,7 @@
   }
   
   function showCartAlert(order_id){
-    if(confirm("Caution !! This will also clear your existing Cart Items...")){
+    if(confirm("Caution !! This will also clear your existing Cart Items...\nClick '\OK'\ to confirm.")){
       $.when(data = $.getJSON('/cart/clear.json')).done(function(){
         buildOrderUrl(order_id);
       });
@@ -1218,7 +1222,7 @@
       else {
         $.ajax({
           url: "/cart.js",
-          data: { "attributes[reorder_from_name]" : order.order_name },
+          data: { "attributes[reorder_from_name]" : order.order_name, "attributes[reorder_from_id]" : order.id },
           type: "POST",
           success:function(data) {
             console.log(data);
@@ -1266,5 +1270,53 @@
   {% endif %}
   {% endif %}
 
+  {% if customer-account-common-code == "oc_emulate_script" %}
+    <script>
+    {% if can_emulate %}
+      function oc_emulate(){
+        freez();
+        $.ajax({
+          url: '/account.json?view=ppp',
+          type: 'GET',
+          dataType: 'json',
+          contentType: 'application/json',
+          success: function(data){ 
+            console.log(data);
+            if(data["status"] == 200){
+              data = { token: data.token, email: data.email };
+              $.ajax({
+                url: '/apps/pepsi-print/fs_customer/oc_emulate.json',
+                type: 'POST',
+                data: JSON.stringify(data),
+                dataType: 'json',
+                contentType: 'application/json',
+                success: function(data){ 
+                  console.log(data);
+                  /*redirect to responce url*/
+                  window.location.assign(data.url);
+                }, 
+                error: function(data){ 
+                  show_message4('Some Error Occured.',false); 
+                  /*redirect to oc login page*/
+                  // window.location.assign("{{ login_url }}");
+                 }
+              });
+            }else{
+              /*redirect to oc login page*/
+              show_message4('{{ session_error }}',false); 
+              // window.location.assign("{{ login_url }}");
+            }
+          }, 
+          error: function(data){ 
+            console.log(data);
+            show_message4('{{ session_error }}',false); 
+            /*redirect to oc login page*/
+            window.location.assign("{{ login_url }}");
+          }
+        });
+      }
+    {% endif %}
+  </script>
+  {% endif %}
 
 {% comment %}</script>{% endcomment %}

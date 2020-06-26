@@ -321,6 +321,7 @@
         xhr.addEventListener("load", rstrUpldCompleteHandler, false);
         xhr.addEventListener("error", rstrUpldErrorHandler, false);
         xhr.addEventListener("abort", rstrUpldAbortHandler, false);
+
         // xhr.open('POST', '/apps/pepsi-print/fs_order_configuration/upload_proofs', true);
         {% if shop.permanent_domain contains "beta" %}                         
           xhr.open('POST', 'https://beta-pepsi-print.herokuapp.com/print_app/fs_order_configuration/upload_proofs', true);                       
@@ -350,12 +351,15 @@
           data = event.target.response;
           
           if(data.status != undefined && data.status == 200){
+            {% capture success_flow %}
             window['line_id'] = obj.attr('line_id');
             window['line_index'] = obj.attr('line_index');
             setTimeout(function(){
               fetch_Order(order_id, null, null, null, "withARM");
             }, 800);
             $('[name="proof_upload"], [name="line_notes"]').val('');
+            {% endcapture %}
+            {% comment %}{{ success_flow }}{% endcomment %}
           }
         }
         function rstrUpldErrorHandler(event){
@@ -405,6 +409,11 @@
       return false;
     }
 
+    if(!Boolean(window['approved'+approved+order_id+line_id])){
+      return false;
+    }
+
+    window['approved'+approved+order_id+line_id] = true;
 
     console.log(JSON.stringify(data));
 

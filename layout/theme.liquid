@@ -127,6 +127,13 @@
     </html>
 {% else %}
 
+{% if request.path contains '/apps/pepsi-print/collection_response/admin_analytics' or request.path contains '/apps/pepsi-print/collection_response/daily_pps_dashbaord' %}
+  {% layout 'none' %}
+  {{ content_for_layout }}
+  {% continue %}
+  {% break %}
+{% endif %}
+
 <!doctype html>
 <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
 <!--[if IE 7]><html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
@@ -293,6 +300,23 @@
       </script>
     {% endunless %}{% endif %}
     
+    {% if request.path contains '/apps/pepsi-print/collection_response/' or request.path contains '/apps/place_bulk_order/' %}
+    <style>
+      main.wrapper{ max-width: unset !important; }
+      .dropdown-menu{ display: none !important; }
+      .dt-button-background+.dropdown-menu{ display: block !important; }
+      .site-header .wrapper{
+        display: none !important;
+      }
+    </style>
+    {{ 'daterangepicker.main.css' | asset_url | stylesheet_tag }}
+    <script>
+      $(document).ready(function(){
+        setInterval(function(){$('.dropdown-menu:empty').remove();}, 500);
+      });
+    </script>
+    {% endif %}
+
     <main class="{% unless template contains 'checkout-grid' %}wrapper{% endunless %} main-content" role="main">
       {% comment %}
       {% assign Role_ASM = 'general.Role.ASM' | t %}
@@ -322,7 +346,8 @@
     {% endif %} 
     
     {{ 'theme.js' | asset_url | script_tag }}
-    
+    {{ 'theme-predictive-search.js' | asset_url | script_tag }}
+     
     {% comment %}{{ 'https://cdnjs.cloudflare.com/ajax/libs/shopify-cartjs/0.4.1/cart.min.js' | script_tag }}{% endcomment %}
     
     {{ 'affix-2.js' | asset_url | script_tag }}
@@ -342,7 +367,7 @@
       });
       
     
-      {% if template contains 'collection' %}
+      {% if template contains 'collection' or template contains 'search' %}
         // media query event handler
         if (matchMedia) {
           var mq = window.matchMedia("(min-width: 600px)");
@@ -453,7 +478,7 @@
           });	
         {% endif %}
 
-        {% unless fs_shop_active %}
+        {% unless fs_shop_active or request.path contains "/apps/pepsi-print/collection_response/" %}
           $( document ).scroll(function() { 
             $scroll = $(document).scrollTop();  
               

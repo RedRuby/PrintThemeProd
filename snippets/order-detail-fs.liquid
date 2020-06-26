@@ -175,11 +175,22 @@
             </div>{% endcomment %}
             <button id="shipping_details" class="updateBtn btn min-width-240 placeholdLoader" title="" status="" onclick="if(confirm('Click \'OK\' to confirm Order Fulfillment Cancel.') == true){ cancelFulfillment(); }" order_id="" >Cancel Fulfillment</button>
             <button id="update-fulfillment" class="updateBtn btn btn-primary min-width-240 placeholdLoader" title="Update this order" status="" style="display: none;" disabled onclick="addToFulfillmentModal(this);" order_id="" >Update Fulfillment</button>
-            <button id="update-in-production" class="updateBtn btn btn-primary min-width-240 placeholdLoader w3-right" title="Move to 'In Production'" status="" style="display: none;" disabled onclick="if(confirm('Click \'OK\' to confirm to move \''+order_name+'\' to \'In Procuction\'.') == true){ statusUpdate(); }" order_id="" >Move to "In Production"</button>
+            <button id="update-in-production" class="updateBtn btn btn-primary min-width-240 placeholdLoader w3-right" title="Move to 'In Production'" status="" style="display: none;" disabled onclick="if(confirm('Click \'OK\' to confirm to move \''+order_name+'\' to \'In Production\'.') == true){ statusUpdate(); }" order_id="" >Move to "In Production"</button>
           </div>
+          {% elsif customer_role_tag == Role_FSManager %}
+          <button id="update-ba-approval" type="button" class="approveBtn btn btn-primary min-width-150 placeholdLoader printModeExclude" disabled status="{% raw %}{{ status }}{% endraw %}" onclick="if(confirm('Click \'OK\' to approve estimate on order \''+order_name+'\'.') == true){ approveOrder(); }" order_id="" title="Approve Order">Approve</button>
+          <span>&nbsp;</span>
           {% endif %}
-          {% if can_reorder and false %}
-          <button id="user_reorder" type="button" class="reorderBtn1 btn btn-primary min-width-150 placeholdLoader" disabled status="{% raw %}{{ status }}{% endraw %}" onclick="orderCreate();" title="Re-Order">Re-order</button>
+          {% if can_reorder and customer_role_tag != Role_FSManager  %}
+          <button id="user_reorder" type="button" class="reorderBtn btn btn-primary min-width-150 placeholdLoader printModeExclude" disabled status="{% raw %}{{ status }}{% endraw %}" cemail="{{ customer.email | downcase }}" onclick="orderCreate();" title="Re-Order">Re-order</button>
+          <span>&nbsp;</span>
+          {% endif %}
+          {% if can_cancel and customer_role_tag == Role_FSManager %}
+          <button id="asm_orderCancel" type="button" disabled class="btn min-width-100 placeholdLoader" onclick="showCancelModal(order_id, order_name);" title="Cancel this Order">{% if customer_role_tag == Role_FSManager %}Reject{% else %}Cancel{% endif %}</button>
+          <span>&nbsp;</span>
+          {% endif %}
+          {% if can_edit and customer_role_tag == Role_FSManager %}
+          <button id="asm_orderEdit" type="button" disabled class="btn min-width-100 placeholdLoader" onclick="addToEditModal(order_id);" title="Edit this Order">Edit Qty</button>
           <p></p>
           {% endif %}
           {% if customer_role_tag == Role_FSAdmin or customer_role_tag == Role_NSM %}
@@ -203,12 +214,16 @@
             </div>
             <span>&nbsp;</span>
             {% endif %}
-            {% if can_edit %}
+            {% if can_edit and customer_role_tag != Role_FSManager %}
             <button id="asm_orderEdit" type="button" class="btn min-width-100 placeholdLoader" onclick="addToEditModal(order_id);" title="Edit this Order">Edit</button>
             <span>&nbsp;</span>
             {% endif %}
-            {% if can_cancel %}
-            <button id="asm_orderCancel" type="button" class="btn min-width-100 placeholdLoader" onclick="showCancelModal(order_id, order_name);" title="Cancel this Order">Cancel</button>
+            {% if can_cancel and customer_role_tag != Role_FSManager %}
+            <button id="asm_orderCancel" type="button" class="btn min-width-100 placeholdLoader" onclick="showCancelModal(order_id, order_name);" title="Cancel this Order">{% if customer_role_tag == Role_FSManager %}Reject{% else %}Cancel{% endif %}</button>
+            <p></p>
+            {% endif %}
+            {% if can_reorder and customer_role_tag == Role_FSManager %}
+            <button id="user_reorder" type="button" class="reorderBtn btn btn-primary min-width-150 placeholdLoader printModeExclude" disabled status="{% raw %}{{ status }}{% endraw %}" cemail="{{ customer.email | downcase }}" onclick="orderCreate();" title="Re-Order">Re-order</button>
             <p></p>
             {% endif %}
           {% endif %}
@@ -360,12 +375,34 @@
           <button class="btn btn--secondary printModeExclude placeholdLoader" type="submit" disabled="">Edit Note</button>
         </form>
       </div>
+      
+      <div class="timeline-container">
+        <h3 class="w3-margin-0 placeholdLoader">Timeline</h3>
+        <div id="timeline_wrapper" class="timeline_wrapper placeholdLoader" style="max-height: 400px; overflow-y: auto; display: block;">
+          <div class="w3-row" w3-repeat="timeline">
+            <hr style="margin: 10px 0;">
+            <div class="w3-col s3 {% raw %}{{ class }}{% endraw %}">
+              <p class="w3-margin-0 w3-small"><b>{% raw %}{{ timestamp }}{% endraw %}</b></p>
+            </div>
+            <div class="w3-col s9 {% raw %}{{ class }}{% endraw %}">
+              <h4 class="w3-margin-0">{% raw %}{{ action_name }}{% endraw %}</h4>
+              <p class="w3-margin-0 w3-small" style="word-break: break-word;">{% raw %}{{ summary }}{% endraw %}</p>
+            </div>
+          </div>
+          <br>
+        </div>
+      </div>
 
     </div>
 
   </div>
 
   <div id="address" class="grid__item one-fifth medium-down--one-whole printModeExclude placeholdLoaderRandom">
+
+    <div id="reorder_summary" class="printModeExclude placeholdLoader" style="display: none;">
+      <p><b>Order reordered from <a href="/pages/order?id={% raw %}{{ reorder_from_id }}{% endraw %}&name={% raw %}{{ reorder_from_name }}{% endraw %}">{% raw %}{{ reorder_from_name }}{% endraw %}</a></b></p>
+      <hr>
+    </div>
 
     <div class="print-w3-half printModeExclude">
       <h2 class="h3 placeholdLoader placeholdLoader"><b class="printModeExclude">{{ 'customer.order.billing_address' | t }}</b><b class="printModeInclude hide">Order By</b></h2>
@@ -699,6 +736,7 @@
     setTimeout(w3DisplayData("id02", data.order),100);
     setTimeout(w3DisplayData("address", data.order),200);
     setTimeout(w3DisplayData("lineItem", data.order),400);
+    setTimeout(w3DisplayData("timeline_wrapper", data.order),450);
     {% unless customer_role_tag == Role_Designer %}
     setTimeout(w3DisplayData("subTotal", data.order),500);
     setTimeout(w3DisplayData("grandTotal", data.order),600);
@@ -779,6 +817,12 @@
       $('[name="order_notes"]').val(data.order.notes).attr('value', data.order.notes);
     }
 
+    if(Boolean(data.order.reorder_from_name) && Boolean(data.order.reorder_from_id)){
+      $('#reorder_summary').show();
+    }else{
+      $('#reorder_summary').hide();
+    }
+
     {% comment %}
     // if(Boolean(data.order.notes) {% if customer_role_tag == Role_Manager or customer_role_tag == Role_User %}&& false{% endif %}){
     //     // $('#note .note_text').text(data.notes).show();
@@ -824,7 +868,28 @@
           $('#shipping_details {% if customer_role_tag == Role_NSM %}, .TrackBtn{% endif %}').hide();
         }
 
+        if(Boolean(data.order.cancelled_at)){
+          $('#shipping_details, #assign-designer-wrapper').hide();
+          // $('#fulfillment').prop('disabled','disabled').css('cursor','not-allowed');
+          $('#asm_orderEdit, #asm_orderCancel').prop('disabled','disabled');
+          $('.line_status').attr('status', 'Cancelled').text('Cancelled');
+        }else if('fulfilled' != data.order.fulfillment_status)
+          $('#asm_orderEdit, #asm_orderCancel').attr('order_id', data.order.id).removeAttr('disabled');
+
         if(Boolean(data.order.status)){
+          {% if customer_role_tag == Role_FSManager %}
+          if('Needs Est. Approval' == data.order.status){
+            $('#update-ba-approval').removeAttr('disabled');
+            $('#asm_orderEdit, #asm_orderCancel').prop('disabled', false);
+          }else{
+            $('#update-ba-approval').prop('disabled','disabled').text("Approved");
+            $('#asm_orderEdit, #asm_orderCancel').prop('disabled', true);
+          }
+          {% endif %}
+          // if('Est. Approval Needed' == data.order.status){
+          //   $('#asm_orderEdit, #asm_orderCancel').prop('disabled', true).attr('title', 'Est. Approval Needed');
+          // }
+
           if('In Production' == data.order.status){
             $('#update-fulfillment').removeAttr('disabled').show();
           }else{
@@ -836,15 +901,7 @@
           }else{
             $('#update-in-production').prop('disabled','disabled').hide();
           }
-        }    
-
-        if(Boolean(data.order.cancelled_at)){
-          $('#shipping_details, #assign-designer-wrapper').hide();
-          // $('#fulfillment').prop('disabled','disabled').css('cursor','not-allowed');
-          $('#asm_orderEdit, #asm_orderCancel').prop('disabled','disabled');
-          $('.line_status').attr('status', 'Cancelled').text('Cancelled');
-        }else if('fulfilled' != data.order.fulfillment_status)
-          $('#asm_orderEdit, #asm_orderCancel').attr('order_id', data.order.id).removeAttr('disabled');
+        }
       {% endcapture %}
 
       {% if customer_role_tag == Role_NSM %}
@@ -856,8 +913,13 @@
         {{ fulfillment_cancel_code }}
       {% endif %}
       {% if can_reorder %}
-        $('.reorderBtn:not([status="Fulfilled"]):not([status="In Production"])').prop("disabled", "disabled");
-        $('.reorderBtn[status="Fulfilled"], .reorderBtn[status="In Production"]').removeAttr("disabled");
+        {% comment %}
+        order_customer_email = data.order.customer.email.toLowerCase();
+        $('.reorderBtn:not([status="Fulfilled"]):not([status="In Production"]):not([status="Proofs Approved"]):not([cemail="'+order_customer_email+'"])').prop("disabled", "disabled");
+        $('.reorderBtn[status="Fulfilled"][cemail="'+order_customer_email+'"], .reorderBtn[status="In Production"][cemail="'+order_customer_email+'"], .reorderBtn[status="Proofs Approved"][cemail="'+order_customer_email+'"]').removeAttr("disabled");
+        {% endcomment %}
+        $('.reorderBtn:not([status="Fulfilled"]):not([status="In Production"]):not([status="Proofs Approved"])').prop("disabled", "disabled");
+        $('.reorderBtn[status="Fulfilled"], .reorderBtn[status="In Production"], .reorderBtn[status="Proofs Approved"]').removeAttr("disabled");
       {% endif %}
       {% if can_order %}
         $('a span.line_status[status="Approved"]').parent().next().next().find('button').text("View Proofs");
@@ -866,7 +928,7 @@
       {% endif %}
       {% if customer_role_tag == Role_NSM %}
         $('.reviewBtn:not([status="Fulfilled"]):not([status="In Production"])').prop("disabled", "disabled");
-        $('.reviewBtn[status="Fulfilled"], .reorderBtn[status="In Production"]').removeAttr("disabled");
+        $('.reviewBtn[status="Fulfilled"], .reviewBtn[status="In Production"]').removeAttr("disabled");
       {% endif %}
       {% if customer_role_tag == Role_Designer %}
         $('a span.line_status[status="Needs Proof"]').parent().next().next().find('button').toggleClass("btn btn--secondary btn-primary").text("Upload Proofs");
@@ -877,7 +939,7 @@
       {% endif %}
       {% if customer_role_tag == Role_FSUser or can_order %}
         $('.reviewBtn:not([status="Needs Review"]):not([status="Approved"]):not([status="In Production"])').prop("disabled", "disabled");
-        $('.reviewBtn[status="Needs Review"], .reorderBtn[status="Approved"], .reorderBtn[status="In Production"]').removeAttr("disabled");
+        $('.reviewBtn[status="Needs Review"], .reviewBtn[status="Approved"], .reviewBtn[status="In Production"]').removeAttr("disabled");
       {% endif %}
       
           mfpInit();
@@ -934,10 +996,14 @@
               $('#assign-designer').prop('disabled','disabled').css('cursor','not-allowed').prop('title','Can\'t edit cancelled Order.');
               // $('#asm_orderEdit, #asm_orderCancel').hide();
             }else{
-              if('fulfilled' != order_data.order.fulfillment_status){ console.log('');
+              if('fulfilled' != order_data.order.fulfillment_status){ //console.log('');
                 $('#assign-designer').removeAttr('disabled').css('cursor','pointer').prop('title','');
                 // $('#asm_orderEdit, #asm_orderCancel').show();
               }
+            }
+
+            if('Est. Approval Needed' == order_data.order.status){
+              $('#assign-designer').prop("disabled", true).attr('title', "Est. Approval Needed").css("cursor", "not-allowed");
             }
         });
     }
@@ -996,6 +1062,25 @@
       // console.log(JSON.stringify(data));
       return(data);
     }
+  {% elsif customer_role_tag == Role_FSManager %}
+    function approveOrder() {
+      freez();
+      $.ajax({
+            url: '/apps/pepsi-print/fs_printer_configuration/assign_nsm_to_order.json',
+            type: 'POST',
+            data: { cemail: "{{ customer.email }}", cid: {{ customer.id }}, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order: order_id, cregion: '{{ customer_region_tag |replace:'Region:','' |replace:'0','o'}}', crole: '{{ customer_role_tag |remove:'Role:'}}' },
+            dataType: 'json',
+            success: function(data){   
+              console.log(data);
+              show_message2( "Order Approved Successfully.", true);
+              window['status_changed_'+order_id] = true;
+              setTimeout(function() {
+                fetch_Order(order_id, true, null);
+              }, 1000);
+            },
+            error: function(data){ console.log(data); show_message2(data.responseJSON.message||'Some Error Occured.',false); }
+      });
+    }
   {% elsif customer_role_tag == Role_Designer %}
     function statusUpdate() {
       freez();
@@ -1012,7 +1097,7 @@
                 fetch_Order(order_id, true, null);
               }, 1000);
             },
-            error: function(data){ console.log(data); show_message2(data.message||'Some Error Occured.',false); }
+            error: function(data){ console.log(data); show_message2(data.responseJSON.message||'Some Error Occured.',false); }
       });
     }
   {% endif %}

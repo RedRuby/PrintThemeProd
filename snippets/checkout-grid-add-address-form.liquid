@@ -43,7 +43,7 @@
               {{ country_option_tags }}
             </select>
             
-            <label for="address_type1">Adress Type</label>
+            <label for="address_type1">Address Type</label>
             <select id="country" name="address[address_type]" required="required" data-default="{% raw %}{{address_type}}{% endraw %}">
               <option value="" selected="" disabled="">Select</option>
               <option value="business">Business</option>
@@ -115,9 +115,9 @@
   });
   
   $(document).ready(function(){
-     mfpHTML = $('#OrderAddressAdd').html();
+    mfpHTML = $('#OrderAddressAdd').html();
 
-     $('form[id^="address"] [required]').each(function(o, i){
+    $('form[id^="address"] [required]').each(function(o, i){
       $(this).prev().append(' <small class="w3-text-red">*</small>');
     });
   });
@@ -192,6 +192,7 @@
                 if ( Boolean(data1.addres) && (!Boolean(data.address.id) || !$('#add_to_address_book').is(":checked")) ){ 
                   data.address["id"] = data1.addres;
                   data.address["state"] = data.address.province;
+                  defreez();
                   updateGrid("address", [data.address]);
                 }else{
                   data.address["state"] = data.address.province;
@@ -206,7 +207,7 @@
               }
               {% endif %} 
               updateModal();
-              defreez(); 
+              //defreez(); 
             },
             error: function(data){ show_message2(data.responseJSON.message || 'Some Error Occured.',false); console.log(data);}
     });     

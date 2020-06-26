@@ -1,0 +1,170 @@
+{% layout 'theme.ppp' %}
+
+
+<div class="row center-xs middle-xs">
+	<div class="col-lg-4 col-md-6 col-sm-10 col-xs-11">
+		<div class="box">
+			
+			<div class="row middle-xs shop__btn" style="margin: 0 0 40px;">
+				<div class="col-xs-2 start-xs">
+					<div class="box">
+						<img class="mod_logo" src="//cdn.shopify.com/s/files/1/2142/6089/files/2347F4DE-5297-4B7A-89E2-76796C8A62C2__png.jpg" alt="MOD logo" />	
+					</div>
+				</div>
+				<div class="col-xs start-xs">
+					<div class="box">
+						<h2 class="shop__name">Point of Sale</h2>	
+					</div>
+				</div>		
+			</div>	
+			
+			<div id="CustomerLoginForm">
+				{% form 'customer_login' %}
+			        <input type="hidden" name="checkout_url" value="/pages/welcome" />
+					<div class="row">
+						{% if form.errors %}
+						<div class="col-xs-12">
+							<div class="box">
+								{{ form.errors | default_errors }}
+							</div>	
+						</div>
+						{% endif %}
+
+						<div class="col-xs">
+							<div class="box">
+								<label for="customerEmail" class="w3-left w3-margin-bottom-small">Email</label>
+								<input type="email" class="w3-white w3-input" name="customer[email]" id="customerEmail" value="{{ customer.email | default: form.email }}">
+							</div>	
+						</div>
+						<div class="col-xs">
+							<div class="box">
+								<label for="customerPassword" class="w3-left w3-margin-bottom-small">Password</label>
+								<span class="w3-right w3-text-gray w3-margin-bottom-small" style="cursor: pointer;" onclick="showRecoverPasswordForm();"><u>Forgot Password</u></span>
+								<input type="password" class="w3-white w3-input" name="customer[password]" id="customerPassword">
+							</div>	
+						</div>
+
+						<div class="col-xs-12">
+							<div class="box">
+								<input type="submit" class="w3-btn w3-blue w3-text-white w3-block w3-margin-top" value="Sign In">
+								<br>
+								<a href="/pages/register" style="text-decoration: none;">
+								<input type="button" class="w3-btn w3-transparent w3-text-white w3-block w3-border w3-border-white w3-margin-top" style="border-width: 1.5px !important;" value="Register For An Account">
+								</a>
+							</div>	
+						</div>
+					</div>
+				{% endform %}
+			</div>
+
+			<div id="RecoverPasswordForm" style="display: none;">
+
+		      <div class="section-header section-header--large">
+		        <h2 class="section-header__title">{{ 'customer.recover_password.title' | t }}</h2>
+		      </div>
+		      <p>{{ 'customer.recover_password.subtext' | t }}</p>
+
+		      {% comment %}
+		        This form must use 'recover_customer_password'
+		      {% endcomment %}
+		      {% form 'recover_customer_password' %}
+
+		        <div class="row">
+					{% if form.errors %}
+					<div class="col-xs-12">
+						<div class="box">
+							{{ form.errors | default_errors }}
+						</div>	
+					</div>
+					{% endif %}
+
+					{% comment %}
+			          form.posted_successfully? is true only inside this form, but we want
+			          to show a success message outside of it. To do so, set the variable
+			          reset_success to true, then use JS to show our success message above.
+			        {% endcomment %}
+			        {% if form.posted_successfully? %}
+			          {% assign reset_success = true %}
+			        {% endif %}
+
+					<div class="col-xs">
+						<div class="box">
+							<label for="RecoverEmail" class="w3-left w3-margin-bottom-small">Email</label>
+							<input type="email" class="w3-white w3-input" name="email" id="RecoverEmail" placeholder="{{ 'customer.recover_password.email' | t }}" autocorrect="off" autocapitalize="off" value="{{ customer.email | default: form.email }}">
+						</div>	
+					</div>
+
+					<div class="col-xs-12">
+						<div class="box">
+							<input type="submit" class="w3-btn w3-blue w3-text-white w3-block w3-margin-top" value="{{ 'customer.recover_password.submit' | t }}">
+							<br>
+							<span class="w3-text-gray w3-margin-bottom-small" style="cursor: pointer;" onclick="hideRecoverPasswordForm();return false;"><u>Return to Login</u></span>
+						</div>	
+					</div>
+				</div>
+		      {% endform %}
+
+		    </div>
+
+		</div>	
+	</div>
+</div>
+
+<script>
+  
+  $(function() {
+    if (typeof(Storage) !== "undefined" && sessionStorage.pepsiPrintURL != undefined && sessionStorage.pepsiPrintURL.length > 0) {
+        var redirectURL = sessionStorage.pepsiPrintURL;
+        sessionStorage.pepsiPrintURL = '';
+    }
+    else if(document.URL.indexOf('redirect=') > -1){
+        var redirectURL = document.URL.split('redirect=')[1];
+    }
+    {% comment %}
+    else if(document.referrer != document.URL && document.referrer != location.host && document.referrer.indexOf(location.host) > -1 && document.referrer.indexOf('/account/login') == -1){
+      var redirectURL = document.referrer.split(location.host)[1];
+    }
+    {% endcomment %}
+    else{
+      var redirectURL = '/pages/welcome';
+    }
+
+    if(redirectURL.length > 1){
+        $('[name="checkout_url"]').val(redirectURL);
+    }
+  });
+  
+  /*
+    Show/hide the recover password form when requested.
+  */
+  function showRecoverPasswordForm() {
+    document.getElementById('RecoverPasswordForm').style.display = 'block';
+    document.getElementById('CustomerLoginForm').style.display='none';
+  }
+
+  function hideRecoverPasswordForm() {
+    document.getElementById('RecoverPasswordForm').style.display = 'none';
+    document.getElementById('CustomerLoginForm').style.display = 'block';
+  }
+
+  // Allow deep linking to the recover password form
+  if (window.location.hash == '#recover') { showRecoverPasswordForm() }
+
+  // reset_success is only true when the reset form is
+  {% if reset_success %}
+    document.getElementById('ResetSuccess').style.display = 'block';
+  {% endif %}
+  
+  if (typeof(Storage) !== "undefined") {
+    sessionStorage.ShowPopup = 1; //console.log(sessionStorage.ShowPopup);
+  }
+  
+  $.ajax({ url: "/cart/clear.json", async: "true" }).done(function(){ console.log('CART CLEARED'); });
+  
+  // setInterval(function(){
+  //   if($('[name="customer[email]"]').val().indexOf('Monitor.') != -1)
+  //     $('[name="checkout_url"]').val('/');
+  // }, 500);
+</script>
+
+{% include 'customer-account-common-code' with 'save_token' %}

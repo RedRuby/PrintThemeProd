@@ -8,10 +8,10 @@
       <div id="OrderCancelModal" class="white-popup-block text-center wrapper" styles="display:none;">
         <form action="" method="post" onsubmit="if(confirm('Click \'OK\' to confirm for '+this.getAttribute('order_name')+' order rejection.') == true)cancelOrder(event, this); else false" order_id=""> 
           <br><br>
-          <h1 class="">Cancel Order #<span class="orderName" style="font-size:inherit !important;"></span></h1>
+          <h1 class="">{% if customer_role_tag == Role_FSManager %}Reject{% else %}Cancel{% endif %} Order #<span class="orderName" style="font-size:inherit !important;"></span></h1>
           <br>
           <div class="text-left">
-            <label for="">Cancellation Reason <span class="w3-text-red">*</span></label>
+            <label for="">{% if customer_role_tag == Role_FSManager %}Reject{% else %}Cancel{% endif %} Reason <span class="w3-text-red">*</span></label>
             <select name="cancel-reason" id="" onchange="changedDataCancel();">
               <option value="">Select</option>
               <option value="Program Cancelled Locally">Program Cancelled Locally</option>

@@ -1,2 +1,10 @@
-<h1>{{ 'general.404.title' | t }}</h1>
-<p>{{ 'general.404.subtext_html' | t }}</p>
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
+
+{% if pageUrl contains "/pages/404/customer_not_found_or_not_active" %}
+  <h1>Customer not found / not active / not having access tags.</h1>
+  <p>Please check that an active customer existing with the email on admin with proper access tags.</p>
+  <button class="btn" type="button" onclick="window.close();">Go Back</button>
+{% else %}
+  <h1>{{ 'general.404.title' | t }}</h1>
+  <p>{{ 'general.404.subtext_html' | t }}</p>
+{% endif %}

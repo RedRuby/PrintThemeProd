@@ -211,6 +211,7 @@
                         $('.editBtn[status = "Fulfilled"]').toggleClass("btn-primary btn--secondary btn").text("Track").attr("onclick", "if($(this).attr('tracking_url').indexOf('tracking_url') == -1) openInNewTab($(this).attr('tracking_url')); else location.assign('/pages/order?id='+$(this).attr('order_id'));").prop('title', 'Track Order Shipment.');
                         $('.td_select select[status2 = "cancelled"], .editBtn[status2 = "cancelled"]').prop("disabled", "disabled").prop('title', 'Can\'t edit cancelled order.').css('cursor', 'not-allowed');
                         $('.editBtn:not([status = "In Production"]):not([status = "Fulfilled"])').prop("disabled", "disabled").css('cursor', 'not-allowed');
+                        $('.assign-printer[status="Est. Approval Needed"]').prop("disabled", true).attr('title', "Est. Approval Needed").css("cursor", "not-allowed");
                         defreez();
                         $('.placeholdLoader').addClass('placeholdLoader1').removeClass('placeholdLoader');
                         if(Boolean(var_filter_by_designer))

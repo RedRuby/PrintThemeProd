@@ -1,3 +1,22 @@
+{% if customer  %}
+
+  {% include 'customer-account-common-code' with 'theme-layout-code' %}
+
+  {% assign product_in_region = false %}
+  {% if item.tags contains customer_region_tag or customer.tags contains Role_ASM or customer.tags contains Role_Admin or fs_shop_active %}
+     {% assign product_in_region = true %}
+  {% endif %}
+
+{% endif %}
+
+{% if product_in_region == false %}
+  {% continue %}
+{% endif %}
+
+{% if item.object_type == 'product' %}
+  {% assign product = item %}
+{% endif %}
+
 {% comment %}
 
   This snippet gives you a grid layout for each search result.
@@ -17,24 +36,63 @@
   {% assign grid_item_width = 'wide--one-quarter large--one-third medium--one-half' %}
 {% endunless %}
 
-<div class="grid__item search-result {{ grid_item_width }}{% if settings.collections_center_grid_link %} text-center{% endif %}">
-  {% assign item_url = '/collections/' |append: collection_handle |append: item.url  %}
+<div class="grid__item search-result {{ grid_item_width }}{% if settings.collections_center_grid_link %}{% endif %} text-center">
+  {% assign collection_handle = collect_handle | default: collection_handle %}
+  {% assign item_url = '/collections/' | append: collection_handle | append: item.url  %}
 
-  {% if item.featured_image or item.image %}
+  {% if item.featured_image or item.image or true %}
     {% assign image_alt = item.title | escape %}
-    <a {% unless non_asm %}href="{{ item_url }}"{% endunless %} title="{{ image_alt  }}">
-      {{ item | img_url: 'medium' | img_tag: image_alt }}
-    </a>
-  {% endif %}
+    {% if fs_shop_active or non_asm %}
+    <a {% if product_in_region && non_asm != true %}href="{{ item_url }}"{% endif %} title="{{ image_alt  }}">
+    {% else %}
+    <span {% if product_in_region && non_asm != true %}href="{{ item_url }}"{% endif %} style="position:relative;" onmouseover="showHide(this,true);" onmouseout="showHide(this,false);" class="grid-link text-center">
+    {% endif %}
+      {% comment %}{{ item | img_url: 'medium' | img_tag: image_alt }}{% endcomment %}
+      <div style="padding: 20px;">
+        <div style="padding-top: 85%; background: url({{ item | img_url: 'medium' }}) no-repeat center/contain; {% unless item.image %}filter: contrast(0.95);{% endunless %}">
+        </div>
+      </div>
+      
+      {% unless fs_shop_active or non_asm %}
+      <p class="task-wrapper1" style="position:absolute; top:50%; left:50%; z-index:; display:none;">
+        {% unless search_terms contains "Region:" %}
+        {% assign product_check_true = "" %}
+          {% if product.tags contains customer_region_tag %}
+            {% assign product_check_true = "checkeds" %}
+          {% endif %}
+        <label class="btn" title="Add this product"><input style="background-color:white;" type="checkbox" name="products[]" value="{{ product.id }}" {{product_check_true}} class="product-check">&nbsp;  Add</label><br><br>
+        {% endunless %}
+        
+        {% if search_terms contains "Region:" %}
+        <button type="button" href="#EditModal" style="" handler="{{ product.handle }}"  title="Edit this product" class="btn js-toggle-edit-modal" data-mfp-src="#EditModal" onclick="addToModal(this);">Edit</button><br><br>
+        {% endif %}
 
+        {% if search_terms contains "Region:" or search_terms contains "New:" %}
+        {% capture product_check_true %}
+          {% if search_terms contains "Region:" %}checked{% endif %}
+        {% endcapture %}
+        <label class="btn" title="{% if search_terms contains 'Region:' %}Remove{% else %}Don't Add{% endif %} this product"><input style="background-color:white;" type="checkbox" name="products[]" value="{{ product.id }}" {{product_check_true}} class="product-check2">
+        &nbsp; 
+        {% if search_terms contains "Region:" %}Remove{% else %}Don't Add{% endif %}
+        </label><br><br>
+        {% endif %}
+
+        <a {% if product_in_region && non_asm != true %}href="{{ item_url }}"{% endif %}><button type="button" title="Open Product Page" class="btn">Product Page</button></a>
+      </p>
+      {% endunless %}
+    {% if fs_shop_active %}</a>{% else %}</span>{% endif %}
+  {% endif %}
     {% unless non_asm %}
-  		<h5>{{ item.title | link_to: item_url }}</h5>
+      <button class="btn action-toggler" style="display:;" onclick="toggleAction(this);">Action</button>
+  		<h5 style="margin-bottom: 2px;">{{ item.title }}</h5>
   	{% else %}
-        <h5>{{ item.title }}</h5>
+      <h5 style="margin-bottom: 2px;">{{ item.title | link_to: item_url }}</h5>
     {% endunless %}
+    
+    <p style="margin-bottom: 2px;">{{ product.vendor }}</p>
 
     {% if item.object_type == 'product' %}
-    <h6>
+    <h6 style="margin-bottom: 2px;">
       {% if item.compare_at_price > item.price %}
         <span class="on-sale" itemprop="price">
           {{ item.price | money }}

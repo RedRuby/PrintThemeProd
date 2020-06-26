@@ -3,10 +3,14 @@
   {% include 'customer-account-common-code' with 'theme-layout-code' %}
 
 	{% assign product_in_region = false %}
-  {% if item.tags contains customer_region_tag or customer.tags contains Role_ASM or customer.tags contains Role_Admin %}
+  {% if item.tags contains customer_region_tag or customer.tags contains Role_ASM or customer.tags contains Role_Admin or fs_shop_active %}
 	   {% assign product_in_region = true %}
   {% endif %}
 
+{% endif %}
+
+{% if product_in_region == false %}
+  {% continue %}
 {% endif %}
 
 {% comment %}
@@ -25,8 +29,8 @@
 {% endcomment %}
 
 <div class="grid">
-
-  {% assign item_url = '/collections/' |append: collection_handle |append: item.url  %}
+  {% assign collection_handle = collect_handle | default: collection_handle %}
+  {% assign item_url = '/collections/' | append: collection_handle | append: item.url  %}
   {% if item.featured_image or item.image %}
      {% comment %}
       We have a featured_image
@@ -34,7 +38,7 @@
     {% assign has_image = true %}
     {% assign image_alt = item.title | escape %}
     <div class="grid__item one-fifth">
-      <a {% if product_in_region && non_asm != true  %}href="{{ item_url }}"{% endif %} title="{{ image_alt  }}">
+      <a {% if product_in_region && non_asm != true %}href="{{ item_url }}"{% endif %} title="{{ image_alt  }}">
         {{ item | img_url: 'medium' | img_tag: image_alt }}
       </a>
     </div>
@@ -45,12 +49,12 @@
   {% endcomment %}
   <div class="grid__item four-fifths {% unless has_image %}push--one-fifth{% endunless %}">
     {% if product_in_region %}
-      <h2 class="h3">{{ item.title | link_to: item.url }}</h2>
+      <h2 class="h3">{{ item.title | link_to: item_url }}</h2>
     {% else %}
       <small>(Not available for your Region.)</small>
       <h2 clas="h3">{{ item.title }}</h2>
     {% endif %}
-      {% if item.object_type == 'product' %}
+    {% if item.object_type == 'product' %}
       {% if item.compare_at_price > item.price %}
         <span class="visually-hidden">{{ 'products.product.sale_price' | t }}</span>
         <span itemprop="price">

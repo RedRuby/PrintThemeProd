@@ -16,7 +16,7 @@
   {% assign has_digital_product = true %}
 {% endif %}          
 
-{% if cart.items.size == 1 and has_digital_product %}
+{% if cart_product_properties == "No" and has_digital_product %}
   {% assign only_digital_product = true %}
 {% endif %}
 
@@ -82,6 +82,7 @@
                       <option value="Trade">Trade</option>
                     </select>
                   </td>
+                  <td class="w3-padding text-center1 w3-border-0"><span class="line_count"><b>Line Items:</b>&nbsp;&nbsp;{{ cart.items.size }}</span><br><b>Locations Selected:</b>&nbsp;&nbsp;<span class="location_count">{{ loader }}</span></td>
                 </tr>
               </table>
             </td>
@@ -108,14 +109,25 @@
                     
                     <p class="w3-margin-0"><b>Element:</b> 
                       <span>
-                        {% assign variant_title = item.variant.option1 | default: "Default" %}
-                        
-                        {% if item.properties['Printing'] == 'No' and item.variant.option1 contains "Default" %}
-                          {% assign variant_title = variant_title | replace: "Default", "Digital" | remove: "Title" %}
-                        {% endif %}
-                        
-                        {{ variant_title }}
+                        {%- assign variant_title = item.variant.option1 | default: "Default" -%}
+                        {%- if item.properties['Printing'] == 'No' and item.variant.option1 contains "Default" -%}
+                          {%- assign variant_title = variant_title | replace: "Default", "Digital" | remove: "Title" -%}
+                        {%- endif -%}
+                        {%- assign variant_title_pack_arry = variant_title | downcase | split: 'pack of' -%}
+                        {%- if variant_title_pack_arry.size == 1 -%}
+                          {%- assign variant_title_pack_arry = variant_title | downcase | split: '- pk' -%}
+                        {%- endif -%}
+                        {{ variant_title_pack_arry | first | strip }}
                       </span>
+                    </p>
+
+                    <p class="w3-margin-0">
+                      {%- if variant_title_pack_arry.size == 1 -%}
+                        {%- assign variant_title_pack_arry = item.product.description | downcase | split: "pack of" -%}
+                      {%- endif -%}
+                      {%- if variant_title_pack_arry.size > 1 -%}
+                        <b>Unit of Measure:</b> Pack of {{ variant_title_pack_arry.last | strip | remove: "." | remove: "," | remove: ")" | split: " " | first }}
+                      {%- endif -%}
                     </p>
 
                     {% unless item.variant.option1 contains "Default" %}
@@ -422,10 +434,12 @@
                       defreez();
                     }else{
                       // updateGrid('quantity');
+
                       setPresets();
                       nanobarLoad(0);
                       defreez();
                     }
+                    $('.location_count').text($('tr[w3-repeat="addresses"]:visible').length);
                   }catch(e){
                     nanobarLoad(0);
                     show_message4(('Error in populating Grid Data.'),false, e.message); 
@@ -635,6 +649,9 @@
       }
 
       function gridPush(data, final, remove){
+        grid_addr = $('tr[w3-repeat="addresses"]:visible').length;
+        
+        $('.location_count').text(grid_addr);
         $('#budget_code').val("A&M");
 
         if(final && !Boolean($('#budget_code').val())){
@@ -661,7 +678,6 @@
           data = grid_data.order = Object.assign({}, $('#id02 [name^="order["]:not([name~="id"])').serializeJSON().order || { address: {} });
         }
 
-        
 
         if(roster_url && Object.keys(data.address).length < {% if has_digital_product %}2{% else %}1{% endif %} && !remove){
           nanobarLoad(0);
@@ -683,9 +699,16 @@
             show_message4("Atleast one Quantity is required.", false);
             return false;
           }
-        }else if($('tr[w3-repeat="addresses"]').length*{{ cart.items.size }} > 50 ){
+        }
+        else if(grid_addr*{{ cart.items.size }} > 100 ){
           nanobarLoad(0);
-          show_message4("Maximum {% assign shiplist_limit = 50 | divided_by: cart.items.size | round %}{{ shiplist_limit }} shipping addresses are allowed, Exceeding by "+$('tr[w3-repeat="addresses"]').length-{{ shiplist_limit }}+".", false, "Please use Bulk Order Shiplist instead.");
+          show_message4("Maximum {% assign shiplist_limit = 100 | divided_by: cart.items.size | round %}{{ shiplist_limit }} shipping addresses are allowed, Exceeding by "+ (grid_addr-{{ shiplist_limit }}) + ".", false, "Please use Bulk Order Shiplist instead.");
+          console.log({{ shiplist_limit }});
+          return false;
+        }
+        else if(grid_addr > 20 ){
+          nanobarLoad(0);
+          show_message4("Maximum {% assign shiplist_limit = 20 %}{{ shiplist_limit }} shipping addresses are allowed, Exceeding by " + (grid_addr-{{ shiplist_limit }}) +".", false, "Please use Bulk Order Shiplist instead.");
           return false;
         }
         {% endunless %}

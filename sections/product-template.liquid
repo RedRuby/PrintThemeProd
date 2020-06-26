@@ -6,10 +6,14 @@
 {% endif %}
 
 {% if customer.tags contains Role_ASM %}
+  {% assign not_region_tag = customer_region_tag | replace: "Region:", "!Region" %}
+  {% assign new_region_tag = customer_region_tag | replace: "Region:", "New:" %}
   {% if product.tags contains customer_region_tag %}
-	<style>#nav-2 li:nth-of-type(1) button{background-color: {{ settings.color_primary }};}</style>
-  {% else %}
+  	<style>#nav-2 li:nth-of-type(1) button{background-color: {{ settings.color_primary }};}</style>
+  {% elsif product.tags contains not_region_tag %}
     <style>#nav-2 li:nth-of-type(2) button{background-color: {{ settings.color_primary }};}</style>
+  {% elsif product.tags contains new_region_tag %}
+    <style>#nav-2 li:nth-of-type(3) button{background-color: {{ settings.color_primary }};}</style>
   {% endif %}
 {% endif %}
 
@@ -480,7 +484,7 @@
         }
      });
 
-     $('input[type="file"]').before("<div class='product-customizer-option-description'>Supported file types: '*.jpg', '*.png' and '*.pdf' with maximum file size 1MB </div>").bind('change', function(){
+     $('input[type="file"]').before("<div class='product-customizer-option-description'>Supported file types: '*.jpg', '*.png' and '*.pdf' with maximum file size 20MB </div>").bind('change', async function(){
             var file = this.files[0];
         	var ext = this.value.match(/\.([^\.]+)$/)[1].toLowerCase();
             switch(ext)
@@ -488,19 +492,90 @@
                 case 'jpg':
                 case 'jpeg':
                 case 'png':
+                  try {
+                    const in_resolution = await readImageFile(file);
+                    if(!in_resolution){
+                      show_message4('Invalid file resolution...',false,'Try adding file of resolution <br>< 4472 x 4472');
+                      this.value='';
+                    }
+                  } catch (e) {
+                    show_message4(e.message||'Invalid file...',false, 'Plese try again with another file');
+                  }
+                  
+                  break;
                 case 'pdf':
                     // alert('allowed');
-                	if(file.size/1024/1024 > 1 ){
-                    	show_message4('Invalid file size...',false,'Try adding file of size < 1 MB');
-						this.value='';
+              	    if(file.size/1024/1024 > 20 ){
+                    	show_message4('Invalid file size...',false,'Try adding file of size < 20 MB');
+          						this.value='';
                     }
                     break;
                 default:
-                	show_message4('Invalid file type...',false,'Try adding file of supported types.');
+                  	show_message4('Invalid file type...',false,'Try adding file of supported types.');
                     this.value='';
             }
 
       });
+
+     function readImageFile1(file) {
+          var reader = new FileReader(); // CREATE AN NEW INSTANCE.
+          var result = null;
+          reader.onload = function (e) {
+              var img = new Image();      
+              img.src = e.target.result;
+
+              img.onload = function () {
+                  var w = this.width;
+                  var h = this.height;
+
+                  result = (w <= 4472 && h <= 4472);
+              }
+          };
+          reader.readAsDataURL(file);
+          var c = setInterval(function (){
+            if(result != null){
+              clearInterval(c);
+              return result;
+            }
+          }, 100);
+      }
+
+      const readImageFile = function (file) {
+        const reader = new FileReader();
+
+        return new Promise(function (resolve, reject) {
+          reader.onerror = function () {
+            reader.abort();
+            reject(new DOMException("Problem parsing input file."));
+          };
+
+          reader.onload = function (e) {
+            var img = new Image();      
+            img.src = e.target.result;
+
+            img.onload = function () {
+                var w = this.width;
+                var h = this.height;
+
+                result = (w <= 4472 && h <= 4472);
+                resolve(result);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      };
+
+      const handleUpload = async function (event) {
+        const file = event.target.files[0];
+        const fileContentDiv = document.querySelector('div#file-content')
+
+        try {
+          const fileContents = await readUploadedFileAsText(file)  
+          fileContentDiv.innerHTML = fileContents
+        } catch (e) {
+          fileContentDiv.innerHTML = e.message
+        }
+      }
 
      {% unless product.tags contains customer_region_tag %}
       setInterval( function(){ $('#AddToCartForm').bind('submit', function(e){ e.preventDefault(); }); }, 1000);
@@ -539,7 +614,16 @@
       var PrintATC = sessionStorage.PrintATC; //console.log(PrintATC);
       if ( 1 == PrintATC ) {
         sessionStorage.PrintATC = 0; //console.log(PrintATC);
-        show_message2('Added to Cart.',true);
+        {% if window_mesh %}
+          {% assign picture_url = cart.items[0].properties["Picture of Window (required)"] %}
+          {% if picture_url  %}
+            show_message2('Added to Cart.',true);
+          {% else %}
+            show_message41('Window Mesh image is not attached to the product.', false, "Do you still want to Proceed ?");
+          {% endif %}
+        {% else %}
+          show_message2('Added to Cart.',true);
+        {% endif %}
         $('.cart-page-link').animateCss('wobble');
       }
     }
@@ -858,16 +942,34 @@
 
   function logSession(obj){
     freez();
-    $.when(data = $.getJSON('/cart.js')).done(function(){ 
-      if(data.responseJSON.items.length < {{ max_allowed_item_count }}){
-        if($('#AddToCart').is(':enabled')){
-          obj.previousElementSibling.click();
-          defreez();
+
+    {% if window_mesh %}
+      $("select[name = 'properties[# of Consecutive Windows]']").trigger('change');
+
+      $('[name^="properties[Window "]').first().trigger('input');
+    {% endif %}
+
+    empty_required = $('form[action="/cart/add"] :input:enabled:visible[required]').filter(function(){ return !Boolean($(this).val()); });
+
+    if(empty_required.length == 0){
+      $.when(data = $.getJSON('/cart.js')).done(function(){ 
+        if(data.responseJSON.items.length < {{ max_allowed_item_count }}){
+          if($('#AddToCart').is(':enabled')){
+            obj.previousElementSibling.click();
+            defreez();
+          }
+        }else{
+          show_message4('{{ max_cart_count_message }}', false, false);
         }
-      }else{
-        show_message4('{{ max_cart_count_message }}', false, false);
-      }
-    });
+      });
+    }else{
+      show_message4('Please fill required fields.', false, false);
+      $(empty_required[0]).focus();
+      event.preventDefault();
+      // defreez();
+      $('body, html').delay(100).animate({scrollTop: $(empty_required[0]).offset().top-250});
+      return false;
+    }
   }
 
 </script>

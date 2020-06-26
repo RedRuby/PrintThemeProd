@@ -45,6 +45,15 @@
   {% unless collection %}
       <style>#nav-2 li:nth-of-type(1) button{background-color: {{ settings.color_primary }};}</style>
       {% assign collection_handle = customer_region_tag | remove: 'Region:' |replace:'0','o' | downcase | append: '-my-products' %}
+
+      {% if template contains "search" %}
+        {% assign search_terms =  search.terms | escape %}
+        {% if search_terms contains "!Region" %}
+          {% assign collection_handle = collection_handle | replace: "my-products", "not-in-my-products" %}
+        {% elsif search_terms contains "New:" %}
+          {% assign collection_handle = collection_handle | replace: "my-products", "new" %}
+        {% endif %}
+      {% endif %}
   {% endunless %}
 {% elsif customer.tags contains Role_Admin %}
   {% assign collection_handle = 'all' %}

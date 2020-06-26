@@ -1,0 +1,89 @@
+{% layout 'theme.ppp' %}
+{% assign login_url = "/account/login?view=ppp" %}
+{% assign session_error = "No active session found. Redirecting to login page." %}
+
+<div class="row center-xs middle-xs">
+	<div class="col-lg-4 col-md-6 col-sm-10 col-xs-11">
+		<div class="box">
+			<p class="white-text"><b>Selet Your Path</b></p>
+			{% assign shop_name = "Premiums,Point of Sale,Path Three,Path Four" | split: "," %}
+			{% assign shop_name_size = shop_name.size | minus: 1 %}
+			{% for n in (0..shop_name_size) %}
+
+			{% if customer == blank %}
+			<a href="/account/login?view=ppp">
+			{% elsif shop_name[n] == "Point of Sale" %}
+			<a href="/account">
+			{% endif %}
+			{% assign can_emulate = blank %}
+			{% if customer and shop_name[n] != "Point of Sale" %}
+				{% assign can_emulate = true %}
+			{% endif %}
+			<div class="row middle-xs shop__btn" {% if can_emulate %}onclick="oc_emulate();"{% endif %}>
+				<div class="col-xs-2 start-xs">
+					<div class="box">
+						<img class="mod_logo" src="//cdn.shopify.com/s/files/1/2142/6089/files/2347F4DE-5297-4B7A-89E2-76796C8A62C2__png.jpg" alt="MOD logo" />	
+					</div>
+				</div>
+				<div class="col-xs start-xs">
+					<div class="box">
+						<h2 class="shop__name">{{ shop_name[n] }}</h2>	
+					</div>
+				</div>		
+			</div>	
+			{% if customer == blank or shop_name[n] == "Point of Sale" %}</a>{% endif %}
+			{% endfor %}
+		</div>	
+	</div>
+</div>
+
+{% include "notify-UI" %}
+
+{% include 'customer-account-common-code' with 'oc_emulate_script' %}
+
+{% comment %}<script>
+	{% if can_emulate %}
+		function oc_emulate(){
+			freez();
+			$.ajax({
+				url: '/account.json?view=ppp',
+				type: 'GET',
+				dataType: 'json',
+				contentType: 'application/json',
+				success: function(data){ 
+					console.log(data);
+					if(data["status"] == 200){
+						data = { token: data.token, email: data.email };
+						$.ajax({
+							url: '/apps/pepsi-print/fs_customer/oc_emulate.json',
+							type: 'POST',
+							data: JSON.stringify(data),
+							dataType: 'json',
+							contentType: 'application/json',
+							success: function(data){ 
+								console.log(data);
+								/*redirect to responce url*/
+								window.location.assign(data.url);
+							}, 
+							error: function(data){ 
+								show_message4('Some Error Occured.',false); 
+								/*redirect to oc login page*/
+								// window.location.assign("{{ login_url }}");
+							 }
+						});
+					}else{
+						/*redirect to oc login page*/
+						show_message4('{{ session_error }}',false); 
+						// window.location.assign("{{ login_url }}");
+					}
+				}, 
+				error: function(data){ 
+					console.log(data);
+					show_message4('{{ session_error }}',false); 
+					/*redirect to oc login page*/
+					window.location.assign("{{ login_url }}");
+				}
+			});
+		}
+	{% endif %}
+</script>{% endcomment %}

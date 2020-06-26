@@ -177,3 +177,7 @@
 </script>
 
 {% include 'customer-account-common-code' with 'save_token' %}
+
+{% if fs_shop_active %}
+  {% include "magnificPopup-image" %}
+{% endif %}

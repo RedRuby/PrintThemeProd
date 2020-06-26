@@ -37,6 +37,7 @@
     <thead>
       <tr class="w3-text-white" style="background-color: {{ settings.color_topbar_bg }}">
         {% include 'customer-account-common-code' with 'table-header-code-fs' %}
+        <th class="text-center printModeExclude placeholdLoader">Estimate Approval<small class="w3-tiny"><br>(Click on order # to see order details)</small></th>
       </tr>
     </thead>
     <tr class="w3-hover-light-grey" w3-repeat="orders">
@@ -49,6 +50,11 @@
       {% comment %}<td>{% raw %}{{payment_status}}{% endraw %}</td>{% endcomment %}
       {% comment %}<td class="text-right">${% raw %}{{total}}{% endraw %}</td>{% endcomment %}
       <td class="text-center" order_status="{% raw %}{{order_status}}{% endraw %}"><div class="placeholdLoader">{% raw %}{{order_status}}{% endraw %}</div></td>
+      <td class="text-center printModeExclude" style="width: 275px;">
+        <button class="js-toggle-update-modal1 approveBtn btn--secondary min-width-110 placeholdLoader" disabled style="" title="Update this order" status="{% raw %}{{order_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" onclick="if(confirm('Click \'OK\' to approve estimate on order \'{% raw %}{{order_name}}{% endraw %}\'.') == true){ approveOrder({% raw %}{{id}}{% endraw %}); }" order_name="{% raw %}{{order_name}}{% endraw %}" order_id="{% raw %}{{id}}{% endraw %}">Approve</button>
+        <span>&nbsp</span>
+        <button class="js-toggle-update-modal1 cancelBtn btn--secondary min-width-110 placeholdLoader" style="" title="Cancel this order" status="{% raw %}{{order_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}" disabled onclick="showCancelModal({% raw %}{{id}}{% endraw %}, '{% raw %}{{ order_name }}{% endraw %}');" order_id="{% raw %}{{id}}{% endraw %}">Reject</button>
+      </td>
     </tr>
   </table>
     
@@ -57,6 +63,10 @@
 </div>
 
 {% include 'customer-account-common-code' with 'per-page-form' %}
+
+<div id="mfp-order-cancel">
+  {% include 'magnificPopup-orderFS-Cancel' %}
+</div>
 
 <script>
   var all_customer = '';
@@ -119,8 +129,10 @@
                   });
                   
                   $("#print-btn").removeAttr('disabled').prop('title', '').css('cursor', 'default');
-                                    
-                  
+                  $('.approveBtn[status="Needs Est. Approval"]').toggleClass('btn--secondary btn-primary btn').prop('disabled', false);
+                  $('.approveBtn:not([status="Needs Est. Approval"])').prop('disabled', true).text('Approved').attr('title', '');     
+                  $('.cancelBtn[status="Needs Est. Approval"]').prop('disabled', false);             
+                  $('.cancelBtn:not([status="Needs Est. Approval"])').prop('disabled', true).attr('title', '');
               }else{
                   $("#id02, .per_pageContainer").hide();
                   $("#order-none, #order-list").show();
@@ -451,6 +463,25 @@
   
     
    }
+
+   function approveOrder(order_id) {
+    freez();
+    $.ajax({
+          url: '/apps/pepsi-print/fs_printer_configuration/assign_nsm_to_order.json',
+          type: 'POST',
+          data: { cemail: "{{ customer.email }}", cid: {{ customer.id }}, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order: order_id, cregion: '{{ customer_region_tag |replace:'Region:','' |replace:'0','o'}}', crole: '{{ customer_role_tag |remove:'Role:'}}' },
+          dataType: 'json',
+          success: function(data){   
+            console.log(data);
+            show_message2( "Order Approved Successfully.", true);
+            window['status_changed_'+order_id] = true;
+            setTimeout(function() {
+              $('.approveBtn[order_id="'+order_id+'"]').text("Approved").toggleClass('btn--secondary btn-primary btn').parents('td').find('button').prop('disabled', true).attr('title', '').end().prev().text('Est. Approved').attr('order_status', 'Est. Approved');
+            }, 100);
+          },
+          error: function(data){ console.log(data); show_message2(data.responseJSON.message||'Some Error Occured.',false); }
+    });
+  }
   
   {% include 'customer-account-common-code' with 'reorder-method' %}
 </script>

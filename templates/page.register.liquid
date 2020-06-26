@@ -123,20 +123,22 @@
 
         {% if fs_shop_active %}
         <label for="ContactFormDivision" class="label--hidden1">{{ 'Division' }}</label>
-        <select name="contact[division]" id="ContactFormDivision" required="">
+        <select name="contact[division]" id="ContactFormDivision" required="" onchange="onRegionChange(this);">
           <option value="">Select</option>
           <option value="Division:North">North</option>
           <option value="Division:West">West</option>
           <option value="Division:Central">Central</option>
+          <option value="Division:Distributor">Distributor</option>
           <option value="Division:South">South</option>
           <option value="Division:NationalCustomer">National Customer</option>
           <option value='Division:FranchiseBottler'>Franchise Bottler</option>
         </select>
         
         <label for="ContactFormLegacyRegion" class="label--hidden1">{{ 'Legacy Region' }}</label>
-        <select name="contact[legacy_region]" id="ContactFormLegacyRegion" required="">
+        <select name="contact[legacy_region]" id="ContactFormLegacyRegion" required="" onchange="onRegionChange(this);">
           <option style="color:#666; background-color:lightgray;" value="" selected disabled>Select</option>
           <option style="color:#666;" value='Region:California'>California</option>
+          <option style="color:#666;" value='Region:Distributor'>Distributor</option>
           <option style="color:#666;" value='Region:FranchiseBottler'>Franchise Bottler</option>
           <option style="color:#666;" value='Region:GreatLakes'>Great Lakes</option>
           <option style="color:#666;" value='Region:MidAtlantic'>Mid-Atlantic</option>
@@ -152,7 +154,7 @@
         <input type="hidden" name="contact[moddivision]">
 
         <label for="ContactFormChannel" class="label--hidden1">{{ 'Channel' }}</label>
-        <select name="contact[channel]" id="ContactFormChannel" required="">
+        <select name="contact[channel]" id="ContactFormChannel" required="" onchange="onRegionChange(this);">
           <option value="">Select</option>
           {% assign channels = "general.mod_channels" | t | split: "," | sort %}
           {% for channel in channels %}
@@ -199,13 +201,13 @@
 
         {% if fs_shop_active %}
         <label for="ContactFormRole" class="label--hidden1">Do you have budget approver responsibilities ?</label>
-        <select name="contact[userRole]" title="Role" required id="ContactFormRegion" style="color: #666;" onchange="this.style.color = '#000';" > 
+        <select name="contact[userRole]" title="Role" required id="ContactFormRole" style="color: #666;" onchange="this.style.color = '#000';" > 
           <option style="color:#666;" selected value='Role:FSUser'>No</option>
           <option style="color:#666;" value='Role:ChannelManager'>Yes</option>
         </select>
         {% else %}
         <label for="ContactFormRole" class="label--hidden1">Do you have people reporting to you whose orders you would like to see ?</label>
-        <select name="contact[userRole]" title="Role" required id="ContactFormRegion" style="color: #666;" onchange="this.style.color = '#000';" > 
+        <select name="contact[userRole]" title="Role" required id="ContactFormRole" style="color: #666;" onchange="this.style.color = '#000';" > 
           <option style="color:#666;" selected value='Role:SiteUser'>No</option>
           <option style="color:#666;" value='Role:UserManager'>Yes</option>
           {% endif %}
@@ -265,6 +267,16 @@
     else
       ajaxSubmit();
   });
+
+  function onRegionChange(obj) {
+    // value = $(obj).val().split(":")[1].replace(' ','');
+    values = $('#ContactFormDivision, #ContactFormLegacyRegion, #ContactFormChannel').map(function(){ return this.value.replace(' ', '').split(":")[1]||"" }).get();
+    // console.log(values);
+    if(values.indexOf("FranchiseBottler") != -1 || values.indexOf("NationalCustomer") != -1){
+      $('#ContactFormRole').val('Role:ChannelManager').prop('disabled', true);
+    }else
+      $('#ContactFormRole').val('Role:FSUser').prop('disabled', false);
+  }
                           
   function ajaxSubmit(){
   

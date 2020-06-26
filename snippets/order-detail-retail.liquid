@@ -148,6 +148,24 @@
       {% endif %}
       </div>
 
+      <div class="timeline-container" style="display: none;">
+        <br>
+        <h3 class="w3-margin-0">Timeline</h3>
+        <div id="timeline_wrapper" class="timeline_wrapper" style="max-height: 400px; overflow-y: auto; display: block;">
+          <div class="w3-row" w3-repeat="timeline">
+            <hr style="margin: 10px 0;">
+            <div class="w3-col s3 {% raw %}{{ class }}{% endraw %}">
+              <p class="w3-margin-0 w3-small"><b>{% raw %}{{ timestamp }}{% endraw %}</b></p>
+            </div>
+            <div class="w3-col s9 {% raw %}{{ class }}{% endraw %}">
+              <h4 class="w3-margin-0">{% raw %}{{ action_name }}{% endraw %}</h4>
+              <p class="w3-margin-0 w3-small" style="word-break: break-word;">{% raw %}{{ summary }}{% endraw %}</p>
+            </div>
+          </div>
+          <br>
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -461,6 +479,10 @@
                 setTimeout(w3DisplayData("id02", data.order),100);
                 setTimeout(w3DisplayData("address", data.order),200);
                 setTimeout(w3DisplayData("lineItem", data.order),400);
+                if(data.order.timeline != undefined){
+                  setTimeout(w3DisplayData("timeline_wrapper", data.order),450);
+                  $(".timeline-container").show();
+                }
                 setTimeout(w3DisplayData("subTotal", data.order),500);
                 setTimeout(w3DisplayData("grandTotal", data.order),600);
                 setTimeout(w3DisplayData("discountCodes", data.order),700);

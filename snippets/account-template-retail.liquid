@@ -110,20 +110,21 @@
     <a id="exportPsudoLink" href="" target="stealthFrame" class="hide"></a>
     <iframe name="stealthFrame" style="display:none;"></iframe>
 
-    {% if customer.tags contains Role_ASM or customer.tags contains Role_Admin %}
+    {% if customer.tags contains Role_ASM or customer.tags contains Role_Admin or customer.tags contains Role_Printer %}
     <button class="btn" style="min-width:350px;" type="button" onclick="toggleRDash();">Current Year Reports</button>
     <br>
     <div id="reportDash" class="border w3-padding animated  w3-white" style="max-width:350px; display:none;">
-      {% assign region_name = customer_region_tag |remove:'Region:' |replace:'0','o' %}
-      {% assign region_name_standard = customer_region_tag |replace:'Region:', 'Standard_' |replace:'0','o' %}
-      {% assign region_name_dashboard = customer_region_tag |replace:'Region:', 'Dashboard_' |replace:'0','o' %}
+      {% if customer.tags contains Role_ASM %}
+        {% assign region_name = customer_region_tag |remove:'Region:' |replace:'0','o' %}
+        {% assign region_name_standard = customer_region_tag |replace:'Region:', 'Standard_' |replace:'0','o' %}
+        {% assign region_name_dashboard = customer_region_tag |replace:'Region:', 'Dashboard_' |replace:'0','o' %}
       
-      {% unless customer.tags contains Role_Admin %}
        - <a hrefs="javascript:agedExportNew();" class1="aged" href="https://print--export-reports.s3.amazonaws.com/Open_Order_Report_{{ region_name }}_{{ 'now' | date: '%m-%d-%Y' }}.csv">{{ region_name }} Open Order Report</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ region_name_standard }}.xlsb">{{ region_name }} Standard Report (2019)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_{{ region_name_dashboard }}.xlsm">{{ region_name }} Dynamic Report (2019)</a><br>
-      {% endunless %}
-      {% if customer.tags contains Role_Admin %}
+      {% elsif customer.tags contains Role_Printer %}
+        - <a hrefs="javascript:agedExportNew();" class1="aged" href="https://print--export-reports.s3.amazonaws.com/Printer_Open_order_report_{{ 'now' | date: '%m-%d-%Y' }}_{{ customer.id }}.xlsx">Open Order Report</a><br>
+      {% elsif customer.tags contains Role_Admin %}
        - <a hrefs="javascript:agedExportNew();" class1="aged" href="https://print--export-reports.s3.amazonaws.com/Open_Order_Report_All_Region_{{ 'now' | date: '%m-%d-%Y' }}.csv">Open Order Report</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_Standard_All.xlsb">Standard Report (2019)</a><br>
        - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All.xlsm">Dynamic Report (2019)</a><br>
@@ -133,6 +134,7 @@
     </div>
     <br>
     {% comment %}{% endcomment %}
+    {% if customer.tags contains Role_ASM or customer.tags contains Role_Admin %}
     <button class="btn" style="min-width:350px;" type="button" onclick="toggleRHDash();">Historical Reports</button>
     <br>
     <div id="reportDashH" class="border w3-padding animated  w3-white" style="max-width:350px; display:none;">    
@@ -154,9 +156,31 @@
       {% endif %}
     </div>
     <br>
+    {% endif %}
     {% comment %}{% endcomment %}
     {% if customer.tags contains Role_ASM or customer.tags contains Role_Admin %}
-    <a target="_blank" href="/pages/product-upload-form" onclicks="window.open('');" onc="('https://s3.amazonaws.com/printreports/PepsiPrintProductUploadForm_v7.xlsm');" ><button class="btn" style="min-width:350px;" type="button">Upload Products</button></a><br><br>
+      <a target="_blank" href="/pages/product-upload-form" onclicks="window.open('');" onc="('https://s3.amazonaws.com/printreports/PepsiPrintProductUploadForm_v7.xlsm');" ><button class="btn" style="min-width:350px;" type="button">Upload Products</button></a><br><br>
+      {% if customer.tags contains Role_Admin %}
+        <button class="btn" style="min-width:350px;" type="button" onclick="toggleADash();">Audit Logs</button>
+        <br>
+        <div id="auditDash" class="border w3-padding animated  w3-white" style="max-width:350px; display:none;"> 
+          - <a target="_blank" href="/apps/pepsi-print/collection_response/audit_log">Audit Logs PC</a><br>
+          - <a target="_blank" href="/apps/place_bulk_order/audit_log">Audit Logs BO</a><br>
+        </div>
+        <br>
+        {% if customer.tags contains 'SuperUser' %}
+          <form action="/apps/pepsi-print/customer/multipass" method="post" target="_blank" autocomplete="false" class="header-bar__search-form clearfix printModeExclude header-search-fs placeholdLoader1" onsubmit="" role="" style="margin: 0 10px 0 0; position: relative; z-index: 9; max-width: 350px;">
+            <input type="hidden" name="cemail" value="{{ customer.email }}">
+            <input type="hidden" name="cid" value="{{ customer.id }}">
+            <input type="hidden" name="ctoken" value="{{ customer.id  | hmac_sha1: shop.domain }}">
+            <button type="submit" class="btn icon-fallback-text header-bar__search-submit1" style="position: absolute; right: 0; background: transparent; color: black !important; height: 37.5px">
+              <i class="fa fa-arrow-right" aria-hidden="true" style="font-size: 19px; padding-top: 0px;"></i>
+            </button>
+            <input type="email" id="email" name="email" required="" aria-label="Login" class="header-bar__search-input" autocomplete="false" placeholder="Login as another customer" onchange="" style="margin: 0; padding: 0 30px 0 15px; border: 1px solid #aaa; height: 37.5px">
+            <br>
+          </form>
+        {% endif %}
+      {% endif %}
     {% endif %}
     <!-- <a href="/pages/locations"><button class="btn" style="min-width:350px;" type="button">Add Location for Regional List</button></a> -->
     {% elsif customer.tags contains Role_Manager %}
@@ -416,6 +440,14 @@
       $('.br-hide').show();
     }
 
+  }
+
+  function toggleADash(){
+    if($('#auditDash.flipInX').length != 0){
+      $('#auditDash').removeClass('flipInX').addClass('flipOutX').delay(1000).hide(0);
+    }else{
+      $('#auditDash').removeClass('flipOutX').addClass('flipInX').show(0);
+    }
   }
 
   function toggleBDash(){

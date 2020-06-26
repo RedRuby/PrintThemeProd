@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+	<head>
+		<link rel="shortcut icon" href="{{ 'ppp_fab.png' | asset_img_url: '32x32' }}" type="image/png" />
+		<title>PepsiCo Proud Portal | Home</title>
+		{{ 'https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css' | stylesheet_tag }}
+		{{ "https://www.w3schools.com/w3css/4/w3.css" | stylesheet_tag }}
+		<link href="//fonts.googleapis.com/css?family=Ubuntu:400,700" rel="stylesheet" type="text/css" media="all" />
+		<link rel="preload prefetch" href="{{ 'ppp_bg.png' | asset_img_url: '100x' }}" as="image" media1="" type="image/png">
+		<link rel="preload prefetch" href="{{ 'ppp_bg.png' | asset_img_url: '1800x' }}" as="image" media1="" type="image/png">
+		<style>
+			*:not(i){ font-family: "Ubuntu","HelveticaNeue","Helvetica Neue",sans-serif; }
+			html{ background-color: #000; }
+			.ppp-bg{
+				background: url("{{ 'ppp_bg.png' | asset_img_url: '100x' }}") no-repeat center;
+			    background-size: cover;
+			    position: absolute;
+			    top: 0;
+			    bottom: 0;
+			    left: 0;
+			    right: 0;
+			    z-index: -1;
+			    transition: filter 0.5s ease-in;
+			}
+			.ppp-bg.blurred{
+				/* Add the blur effect */
+				filter: blur(10px);
+				-webkit-filter: blur(10px);
+			}
+			#ppp_logo{
+				max-width: 200px;
+			}
+			.head__text{
+				font-weight: normal;
+			}
+			body>.row, body>.row>div>.box{
+				min-height: 97vh;
+			}
+			.shop__btn{
+				background-color: #fff;
+				color: #0e5aa8;
+				border-radius: 5px;
+				padding: 0px 10px;
+				cursor: pointer;
+				margin-bottom: 15px
+			}
+			.shop__btn:hover{
+				-o-transform: scale3d(1.05);
+				-ms-transform: scale3d(1.05);
+				-moz-transform: scale3d(1.05);
+				-webkit-transform: scale(1.05);
+				transform: scale(1.05);
+				-webkit-transition: all 0.35s ease 0s;
+			    -o-transition: all 0.35s ease 0s;
+			    transition: all 0.35s ease 0s;
+			}
+			.shop__name{
+				color: #0e5aa8;
+				font-weight: normal;
+				font-size: 25px;
+				padding: 4px 0;
+			}
+			.mod_logo{
+				max-width: 60px;
+			}
+			.white-text, body{
+				color: #ffff;
+			}
+			input{
+				height: 50px !important;
+				border-radius: 5px;
+			}
+			.w3-btn{ font-weight: bold; }
+			.w3-blue{
+				background-color: #0e5aa8 !important;
+			}
+			.w3-margin-bottom-small {
+			    margin-bottom: 8px!important;
+			}
+		</style>
+		{{ content_for_header }}
+		{{ '//ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js' | script_tag }}
+	</head>
+	<body class="">
+		<div class="row" style="position: relative;">
+			<div class="ppp-bg blurred" data-src="{{ 'ppp_bg.png' | asset_img_url: '1800x' }}">
+					
+			</div>
+			<div class="col-xs-12">
+				<div class="box">
+					<div class="row center-xs">
+						<div class="col-xs-12">
+							<div class="box">
+								<br>
+								<br>
+								<a href="/index?view=ppp">
+									<img id="ppp_logo" src="{{ 'ppp_logo.png' | asset_img_url: '300x' }}" alt="PepsiCo Proud Portal" />	
+								</a>
+								<br>
+								<br>
+								<h1 class="white-text head__text">PepsiCo Proud Portal</h1>
+								<br>
+								<br>	
+							</div>	
+						</div>
+					</div>
+
+					{{ content_for_layout }}
+
+					<div class="row center-xs">
+						<div class="col-xs-12">
+							<div class="box">
+								<br>
+								<br>
+								<p class="footer__text white-text">&copy; {{ "now" | date: "%Y" }} PepsiCo</p>	
+							</div>	
+						</div>
+					</div>	
+				</div>
+			</div>
+		</div>
+		<script>
+			$(function() {
+				$(document).ready(function(){
+
+				    $('.blurred').each(function() {
+
+				        var lazy = $(this);
+				        var src = lazy.attr('data-src');
+
+				        $('<img>').attr('src', src).load(function(){
+				            lazy.css('background-image', 'url("'+src+'")').removeClass("blurred");
+				        });
+
+				    });
+
+				});
+			});
+		</script>
+	</body>
+</html>

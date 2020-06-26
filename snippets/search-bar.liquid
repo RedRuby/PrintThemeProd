@@ -23,7 +23,7 @@
     <input type="search" name="q" value="{{ search.terms | escape }}" aria-label="{{ 'general.search.placeholder' | t }}" class="header-bar__search-input" placeholder="{{ 'general.search.placeholder' | t }}">
   </form>
 {% elsif search-bar == 'header-fs' %}
-  <form action="/search" method="get" class="header-bar__search-form clearfix printModeExclude header-search-fs" role="search" style="margin: 5px 0; position: relative; z-index: 9" onsubmit="">
+  <form action="/search" method="get" class="header-bar__search-form clearfix printModeExclude header-search-fs" role="search" style="margin: 5px 0; position: relative; z-index: 9" onsubmit='$("[name1=\"q\"]").trigger("input");'>
     <input type="hidden" name="type" value="product">
     <button type="submit" class="btn icon-fallback-text header-bar__search-submit1" style="position: absolute; right: 0; background: transparent; color: black !important;">
       <i class="icon icon-search" aria-hidden="true" style="font-size: 16px; padding-top: 2px;"></i>
@@ -33,20 +33,30 @@
     <input type="hidden" class="" name="q" value="{{ search.terms | escape }}" />
   </form>
 {% elsif search-bar == 'header-retail' %}
-  <form action="/search" method="get" class="header-bar__search-form clearfix printModeExclude header-search-fs" role="search" style="margin: 5px 0; position: relative; z-index: 9" onsubmit="">
+  <form action="/search" method="get" class="header-bar__search-form clearfix printModeExclude header-search-fs" role="search" style="margin: 5px 0; position: relative; z-index: 9" onsubmit='$("[name1=\"q\"]").trigger("input");'>
     <input type="hidden" name="type" value="product">
     <button type="submit" class="btn icon-fallback-text header-bar__search-submit1" style="position: absolute; right: 0; background: transparent; color: black !important;">
       <i class="icon icon-search" aria-hidden="true" style="font-size: 16px; padding-top: 2px;"></i>
       {% comment %}<span class="fallback-text">{{ 'general.search.submit' | t }}</span>{% endcomment %}
     </button>
-    {% assign search_postfix =  " tag:'" | append: customer_region_tag | append: "'" %}
-    <input type="search" name1="q" value="{{ search.terms | escape | remove: search_postfix }}" aria-label="{{ 'general.search.placeholder' | t }}" class="header-bar__search-input min-width-240" placeholder="{{ 'general.search.placeholder' | t }}" style="margin: 0; padding: 0 30px 0 15px; border: 1px solid #aaa; height: 43px" oninput="$(this).next().val(this.value.replace(' tag:\'{{ customer_region_tag }}\'', '') + ' tag:\'{{ customer_region_tag }}\'');">
+    {% assign retail_search_tag = customer_region_tag  %}
+    {% assign search_terms = search.terms | escape  %}
+    {% if customer.tags contains Role_ASM and collection or template contains "search" %}
+      {% if collection.handle contains "not" or search_terms contains "!Region" %}
+        {% assign retail_search_tag = customer_region_tag | remove: ":" | prepend: "!" %}
+      {% elsif collection.handle contains "new" or search_terms contains "New:" %}
+        {% assign retail_search_tag = customer_region_tag | replace: "Region", "New" %}
+      {% endif %}
+    {% endif %}
+    {% assign search_postfix =  " tag:'" | append: retail_search_tag | append: "' -product_type:mod" %}
+    {% assign search_postfix_escaped = search_postfix  | escape %}
+    <input type="search" name1="q" value="{{ search.terms | escape | remove: search_postfix_escaped | remove: '*' | split: ' tag' | first }}" aria-label="{{ 'general.search.placeholder' | t }}" class="header-bar__search-input min-width-240" placeholder="{{ 'general.search.placeholder' | t }}" style="margin: 0; padding: 0 30px 0 15px; border: 1px solid #aaa; height: 43px" oninput="$(this).next().val(this.value.replace(/\s/g, '* ')+'*'.replace('{{ search_postfix | replace: "'", "\\'" }}', '') + '{{ search_postfix | replace: "'", "\\'" }}');">
     <input type="hidden" class="" name="q" value="{{ search.terms | escape }}" />
   </form>
 {% else %}
   <form action="/search" method="get" class="input-group search-bar" role="search">
     {% comment %}<input type="hidden" name="type" value="product">{% endcomment %}
-    <input type="search" name="q" value="{{ search.terms | escape }}" placeholder="{{ 'general.search.placeholder' | t }}" class="input-group-field" aria-label="{{ 'general.search.placeholder' | t }}" placeholder="{{ 'general.search.placeholder' | t }}">
+    <input type="search" name="q" value="{{ search.terms | escape | remove: search_postfix }}" placeholder="{{ 'general.search.placeholder' | t }}" class="input-group-field" aria-label="{{ 'general.search.placeholder' | t }}" placeholder="{{ 'general.search.placeholder' | t }}">
     <span class="input-group-btn">
       <button type="submit" class="btn icon-fallback-text">
         <span class="icon icon-search" aria-hidden="true"></span>

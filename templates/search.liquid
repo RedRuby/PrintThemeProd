@@ -16,7 +16,12 @@
   If you're only showing products with the method above, why not show them off in a grid instead?
   Set grid_results to true and see your updated results page for the new layout.
 {% endcomment %}
-{% assign grid_results = false %}
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
+
+{% if fs_shop_active %}
+  {% assign grid_results = false %}
+{% endif %}
+{% assign grid_results = true %}
 
 {% comment %}
   Check to enforce respond.js
@@ -28,8 +33,6 @@
 
 {% comment %}{% endcomment %}
 
-{% include 'customer-account-common-code' with 'theme-layout-code' %}
-
 {% assign respond_js_secret_key = shop.domain | md5 %}
 {% unless search.terms == respond_js_secret_key %}
 
@@ -40,25 +43,55 @@
       If you do, the pagination of results will be broken.
     {% endcomment %}
 
-    {% paginate search.results by 10 %}
+    {% paginate search.results by 20 %}
 
       {% comment %}
         We don't have any results to show. Feel free to show off featured products
         or suggested searches here.
       {% endcomment %}
+
+      {% if fs_shop_active %}
+        {% assign search_postfix =  " product_type:mod" | escape %}
+      {% else %}
+        {% assign retail_search_tag = customer_region_tag  %}
+        {% if customer.tags contains Role_ASM and collection or template contains "search" %}
+          {% assign search_terms =  search.terms | escape %}
+          {% if collection.handle contains "not" or search_terms contains "!Region" %}
+            {% assign retail_search_tag = customer_region_tag | remove: ":" | prepend: "!" %}
+            {% assign collect_handle = collection_handle | replace: "my-products", "not-in-my-products" %}
+            <style>#nav-2 li:nth-of-type(2) button{background-color: {{ settings.color_primary }};}#nav-2 li:nth-of-type(1) button{background-color: #000;}</style>
+          {% elsif collection.handle contains "new" or search_terms contains "New:" %}
+            {% assign retail_search_tag = customer_region_tag | replace: "Region", "New" %}
+            {% assign collect_handle = collection_handle | replace: "my-products", "new" %}
+            <style>#nav-2 li:nth-of-type(3) button{background-color: {{ settings.color_primary }};}#nav-2 li:nth-of-type(1) button{background-color: #000;}</style>
+          {% endif %}
+        {% endif %}
+        {% assign search_postfix =  " tag:'" | append: retail_search_tag | append: "' -product_type:mod" %}
+      {% endif %}
+
+      {% assign search_terms = search.terms | escape | remove: search_postfix  | split: ' tag' | first  | remove: '*' %}
+
       {% if search.results_count == 0 %}
 
         <div class="section-header section-header--large">
-          <h1 class="section-header__title h2">{{ 'general.search.no_results_html' | t: terms: search.terms | remove: ' product_type:mod' }}</h1>
+          <h1 class="section-header__title h2">{{ 'general.search.no_results_html' | t: terms: search_terms }}</h1>
         </div>
-        {% include 'search-bar' with header %}
+        {% if fs_shop_active %}
+          {% include 'search-bar' with 'header-fs' %}
+        {% else %}
+          {% include 'search-bar' with 'header-retail' %}
+        {% endif %}
 
       {% else %}
 
         <div class="section-header section-header--large">
-          <h1 class="section-header__title h2">{{ 'general.search.results_for_html' | t: terms: search.terms | remove: ' product_type:mod' }}</h1>
+          <h1 class="section-header__title h2">{{ 'general.search.results_for_html' | t: terms: search_terms }}</h1>
         </div>
-        {% include 'search-bar' with header %}
+        {% if fs_shop_active %}
+          {% include 'search-bar' with 'header-fs' %}
+        {% else %}
+          {% include 'search-bar' with 'header-retail' %}
+        {% endif %}
 
         {% comment %}
           Each result template, based on the grid_layout variable above
@@ -74,23 +107,31 @@
               {% assign count = count | default:0 | plus: 1 %}
             {% endunless %}{% endcomment %}
             {% unless fs_shop_active and item.type != 'MOD' %}
-            {% include 'search-result' %}
-      <hr>
-      {% endunless %}
+              {% include 'search-result' %}
+              <hr>
+            {% endunless %}
           {% endfor %}
 
         {% else %}
 
-          <div class="grid-uniform">
+          <div class="grid-uniform" style="padding-top: 30px;">
             {% for item in search.results %}
               {% assign grid_item_width = 'post-large--one-quarter medium--one-third small--one-half' %}
-              {% unless item.tags contains customer_region_tag %}
+              {% assign grid_item_width = 'wide--one-fifth large--one-quarter medium--one-third small--one-half' %}
+              {% comment %}
+              {% unless item.tags contains customer_region_tag or customer.tags contains Role_ASM %}
                 {% continue %}
               {% else %}
+                {%- comment -%}
                 {% if count == 10 %}{% break %}{% endif %}
                 {% assign count = count | default:0 | plus: 1 %}
+                {%- endcomment -%}
               {% endunless %}
-              {% include 'search-result-grid' %}
+              {% endcomment %}
+              
+              {% unless fs_shop_active and item.type != 'MOD' %}
+                {% include 'search-result-grid' %}
+              {% endunless %}
             {% endfor %}
           </div>
 
@@ -99,12 +140,26 @@
       {% endif %}
 
       {% if paginate.pages > 1 %}
-        <div class="text-center">
+        <div class="text-center" style="margin-top: 30px;">
           {% include 'pagination-custom' %}
         </div>
       {% endif %}
 
     {% endpaginate %}
+
+    <script>
+      {% unless grid_results == true %}
+        var i = [];
+        
+        $('.search-result > a').each(function(index, item){
+          i[index] = $(item).css('height').split('px')[0]; //console.log(i[index]);
+        }).promise()
+          .done(function(){
+            var max_h = Math.max.apply(Math,i); //console.log(max_h);
+            $('.search-result > a').each(function(index, item){ $(item).css('min-height', max_h.toString()+"px"); });
+        }); 
+      {% endunless %}
+    </script>
 
   {% else %}
 
@@ -125,9 +180,565 @@
   {% layout none %}
 {% endunless %}
 
-
-
 {% comment %}
 {% layout none %}
 <meta content="0; url=/" http-equiv="refresh" />
 {% endcomment %}
+
+{% if customer.tags contains Role_ASM and fs_shop_active != true %}
+{% if collection.handle contains "not" or search_terms contains "!Region" %}
+<script>
+  
+  var handler = '';
+  
+  $(document).ready(function(){
+    $('.js-toggle-edit-modal').magnificPopup({
+        type: 'inline',
+        mainClass: 'mfp-fade',
+        closeOnBgClick: false,
+        closeBtnInside: false,
+        closeOnContentClick: false,
+//         tClose: password.strings.pageClose,
+        removalDelay: 500,
+        tLoading: '',
+        callbacks: {
+          open: function() {
+//             window.setTimeout( function() { document.getElementById('password').focus(); }, 50 );
+            
+          }
+        }
+      });
+    
+    $('.js-toggle-preview-modal').magnificPopup({
+        type: 'iframe',
+        mainClass: 'mfp-fade',
+        closeOnBgClick: false,
+        closeBtnInside: false,
+        closeOnContentClick: false,
+//         tClose: password.strings.pageClose,
+        removalDelay: 500,
+        tLoading: '',
+        callbacks: {
+          open: function() {
+//             window.setTimeout( function() { document.getElementById('password').focus(); }, 50 );
+            
+          },
+          close: function(){
+//               if( contentUpdated ){ location.reload(); }
+          }
+        }
+      });
+//       if ( $('.storefront-password-form .errors').size() ) {
+//         $('.js-toggle-login-modal').click();
+//       }
+  });
+  
+  function addToModal(obj){ 
+//     $target = $(obj).parent().find('.modalContent'); console.log($target);
+//    $('EditModal').html($target);
+    var $handler = $(obj).attr('handler'); console.log($handler);
+    $.ajax({
+      url: '/products/'+$handler,
+      type: 'GET',
+      dataType: 'html',
+      success: function(itemData) { 
+        const regex = /(?=\<\!-- modalContent)[\w\W]+(?=modalContent -->)/g;
+
+        let m;
+        
+        m = regex.exec(itemData);
+        var res= m[0].replace('<!-- modalContent', '');
+        
+        console.log(res);
+
+        document.getElementById('EditModal').innerHTML = res;
+      }
+    });
+  }
+  
+  var cemail = "{{ customer.email }}";
+  
+  function reactClick(obj){
+    //alert('you clicked "'+$(obj).prop('id')+'" of form "'+$(obj).parent().prop('id')+'"');
+    data = $("#"+$(obj).parent().prop('id')).serialize(); 
+    $.ajax({type: "POST",
+            url: "/apps/pepsi-print/product_price/edit",
+            data: { variant_info: data, cemail: cemail },
+            //success:function(result){
+            //$("#sharelink").html(result);
+            //}
+           });
+            
+    var $handler = $(obj).attr('handler'); console.log($handler);
+    $.ajax({
+      url: '/products/'+$handler,
+      type: 'GET',
+      dataType: 'html',
+      success: function(itemData) { 
+        const regex = /(?=\<\!-- modalContent)[\w\W]+(?=modalContent -->)/g;
+
+        let m;
+        
+        m = regex.exec(itemData);
+        var res= m[0].replace('<!-- modalContent', '');
+        
+        console.log(res);
+
+        document.getElementById('EditModal').innerHTML = res;
+      }
+    });           
+  }
+</script>
+
+<script type="text/javascript">
+  var cemail = "{{ customer.email }}"
+  
+var formSubmitting = true;
+var setFormSubmitting = function() { formSubmitting = false; };
+
+window.onload = function() {
+    window.addEventListener("beforeunload", function (e) {
+        if (formSubmitting) {
+            return undefined;
+        }
+      
+        $(window).scrollTop(0);
+
+        var confirmationMessage = 'It looks like you have been editing something. '
+                                + 'If you leave before saving, your changes will be lost.';
+
+        (e || window.event).returnValue = confirmationMessage; //Gecko + IE
+        return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+    });
+};
+  
+$('#bulk_action').bind('click', function(){
+  freez();
+  $.ajax({
+    url: '/apps/pepsi-print/product_configuration/reload_collection',
+    type: 'GET',
+    data: {collection: {% if search_terms contains 'New:' %}"new_to_my,new_to_not"{% else %}"not_to_my"{% endif %}, cemail: cemail, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}"},
+    dataType: 'json',
+    success: function(data){
+           $.unblockUI(); 
+           console.log(JSON.stringify(data));
+           if(200 === Number(data.status)){
+            show_message2('Saved Successfully', true);  
+            formSubmitting = true;
+           }
+           else if(400 === Number(data.status))
+            show_message2(data.status, false);
+    },
+    error: function(){$.unblockUI(); show_message2('Opps!! Something Went Wrong', false); }
+  });
+});
+  
+$(".product-check").bind('change', function(){
+  var $this = this;
+  
+  if ($this.checked){
+    freez();
+    var bool = this.checked ? 1 : 0;
+    $.ajax({
+      url: '/apps/pepsi-print/product_configuration/'+this.value+'/create',
+      type: 'POST',
+      data: {product_id: this.value, cemail: cemail, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
+      dataType: 'json',
+      success: function(data){
+             $.unblockUI(); 
+             if(200 === Number(data.status)){
+//                show_message2('Added Successfully', true); 
+               setFormSubmitting(); $('#bulk_action').removeAttr("disabled");
+               $($this).parent().parent().parent().parent().delay(100).remove(); 
+               if( --product_count == 0){location.reload();} /*.fadeOut('fast', function(){$(this).remove(500);});*/ 
+             }else if(400 === Number(data.status))
+           show_message2(data.status, false);
+      },
+      error: function(){$.unblockUI(); show_message2('Opps!! Something Went Wrong', false);}
+    });
+  }
+  else {
+//     $.ajax({
+//       url: '/apps/pepsi-print/product_configuration/'+this.value+'/remove',
+//       type: 'POST',
+//       data: {product_id: this.value, cemail: cemail, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}"},
+//       dataType: 'json'
+//     });
+  }
+});
+  
+</script>
+{% elsif collection.handle contains "new" or search_terms contains "New:" %}
+<script type="text/javascript">
+  var cemail = "{{ customer.email }}"
+  
+  var formSubmitting = true;
+  var setFormSubmitting = function() { formSubmitting = false; };
+
+  window.onload = function() {
+      window.addEventListener("beforeunload", function (e) {
+          if (formSubmitting) {
+              return undefined;
+          }
+        
+          $(window).scrollTop(0);
+
+          var confirmationMessage = 'It looks like you have been editing something. '
+                                  + 'If you leave before saving, your changes will be lost.';
+
+          (e || window.event).returnValue = confirmationMessage; //Gecko + IE
+          return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+      });
+  };
+    
+  $('#bulk_action').bind('click', function(){
+    freez();
+    $.ajax({
+      url: '/apps/pepsi-print/product_configuration/reload_collection',
+      type: 'GET',
+      data: {collection: {% if search_terms contains 'New:' %}"new_to_my,new_to_not"{% else %}"not_to_my"{% endif %}, cemail: cemail, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}"},
+      dataType: 'json',
+      success: function(data){
+             $.unblockUI(); 
+             console.log(JSON.stringify(data));
+             if(200 === Number(data.status)){
+              show_message2('Saved Successfully', true);  
+              formSubmitting = true;
+             }
+             else if(400 === Number(data.status))
+              show_message2(data.status, false);
+      },
+      error: function(){$.unblockUI(); show_message2('Opps!! Something Went Wrong', false); }
+    });
+  });
+  $(".product-check").bind('change', function(){
+    var $this = this;
+    
+    if ($this.checked){
+      freez();
+      var bool = this.checked ? 1 : 0;
+      $.ajax({
+        url: '/apps/pepsi-print/product_configuration/'+this.value+'/create',
+        type: 'POST',
+        data: {product_id: this.value, cemail: cemail, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
+        dataType: 'json',
+        success: function(data){
+               $.unblockUI(); 
+               if(200 === Number(data.status)){
+                 // show_message2('Added Successfully', true); 
+                 setFormSubmitting(); $('#bulk_action').removeAttr("disabled");
+                 $($this).parent().parent().parent().parent().delay(100).remove(); 
+                 if( --product_count == 0){location.reload();} /*.fadeOut('fast', function(){$(this).remove(500);});*/ 
+               }else if(400 === Number(data.status))
+             show_message2(data.status, false);
+        },
+        error: function(){$.unblockUI(); show_message2('Opps!! Something Went Wrong', false);}
+      });
+    }
+    else {
+      // $.ajax({
+      //   url: '/apps/pepsi-print/product_configuration/'+this.value+'/remove',
+      //   type: 'POST',
+      //   data: {product_id: this.value, cemail: cemail, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}"},
+      //   dataType: 'json'
+      // });
+    }
+  });
+  $(".product-check2").bind('change', function(){
+  var $this = this;
+    if ($this.checked){
+      freez();
+      $.ajax({
+      url: '/apps/pepsi-print/product_configuration/'+this.value+'/remove',
+      type: 'POST',
+      data: {product_id: this.value, cemail: cemail, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}"},
+      dataType: 'json',
+      success: function(data){
+             $.unblockUI(); 
+             if(200 === Number(data.status)){
+               // show_message2('Added Successfully', true); 
+               setFormSubmitting(); $('#bulk_action').removeAttr("disabled");
+               $($this).parent().parent().parent().parent().delay(100).remove(); 
+               setFormSubmitting(); $('#bulk_action').removeAttr("disabled");
+               if( --product_count == 0){location.reload();} /*.fadeOut('fast', function(){$(this).remove(500);});*/ 
+             }else if(400 === Number(data.status))
+               show_message2(data.status, false);
+      },
+      error: function(){$.unblockUI(); show_message2('Opps!! Something Went Wrong', false);}
+    });
+    }
+  });
+</script>
+{% else %}
+<div id="EditModal" class="password-page__login-form1 text-center mfp-hide">
+      
+</div>
+
+<div id="PreviewModal" class="password-page__login-form1 text-center mfp-hide">
+      
+</div>
+
+<script>
+  
+  var handler = '';
+  var obj_this = '';
+  var contentUpdated = '';
+  
+  $(document).ready(function(){
+    $('.js-toggle-edit-modal').magnificPopup({
+        type: 'inline',
+        mainClass: 'mfp-fade',
+        closeOnBgClick: false,
+        closeBtnInside: false,
+        closeOnContentClick: false,
+//         tClose: password.strings.pageClose,
+        removalDelay: 500,
+        tLoading: '',
+        callbacks: {
+          open: function() {
+//             window.setTimeout( function() { document.getElementById('password').focus(); }, 50 );
+              $('.mfp-preloader').addClass('w3-center').html('<i class="fa fa-refresh w3-spin"></i>').show();
+            
+          },
+          close: function(){
+//               if( contentUpdated ){ location.reload(); }
+              document.getElementById('EditModal').innerHTML = '';
+//                 $('#EditModal').html('');  
+          }
+        }
+      });
+    
+    $('.js-toggle-preview-modal').magnificPopup({
+        type: 'iframe',
+        mainClass: 'mfp-fade',
+        closeOnBgClick: false,
+        closeBtnInside: false,
+        closeOnContentClick: false,
+//         tClose: password.strings.pageClose,
+        removalDelay: 500,
+        tLoading: '',
+        callbacks: {
+          open: function() {
+//             window.setTimeout( function() { document.getElementById('password').focus(); }, 50 );
+            
+          },
+          close: function(){
+//               if( contentUpdated ){ location.reload(); }
+          }
+        }
+      });
+//       if ( $('.storefront-password-form .errors').size() ) {
+//         $('.js-toggle-login-modal').click();
+//       }
+  });
+  
+  function contentChanged(id){ $('#edit-variant-frm-'+id+' input[type = "submit"]').removeAttr('disabled'); }
+  
+  function addToModal(obj){ 
+    obj_this = obj;
+//     $target = $(obj).parent().find('.modalContent'); console.log($target);
+//    $('EditModal').html($target);
+    var $handler = $(obj).attr('handler'); //console.log($handler);
+    $.ajax({
+      url: '/products/'+$handler,
+      type: 'GET',
+      dataType: 'html',
+      success: function(itemData) { 
+        const regex = /(?=\<\!-- modalContent)[\w\W]+(?=modalContent -->)/g;
+
+        let m;
+        
+        m = regex.exec(itemData);
+        var res= m[0].replace('<!-- modalContent', '');
+        
+        //console.log(res);
+
+        $('.mfp-preloader').hide();
+        document.getElementById('EditModal').innerHTML = res;
+//         $('#EditModal').html(res);
+      }
+    });
+  }
+  
+  var cemail = "{{ customer.email }}";
+  
+  function reactClick(e, obj){
+    e.preventDefault();
+    e.stopPropagation();
+    freez();
+    var cemail = "{{ customer.email }}"
+
+    //alert('you clicked "'+$(obj).prop('id')+'" of form "'+$(obj).parent().prop('id')+'"');
+//     var product_arry =  $(obj).prop('id').split("edit-variant-submit-");
+//     product_id = product_arry[1];
+//     data = $("#"+$(obj).parent().prop('id')).serializeArray(); 
+    data = $(obj).serializeArray(); 
+    console.log(JSON.stringify(data));
+    $.ajax({type: "POST",
+            url: "/apps/pepsi-print/product_price/create_option",
+            data: { variant_info: data, product_id: $(obj).attr('product_id'), cemail: cemail, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
+            success:function(result){
+//               $("#statusMessage").html("Saved successfully.");
+//               $("#statusMessage").addClass('successmsg');
+                 $.unblockUI; show_message2('Saved Successfully', true);
+                 $('.mfp-preloader').addClass('w3-center').html('<i class="fa fa-refresh w3-spin"></i>').show();
+                 document.getElementById('EditModal').innerHTML = '';
+                 addToModal(obj_this);
+                 contentUpdated = true;
+            },
+            error: function () {
+//               $('#statusMessage').html('Error occured while saving.');
+//               $("#statusMessage").addClass('errormsg');
+                $.unblockUI; show_message2('Error occured while saving', false);
+   
+            }
+           });
+            
+//     var $handler = $(obj).attr('handler'); console.log($handler);
+//     $.ajax({
+//       url: '/products/'+$handler,
+//       type: 'GET',
+//       dataType: 'html',
+//       success: function(itemData) { 
+//         const regex = /(?=\<\!-- modalContent)[\w\W]+(?=modalContent -->)/g;
+
+//         let m;
+        
+//         m = regex.exec(itemData);
+//         var res= m[0].replace('<!-- modalContent', '');
+        
+//         console.log(res);
+
+//         document.getElementById('EditModal').innerHTML = res;
+//       }
+//     });           
+  }
+</script>
+
+<script type="text/javascript">
+  var cemail = "{{ customer.email }}"
+  
+var formSubmitting = true;
+var setFormSubmitting = function() { formSubmitting = false; };
+
+window.onload = function() {
+    window.addEventListener("beforeunload", function (e) {
+        if (formSubmitting) {
+            return undefined;
+        }
+      
+        $(window).scrollTop(0);
+
+        var confirmationMessage = 'It looks like you have been editing something. '
+                                + 'If you leave before saving, your changes will be lost.';
+
+        (e || window.event).returnValue = confirmationMessage; //Gecko + IE
+        return confirmationMessage; //Gecko + Webkit, Safari, Chrome etc.
+    });
+};
+  
+function msg(){
+  try{ alert(''); }
+  catch(e){msg();}
+}
+  
+$('#bulk_action').bind('click', function(){
+  freez();
+  $.ajax({
+    url: '/apps/pepsi-print/product_configuration/reload_collection',
+    type: 'GET',
+    data: {collection: "my_to_not", cemail: cemail, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}"},
+    dataType: 'json',
+    success: function(data){
+           $.unblockUI(); 
+           if(200 === Number(data.status)){
+            show_message2('Saved Successfully', true);  
+            formSubmitting = true;
+           }
+           else if(400 === Number(data.status))
+            show_message2(data.status, false);
+    },
+    error: function(){$.unblockUI(); show_message2('Opps!! Something Went Wrong', false); }
+  });
+});
+  
+$(".product-check2").bind('change', function(){
+  var $this = this;
+  if ($this.checked){
+    var bool = this.checked ? 1 : 0;
+//     $.ajax({
+//       url: '/apps/pepsi-print/product_configuration/'+this.value+'/create',
+//       type: 'POST',
+//       data: {product_id: this.value, cemail: cemail, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" },
+//       dataType: 'json'
+//     });
+  }
+  else {
+    freez();
+    $.ajax({
+      url: '/apps/pepsi-print/product_configuration/'+this.value+'/remove',
+      type: 'POST',
+      data: {product_id: this.value, cemail: cemail, ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}"},
+      dataType: 'json',
+      success: function(data){
+             $.unblockUI(); 
+             if(200 === Number(data.status)){
+//                show_message2('Removed Successfully', true); 
+               $($this).parent().parent().parent().parent().fadeOut().delay(100).remove(); 
+               setFormSubmitting(); $('#bulk_action').removeAttr("disabled"); 
+               if( --product_count == 0){location.reload();} /*fadeOut('fast', function(){$(this).remove(500);});*/ 
+             }else if(400 === Number(data.status))
+                show_message2(data.status, false);
+      },
+      error: function(){$.unblockUI(); show_message2('Opps!! Something Went Wrong', false); }
+    });
+  }
+});
+  
+function toggleFunc(variant_id, obj){
+  if($(obj).is(':checked')){
+      $(obj).attr('title', 'Uncheck to disable this variant.');
+    $(variant_id).attr({'pattern':'^(?!0*(\\.0+)?$)(\\d+|\\d*\\.\\d{1,2})$', 'title':'Enter Non-zero price for enabled variant.'}).removeAttr('readonly').removeClass('disabled-input');
+      $(variant_id).attr('value','0.00').trigger('change');
+    }
+    else{
+      $(obj).attr('title', 'Check to enable this variant.');
+      $(variant_id).attr('pattern', '^(\\d+((\\.)\\d{1,2})?)$').attr('readonly', 'readonly').addClass('disabled-input');
+      $(variant_id).attr('value','0.00').trigger('change');
+    }
+}
+</script>
+{% endif %}
+
+<script>
+  function showHide(obj,status){
+    if(status){
+      $(obj).find('.task-wrapper1').show();
+    }else
+      $(obj).find('.task-wrapper1').hide();
+  }
+
+  function toggleAction(obj){
+    $(obj).find('.task-wrapper1').toggle();
+  }
+</script>
+<style>
+  .mfp-content {
+    max-width: calc(85%);
+    padding: 50px 0;
+  }
+  .task-wrapper1{
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    padding: 20% 0px;
+    margin: 0px;
+    background-color: rgba(255,255,255,0.5);
+  }
+  .grid-link:hover{
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+  }
+</style>
+{% endif %}
