@@ -20,7 +20,7 @@
       	{{ "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css" | stylesheet_tag }}
 		{{ "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" | stylesheet_tag }}
 		{{ "https://www.w3schools.com/w3css/4/w3.css" | stylesheet_tag }}
-		{{ "https://daneden.github.io/animate.css/animate.min.css" | stylesheet_tag }}
+		{{ "https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css" | stylesheet_tag }}
       	
 		{% comment %}{{ "https://docs.handsontable.com/pro/1.7.0/bower_components/handsontable-pro/dist/handsontable.full.min.css" | stylesheet_tag }}{% endcomment %}
 		{% comment %}{{ "//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" | stylesheet_tag }}{% endcomment %}
@@ -1429,11 +1429,17 @@
                             	show_message4("Select Brand before Selecting Tags", false);
                               	return false;
                             }
+                          
                           var selectedTags = instance.getDataAtCell(row, col+1);
-                          if(selectedTags == null)selectedTags = ""
+                          if(selectedTags == null) selectedTags = "";
                           selectedTags = (selectedTags.length > 0) ? selectedTags.split(',') : []; console.log('selectedTags:',selectedTags);
 
-                  		  $("#expired_date, #template_id").val('');
+                    		  $("#expired_date, #template_id").val('');
+
+                          var selectedOptions = instance.getDataAtCell(row, instance.propToCol('option1_value'));
+                          if(selectedOptions == null) selectedOptions = "";
+                          var optBkpData = selectedOptions;
+                          selectedOptions = (selectedOptions.length > 0) ? (window["selectedOptions"]||selectedOptions).split(',') : [];
 
                           $('#multiselectTag, #multiselectTag_to').html('');
                           function updateTags(tagList){
@@ -1468,7 +1474,7 @@
                     		  	if(tag.indexOf('ExpireAt:') != -1){
                               		$("#expired_date").val(tag);
                               	}else if(tag.indexOf('MODTemplate:') != -1){
-                              		$("#template_id").val(tag).trigger('change');
+                              		$("#template_id").val(tag).trigger('change').attr('selected_val', tag);
                               	}
                     		  }else if(newTagList.indexOf(tag) == -1){//console.log('currTags:',tag);
                                 var tag_regions = '', pre = '', post = '';
@@ -1573,6 +1579,24 @@
                             selectedTags += txt + newTagList.concat([$("#expired_date").val(), $("#template_id").val()]).join(","); //+ vendorTag + ","
                             selectedTags = $.unique(selectedTags.split(",")).join(",");
                             instance.setDataAtCell(row, col+1, selectedTags); 
+                            select_val = $("#template_id").val();
+                            selected_val = $("#template_id").attr("selected_val");
+
+                            if(Boolean(selected_val)){
+                              old_templateElements = defaultTemplateList.filter(function(obj){ if(Object.values(obj)[0] == selected_val.split(':')[1]) return obj; }).map(function(obj){ return Object.keys(obj)[0]; });
+                            }else
+                              old_templateElements = [];
+                            $("#template_id").attr("selected_val", select_val);
+                            templateElements = defaultTemplateList.filter(function(obj){ if(Object.values(obj)[0] == select_val.split(':')[1]) return obj; }).map(function(obj){ return Object.keys(obj)[0]; });
+                            let setA = new Set(selectedOptions);//console.log("selectedOptions", selectedOptions);
+                            let setB = new Set(old_templateElements);//console.log("old_templateElements", old_templateElements);
+                            let setC = new Set(templateElements);//console.log("templateElements", templateElements);
+                            mergedOptions = [...union(difference(setA, setB), setC)];//console.log("mergedOptions", mergedOptions);
+                            instance.setDataAtCell(row, instance.propToCol('option1_value'), mergedOptions.join(','));
+                            defaultPrices = instance.getDataAtCell(row, instance.propToCol('default_price'));
+                            defaultPrices = Boolean(defaultPrices) ? JSON.parse(defaultPrices) : {};
+                            instance.setDataAtCell(row, instance.propToCol('variant_price'), mergedOptions.map(function(x){ return defaultPrices[x]||JSON.parse(defaultPriceList)[x] }).join(','));
+
                             $(this).prop('disabled', 'disabled');
 //                             $("#tagModal").off('hide.bs.modal').one('hide.bs.modal', function(){ $(this).addClass('animated zoomOutDown'); }).modal('hide');
                             $("#tagModal").off('hide.bs.modal').animateCss('slideOutLeft', function(modal){ $(modal).modal('hide'); });
@@ -1624,11 +1648,17 @@
 				      Handsontable.dom.addEvent(btn, 'mousedown', function (e){
 				        e.preventDefault(); // prevent selection quirk
                         var productType_ = instance.getDataAtCell(row, instance.propToCol('type'));
-                          if(!productType_){
-                              instance.selectCell{% comment %}ByProp{% endcomment %}(row, 'type');
-                              show_message4("Select Type before Selecting Elements", false, false);
-                              return false;
-                          }
+                        if(!productType_){
+                            instance.selectCell{% comment %}ByProp{% endcomment %}(row, 'type');
+                            show_message4("Select Type before Selecting Elements", false, false);
+                            return false;
+                        }
+                        var productTags_ = instance.getDataAtCell(row, instance.propToCol('tags'));
+                        if(productTags_.indexOf('MODTemplate:') == -1){
+                            instance.selectCell{% comment %}ByProp{% endcomment %}(row, 'tags');
+                            show_message4("Select Template before Selecting Elements", false, false);
+                            return false;
+                        } 
                         //var pos_arr = elementTypePOS; //'Aisle Interrupters,Banner,Case Card,Circular Static Cling,Horizontal Static,Mini Pole,Other,Wobbler,Outdoor Pole Sign,Poster,Pump Topper,Push Pull,Rail Strip Pages,Shelf Talker,Static Cling,Table Tent'.split(',');
                         var selectedOptions = instance.getDataAtCell(row, col+2);
                         if(selectedOptions == null)selectedOptions = ""

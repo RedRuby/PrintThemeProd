@@ -599,8 +599,10 @@
     if(query.search != undefined)   
       data["search"] = null;
 
-    if(window['status_changed_'+order_id])
-      data["order_status"] = null;
+    if(window['status_changed_'+order_id]){
+      data["order_status"] = data["assigned_designer"] = null;
+      prev_page_params = params = '';
+    }
 
     // console.log(JSON.stringify(data));
 
@@ -643,7 +645,7 @@
                   }
                   if(printer_order){% endif %}
                     $(document).ready(function(){
-                      if(params.length > 0)
+                      if(params.length > 0 || true)
                         $('#account-back_btn').attr('href', '/account'+params);
 
                       History.Adapter.bind(window, 'statechange', function(){ console.log('state outside:', btnState);
@@ -672,11 +674,12 @@
                   }
                   // data = createThumbImg(data);
                 }else{
-                  if(window['order_id_'+order_id] == 1)
+                  if(window['order_id_'+order_id] == 1){
+                    window['status_changed_'+order_id] = true;
                     setTimeout(function() {
                       fetch_Order(order_id, true, null);
-                    }, 10000);
-                  else if(window['order_id_'+order_id] == 2){
+                    }, 1000);
+                  }else if(window['order_id_'+order_id] == 2){
                     {% capture timer %}
                       {% include "timer" with "html", seconds: 30 %}
                     {% endcapture %}
@@ -695,7 +698,8 @@
 
 
           },
-          error: function(){
+          error: function(data){
+            console.log(data);
             show_message4(data.message,false);
           }
 

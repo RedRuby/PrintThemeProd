@@ -1,3 +1,4 @@
+{%- capture common_code -%}
 {% if customer %}
 
   {% assign Role_User = 'general.Role.User' | t %}
@@ -35,7 +36,7 @@
     {% assign region_Distributor = "Region:Distributor" %}
 
     {% assign max_allowed_item_count = 30 %}
-    {% assign max_cart_count_message = "To many product in cart. The recommended unique products count is max_allowed_item_count per order." | replace: 'max_allowed_item_count', max_allowed_item_count %}
+    {% assign max_cart_count_message = "Too many product in cart. The recommended unique products count is max_allowed_item_count per order." | replace: 'max_allowed_item_count', max_allowed_item_count %}
 
     {% if customer.tags contains region_NorthEast or customer.tags contains region_SouthEast or customer.tags contains region_Mountain or customer.tags contains region_California or customer.tags contains region_South or customer.tags contains region_MidWest or customer.tags contains region_MidAtlantic or customer.tags contains region_GreatLakes or customer.tags contains region_External or customer.tags contains region_NationalCustomer or customer.tags contains region_FranchiseBottler or customer.tags contains region_Distributor %}
       {% if customer.tags contains region_NorthEast %}
@@ -318,6 +319,51 @@
 {% endif %}
 
 
+{% if customer-account-common-code == 'sub-status-option-code' %}
+  <select sub_status="{% raw %}{{ sub_status }}{% endraw %}" status="{% raw %}{{ order_status }}{% endraw %}" order_name="{% raw %}{{ order_name }}{% endraw %}" order_id="{% raw %}{{ id }}{% endraw %}" printer_id="{% raw %}{{ printer_id }}{% endraw %}" onchange="if(confirm('Please click \'OK\' to confirm the sub-status change for order {% raw %}{{ order_name }}{% endraw %} to \''+$(this).find('option:selected').text()+'\'')){chnageOrderSubstatus(this);}" style="max-width: 150px; margin: 0 auto; display: inline-block;">
+    <option valuea="OrderUnassigned" value="Printer unassigned" disabled selected title="Order Unassigned">Order Unassigned</option>
+    <option valuea="OrderAssigned" value="Printer assigned" disabled1 title="Order Assigned">Order Assigned</option>
+    <option valuea="InQueue" value="Proof In Development" title="Proof In Development">Proof In Development</option>
+    <option valuea="InQueueWFA" value="Waiting on Field Approval" title="Waiting on Field Approval">Waiting on Field Approval</option>
+    <option valuea="InQueueWBA" value="Waiting on Brand Approval" title="Waiting on Brand Approval">Waiting on Brand Approval</option>
+    <option valuea="InQueueWAA" value="Waiting on ASM Approval" title="Waiting on ASM Approval">Waiting on ASM Approval</option>
+    <option valuea="OnHold" value="On Hold" title="On Hold">On Hold</option>
+    <option valuea="InProduction" value="In Production" title="In Production">In Production</option>
+    <option valuea="InProcessing" value="Printed – In Processing" title="Printed – In Processing">Printed – In Processing</option>
+  </select>
+{% endif %}
+
+
+{% if customer-account-common-code == 'sub-status-filter-option-code' %}
+  <small><label for="select_tl"><br class="br-hide">Additional Filters</label></small>
+  <select id="select_tl" onchange="params={page: '1', order_status: '', assigned_printer: '', fulfillment_status: '', sub_status: ''}; params[$(this).find('option:selected').attr('filter_attr')]=this.value; updateState(params);" name="fulfillment_status">
+      <option value="" selected>Clear Additional Filters</option>
+      <optgroup label="Order status">
+        <option filter_attr="fulfillment_status" value="fulfilled">Fulfilled</option>
+        <option filter_attr="fulfillment_status" value="unfulfilled">Unfulfilled</option>
+        <option filter_attr="order_status" value="cancelled">Cancelled</option>
+      </optgroup>
+      <optgroup label="Unfulfilled - Sub Status">
+        {% if customer_role_tag == Role_ASM %}
+        <option filter_attr="assigned_printer" value="notassigned">Order Not Assigned</option>
+        <option filter_attr="assigned_printer" value="assigned">Order Assigned</option>
+        {% comment %}
+        <option value="OrderUnassigned" filter_attr="sub_status" valuea="Printer unassigned" disabled selected title="Order Unassigned">Order Unassigned</option>
+        <option value="OrderAssigned" filter_attr="sub_status" valuea="Printer assigned" disabled1 title="Order Assigned">Order Assigned</option>
+        {% endcomment %}
+        {% endif %}
+        <option value="InQueue" filter_attr="sub_status" valuea="In Queue – Proof In Development" title="Proof In Development">Proof In Development</option>
+        <option value="InQueueWFA" filter_attr="sub_status" valuea="In Queue – Waiting on Field Approval" title="Waiting on Field Approval">Waiting on Field Approval</option>
+        <option value="InQueueWBA" filter_attr="sub_status" valuea="In Queue – Waiting on Brand Approval" title="Waiting on Brand Approval">Waiting on Brand Approval</option>
+        <option value="InQueueWAA" filter_attr="sub_status" valuea="In Queue – Waiting on ASM Approval" title="Waiting on ASM Approval">Waiting on ASM Approval</option>
+        <option value="OnHold" filter_attr="sub_status" valuea="On Hold" title="On Hold">On Hold</option>
+        <option value="InProduction" filter_attr="sub_status" valuea="In Production" title="In Production">In Production</option>
+        <option value="InProcessing" filter_attr="sub_status" valuea="Printed – In Processing" title="Printed – In Processing">Printed – In Processing</option>
+      </optgroup>
+  </select>
+{% endif %}
+
+
 {% if customer-account-common-code == 'table-header-code' %}
   <th class="text-center"><span class="th-span">{{ 'customer.orders.order_number' | t }}</span><div class="btn-group printModeExclude"><button type="button" class="name_asc_btn" onclick="updateState({order_by_name: 'ASC', order_by_order_by: '', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-up"></i></button><button type="button" class="name_desc_btn" onclick="updateState({order_by_name: 'DESC', order_by_order_by: '', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-down"></i></button></div></th>
   <th class="text-center"><span class="th-span">Order By</span><div class="btn-group printModeExclude"><button type="button" class="order_by_asc_btn" onclick="updateState({order_by_name: '', order_by_order_by: 'ASC', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-up"></i></button><button type="button" class="order_by_desc_btn" onclick="updateState({order_by_name: '', order_by_order_by: 'DESC', order_by_discount_codes: '', order_by_date: '', order_by_fulfillment_status: '', page: '1'});"><i class="fa fa-caret-down"></i></button></div></th>
@@ -374,7 +420,7 @@
       </div>
     </div>
     <div class="grid__item one-third text-right">
-      <label for="per_page" style="display:inline-block;" class="w3-margin-top"><div class="placeholdLoader">Per Page: &nbsp;</div></label>
+      <label for="per_page" style="display:inline-block;" class="w3-margin-top"><div class="{% if fs_shop_active %}placeholdLoader{% endif %}">Per Page: &nbsp;</div></label>
       <select id="per_page" class="per_page {% if fs_shop_active %}placeholdLoader{% endif %}" style="max-width:60px; display:inline-block;" onchange="updateState({page: '1',per_page: this.value});updatePerPage(this.value);">
         <option selected value='10'>10</option>
         <option {% if customer_per_page == '20' %}selected{% endif %} value='20'>20</option>
@@ -420,7 +466,6 @@
 {% endif %}
 
 
-
 {% comment %}<script>{% endcomment %}
 
 
@@ -442,6 +487,7 @@
   var var_customer_id = '';
   var var_order_status = '';
   var var_search = '';
+  var var_sub_status = '';
 
   var order_by_params = {order_by_name: '', order_by_order_by: '', order_by_discount_codes: '', order_by_date: '', order_by_division: '', order_by_channel: '', order_by_status: ''};
 
@@ -559,6 +605,7 @@
       var_customer_id = (query.customer_id != undefined) ? query.customer_id : {% if customer_role_tag == Role_User %}'{{ customer.id }}'{% else %}''{% endif %};
     var_order_status = (query.order_status != undefined) ? query.order_status : '';
     var_search = (query.search != undefined) ? query.search : '';
+    var_sub_status = (query.sub_status != undefined) ? query.sub_status : '';
 
     freez();
     var data = { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}" };
@@ -585,6 +632,7 @@
     if(var_customer_id.length != 0){ data.customer_id = var_customer_id; $('#select_rg option[value="'+var_customer_id+'"]').prop('selected','selected'); }
     if(var_order_status.length != 0){ data.order_status = var_order_status; $('#select_tl option[value="'+var_order_status+'"]').prop('selected','selected'); }
     if(var_search.length != 0){ data.search = var_search; $('#search').val(var_search); }
+    if(var_sub_status.length != 0){ data.sub_status = var_sub_status; $('#select_tl option[value="'+var_sub_status+'"]').prop('selected','selected'); }
 
     {% comment %}console.log(JSON.stringify(data));{% endcomment %}
 
@@ -732,6 +780,7 @@
     if(param.customer_id != undefined)data.customer_id = param.customer_id; else if(var_customer_id.length != 0)data.customer_id = var_customer_id;
     if(param.order_status != undefined)data.order_status = param.order_status; else if(var_order_status.length != 0)data.order_status = var_order_status;
     if(param.search != undefined)data.search = param.search; else if(var_search.length != 0)data.search = var_search;
+    if(param.sub_status != undefined)data.sub_status = param.sub_status; else if(var_sub_status.length != 0)data.sub_status = var_sub_status;
 
     //     console.log(JSON.stringify(data))
     data = removeEmpty(data);
@@ -796,6 +845,8 @@
     //        myArray[i]["order_date"] = dateFormat(new Date(date[0]), "mmmm dd, yyyy");
           if(myArray[i]["fulfillment_status"] === "fulfilled"){data["orders"][i]["other_status"] = "unfulfilled";}
           else{data["orders"][i]["other_status"] = "fulfilled";}
+
+          data["orders"][i]["sub_status"] = data["orders"][i]["sub_status"].replace('In Queue – ', '');
 
           if(data["orders"][i]["cancel_status"].length > 0) data["orders"][i]["order_status"] = "cancelled";
           else data["orders"][i]["order_status"] = data["orders"][i]["fulfillment_status"];
@@ -1319,4 +1370,41 @@
   </script>
   {% endif %}
 
+  {% if customer-account-common-code == "change-order-substatus-method" %}
+    <script>
+    function chnageOrderSubstatus(obj){
+      params = { cid: "{{ customer.id }}", cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", crole: "{{ customer_role_tag }}", order_name: $(obj).attr('order_name'), shopify_order_id: $(obj).attr('order_id'), status: $(obj).attr('status'), sub_status: obj.value };
+      console.log("params:", params);
+      freez();
+      $.ajax({
+          url: "/apps/pepsi-print/order_configuration/change_sub_status",
+          data: params,
+          dataType: 'json',
+          type: "POST",
+          success:function(data) {
+            console.log(data);
+            {% if template contains "account" %}
+              fetch_Orders();
+            {% elsif template contains "order" %}
+              fetch_Order(order_id);
+            {% endif %}
+            show_message4((data.message || "Updated Successfully..!"), true);
+          },
+          error:function(data) {
+            console.log(data);
+            if(typeof data != "object") data = data.responseJSON;
+            console.log(data);
+            show_message4((data.message || "Some Error Occured..!"), false); 
+            $(obj).val($(obj).attr('sub_status'));
+          },
+          complete:function(data) {
+            //defreez();
+          }
+         });
+     }
+     </script>
+  {% endif %}
+
 {% comment %}</script>{% endcomment %}
+{%-endcapture-%}
+{{- common_code -}}

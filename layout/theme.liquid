@@ -127,7 +127,7 @@
     </html>
 {% else %}
 
-{% if request.path contains '/apps/pepsi-print/collection_response/admin_analytics' or request.path contains '/apps/pepsi-print/collection_response/daily_pps_dashbaord' %}
+{% if request.path contains '/apps/pepsi-print/collection_response/admin_analytics' or request.path contains '/apps/pepsi-print/collection_response/daily_pps_dashbaord' or request.path contains '/apps/pepsi-print/collection_response/quarter_product_dashboard' %}
   {% layout 'none' %}
   {{ content_for_layout }}
   {% continue %}

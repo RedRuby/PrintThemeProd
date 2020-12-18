@@ -123,6 +123,8 @@
             {% endif %}
           </div>
 
+          <div class="sku_container" style="display: none;"><b>SKU: </b><span class="sku_value">{{ product.selected_or_first_available_variant.sku }}</span></div>
+
           {% for variant in product.variants %}
               {% if 'Aisle Interrupters,Banner,Case Card,Circular Static Cling,Horizontal Static,Mini Pole,Other,Wobbler,Outdoor Pole Sign,Poster,Pump Topper,Push Pull,Rail Strip Pages,Shelf Talker,Static Cling,Table Tent' contains variant.option1 %}
                 {% assign has_post_descipt_note = true %}
@@ -304,7 +306,8 @@
                   <input type="text" readonly disabled1 name="properties[__Total Cooler Header Area(H x W)]" value="1"/>
                   <input type="text" readonly disabled1 name="properties[__Cooler Header Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
               {% else %}
-
+                  <input type="text" readonly disabled name="properties[__Total Area(H x W)]" value="1"/>
+                  <input type="text" readonly disabled name="properties[__Calculated Unit Price]" value="{{ product.selected_or_first_available_variant.price | money_with_currency | remove:' USD' }}"/>
               {% endif %}
             </div>
 
@@ -471,18 +474,24 @@
     $(window).load(function(){
      {% if product.options.size == 2 %} mimic();console.log('region selected');{% endif %}
       $('#productSelect-1').change();
-      $('#ProductPrice').show('slow');
+      $('#ProductPrice, .sku_container').show('slow');
       {% if product.tags contains customer_region_tag and cart.items.size <= max_allowed_item_count %}
       	if($('#AddToCart').is(':enabled') || $('[name = "id"]').length > 0)
           $('#AddToCart2, #AddToCart').removeAttr('disabled');
       {% endif %}
       $('#productSelect-option-0').bind('change', function(e) {
        	var url = document.URL.replace("{{ shop.url }}", '');
-   		$('#return_to').val(url);
+ 		    $('#return_to').val(url);
         if($(this).text().indexOf('Banner') !== -1){
           setBSO($(this).find('option:selected').text());
         }
-     });
+        
+        $('[data-option-name^="custom-element-"], label.custom-element').hide().find('[name^="properties["]').prop('disabled', true).val('');
+        $('[data-option-name$="-size-options"]').hide().find('select[name^="properties["]').prop('disabled', true);
+        if($('[data-option-name$="'+$(this).val().toLowerCase().replace(' ', '-')+'-size-options"]').length){
+          $('[data-option-name$="'+$(this).val().toLowerCase().replace(' ', '-')+'-size-options"]').show().find('[name^="properties["]').prop('disabled', false).trigger('change');;
+        }
+     }).trigger('change');
 
      $('input[type="file"]').before("<div class='product-customizer-option-description'>Supported file types: '*.jpg', '*.png' and '*.pdf' with maximum file size 20MB </div>").bind('change', async function(){
             var file = this.files[0];
@@ -598,12 +607,12 @@
 //     $('#productSelect-option-0 option:eq('+$index+')').prop('selected', true)
 //     $('#productSelect-option-0').change();
 //     $('#productSelect-option-1 option:eq('+'{{ select_index }}'+')').prop('selected', 'selected').change();
-	$('#productSelect-option-1 option[value="{{ customer_region_tag }}"]').prop('selected', 'selected').change();
+	$('#productSelect-option-1 option[value="{{ customer_region_tag }}"]').prop('selected', 'selected').trigger('change');
 
   }
 
   function elemntSelect(index){
-  	$('#productSelect-option-0 option:eq('+index+')').prop('selected', 'selected').change();
+  	$('#productSelect-option-0 option:eq('+index+')').prop('selected', 'selected').trigger('change');
   }
 
   $(document).ready(function(){
@@ -671,7 +680,41 @@
   });
 
   function setUpElements(){
-  	if($('[name="id"]').text().toLowerCase().indexOf('window mesh') != -1){
+    $('[data-option-name$="-size-options"], [data-option-name^="custom-element-"], label.custom-element').hide().find('[name^="properties["]').prop('disabled', true);
+
+    $('[data-option-name$="-size-options"] select[name^="properties["]').on('change', function(){
+      if(this.value.toLowerCase().indexOf('custom size') != -1){
+        $('[data-option-name^="custom-element-"], label.custom-element').show().find('[name^="properties["]').prop('disabled', false).trigger('input');
+        $('[name="properties[__Total Area(H x W)]"], [name="properties[__Calculated Unit Price]').prop('disabled', false);
+      }else{
+        $('[data-option-name^="custom-element-"], label.custom-element').hide().find('[name^="properties["]').prop('disabled', true).val('');
+        $('[name="properties[__Total Area(H x W)]"], [name="properties[__Calculated Unit Price]').prop('disabled', true);
+        selected_variant_price = parseFloat(prod.variants.find(function(x){ return x.id == Number($('[name="id"]').val()) }).price/100).toFixed(2);
+        $('#ProductPrice').text( '$'+selected_variant_price );
+      }
+    });
+
+    var $custom_size = $('[name^="properties[Custom Element "]');
+    if($custom_size.length == 2){
+      $('[data-option-name^="custom-element-"]').addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend('<label class="custom-element">Enter Custom Size Width/Height in INCHES (required)</label>');
+      $('[data-option-name^="custom-element-"] label').hide();
+      $('[name^="properties[Custom Element "]').attr('style', 'width:100% !important;').off('input change').on('input change', function(){
+        cal_prod_price = 0.00;
+        cal_win_area = 0.00;
+        selected_variant_price = 0.01||parseFloat(prod.variants.find(function(x){ return x.id == Number($('[name="id"]').val()) }).price/100).toFixed(2);
+
+        cal_win_area += parseFloat($('[name^="properties[Custom Element Width"]').val()) * parseFloat($('[name^="properties[Custom Element Height"]').val());
+        cal_prod_price += parseFloat($('[name^="properties[Custom Element Width"]').val()) * parseFloat($('[name^="properties[Custom Element Height"]').val()) * selected_variant_price;
+
+        unit_price = ( addCommas((cal_prod_price).toFixed(2)) ).replace('NaN', '$'+selected_variant_price);
+
+        $('[name="properties[__Total Area(H x W)]"]').val(cal_win_area || 1).prop('disabled', false);
+        $('[name="properties[__Calculated Unit Price]"]').val(unit_price.replace(/,/g, '').replace('$', '')).prop('disabled', false);
+        $('#ProductPrice').text( unit_price );
+      });
+    }
+
+  	else if($('[name="id"]').text().toLowerCase().indexOf('window mesh') != -1){
 
     for(i=1; i<=$("select[name = 'properties[# of Consecutive Windows]'] option").length; i++){
     	$("[data-option-name = 'window-"+i+"-width'], [data-option-name = 'window-"+i+"-height']").addClass('w3-col s6').wrapAll('<div class="w3-row"></div>').first().parent().prepend((i == 1) ? '<label>Window Size(s) (required)</label>' : '');

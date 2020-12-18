@@ -31,14 +31,8 @@
             <option value='Region:SouthEast'>SouthEast</option>
           </select>
       </div>
-        <div id="td_select" class="w3-col m3">
-          <small><label for="select_tl"><br class="br-hide">Additional Filters</label></small>
-        <select id="select_tl" onchange="if(this.selectedIndex == 3)updateState({page: '1',fulfillment_status: '',order_status: this.value}); else updateState({page: '1',fulfillment_status: this.value,order_status: ''});" name="fulfillment_status">
-            <option value="" selected>Clear Additional Filters</option>
-            <option value="cancelled">Cancelled</option>
-            <option value="fulfilled">Fulfilled</option>
-            <option value="unfulfilled">Unfulfilled</option>
-          </select>
+      <div id="td_select" class="w3-col m3">
+        {% include 'customer-account-common-code' with 'sub-status-filter-option-code' %}
       </div>
     </div>
   <table id="id02" class="responsive-table w3-table w3-bordered w3-striped">
@@ -54,7 +48,13 @@
       <td class="text-center">{% raw %}{{order_date}}{% endraw %}</td>
       {% comment %}<td>{% raw %}{{payment_status}}{% endraw %}</td>{% endcomment %}
       {% comment %}<td class="text-right">${% raw %}{{total}}{% endraw %}</td>{% endcomment %}
-      <td class="text-center">{% raw %}{{order_status}}{% endraw %}</td>
+      <td class="text-center">
+        <span class="order_status" status="{% raw %}{{order_status}}{% endraw %}">{% raw %}{{order_status}}{% endraw %}</span>
+        <span class="order_sub_status_wrapper" status="{% raw %}{{order_status}}{% endraw %}">
+          <span class="order_sub_status">{% raw %}{{ fulfillment_status }}{% endraw %}</span>/
+          {% raw %}{{ sub_status }}{% endraw %}
+        </span>
+      </td>
     </tr>
   </table>
     

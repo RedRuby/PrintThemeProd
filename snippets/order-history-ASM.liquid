@@ -18,20 +18,8 @@
           <button id="" class="btn btn--secondary btn--full1 clear-filter" type="button" style="display:none;" >Clear Dates</button>
     	  <button id="filter_order" class="btn btn--secondary btn--full1" type="button" >Filter Dates</button>
     	</div>
-      	<div id="td_select" class="w3-col m3">
-          <small><label for="select_tl"><br class="br-hide">Additional Filters</label></small>
-    	  <select id="select_tl" onchange="if(this.selectedIndex == 0)updateState({page: '1',fulfillment_status: '',assigned_printer: '',order_status: ''}); else if(this.selectedIndex <= 2)updateState({page: '1',fulfillment_status: this.value,assigned_printer: '',order_status: ''}); else if(this.selectedIndex > 3)updateState({page: '1',fulfillment_status: '',assigned_printer: this.value,order_status: ''}); else updateState({page: '1',fulfillment_status: '',assigned_printer: '',order_status: this.value});" name="fulfillment_status">
-            <option value="" selected>Clear Additional Filters</option>
-            <optgroup label="Order status">
-              <option value="fulfilled">Fulfilled</option>
-              <option value="unfulfilled">Unfulfilled</option>
-              <option value="cancelled">Cancelled</option>
-            </optgroup>
-            <optgroup label="Vendor Assignment">
-              <option value="assigned">Vendor Assigned</option>
-              <option value="notassigned">Vendor Not Assigned</option>
-            </optgroup>
-          </select>
+    	<div id="td_select" class="w3-col m3">
+        {% include 'customer-account-common-code' with 'sub-status-filter-option-code' %}
     	</div>
     </div>
     
@@ -49,7 +37,13 @@
       <td class="text-center">{% raw %}{{discount_codes}}{% endraw %}</td>
       <td class="text-center">{% raw %}{{order_date}}{% endraw %}</td>
       {% comment %}<td>{% raw %}{{payment_status}}{% endraw %}</td>{% endcomment %}
-      <td class="text-center">{% raw %}{{order_status}}{% endraw %}</td>
+      <td class="text-center">
+        <span class="order_status" status="{% raw %}{{order_status}}{% endraw %}">{% raw %}{{order_status}}{% endraw %}</span>
+        <span class="order_sub_status_wrapper" status="{% raw %}{{order_status}}{% endraw %}">
+          <span class="order_sub_status">{% raw %}{{ fulfillment_status }}{% endraw %}</span>/
+          {%- include 'customer-account-common-code' with 'sub-status-option-code' -%}
+        </span>
+      </td>
       {% comment %}<td class="text-right">${% raw %}{{total}}{% endraw %}</td>{% endcomment %}
       <td id="td_{% raw %}{{id}}{% endraw %}" class="td_select" printer_id="{% raw %}{{printer_id}}{% endraw %}">
         <select id="select_{% raw %}{{id}}{% endraw %}" onchange="changePrintShop(this); this.title = this.options[this.selectedIndex].innerHTML;" title="Select a Vendor to Assign" style="margin:auto 0px;" class="assign-printer" order_id="{% raw %}{{id}}{% endraw %}" status="{% raw %}{{fulfillment_status}}{% endraw %}" status2="{% raw %}{{cancel_status}}{% endraw %}"><option selected disabled title="Select a Vendor to Assign">Select Vendor</option></select>
@@ -71,6 +65,7 @@
 </div>
 
 {% include 'customer-account-common-code' with 'per-page-form' %}
+{% include 'customer-account-common-code' with 'change-order-substatus-method' %}
 
 <script>
   
@@ -229,8 +224,19 @@
                                 	$('#'+$id+' option[select = "selected"]').parent().prop("disabled", "disabled").prop('title', 'Reassign Vendor from Order detail page.').css('cursor', 'not-allowed');
                                 }
                               });
+
+                              {% assign double_curly = '{{' %}
+
+                              $('select[sub_status]:not([sub_status^="{{ double_curly }}"])').each(function(index, obj){
+                                $(obj).find('option[value="'+$(obj).attr('sub_status')+'"]').prop('selected', true).end().prop('title', $(obj).attr('sub_status'));
+                              });
+                              //$('select[sub_status]').filter('[sub_status="In Production"], [sub_status="Printed – In Processing"]').find('option').prop('disabled', false).not('[value="In Production"], [value="Printed – In Processing"]').prop('disabled', true);
+                              $('select[sub_status][printer_id^="{{ double_curly }}"]').prop("disabled", true);
+
                               $('.td_select select[status = "fulfilled"], .editBtn[status = "fulfilled"]').prop("disabled", "disabled").prop('title', 'Can\'t edit fulfilled order.').css('cursor', 'not-allowed');
                               $('.td_select select[status2 = "cancelled"], .editBtn[status2 = "cancelled"]').prop("disabled", "disabled").prop('title', 'Can\'t edit cancelled order.').css('cursor', 'not-allowed');
+
+
                               $.unblockUI();
                       
                     });
@@ -262,7 +268,7 @@
             	//console.log(JSON.stringify(data));
                 data = dataHide(data);
                 w3DisplayData("lineItem2", data.order);
-                $('#OrderEditModal form').attr('order_id', data.order.id);
+                $('#OrderEditModal form').attr('order_id', data.order.id).attr('sub_status', data.order.sub_status);
     			$('#OrderEditModal .orderName').text(data.order.order_name);
 //                 $('#OrderEditModal .subTotal').text(data.order.sub_total);
                 $('#OrderEditModal .grandTotal').text(data.order.total);
@@ -338,7 +344,7 @@
             type: 'POST',
             data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order: order_id, printer_id: $this.val(), cregion: customer_region },
             dataType: 'json',
-            success: function(){$.unblockUI; show_message2('Assigned Successfully.',true); $(obj).prop({'disabled':'disabled', 'title': 'Reassign Vendor from Order detail page.'}).css('cursor', 'not-allowed'); changed = true; },
+            success: function(){fetch_Orders(); show_message2('Assigned Successfully.',true); $(obj).prop({'disabled':'disabled', 'title': 'Reassign Vendor from Order detail page.'}).css('cursor', 'not-allowed'); changed = true; },
             error: function(){$.unblockUI; show_message2('Some Error Occured.',false);}
         });
       

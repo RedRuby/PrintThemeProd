@@ -240,7 +240,12 @@ console.log('no');
                   </li>
           		{% elsif link_handle != 'market-specific' or customer.tags contains Role_Admin %}
                   <li>
-                    <a href="/collections/{{ collection_handle }}/{{ childlink_handle.last |handle}}{{ sort_url_params }}" class="{% if current_tags contains childlink_handle.last %} site-nav--active {% endif %} site-nav__link">{{ childlink.title | escape |remove:'PTT' |remove:'MKT' |remove:'AS:' |remove:'PR:' |remove:'SP:' |remove:'DPT:'}}</a>
+                    {%- assign visibility_filter = blank -%}
+                    {%- assign childlink_handle_last_handle = childlink_handle.last | handle -%}
+                    {%- if link_handle == 'brands' and 'pepsi,mountaindew,gatorade' contains childlink_handle_last_handle -%}
+                    {%- assign visibility_filter = 'Visibility:true' | handle | prepend: '+' -%}
+                    {%- endif -%}
+                    <a href="/collections/{{ collection_handle }}/{{ childlink_handle_last_handle}}{{ visibility_filter }}{{ sort_url_params }}" class="{% if current_tags contains childlink_handle.last %} site-nav--active {% endif %} site-nav__link">{{ childlink.title | escape |remove:'PTT' |remove:'MKT' |remove:'AS:' |remove:'PR:' |remove:'SP:' |remove:'DPT:'}}</a>
                   </li>
           		{% endif %}
           	{% endif %}

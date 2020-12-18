@@ -46,6 +46,15 @@
     <a {% if product_in_region && non_asm != true %}href="{{ item_url }}"{% endif %} title="{{ image_alt  }}">
     {% else %}
     <span {% if product_in_region && non_asm != true %}href="{{ item_url }}"{% endif %} style="position:relative;" onmouseover="showHide(this,true);" onmouseout="showHide(this,false);" class="grid-link text-center">
+      {% assign uploaded_by_me = "UploadedByID:" | append: customer.id %}
+      {%- assign product_tags = product.tags | join: ',' -%}
+      {% assign anonymous = false %}
+      {% unless product_tags contains "UploadedByID:" and product_tags contains "UploadedByEmail:" %}
+        {% assign anonymous = true %}
+      {% endunless %}
+      {% if product.tags contains uploaded_by_me or anonymous == true %}
+      <span style="position: absolute; background-color: #000; color: #fff; width: 100%; padding: 5px; left: 0;">{% if anonymous == true %}Anonymous{% else %}Uploaded By Me{% endif %}</span>
+      {% endif %}
     {% endif %}
       {% comment %}{{ item | img_url: 'medium' | img_tag: image_alt }}{% endcomment %}
       <div style="padding: 20px;">

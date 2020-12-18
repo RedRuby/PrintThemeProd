@@ -37,9 +37,9 @@
       <td class="text-center for-order-split"><input id="item_{% raw %}{{ id }}{% endraw %}" type="checkbox" name="order" value="{% raw %}{{ id }}{% endraw %}" class="checkbox-custom" onchange="itemCheckFunc();" /><label for="item_{% raw %}{{ id }}{% endraw %}" class="checkbox-custom-label"></label></td>
       <td class="w3-text-orange">{% raw %}{{ title }}{% endraw %}</td>
       <td  class="text-center w3-row ">
-        <input class="text-right w3-col m5 order_price" required type="text" pattern="^\d+((\.)\d{1,2})?$" name="order_price[{% raw %}{{ id }}{% endraw %}]" value="{% raw %}{{ price }}{% endraw %}" item_id="{% raw %}{{ id }}{% endraw %}" placeholder="0.00" title="upto two decimal places" onchange="calcTotal(this.getAttribute('item_id'));" />
-        <div class="w3-col m2 w3-row-padding"><h3 style="line-height: 1.8;"> &times; </h3></div>
-        <input class="text-right w3-col m5 order_qty" required type="text" pattern="^\d+$" name="order_qty[{% raw %}{{ id }}{% endraw %}]" value="{% raw %}{{ quantity }}{% endraw %}" item_id="{% raw %}{{ id }}{% endraw %}" onchange="calcTotal(this.getAttribute('item_id'));" />
+        <input class="text-right w3-col m5 order_price w3-margin-0" required type="text" pattern="^\d+((\.)\d{1,2})?$" name="order_price[{% raw %}{{ id }}{% endraw %}]" value="{% raw %}{{ price }}{% endraw %}" item_id="{% raw %}{{ id }}{% endraw %}" placeholder="0.00" title="upto two decimal places" onchange="calcTotal(this.getAttribute('item_id'));" />
+        <div class="w3-col m2 w3-row-padding" style="line-height: 38px;"> &times; </div>
+        <input class="text-right w3-col m5 order_qty w3-margin-0" required type="text" pattern="^\d+$" name="order_qty[{% raw %}{{ id }}{% endraw %}]" value="{% raw %}{{ quantity }}{% endraw %}" item_id="{% raw %}{{ id }}{% endraw %}" onchange="calcTotal(this.getAttribute('item_id'));" />
       </td>
       <td class="order_total text-right" item_id="{% raw %}{{ id }}{% endraw %}">${% raw %}{{total}}{% endraw %}</td>
     </tr>

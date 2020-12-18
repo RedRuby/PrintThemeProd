@@ -1,19 +1,100 @@
 {% include 'customer-account-common-code' with 'theme-layout-code' %}
 
+{%- assign product_tags = product.tags | join: ',' -%}
+{% assign anonymous = false %}
+{% unless product_tags contains "UploadedByID:" and product_tags contains "UploadedByEmail:" %}
+  {% assign anonymous = true %}
+{% endunless %}
+
 <div class="product-single">
   <div class="grid product-single__hero">
     <div class="grid__item post-large--one-half">
-      	<h1>{{ product.title }}</h1>
-        {% assign featured_image = product.selected_or_first_available_variant.featured_image | default: product.featured_image %}
-        <img src="{{ featured_image | img_url: 'large' }}" alt="{{ featured_image.alt | escape }}" id="ProductPhotoImg" {% if section.settings.product_image_zoom_type == 'zoom-in' %} data-zoom="{{ featured_image | img_url: '1024x1024' }}"{% endif %}{% if section.settings.product_image_zoom_type == 'lightbox' %} class="zoom-lightbox"{% endif %} data-image-id="{{ featured_image.id }}">
+      	<h1 class="text-left">{{ product.title }}</h1>
+        
+        {% comment %}{% assign product_region_img = product.images | where: 'alt', customer_region_tag | first %}
+        {% assign region_variant = product.variants | where: 'option2', customer_region_tag | first %}{% endcomment %}
+        {% assign featured_image = region_variant.featured_image | default: product.featured_image %}
+        {% assign uploaded_by_me = "UploadedByID:" | append: customer.id %}
+        <div class="w3-row">
+          <div class="w3-half">
+            <div class="image-wrapper">
+               <img src="{{ featured_image | img_url: '200x200', crop: 'center' }}" alt="{{ featured_image.alt | escape }}" id="ProductPhotoImg_{{ image.id }}" {% if section.settings.product_image_zoom_type == 'zoom-in' %} data-zoom="{{ featured_image | img_url: '1024x1024' }}"{% endif %}{% if section.settings.product_image_zoom_type == 'lightbox' %} class="zoom-lightbox"{% endif %} data-image-id="{{ featured_image.id }}" data-prod-img-id="{{ product.id }}_0">
+
+               {% if product.tags contains uploaded_by_me or anonymous == true %}
+                  <button type="button" class="btn change-btn w3-small" onclick="$(this).next().trigger('click');" title ="Change This Image">Change Image</button>
+                  <input type="file" name="" id="" onchange="encodeImageFileAsURL(this);" data-prodid="{{ product.id }}" data-imgid="{{ product.featured_image.id }}" data-prod-img-id="{{ product.id }}_{{ forloop.index | plus: 5 }}" class="visually-hidden">
+               {% endif %}
+             </div>
+          </div>
+          <div class="w3-half" style="position: relative;">
+            <div class="w3-row">
+              {% for image in product.images offset: 1 limit: 4 %} 
+                {% unless image == product.featured_image %}
+                  <div class="w3-col s6">
+                    <div class="image-wrapper">  
+                      <img src="{{ image | img_url: '100x100', crop: 'center' }}" alt="{{ image.alt | escape }}" id="ProductPhotoImg_{{ image.id }}" {% if section.settings.product_image_zoom_type == 'zoom-in' %} data-zoom="{{ image | img_url: '1024x1024' }}"{% endif %}{% if section.settings.product_image_zoom_type == 'lightbox' %} class="zoom-lightbox"{% endif %} data-image-id="{{ image.id }}" data-prod-img-id="{{ product.id }}_{{ forloop.index }}">
+                      <div class="psudo-image"></div>
+                      {% if product.tags contains uploaded_by_me or anonymous == true %}
+                        <button type="button" class="btn change-btn w3-small" onclick="$(this).next().trigger('click');" title ="Change This Image">Change Image</button>
+                        <input type="file" name="" id="" onchange="encodeImageFileAsURL(this);" data-prodid="{{ product.id }}" data-imgid="{{ image.id }}" data-prod-img-id="{{ product.id }}_{{ forloop.index | plus: 5 }}" class="visually-hidden">
+                     {% endif %}
+                   </div>
+                  </div>
+                {% endunless %}
+             {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% if product.images.size > 5 %}
+        <div class="w3-row">
+          {% for image in product.images offset: 5 %} 
+              {% unless image == product.featured_image %}
+                <div class="w3-col s3">
+                  <div class="image-wrapper">
+                    <img src="{{ image | img_url: '100x100', crop: 'center' }}" alt="{{ image.alt | escape }}" id="ProductPhotoImg_{{ image.id }}" {% if section.settings.product_image_zoom_type == 'zoom-in' %} data-zoom="{{ image | img_url: '1024x1024' }}"{% endif %}{% if section.settings.product_image_zoom_type == 'lightbox' %} class="zoom-lightbox"{% endif %} data-image-id="{{ image.id }}" data-prod-img-id="{{ product.id }}_{{ forloop.index | plus: 5 }}">
+                    <div class="psudo-image"></div>
+                    {% if product.tags contains uploaded_by_me or anonymous == true %}
+                        <button type="button" class="btn change-btn w3-small" onclick="$(this).next().trigger('click');" title ="Change This Image">Change Image</button>
+                        <input type="file" name="" id="" onchange="encodeImageFileAsURL(this);" data-prodid="{{ product.id }}" data-imgid="{{ image.id }}" data-prod-img-id="{{ product.id }}_{{ forloop.index | plus: 5 }}" class="visually-hidden">
+                     {% endif %}
+                   </div>
+                </div>
+              {% endunless %}
+           {% endfor %}  
+        </div>
+        {% endif %}
+        <div class="text-left">
+          <br><br>
+          {% comment %}<button type="button" class="btn" onclick="" title="Remove Image and Set Back to Default">Remove Image</button>{% endcomment %}
+
+          {%- if product_tags contains 'UploadedAt:' -%}
+            {% assign uploaded_at = product_tags | split: 'UploadedAt:' | last | split: ',' | first %}
+            <p class="" style=""><b>Uploaded At:</b> {{ uploaded_at }}</p>
+          {%- endif -%}
+          {% if product.tags contains uploaded_by_me or anonymous == true %}
+            <button type="button" class="btn" onclick="$(this).next().trigger('click');" title ="Add Another Image">Add Image</button>
+            <input type="file" name="" id="" onchange="encodeImageFileAsURL(this);" data-prodid="{{ product.id }}" data-imgid="" class="visually-hidden">
+            {% if anonymous == true %}
+              <br><br><b>UploadedBy:</b> Anonymous
+            {% endif %}
+          {% else %}
+            {% if product_tags contains 'UploadedByEmail:' %}
+              {% assign uploaded_by = product_tags | split: 'UploadedByEmail:' | last | split: ',' | first %}
+              {% assign uploaded_by_id = product_tags | split: 'UploadedByID:' | last | split: ',' | first %}
+              <p id="uploader_details_{{ product.id }}">
+              <b>UploadedBy:</b> <a class="name" href="mailto:{{ uploaded_by }}"><i class="fa fa-spin fa-refresh"></i><script>getCustomer({{ product.id }}, {{ uploaded_by_id }});</script></a>
+              </p>
+            {% endif %}
+          {% endif %}
+        </div>
     </div>
     <span class="grid__item post-large--one-half">
       {% for option in product.options_with_values limit:1 %}
         {% assign option_name = option.name %}
       {% endfor %}
-      <h2>Select Element(s) and Edit Price(s)</h2>
+      <h2 class="text-left">Select Element(s) and Edit Price(s)</h2>
       <div id ="statusMessage"></div>
-        <form method="post" id="edit-variant-frm-{{product.id}}" product_id="{{product.id}}" onsubmit="reactClick(event, this);">
+        <form method="post" id="edit-variant-frm-{{product.id}}" product_id="{{product.id}}" onsubmit="event.preventDefault(); reactClick(event, this);">
           <table>
             <thead>
               <tr>
@@ -21,6 +102,7 @@
                   <th class="text-center">{%comment%}{{ option_name }}{%endcomment%}Element</th>
                   <th class="text-center">Default</th>
                   <th class="text-center">Price</th>
+                  {% comment %}<th class="text-center">Action</th>{% endcomment %}
               </tr>
             </thead>
             <tbody>
@@ -62,11 +144,21 @@
                   {% assign variant_price_value = region_var_price %}
                 {% endif %}
                 <tr>
-                  <td><input type="checkbox" variant="#variant_{{variant.id}}" {% if variant_price_value != '0.00' %}checked title="Uncheck to disable this variant."{% else %}title="Check to enable this variant."{% endif %} onchange="toggleFunc(this.getAttribute('variant'), this);"></td>
+                  <td><input type="checkbox" variant="#variant_{{variant.id}}" {% if variant_price_value != '0.00' %}checked title="Uncheck to disable this variant."{% else %}title="Check to enable this variant."{% endif %} default-value="{{ variant_price_value }}" onchange="toggleFunc(this.getAttribute('variant'), this);"></td>
                   <td>{{ variant.title | split: " / " | first }}</td>
-                  <td>${{ variant.price | money_without_currency }}</td>
-                  <td><input id="variant_{{variant.id}}" class="text-right w3-margin-0 edit-input" type="text" required {% if variant_price_value != '0.00' %}title="Enter Non-zero price for enabled variant." pattern="^(?!0*(\.0+)?$)(\d+|\d*\.\d{1,2})$" patterns="^(\d+((\.)\d{1,2})?)([^0]((\.)[^0]{1,2})?)$"{% else %}readonly{% endif %} placeholder="Enter Custom price" name="region_variant_id[{{variant_id_for_name}}]" value="{{ variant_price_value  }}" style="{% assign def_price = variant.price | money_without_currency %}{% unless variant_price_value == def_price or variant_price_value == '0.00' %}background:#81d4fa;{% endunless %}" onchange="contentChanged({{ product.id }});" ></td> <script>console.log('{{ variant_price_value }},{{region_var_price}}');</script>
+                  <td class="text-right">${{ variant.price | money_without_currency }}</td>
+                  <td><input id="variant_{{variant.id}}" class="text-right w3-margin-0 edit-input" type="text" required {% if variant_price_value != '0.00' %}title="Enter Non-zero price for enabled variant." pattern="^(?!0*(\.0+)?$)(\d+|\d*\.\d{1,2})$" patterns="^(\d+((\.)\d{1,2})?)([^0]((\.)[^0]{1,2})?)$"{% else %}readonly{% endif %} placeholder="Enter Custom price" name="region_variant_id[{{variant_id_for_name}}]" value="{{ variant_price_value }}" data-value="{{ variant_price_value }}" style="{% assign def_price = variant.price | money_without_currency %}{% unless variant_price_value == def_price or variant_price_value == '0.00' %}background:#81d4fa;{% endunless %}" data-default="{{ def_price }}" onchange="contentChanged({{ product.id }});" ></td> 
+                  {% comment %}<script>console.log('{{ variant_price_value }},{{region_var_price}}');</script>{% endcomment %}
                   <input type="hidden" name="variant_id[{{variant.id}}]" value="{{region_var_id }}" />
+                  {%- comment -%}
+                  <td class="text-center">
+                    {% if region_var_id %}
+                      <button type="button" class="btn btn--small" onclick="$(this).find('i').toggleClass('fa-times fa-undo').parents('tr').toggleClass('w3-red'); "><i class="fa fa-times"></i></button>
+                    {% else %}
+                      
+                    {% endif %}
+                  </td>
+                  {%- endcomment -%}
                 </tr>
 
 
@@ -81,9 +173,16 @@
           {% unless count %}
             <div class="note text-center"> <h3>No variant available for this product.</h3> </div>
           {% endunless %}
-
-          <input type="submit" handler="{{ product.handle }}"  class="btn open-popup" value="Save" id="edit-variant-submit-{{product.id}}" disabled />
-          <button type="button" class="btn" onclick="document.getElementsByClassName('mfp-close')[0].click();">Back</button>
+          
+          <div class="text-left">
+            <button type="button" class="btn" onclick="document.getElementsByClassName('mfp-close')[0].click();">Back</button>
+            {% unless product.type == 'PTT' %}
+              {% if product.tags contains uploaded_by_me or anonymous == true %}
+                <button type="button" class="btn add_element_btn" onclick="addElement({{ product.id }}, '{{ product.type }}', '{{ product.variants | map: 'option1' | uniq | sort | join: ',' }}', {{ 16 | minus: product.variants.size }});">Add Element</button>
+              {% endif %}
+            {% endunless %}
+            <input type="submit" handler="{{ product.handle }}"  class="btn open-popup w3-right" value="Save" id="edit-variant-submit-{{product.id}}" disabled />
+          </div>
       </form>
     </span>
   </div>
@@ -91,14 +190,45 @@
 <script type="text/javascript">
   var cemail = "{{ customer.email }}"
 
-  function reactClick(obj){
-	    //alert('you clicked "'+$(obj).prop('id')+'" of form "'+$(obj).parent().prop('id')+'"');
-    data = $("#"+$(obj).parent().prop('id')).serializeArray();
-    $.ajax({type: "POST",
-            url: "/print_app/product_price/create_option",
-            data: { variant_info: data, product_id: "8335550097" },
-            //success:function(result){
-            //$("#sharelink").html(result);
-            //}
-           });  }
+  // function reactClick(obj){
+	 //    //alert('you clicked "'+$(obj).prop('id')+'" of form "'+$(obj).parent().prop('id')+'"');
+  //   data = $("#"+$(obj).parent().prop('id')).serializeArray();
+  //   $.ajax({type: "POST",
+  //           url: "/print_app/product_price/create_option",
+  //           data: { variant_info: data, product_id: "8335550097" },
+  //           //success:function(result){
+  //           //$("#sharelink").html(result);
+  //           //}
+  //          });  }
  </script>
+ <style>
+    .image-wrapper{
+      position: relative;
+      padding-top: 100%;
+    }
+    .image-wrapper > img{
+      width: calc(100% - 5px);
+      margin: 0 auto;
+      height: auto;
+      border: 1px #ccc solid;
+      line-height: 50%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    .change-btn{
+      opacity: 0;
+      position: absolute;
+      transform: translate(-50%, -50%);
+      top: 50%;
+      transition: opacity 0.1s ease-in;
+    }
+    .image-wrapper:hover > img{
+      opacity: 0.5;
+    }
+    .image-wrapper:hover .change-btn{
+      opacity: 1;
+    }
+ </style>

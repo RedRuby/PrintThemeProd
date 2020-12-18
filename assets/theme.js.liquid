@@ -661,6 +661,12 @@ theme.Product = (function() {
 
       if (variant) {
 
+      	if(Boolean(variant.sku)) {
+  		  $(".sku_container").show().find(".sku_value").text(variant.sku);
+        }else{
+          $(".sku_container").hide();	
+	    }
+
         // Update variant image, if one is set
         if (variant.featured_image) {
           var newImg = variant.featured_image,

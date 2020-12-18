@@ -30,7 +30,7 @@
       	{{ "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css" | stylesheet_tag }}
 		{{ "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css" | stylesheet_tag }}
 		{{ "https://www.w3schools.com/w3css/4/w3.css" | stylesheet_tag }}
-		{{ "https://daneden.github.io/animate.css/animate.min.css" | stylesheet_tag }}
+		{{ "https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css" | stylesheet_tag }}
 <!-- 		{{ "https://docs.handsontable.com/pro/1.7.0/bower_components/handsontable-pro/dist/handsontable.full.min.css" | stylesheet_tag }} -->
 <!--       	{{ "//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" | stylesheet_tag }} -->
 <!-- 		{{ 'custom-style.css' | asset_url | stylesheet_tag }} -->
@@ -171,11 +171,19 @@
                         </select>
 
                         <div class="row w3-margin-top w3-row-padding">
-							<div class="w3-half">
-								<label for="">Expiration Date</label>
+            							<div class="w3-half">
+            								<label for="#expired_date">Expiration Date</label>
 		                        <input type="text" class="form-control datepicker" placeholder="Select Expiration Date" name="" required="" id="expired_date" onchange="$('#tagSave').prop('disabled', !Boolean($(this).val())); $(this).css('outline','none');" />
-							</div>
-						</div>
+            							</div>
+                          <div class="w3-half">
+                            <label for="#brand_visibility">Brand Visibility</label>
+                            <select id="brand_visibility" class="form-control" onchange="$('#tagSave').prop('disabled', !Boolean($(this).val())); $(this).css('outline','none');">
+                              <option value="">Select</option>
+                              <option value="Visibility:true">Visible</option>
+                              <option value="Visibility:false">Not Visible</option>
+                            </select>
+                          </div>
+            						</div>
                       </div>
                     </div>
                 </div>
@@ -1229,7 +1237,12 @@
                           if(selectedTags == null)selectedTags = ""
                           selectedTags = (selectedTags.length > 0) ? selectedTags.split(',') : []; console.log('selectedTags:',selectedTags);
 
-                  		  $("#expired_date").val('');
+                    		  $("#expired_date").val('');
+
+                          if(["Pepsi", "MountainDew", "Gatorade"].indexOf(vendorTag) != -1){
+                            $("#brand_visibility").val('');                            
+                          }else
+                            $("#brand_visibility").val('Visibility:true');
 
                           $('#multiselectTag, #multiselectTag_to').html('');
                           function updateTags(tagList){
@@ -1259,7 +1272,9 @@
                           if(selectedTags.length > 0 && selectedTags[0] != ""){
                             selectedTags.forEach(function(tag, index){
                               if(tag.indexOf('ExpireAt:') != -1){
-                          		$("#expired_date").val(tag);
+                          		  $("#expired_date").val(tag);
+                              }else if(tag.indexOf('Visibility:') != -1){
+                                $("#brand_visibility").val(tag);
                               }else if(newTagList.indexOf(tag) == -1){//console.log('currTags:',tag);
                                 var tag_regions = '', pre = '', post = '';
                                 if(o[tag]){
@@ -1350,11 +1365,15 @@
                           		show_message4("Expiration Date Required !!", false, false);
                           		$("#expired_date").focus().css('outline','2px red solid');
                           		return false;
-                          	}
+                          	}else if(!Boolean($("#brand_visibility").val())){
+                              show_message4("Brand Visibility Input Required !!", false, false);
+                              $("#brand_visibility").focus().css('outline','2px red solid');
+                              return false;
+                            }
                             selectedTags = $.unique($('#multiselectTag_to option').map( function() { return this.getAttribute('value'); }).get()).join(",");
                             txt = (selectedTags == '') ? '' : ',';
 //                             templ = ((instance.getDataAtCell(row, instance.propToCol('type'))).indexOf("No") != -1) ? "NoCustomization," : "";
-                            selectedTags += txt + newTagList.concat([$("#expired_date").val()]).join(","); //+ vendorTag + ","
+                            selectedTags += txt + newTagList.concat([$("#expired_date").val(), $("#brand_visibility").val()]).join(","); //+ vendorTag + ","
                             selectedTags = $.unique(selectedTags.split(",")).join(",");
                             instance.setDataAtCell(row, col+1, selectedTags); 
                             $(this).prop('disabled', 'disabled');
@@ -1773,6 +1792,8 @@
 						  $('#error-log').append('<p style="cursor:pointer;" onclick="$.when(hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'add_price\')).done(simulateMouseClick($(\'.current.highlight a\')[0]));" title="Click to Go to here.">- Row '+(row+1)+': Default Element Price Can Not be Zero. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
                       	if(tags.indexOf('ExpireAt:') == -1)
                           $('#error-log').append('<p style="cursor:pointer;" onclick="$.when(hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'add_tags\')).done(simulateMouseClick($(\'.current.highlight a\')[0]));" title="Click to Go to here.">- Row '+(row+1)+': Product Expiry date Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>'); 
+                        if(tags.indexOf('Visibility:') == -1)
+                          $('#error-log').append('<p style="cursor:pointer;" onclick="$.when(hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'add_tags\')).done(simulateMouseClick($(\'.current.highlight a\')[0])); $(\'#tagSave\').prop(\'disabled\', false);" title="Click to Go to here.">- Row '+(row+1)+': Product Visibility Missing. <i class="fa fa-external-link-square w3-text-grey"></i></p>'); 
                         if(imgs.length == 0)
                           $('#error-log').append('<p style="cursor:pointer;" onclick="$.when(hot.selectCell{% comment %}ByProp{% endcomment %}('+row+', \'add_images\')).done(simulateMouseClick($(\'.current.highlight a\')[0]));" title="Click to Go to here.">- Row '+(row+1)+': Atleast one product image required. <i class="fa fa-external-link-square w3-text-grey"></i></p>');
                   		if(type == "PTT" && option1_value == "Window Mesh" && (parseFloat(prices) <= 0 || parseFloat(prices) > 1 ))

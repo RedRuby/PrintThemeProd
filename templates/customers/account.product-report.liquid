@@ -1,0 +1,308 @@
+{% include 'customer-account-common-code' with 'theme-layout-code' %}
+
+{% layout none %}
+
+{% if customer and customer_role_tag == Role_ASM or customer_role_tag == Role_Admin %} {% else %}
+  <meta content="0; url=/account" http-equiv="refresh" />
+  {% continue %}
+  {% break %}
+{% endif %}
+
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]><html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if IE 9 ]><html class="ie9 no-js"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+
+  <!-- Basic page needs ================================================== -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  {% if settings.favicon %}
+    {% if fs_shop_active %}
+      {% assign settings_favicon = settings.favicon_mod %}
+    {% else %}
+      {% assign settings_favicon = settings.favicon %}
+    {% endif %}
+    <link rel="shortcut icon" href="{{ settings_favicon | img_url: '32x32' }}" type="image/png" />
+  {% endif %}
+
+  <!-- Title and description ================================================== -->
+  <title>
+    Dashboard
+  </title>
+
+{{ '//ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js' | script_tag }}
+
+<script type="text/java script">
+ var $= jquery.noConflict();
+</script>
+
+<style>
+  body{overflow-Y:auto; margin: 0;}
+  .page-width{max-width:auto;}
+  .main-content{margin-top:0px;margin-bottom:10px;}
+  .mfp-wrap {overflow: hidden !important;}
+  .mfp-bg {background: rgba(0,0,0,0.5) !important;}
+</style>
+  
+</head>
+<body>
+
+<center id="loader" style="height: 99vh;display: flex;align-items: center; justify-content: center; position: fixed; width: 100%;"> <img src="https://cdn.shopify.com/s/files/1/1634/5803/files/ezgif-2-d4611ba3b8.gif?9462985359619422407" style="width: 150px"> </center>
+
+<iframe id="my_iframe" name="my_iframe" src="/apps/pepsi-print/collection_response/quarter_product_dashboard?cid={{customer.id}}&cregion={{customer_region_tag}}&cemail={{customer.email}}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}" frameborder="0" scrolling="no" allowtransparency="true" style="position: static; left: 0px; right: 0px; width: 100%;  height: 0px; border: none; margin:;" onload="resizeIframe(this)">
+    Your browser doesn't support iframes
+</iframe>
+
+<script language="javascript" type="text/javascript">
+
+  appFrameHeight = '';
+
+  scrollTop = "";
+
+  iframeObj = document.getElementById('my_iframe');
+
+  iframeWin = getIframeWindow(iframeObj);
+
+  iframeWinDoc = iframeWin.document;
+  
+  first_load = true;
+  
+  $(window).scroll(function() {
+    appFrameHeight = iframeWinDoc.body.scrollHeight+170+ 'px';
+    iframeObj.style.height = appFrameHeight;
+  });
+  
+  $(window).resize(function() {
+    grid = $(iframeWinDoc).find('.row-height');
+    if(grid.length)
+      if(hasScroll($(iframeWinDoc).find('#price-list')[0], 'horizontal'))
+        $(iframeWinDoc).find('#datatable-wrapper').css('margin-bottom', (getScrollbarWidth()+15)+'px');
+  });
+
+  function getIframeWindow(iframe_object) {
+    var doc;
+
+    if (iframe_object.contentWindow) {
+      return iframe_object.contentWindow;
+    }
+
+    if (iframe_object.window) {
+      return iframe_object.window;
+    } 
+
+    if (!doc && iframe_object.contentDocument) {
+      doc = iframe_object.contentDocument;
+    } 
+
+    if (!doc && iframe_object.document) {
+      doc = iframe_object.document;
+    }
+
+    if (doc && doc.defaultView) {
+     return doc.defaultView;
+    }
+
+    if (doc && doc.parentWindow) {
+      return doc.parentWindow;
+    }
+
+    return undefined;
+  }
+  
+  function hasScroll(el, direction) {
+    direction = (direction === 'vertical') ? 'scrollTop' : 'scrollLeft';
+    var result = !! el[direction];
+
+    if (!result) {
+        el[direction] = 1;
+        result = !!el[direction];
+        el[direction] = 0;
+    }
+    return result;
+  }
+  
+  function getScrollbarWidth() { 
+    var div = $('<div style="width:50px;height:50px;overflow:hidden;position:absolute;top:-200px;left:-200px;"><div style="height:100px;"></div>'); 
+    $(iframeWinDoc).find('body').append(div); 
+    var w1 = $('div', div).innerWidth(); 
+    div.css('overflow-y', 'scroll'); 
+    var w2 = $('div', div).innerWidth(); 
+    $(div).remove(); 
+    return (w1 - w2); 
+  }
+
+  function resizeIframe(objr) {//defreez();
+    iframeWinDoc = getIframeWindow(objr).document;
+    $(window).scrollTop(0);
+    if(iframeWinDoc.getElementsByClassName('blockUI').length > 0){
+      $("#loader").removeClass('hide');console.log('yes');
+      objr.style.height = '0px';
+    }else{
+    $("#loader").addClass('hide').fadeOut();
+    appFrameHeight = iframeWinDoc.body.scrollHeight+170+ 'px';
+    objr.style.height = '99vh';
+    }
+    //updateCart();
+    
+    if(first_load){
+      $(iframeWinDoc).find('body a').attr("target", "_parent");
+      first_load = false;
+    }
+    
+  	iframeWin.onbeforeunload = function() {
+      freez();
+    };
+  }
+                                            
+
+
+//   setInterval(function(){
+//     fobj = obj.contentWindow.document.getElementById('fancybox-wrap');
+//     if(fobj != null){
+//       if(fobj.style.display == 'block') {compress(obj);}
+//       else resizeIframe(obj);
+//     }
+//   }, 3000);
+
+  $(document).ready(function(){
+    $('#MainContent .page-width').removeClass('page-width');
+//     $('.grid div').last().prop('id','vertical-ali');
+
+    var version = detectIE();
+    console.log("browser = "+version);
+    if (version) {
+//       document.getElementById('price-list').style.position = 'absolute';
+        console.log("browser = "+version);
+    }
+
+  });
+
+  function compress(objc){
+    objc.style.height = '800px';
+    objc.contentWindow.document.getElementById('fancybox-content').style.height = '600px';
+  }
+
+  function readyFancy(){
+      $("a#sample").trigger("click");
+  }
+  function callMe(site){
+//       $("#sample").fancybox({
+//           'margin'             : 10,
+//           'padding'            : 10,
+//           'width'        : '90%',
+//           'height'     : '90%',
+//           'transitionIn'   : 'none',
+//           'transitionOut'    : 'none',
+//           'type'       : 'iframe',
+//           'href'       : '{{shop.secure_url}}'+site+'',
+//           'autoScale'       : true,
+//           'onStart'      : function(){$("body").css({'overflow':'hidden'});},
+//           'onClosed'     : function(){$("body").css({"overflow":"visible"});},
+//           'onComplete' : function(){
+//                                         jQuery.fancybox.showActivity();
+//                                         jQuery('#fancybox-frame').load(function(){
+//                                             jQuery.fancybox.hideActivity();
+//                                         });
+
+//                                   }
+//       });
+  $("#sample").prop('href', '{{shop.secure_url}}'+site+'');
+    readyFancy();
+  }
+
+  function fancyOn(){
+     scrollTop = $(window).scrollTop();
+     iframeWin.style.height = window.innerHeight+"px";
+     $(window).scrollTop(135);
+  }
+
+  function fancyOff(){
+     iframeWin.style.height = appFrameHeight;
+     $(window).scrollTop(scrollTop);
+  }
+
+  function openPage(page){
+    var $id = "";
+    if(page == 1){
+      $id = document.getElementById('link-sales');
+      $id.setAttribute("target", "_blank");
+      $id.click();
+    }
+    else if(page == 2){
+      $id = document.getElementById('link-food-service');
+      $id.setAttribute("target", "_blank");
+      $id.click();
+    }
+    else if(page == 3){
+      $id = document.getElementById('link-all-other');
+      $id.setAttribute("target", "_blank");
+      $id.click();
+    }
+  }
+
+  function getValue(){
+    iframeWin.postMessage({call:'sendValue', value: '{{ settings.color_secondary }}' }, '*');
+  }
+
+  console.log('{{customer.id}}');
+
+  function hideHeaderFooter(){
+//     $('header, footer').addClass('hide');
+    parent.location.assign('{{shop.secure_url}}/account/login');
+  }
+
+  function updateCart(){
+      $.getJSON(_config.shopifyAjaxCartURL, function(cart) {
+
+          if (_config.cartCountSelector && $(_config.cartCountSelector).size()) {
+            var value = $(_config.cartCountSelector).html() || '0';
+            $(_config.cartCountSelector).html(value.replace(/[0-9]+/,cart.item_count)).removeClass('hidden-count');
+          }
+          if (_config.cartTotalSelector && $(_config.cartTotalSelector).size()) {
+            if (typeof Currency !== 'undefined' && typeof Currency.moneyFormats !== 'undefined') {
+              var newCurrency = '';
+              if ($('[name="currencies"]').size()) {
+                newCurrency = $('[name="currencies"]').val();
+              }
+              else if ($('#currencies span.selected').size()) {
+                newCurrency = $('#currencies span.selected').attr('data-currency');
+              }
+              if (newCurrency) {
+                $(_config.cartTotalSelector).html('<span class=money>' + Shopify.formatMoney(Currency.convert(cart.total_price, "{{ shop.currency }}", newCurrency), Currency.money_format[newCurrency]) + '</span>');
+              }
+              else {
+                $(_config.cartTotalSelector).html(Shopify.formatMoney(cart.total_price, "{{ shop.money_format | remove: "'" | remove: '"' }}"));
+              }
+            }
+            else {
+              $(_config.cartTotalSelector).html(Shopify.formatMoney(cart.total_price, "{{ shop.money_format | remove: "'" | remove: '"' }}"));
+            }
+          };
+        });
+  }
+
+  
+    function detectIE() {
+      var ua = window.navigator.userAgent;
+
+      var msie = ua.indexOf('MSIE ');
+      if (msie > 0) {
+        return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+      }
+
+      var trident = ua.indexOf('Trident/');
+      if (trident > 0) {
+        var rv = ua.indexOf('rv:');
+        return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+      }
+      return false;
+    }
+
+</script>
+  
+</body>
+</html>

@@ -189,7 +189,7 @@
               <small>{{ section.settings.header_text }}</small>
             </p>
           {% endif %}
-          {% if customer and customer_region_tag and customer_role_tag == Role_ASM or customer_role_tag == Role_User %}
+          {% if customer and customer_region_tag and customer_role_tag == Role_ASM or customer_role_tag == Role_User or customer_role_tag == Role_Manager %}
           <div class="post-large--right">
             {% include 'search-bar' with 'header-retail' %}
           </div>

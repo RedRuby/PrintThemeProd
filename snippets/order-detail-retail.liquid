@@ -34,7 +34,16 @@
           <h2 class="h3 order_name_h2" style="display:inline-block;"><b>Order #{% raw %}{{ order_name }}{% endraw %}</b></h2><p class="printModeExclude" style="display:inline-block;">, <b class="printModeExclude">Placed on :</b> {% raw %}{{ order_date }}{% endraw %}<span class="printModeInclude fulfillment_block2 hide" style="text-transform:capitalize;">, </span></p>
         </div>
          <div class="grid__item  one-half small--one-whole text-right">
-
+          <span class="order_status" status="{% raw %}{{order_status}}{% endraw %}">{% raw %}{{order_status}}{% endraw %}</span>
+          <span class="order_sub_status_wrapper" status="{% raw %}{{order_status}}{% endraw %}">
+            <span class="order_sub_status">{% raw %}{{ fulfillment_status }}{% endraw %}</span>/
+            {%- if customer_role_tag == Role_ASM or customer_role_tag == Role_Printer -%}
+              {% include 'customer-account-common-code' with 'change-order-substatus-method' %}
+              {%- include 'customer-account-common-code' with 'sub-status-option-code' -%}
+            {%- else -%}
+              {% raw %}{{ sub_status }}{% endraw %}
+            {%- endif -%}
+          </span>
         </div>
       </div>
 
@@ -608,6 +617,16 @@
                       }
                     }
 
+                    if('fulfilled' != data.order.fulfillment_status){
+                      if(["In Production", "Printed – In Processing"].indexOf(data.order.sub_status) != -1){
+                        //$('#assign-printer').prop('disabled','disabled').css('cursor','not-allowed').prop('title','Can\'t edit "In Production" Order.');
+                        //$('#asm_orderCancel').hide();
+                      }else{
+                        $('#assign-printer').removeAttr('disabled').css('cursor','pointer').prop('title','');
+                        $('#asm_orderEdit, #asm_orderCancel').show();
+                      }
+                    }
+
                   });
 
           {% elsif customer.tags contains Role_Printer %}
@@ -625,6 +644,21 @@
                     $('#shipping_details, #update-fulfillment').hide();
 //                     $('#fulfillment').prop('disabled','disabled').css('cursor','not-allowed');
                   }
+
+                  if('fulfilled' != order_data.order.fulfillment_status){
+                    if(["In Production", "Printed – In Processing"].indexOf(order_data.order.sub_status) != -1){
+                      $('select[sub_status] option').prop('disabled', false).not('[value="In Production"], [value="Printed – In Processing"]').prop('disabled', true);
+                    }else{
+                      $('select[sub_status] option').prop('disabled', false).filter('[value="Printer unassigned"], [value="Printer assigned"]').prop('disabled', true);
+                    }
+                  }
+          {% endif %}
+
+          {% if customer_role_tag == Role_ASM or customer_role_tag == Role_Printer %}
+            if(data.order.sub_status)
+              $('select[sub_status]').val(data.order.sub_status).prop('title', data.order.sub_status);
+            if(!Boolean(order_data.order.printer_id) || Boolean(order_data.order.cancelled_at) || order_data.order.fulfillment_status == "fulfilled")
+              $('select[sub_status]').prop('disabled', true);
           {% endif %}
 
           mfpInit();
@@ -673,6 +707,18 @@
               $('#asm_orderEdit, #asm_orderCancel').show();
             }
           }
+
+          if('fulfilled' != order_data.order.fulfillment_status){
+            if(["In Production", "Printed – In Processing"].indexOf(order_data.order.sub_status) != -1){
+              //$('#assign-printer').prop('disabled',true).css('cursor','not-allowed').prop('title','Can\'t edit "In Production" Order.');
+              //$('#asm_orderCancel').hide();
+              //$('select[sub_status] option').prop('disabled', false).not('[value="In Production"], [value="Printed – In Processing"]').prop('disabled', true);
+            }else{
+              $('#assign-printer').removeAttr('disabled').css('cursor','pointer').prop('title','');
+              $('#asm_orderEdit, #asm_orderCancel').show();
+              $('select[sub_status] option').prop('disabled', false).filter('[value="Printer unassigned"], [value="Printer assigned"]').prop('disabled', true);
+            }
+          }
       });
   }
 
@@ -690,6 +736,7 @@
          if(confirm("Order is already assigned to a Vendor '"+ existingPrinter + confirm_msg_part2) != true){
            $(obj).find('option[select = "selected"]').prop('selected', 'selected');
            confirmed = false;
+           defreez();
          }
       }
       if(confirmed){
@@ -699,7 +746,7 @@
               type: 'POST',
               data: { cemail: "{{ customer.email }}", ctoken: "{{ customer.id  | hmac_sha1: shop.domain }}", order: order_id, printer_id: $this.val(), cregion: '{{ customer_region_tag |replace:'Region:','' |replace:'0','o'}}' },
               dataType: 'json',
-              success: function(){ show_message2( (Boolean($this.val())) ? 'Assigned Successfully.' : "Unassigned Successfully.", true);  changed = true; },
+              success: function(){ fetch_Order(order_id); show_message2( (Boolean($this.val())) ? 'Assigned Successfully.' : "Unassigned Successfully.", true);  changed = true; },
               error: function(){ show_message2('Some Error Occured.',false);}
         });
       }
@@ -852,6 +899,8 @@
     var anchorPost = '';
     var nullCount = 0;
     var myArray = data.order.line_items;  //console.log(JSON.stringify(myArray));
+    data.order["order_status"] = (data.order["cancelled_at"].length > 0) ? "cancelled" : data.order["fulfillment_status"] ;
+    data.order["sub_status"] = data.order["sub_status"].replace('In Queue – ', '');
     for (i = 0; i < myArray.length; i++) {
       str = myArray[i]["title"].replace().replace(' / Default','').replace(' / {{ customer_region_tag }}','');
       myArray[i]["title"] = {% unless customer.tags contains  %}{% endunless %}'<a href="/collections/{{ collection_handle }}/products/'+myArray[i]["handle"]+"?variant?="+myArray[i]["variant_id"]+'">' + str + {% unless customer.tags contains  %}'</a>'{% endunless %};

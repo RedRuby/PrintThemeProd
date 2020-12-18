@@ -224,6 +224,74 @@
 
 {% assign defaultPrice_arr = defaultPrice_arr |append:"}" |replace:",}","}" %}
 
+<!-- Element Default Template -->
+{% assign defaultTemplate_arr = "{" %}
+{% if linklists.mod-generic-elements.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.mod-generic-elements.links %}
+    {% if forloop.last and false %}{% assign comma = '' %}{% endif %}
+    {% assign link_title = link.title  | replace: '"', '\"' %}
+    {% assign split_arr = link.url |split:'/' %}
+    {% if split_arr.size > 2 %}
+      {% assign template_id = split_arr[1] %}
+    {% else %}
+      {% assign template_id = blank %}
+    {% endif %}
+    {% assign item_arr = '"' |append:link_title |append:'":"' |append:template_id |append:'"' |append:comma %}
+    {% assign defaultTemplate_arr = defaultTemplate_arr |append:item_arr %}
+  {% endfor %}
+{% endif %}
+
+{% if linklists.mod-multi-offer-elements.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.mod-multi-offer-elements.links %}
+    {% if forloop.last and false %}{% assign comma = '' %}{% endif %}
+    {% assign link_title = link.title  | replace: '"', '\"' %}
+    {% assign split_arr = link.url |split:'/' %}
+    {% if split_arr.size > 2 %}
+      {% assign template_id = split_arr[1] %}
+    {% else %}
+      {% assign template_id = blank %}
+    {% endif %}
+    {% assign item_arr = '"' |append:link_title |append:'":"' |append:template_id |append:'"' |append:comma %}
+    {% assign defaultTemplate_arr = defaultTemplate_arr |append:item_arr %}
+  {% endfor %}
+{% endif %}
+
+{% if linklists.mod-flavor-shots-dt-elements.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.mod-flavor-shots-dt-elements.links %}
+    {% if forloop.last and false %}{% assign comma = '' %}{% endif %}
+    {% assign link_title = link.title  | replace: '"', '\"' %}
+    {% assign split_arr = link.url |split:'/' %}
+    {% if split_arr.size > 2 %}
+      {% assign template_id = split_arr[1] %}
+    {% else %}
+      {% assign template_id = blank %}
+    {% endif %}
+    {% assign item_arr = '"' |append:link_title |append:'":"' |append:template_id |append:'"' |append:comma %}
+    {% assign defaultTemplate_arr = defaultTemplate_arr |append:item_arr %}
+  {% endfor %}
+{% endif %}
+
+{% if linklists.mod-frequency-elements.links.size > 0 %}
+  {% assign comma = ',' %}
+  {% for link in linklists.mod-frequency-elements.links %}
+    {% if forloop.last %}{% assign comma = '' %}{% endif %}
+    {% assign link_title = link.title  | replace: '"', '\"' %}
+    {% assign split_arr = link.url |split:'/' %}
+    {% if split_arr.size > 2 %}
+      {% assign template_id = split_arr[1] %}
+    {% else %}
+      {% assign template_id = blank %}
+    {% endif %}
+    {% assign item_arr = '"' |append:link_title |append:'":"' |append:template_id |append:'"' |append:comma %}
+    {% assign defaultTemplate_arr = defaultTemplate_arr |append:item_arr %}
+  {% endfor %}
+{% endif %}
+
+{% assign defaultTemplate_arr = defaultTemplate_arr |append:"}" |replace:",}","}" %}
+
 <!-- Templates -->
 {% assign template_arr = "{" %}
 {% if linklists.mod-templates.links.size > 0 %}
@@ -274,6 +342,9 @@
 <script  type="text/javascript">
   
   var defaultPriceList = JSON.stringify({{ defaultPrice_arr }});
+
+  {%- assign curly_sep = '},{' -%}
+  var defaultTemplateList = JSON.parse(JSON.stringify([{{ defaultTemplate_arr | replace: ',', curly_sep }}]));
 
   var template_arr = '{{ template_arr }}';
   

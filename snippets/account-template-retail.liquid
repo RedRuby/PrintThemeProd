@@ -130,6 +130,7 @@
        - <a href="https://print-reports.s3.amazonaws.com/PPS_Dashboard_All.xlsm">Dynamic Report (2019)</a><br>
        <!--        - <a {% comment %}style="pointer-events: none;" class="w3-text-grey"{% endcomment %} href="https://print-reports.s3.amazonaws.com/ASM_KPI_Summary_v5.xlsm">ASM KPI Summary Report (2019)</a><br> -->
        - <a href="https://print-reports.s3.amazonaws.com/Quarterly Division Reports_V2.xlsx">Quarterly Division Reports</a><br>
+       - <a class="aged" target="_blank" href="/apps/pepsi-print/collection_response/quarter_product_dashboard?cid={{customer.id}}&cregion={{customer_region_tag}}&cemail={{customer.email}}&ctoken={{ customer.id  | hmac_sha1: shop.domain }}" hrefs="/account?view=product-report">Quarterly Product Reports (Web View)</a><br>
       {% endif %}
     </div>
     <br>

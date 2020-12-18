@@ -598,6 +598,11 @@ td.td-table-wrapper{ vertical-align: initial !important; padding: 0; position: r
 
 #id02 > tbody > tr:nth-child(1) > td:nth-child(1) > div{ height: 100%; }
 
+/*#OrderEditModal form[sub_status="In Production"] input[name^="order_qty["], #OrderEditModal form[sub_status="Printed – In Processing"] input[name^="order_qty["]{
+  border: none;
+  pointer-events: none;
+}*/
+
 .td-table-wrapper table{ height: inherit; }
 .td-table-wrapper td{ border: none; width: auto !important; min-width: auto !important; }
 .td-table-wrapper h4{ margin: 0; }
@@ -812,4 +817,20 @@ img[alt="Foodservice Logos"], img[src*="Foodservice_logo"]{
   z-index: 101 !important;
   right: 125px;
   top: 56px;
+}
+
+.order_status[status], .order_sub_status){
+  text-transform: capitalize;
+}
+
+.order_status[status="unfulfilled"]{
+  display: none;
+}
+
+.order_sub_status_wrapper:not([status="unfulfilled"]){
+  display: none;
+}
+
+select[sub_status] option[disabled]{
+  background-color: #ccc;
 }

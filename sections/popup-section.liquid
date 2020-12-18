@@ -110,7 +110,7 @@
 
         var parentURL = parent.window.document.location.pathname;
         console.log(parentURL);
-        if( (typeof(Storage) !== "undefined" && sessionStorage.ShowPopup == 1 ) || (parentURL.indexOf("/admin/themes/{{ theme.id }}/editor") != -1 && {{ section.settings.preview_popup }}) ){
+        if( (typeof(Storage) !== "undefined" && sessionStorage.ShowPopup == 1 ) || (parentURL.indexOf("/admin/themes/{{ theme.id }}/editor") != -1 || Shopify.designMode && {{ section.settings.preview_popup }}) ){
           setTimeout( function(){ $('.js-toggle-popup-modal').magnificPopup('open', 0); }, 2500 );
         }
 
@@ -209,7 +209,7 @@
         "name": "Text PopUp",
         "settings": [
           {
-            "type": "textarea",
+            "type": "richtext",
             "id": "popup_text",
             "label": "Text"
           },
